@@ -1,0 +1,20 @@
+const fs = require("fs");
+
+let file = "src/components/CreateSavingsPlanScreen.tsx";
+let content = fs.readFileSync(file, "utf8");
+content = content.replace(/bg-\[\#0f141e\]/g, "bg-background");
+content = content.replace(/bg-\[\#111827\]/g, "bg-background");
+content = content.replace(/bg-\[\#1a1f2c\]/g, "bg-surface");
+content = content.replace(/bg-\[\#1f2937\]/g, "bg-surface-variant");
+content = content.replace(/bg-\[\#2a3041\]/g, "bg-surface-variant");
+content = content.replace(/bg-\[\#374151\]/g, "bg-outline-variant");
+content = content.replace(/border-\[\#374151\]/g, "border-outline-variant");
+content = content.replace(/text-white/g, "text-on-background");
+content = content.replace(/text-\[\#bfdbfe\]/g, "text-primary");
+content = content.replace(/bg-\[\#3b82f6\]/g, "bg-primary");
+content = content.replace(/text-\[\#3b82f6\]/g, "text-primary");
+content = content.replace(/border-\[\#3b82f6\]/g, "border-primary");
+content = content.replace(/hover:bg-\[\#2563eb\]/g, "hover:bg-primary/90");
+content = content.replace(/hover:text-\[\#2563eb\]/g, "hover:text-primary");
+content = content.replace(/bg-primary text-on-background/g, "bg-primary text-on-primary");
+fs.writeFileSync(file, content, "utf8");

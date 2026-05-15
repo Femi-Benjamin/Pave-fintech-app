@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  --color-background: #f8fafc;
+  --color-on-background: #0f141e;
+  
+  --color-surface: #ffffff;
+  --color-on-surface: #0f141e;
+  --color-on-surface-variant: #64748b;
+  --color-surface-variant: #f1f5f9;
+
+  --color-primary: #3b82f6;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #dbeafe;
+  --color-on-primary-container: #1e3a8a;
+  --color-inverse-primary: #bfdbfe;
+  
+  --color-secondary: #64748b;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #f1f5f9;
+  --color-on-secondary-container: #1e293b;
+  
+  --color-tertiary: #10b981;
+  --color-on-tertiary: #ffffff;
+  
+  --color-error: #ef4444;
+  --color-on-error: #ffffff;
+  --color-error-container: #fee2e2;
+  --color-on-error-container: #991b1b;
+  
+  --color-outline: #cbd5e1;
+  --color-outline-variant: #e2e8f0;
+}
+
+.dark {
+  --color-background: #0f141e;
+  --color-on-background: #f8fafc;
+  
+  --color-surface: #1a2235;
+  --color-on-surface: #f8fafc;
+  --color-on-surface-variant: #94a3b8;
+  --color-surface-variant: #1e293b;
+
+  --color-primary: #3b82f6; 
+  --color-on-primary: #ffffff;
+  --color-primary-container: #818cf8; 
+  --color-on-primary-container: #ffffff;
+  --color-inverse-primary: #bfdbfe;
+  
+  --color-secondary: #64748b;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #334155;
+  --color-on-secondary-container: #f8fafc;
+  
+  --color-tertiary: #10b981;
+  --color-on-tertiary: #ffffff;
+  
+  --color-error: #ef4444;
+  --color-on-error: #ffffff;
+  --color-error-container: #7f1d1d;
+  --color-on-error-container: #fca5a5;
+  
+  --color-outline: #334155;
+  --color-outline-variant: #1e293b;
+}
+
+@theme {
+  --color-background: var(--color-background);
+  --color-on-background: var(--color-on-background);
+  --color-surface: var(--color-surface);
+  --color-on-surface: var(--color-on-surface);
+  --color-on-surface-variant: var(--color-on-surface-variant);
+  --color-surface-variant: var(--color-surface-variant);
+  --color-primary: var(--color-primary);
+  --color-on-primary: var(--color-on-primary);
+  --color-primary-container: var(--color-primary-container);
+  --color-on-primary-container: var(--color-on-primary-container);
+  --color-outline: var(--color-outline);
+  --color-outline-variant: var(--color-outline-variant);
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+html, body, * {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
+  display: none;
+}
