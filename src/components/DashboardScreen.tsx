@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Plus, ArrowUp, ArrowLeftRight, CreditCard, ChevronRight, Bell, Users, Landmark, Banknote, ShoppingCart, Smartphone, Phone } from 'lucide-react';
+import Logo from './Logo';
 
 interface DashboardScreenProps {
   onNavigate: (screen: string) => void;
@@ -11,8 +12,8 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
   return (
     <div className="flex flex-col h-full bg-background pb-20">
       {/* Header */}
-      <header className="px-6 py-4 flex justify-between items-center sticky top-0 bg-background/80 backdrop-blur-md z-10">
-        <h1 className="text-2xl font-display font-bold text-primary tracking-wide">PAVE</h1>
+      <header className="px-5 py-4 flex justify-between items-center sticky top-0 bg-background/80 backdrop-blur-md z-10">
+        <Logo size="sm" onClick={() => onNavigate('dashboard')} />
         <div className="flex items-center gap-4">
           <button className="relative text-on-surface-variant hover:text-on-surface transition-colors">
             <Bell size={24} />
@@ -24,14 +25,14 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-6 space-y-8 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto px-5 space-y-10 scrollbar-hide">
         
         {/* Overview Section */}
         <section>
-          <h2 className="text-xl font-bold text-on-surface mb-4">Overview</h2>
-          <div className="bg-surface rounded-[28px] p-6 shadow-sm border border-outline-variant/20">
+          <h2 className="text-headline-md text-on-surface mb-4">Overview</h2>
+          <div className="bg-surface rounded-2xl p-5 shadow-card border border-outline-variant/20">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Available Balance</span>
+              <span className="text-label-caps text-on-surface-variant">Available Balance</span>
               <button 
                 onClick={() => setShowBalance(!showBalance)}
                 className="text-on-surface-variant hover:text-on-surface transition-colors"
@@ -40,31 +41,31 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
               </button>
             </div>
             
-            <h1 className="text-4xl font-display font-bold text-on-surface mb-8 tracking-tight flex items-baseline">
-              <span className="text-3xl mr-1 font-sans">₦</span>
+            <h1 className="text-display-naira text-on-surface mb-8 flex items-baseline">
+              <span className="text-[0.75em] mr-1">₦</span>
               {showBalance ? (
-                <>450,240<span className="text-2xl text-on-surface-variant/70 font-normal">.50</span></>
+                <>450,240<span className="text-[0.75em] text-on-surface-variant/70 font-normal">.50</span></>
               ) : (
                 <>•••••••</>
               )}
             </h1>
             
-            <div className="flex justify-between gap-2">
-              <button onClick={() => onNavigate('deposit')} className="flex-1 bg-primary text-white py-3 rounded-xl font-semibold flex flex-col items-center justify-center gap-1 shadow-md hover:bg-primary/90 transition-colors active:scale-95">
+            <div className="flex justify-between gap-4">
+              <button onClick={() => onNavigate('deposit')} className="flex-1 bg-primary text-on-primary h-[56px] rounded-lg font-semibold flex flex-col items-center justify-center gap-1 hover:bg-primary/90 transition-colors active:scale-95 shadow-sm">
                 <Plus size={18} />
-                <span className="text-xs whitespace-nowrap">Fund wallet</span>
+                <span className="text-xs">Fund</span>
               </button>
-              <button onClick={() => onNavigate('withdraw')} className="flex-1 bg-surface-variant text-on-surface py-3 rounded-xl font-semibold flex flex-col items-center justify-center gap-1 hover:bg-surface-variant/80 transition-colors active:scale-95">
+              <button onClick={() => onNavigate('airtime')} className="hidden md:flex flex-1 bg-surface-variant text-on-surface h-[56px] rounded-lg font-semibold flex-col items-center justify-center gap-1 hover:bg-surface-variant/80 transition-colors active:scale-95">
+                <Phone size={18} />
+                <span className="text-xs">Airtime</span>
+              </button>
+              <button className="flex-1 bg-surface-variant text-on-surface/50 h-[56px] rounded-lg font-semibold flex flex-col items-center justify-center gap-1 opacity-50 cursor-not-allowed">
                 <ArrowUp size={18} />
                 <span className="text-xs">Withdraw</span>
               </button>
-              <button onClick={() => onNavigate('transfer')} className="flex-1 bg-surface-variant text-on-surface py-3 rounded-xl font-semibold flex flex-col items-center justify-center gap-1 hover:bg-surface-variant/80 transition-colors active:scale-95">
+              <button className="flex-1 bg-surface-variant text-on-surface/50 h-[56px] rounded-lg font-semibold flex flex-col items-center justify-center gap-1 opacity-50 cursor-not-allowed">
                 <ArrowLeftRight size={18} />
                 <span className="text-xs">Transfer</span>
-              </button>
-              <button onClick={() => onNavigate('airtime')} className="hidden md:flex flex-1 bg-surface-variant text-on-surface py-3 rounded-xl font-semibold flex-col items-center justify-center gap-1 hover:bg-surface-variant/80 transition-colors active:scale-95">
-                <Phone size={18} />
-                <span className="text-xs">Airtime</span>
               </button>
             </div>
           </div>
@@ -73,55 +74,55 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
         {/* Active Plans Section */}
         <section>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-on-surface">Active Plans</h2>
+            <h2 className="text-headline-md text-on-surface">Active Plans</h2>
             <button className="text-sm font-medium text-primary hover:underline">View All</button>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* Plan 1 */}
-            <div className="bg-surface rounded-3xl p-5 border border-outline-variant/20">
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/20 shadow-card hover:-translate-y-0.5 transition-transform">
               <div className="flex items-center gap-4 mb-5">
                 <div className="w-12 h-12 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant">
                   <Banknote size={24} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-on-surface">Emergency Fund</h3>
+                  <h3 className="font-bold text-on-surface text-body-lg">Emergency Fund</h3>
                   <p className="text-sm text-on-surface-variant">Savings</p>
                 </div>
               </div>
               <div className="flex justify-between items-end mb-2">
-                <span className="font-bold text-lg text-on-surface flex items-baseline">
+                <span className="font-bold text-lg text-on-surface flex items-baseline font-display">
                   <span className="text-sm mr-0.5">₦</span>150,000
                 </span>
                 <span className="text-xs font-medium text-on-surface-variant flex items-baseline">
                   of <span className="text-[10px] ml-1 mr-0.5">₦</span>500,000
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
-                <div className="h-full bg-[#f8fafc] w-[30%] rounded-full"></div>
+              <div className="w-full h-1 bg-surface-variant rounded-full overflow-hidden">
+                <div className="h-full bg-primary w-[30%] rounded-full"></div>
               </div>
             </div>
 
             {/* Plan 2 */}
-            <div className="bg-surface rounded-3xl p-5 border border-outline-variant/20">
+            <div className="bg-surface rounded-2xl p-5 border border-outline-variant/20 shadow-card hover:-translate-y-0.5 transition-transform">
               <div className="flex items-center gap-4 mb-5">
-                <div className="w-12 h-12 rounded-full bg-[#1e3a8a] flex items-center justify-center text-[#93c5fd]">
+                <div className="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary">
                   <Users size={24} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-on-surface">Oluwa Ajo</h3>
+                  <h3 className="font-bold text-on-surface text-body-lg">Oluwa Ajo</h3>
                   <p className="text-sm text-on-surface-variant">Thrift Group</p>
                 </div>
               </div>
               <div className="flex justify-between items-end mb-2">
-                <span className="font-bold text-lg text-on-surface flex items-baseline">
+                <span className="font-bold text-lg text-on-surface flex items-baseline font-display">
                   <span className="text-sm mr-0.5">₦</span>50,000
                 </span>
                 <span className="text-xs font-medium text-on-surface-variant">
                   Next turn: 12 Nov
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+              <div className="w-full h-1 bg-surface-variant rounded-full overflow-hidden">
                 <div className="h-full bg-primary w-[20%] rounded-full"></div>
               </div>
             </div>
@@ -131,11 +132,11 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
         {/* Recent Activity Section */}
         <section className="mb-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-on-surface">Recent Activity</h2>
+            <h2 className="text-headline-md text-on-surface">Recent Activity</h2>
             <button className="text-sm font-medium text-primary hover:underline">View All</button>
           </div>
           
-          <div className="bg-surface rounded-[28px] border border-outline-variant/20 overflow-hidden">
+          <div className="bg-surface rounded-2xl border border-outline-variant/20 shadow-card overflow-hidden">
             {[
               { icon: Landmark, title: 'Bank Deposit', date: 'Today, 10:24 AM', amount: '+₦25,000.00', positive: true, iconBg: 'bg-surface-variant', iconColor: 'text-on-surface-variant' },
               { icon: ShoppingCart, title: 'Jumia Checkout', date: 'Yesterday, 4:15 PM', amount: '-₦12,500.00', positive: false, iconBg: 'bg-surface-variant', iconColor: 'text-on-surface-variant' },
@@ -145,17 +146,17 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
             ].map((txn, idx, arr) => {
               const Icon = txn.icon;
               return (
-                <div key={idx} className={`flex items-center justify-between p-5 ${idx !== arr.length - 1 ? 'border-b border-outline-variant/30' : ''}`}>
+                <div key={idx} className={`flex items-center justify-between p-5 hover:bg-surface-variant/30 transition-colors ${idx !== arr.length - 1 ? 'border-b border-outline-variant/30' : ''}`}>
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${txn.iconBg} ${txn.iconColor}`}>
                       <Icon size={20} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-on-surface">{txn.title}</h4>
-                      <p className="text-sm text-on-surface-variant">{txn.date}</p>
+                      <h4 className="font-bold text-on-surface text-body-sm">{txn.title}</h4>
+                      <p className="text-xs text-on-surface-variant mt-0.5">{txn.date}</p>
                     </div>
                   </div>
-                  <div className={`font-mono text-sm tracking-tight ${txn.positive ? 'text-[#bfdbfe]' : 'text-on-surface'}`}>
+                  <div className={`font-mono text-sm tracking-tight font-semibold ${txn.positive ? 'text-primary' : 'text-on-surface'}`}>
                     {txn.amount}
                   </div>
                 </div>

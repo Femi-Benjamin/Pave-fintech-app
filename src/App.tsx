@@ -13,6 +13,10 @@ import ThriftScreen from './components/ThriftScreen';
 import AddThriftScreen from './components/AddThriftScreen';
 import AirtimeScreen from './components/AirtimeScreen';
 import AirtimeHistoryScreen from './components/AirtimeHistoryScreen';
+import ThriftDetailScreen from './components/ThriftDetailScreen';
+import JoinThriftGroupScreen from './components/JoinThriftGroupScreen';
+import AllThriftGroupsScreen from './components/AllThriftGroupsScreen';
+import AllSavingsGoalsScreen from './components/AllSavingsGoalsScreen';
 import DepositScreen from './components/DepositScreen';
 import WithdrawScreen from './components/WithdrawScreen';
 import NotificationScreen from './components/NotificationScreen';
@@ -34,7 +38,10 @@ function App() {
   }, []);
 
   const renderScreen = () => {
-    switch (currentScreen) {
+    const baseScreen = currentScreen.split(':')[0];
+    const screenParam = currentScreen.split(':')[1];
+
+    switch (baseScreen) {
       case 'splash':
         return <SplashScreen onFinish={() => setCurrentScreen('onboarding')} />;
       case 'onboarding':
@@ -54,25 +61,33 @@ function App() {
       case 'create_savings':
       case 'thrift':
       case 'add_thrift':
+      case 'join_thrift':
+      case 'all_thrifts':
+      case 'all_savings':
       case 'airtime':
       case 'airtime_history':
+      case 'thrift_detail':
       case 'deposit':
       case 'withdraw':
       case 'notifications':
       case 'profile':
         return (
-          <MainLayout activeScreen={currentScreen} onNavigate={setCurrentScreen}>
-            {currentScreen === 'dashboard' && <DashboardScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'savings_hub' && <SavingsHubScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'create_savings' && <CreateSavingsPlanScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'thrift' && <ThriftScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'add_thrift' && <AddThriftScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'airtime' && <AirtimeScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'airtime_history' && <AirtimeHistoryScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'deposit' && <DepositScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'withdraw' && <WithdrawScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'notifications' && <NotificationScreen onNavigate={setCurrentScreen} />}
-            {currentScreen === 'profile' && <ProfileScreen onNavigate={setCurrentScreen} />}
+          <MainLayout activeScreen={baseScreen} onNavigate={setCurrentScreen}>
+            {baseScreen === 'dashboard' && <DashboardScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'savings_hub' && <SavingsHubScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'create_savings' && <CreateSavingsPlanScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'thrift' && <ThriftScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'add_thrift' && <AddThriftScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'join_thrift' && <JoinThriftGroupScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'all_thrifts' && <AllThriftGroupsScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'all_savings' && <AllSavingsGoalsScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'airtime' && <AirtimeScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'airtime_history' && <AirtimeHistoryScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'thrift_detail' && <ThriftDetailScreen onNavigate={setCurrentScreen} groupId={screenParam || 'q3_tech'} />}
+            {baseScreen === 'deposit' && <DepositScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'withdraw' && <WithdrawScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'notifications' && <NotificationScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'profile' && <ProfileScreen onNavigate={setCurrentScreen} />}
           </MainLayout>
         );
       
