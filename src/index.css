@@ -59,36 +59,36 @@
   --spacing-stack-lg: 24px;
   
   /* Fonts */
-  --font-display: 'Manrope', sans-serif;
-  --font-body: 'Hanken Grotesk', sans-serif;
+  --font-display: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
   
-  /* Typographic scales - light */
-  --text-display-naira-size: 40px;
-  --text-display-naira-line-height: 48px;
-  --text-display-naira-weight: 800;
+  /* Typographic scales - light & dark */
+  --text-display-naira-size: 32px;
+  --text-display-naira-line-height: 40px;
+  --text-display-naira-weight: 700;
   --text-display-naira-tracking: -0.02em;
-  --text-display-naira-family: 'Manrope', sans-serif;
+  --text-display-naira-family: 'Inter', sans-serif;
   
-  --text-headline-md-size: 24px;
-  --text-headline-md-line-height: 32px;
+  --text-headline-md-size: 20px;
+  --text-headline-md-line-height: 28px;
   --text-headline-md-weight: 600;
-  --text-headline-md-family: 'Manrope', sans-serif;
+  --text-headline-md-family: 'Inter', sans-serif;
   
-  --text-body-lg-size: 18px;
-  --text-body-lg-line-height: 28px;
+  --text-body-lg-size: 16px;
+  --text-body-lg-line-height: 24px;
   --text-body-lg-weight: 400;
-  --text-body-lg-family: 'Hanken Grotesk', sans-serif;
+  --text-body-lg-family: 'Inter', sans-serif;
   
   --text-body-sm-size: 14px;
   --text-body-sm-line-height: 20px;
   --text-body-sm-weight: 400;
-  --text-body-sm-family: 'Hanken Grotesk', sans-serif;
+  --text-body-sm-family: 'Inter', sans-serif;
   
-  --text-label-caps-size: 14px;
-  --text-label-caps-line-height: 20px;
+  --text-label-caps-size: 12px;
+  --text-label-caps-line-height: 16px;
   --text-label-caps-weight: 600;
   --text-label-caps-tracking: 0.05em;
-  --text-label-caps-family: 'Hanken Grotesk', sans-serif;
+  --text-label-caps-family: 'Inter', sans-serif;
   
   /* Shadows */
   --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.05);
@@ -145,37 +145,6 @@
   --color-on-background: #e1e2ed;
   --color-surface-variant: #3a4661;
   
-  /* Fonts */
-  --font-display: 'Inter', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  
-  /* Typographic scales - dark */
-  --text-display-naira-size: 32px;
-  --text-display-naira-line-height: 40px;
-  --text-display-naira-weight: 700;
-  --text-display-naira-tracking: -0.02em;
-  --text-display-naira-family: 'Inter', sans-serif;
-  
-  --text-headline-md-size: 20px;
-  --text-headline-md-line-height: 28px;
-  --text-headline-md-weight: 600;
-  --text-headline-md-family: 'Inter', sans-serif;
-  
-  --text-body-lg-size: 16px;
-  --text-body-lg-line-height: 24px;
-  --text-body-lg-weight: 400;
-  --text-body-lg-family: 'Inter', sans-serif;
-  
-  --text-body-sm-size: 14px;
-  --text-body-sm-line-height: 20px;
-  --text-body-sm-weight: 400;
-  --text-body-sm-family: 'Inter', sans-serif;
-  
-  --text-label-caps-size: 12px;
-  --text-label-caps-line-height: 16px;
-  --text-label-caps-weight: 600;
-  --text-label-caps-tracking: 0.05em;
-  --text-label-caps-family: 'Inter', sans-serif;
   
   /* Shadows */
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);

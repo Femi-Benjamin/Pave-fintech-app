@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, Plus, ArrowUp, ArrowLeftRight, CreditCard, ChevronRight, Bell, Users, Landmark, Banknote, ShoppingCart, Smartphone, Phone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, Plus, ArrowUp, ArrowLeftRight, CreditCard, ChevronRight, Bell, Users, Landmark, Banknote, ShoppingCart, Smartphone, Phone, Sun, Moon } from 'lucide-react';
 import Logo from './Logo';
 
 interface DashboardScreenProps {
@@ -8,6 +8,21 @@ interface DashboardScreenProps {
 
 export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
   const [showBalance, setShowBalance] = useState(true);
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleTheme = () => {
+    const nextDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', nextDark ? 'dark' : 'light');
+    setIsDark(nextDark);
+  };
 
   return (
     <div className="flex flex-col h-full bg-background pb-20">
@@ -15,6 +30,9 @@ export default function DashboardScreen({ onNavigate }: DashboardScreenProps) {
       <header className="px-5 py-4 flex justify-between items-center sticky top-0 bg-background/80 backdrop-blur-md z-10">
         <Logo size="sm" onClick={() => onNavigate('dashboard')} />
         <div className="flex items-center gap-4">
+          <button onClick={toggleTheme} className="text-on-surface-variant hover:text-on-surface transition-colors p-1" title="Toggle Theme">
+            {isDark ? <Sun size={22} /> : <Moon size={22} />}
+          </button>
           <button className="relative text-on-surface-variant hover:text-on-surface transition-colors">
             <Bell size={24} />
             <span className="absolute top-0 right-0.5 w-2.5 h-2.5 bg-red-500 border-2 border-background rounded-full"></span>

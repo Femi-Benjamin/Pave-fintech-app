@@ -21,6 +21,7 @@ import DepositScreen from './components/DepositScreen';
 import WithdrawScreen from './components/WithdrawScreen';
 import NotificationScreen from './components/NotificationScreen';
 import ProfileScreen from './components/ProfileScreen';
+import SaveToBuyScreen from './components/SaveToBuyScreen';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('splash');
@@ -71,6 +72,7 @@ function App() {
       case 'withdraw':
       case 'notifications':
       case 'profile':
+      case 'save_to_buy':
         return (
           <MainLayout activeScreen={baseScreen} onNavigate={setCurrentScreen}>
             {baseScreen === 'dashboard' && <DashboardScreen onNavigate={setCurrentScreen} />}
@@ -88,6 +90,7 @@ function App() {
             {baseScreen === 'withdraw' && <WithdrawScreen onNavigate={setCurrentScreen} />}
             {baseScreen === 'notifications' && <NotificationScreen onNavigate={setCurrentScreen} />}
             {baseScreen === 'profile' && <ProfileScreen onNavigate={setCurrentScreen} />}
+            {baseScreen === 'save_to_buy' && <SaveToBuyScreen onNavigate={setCurrentScreen} />}
           </MainLayout>
         );
       
