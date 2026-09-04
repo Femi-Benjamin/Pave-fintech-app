@@ -76,18 +76,18 @@ export default function OnboardingScreen({
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col antialiased font-sans text-on-background overflow-x-hidden scrollbar-hide transition-colors duration-300">
-      {/* Background Graphic */}
-      <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#374151_1px,transparent_1px)] bg-size-[24px_24px] opacity-20 dark:opacity-30"></div>
+    <div className="min-h-screen bg-[#F8FAFC] in-[.dark]:bg-background flex flex-col antialiased font-sans text-on-background overflow-x-hidden scrollbar-hide transition-colors duration-300">
+      {/* Background Dot Graphic - refined soft visibility */}
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] in-[.dark]:bg-[radial-gradient(#374151_1px,transparent_1px)] bg-size-[24px_24px] opacity-30 in-[.dark]:opacity-25"></div>
 
-      {/* Illuminated Grid Hover Effect */}
+      {/* Illuminated Grid Hover Effect - Wide FOV with dialed-back dot visibility */}
       <div
         className="fixed inset-0 z-0 pointer-events-none opacity-100 transition-opacity duration-0"
         style={{
-          backgroundImage: `radial-gradient(rgba(139, 92, 246, 0.8) 1px, transparent 1px)`,
+          backgroundImage: `radial-gradient(${isDark ? "rgba(139, 92, 246, 0.65)" : "rgba(124, 58, 237, 0.65)"} 1.25px, transparent 1.25px)`,
           backgroundSize: "24px 24px",
-          WebkitMaskImage: `radial-gradient(200px circle at ${mousePosition.x}px ${mousePosition.y}px, black, transparent)`,
-          maskImage: `radial-gradient(200px circle at ${mousePosition.x}px ${mousePosition.y}px, black, transparent)`,
+          WebkitMaskImage: `radial-gradient(420px circle at ${mousePosition.x}px ${mousePosition.y}px, black 15%, rgba(0,0,0,0.5) 45%, transparent 75%)`,
+          maskImage: `radial-gradient(420px circle at ${mousePosition.x}px ${mousePosition.y}px, black 15%, rgba(0,0,0,0.5) 45%, transparent 75%)`,
         }}
       ></div>
 
@@ -192,168 +192,353 @@ export default function OnboardingScreen({
       </section>
 
       {/* Features Grid */}
-      <section className="w-full px-6 py-24 bg-surface z-10 relative border-y border-outline-variant/30">
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full px-6 py-24 bg-slate-50/70 in-[.dark]:bg-surface/50 z-10 relative border-y border-slate-200/60 in-[.dark]:border-outline-variant/30 backdrop-blur-sm"
+      >
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-on-background mb-6 tracking-tight">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-6 tracking-tight">
               Everything You Need to Save & Grow
             </h2>
-            <p className="text-on-surface-variant max-w-2xl mx-auto text-lg font-light">
+            <p className="text-slate-600 in-[.dark]:text-slate-300 max-w-2xl mx-auto text-lg font-normal">
               From your digital wallet to traditional thrift contributions, PAVE
               has all the tools you need to build lasting financial habits.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-surface p-8 shadow-md rounded-2xl border border-outline-variant/40 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="text-primary mb-6">
-                <Wallet size={36} strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-bold text-on-surface mb-3">
-                Digital Wallet
-              </h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed font-light">
-                Fund your wallet instantly via card, USSD, or bank transfer.
-                Withdraw anytime.
-              </p>
-            </div>
-            <div className="bg-surface p-8 shadow-md rounded-2xl border border-outline-variant/40 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="text-primary mb-6">
-                <PiggyBank size={36} strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-bold text-on-surface mb-3">
-                Smart Savings
-              </h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed font-light">
-                Create flexible or fixed savings plans with automated deposits
-                and competitive interest.
-              </p>
-            </div>
-            <div className="bg-surface p-8 shadow-md rounded-2xl border border-outline-variant/40 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="text-primary mb-6">
-                <Users size={36} strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-bold text-on-surface mb-3">
-                Thrift (Ajo/Esusu)
-              </h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed font-light">
-                Join or create traditional contribution groups. Build wealth
-                together with your community.
-              </p>
-            </div>
-            <div className="bg-surface p-8 shadow-md rounded-2xl border border-outline-variant/40 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-              <div className="text-primary mb-6">
-                <Shield size={36} strokeWidth={1.5} />
-              </div>
-              <h3 className="text-xl font-bold text-on-surface mb-3">
-                Secure & Verified
-              </h3>
-              <p className="text-on-surface-variant text-sm leading-relaxed font-light">
-                Bank-grade encryption with mandatory KYC verification for
-                complete peace of mind.
-              </p>
-            </div>
+            {[
+              {
+                icon: Wallet,
+                title: "Digital Wallet",
+                desc: "Fund your wallet instantly via card, USSD, or bank transfer. Withdraw anytime.",
+                color: "text-primary",
+                bgGradient: "from-blue-50/60 via-white/80 to-indigo-50/40",
+              },
+              {
+                icon: PiggyBank,
+                title: "Smart Savings",
+                desc: "Create flexible or fixed savings plans with automated deposits and competitive interest.",
+                color: "text-purple-600 in-[.dark]:text-purple-400",
+                bgGradient: "from-purple-50/60 via-white/80 to-pink-50/40",
+              },
+              {
+                icon: Users,
+                title: "Thrift (Ajo/Esusu)",
+                desc: "Join or create traditional contribution groups. Build wealth together with your community.",
+                color: "text-emerald-600 in-[.dark]:text-emerald-400",
+                bgGradient: "from-emerald-50/60 via-white/80 to-teal-50/40",
+              },
+              {
+                icon: Shield,
+                title: "Secure & Verified",
+                desc: "Bank-grade encryption with mandatory KYC verification for complete peace of mind.",
+                color: "text-indigo-600 in-[.dark]:text-indigo-400",
+                bgGradient: "from-sky-50/60 via-white/80 to-blue-50/40",
+              },
+            ].map((feature, idx) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 35 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{
+                  duration: 0.5,
+                  delay: idx * 0.1,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                className={`bg-white/85 in-[.dark]:bg-slate-900/60 backdrop-blur-xl p-8 rounded-2xl border border-white/90 in-[.dark]:border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.03),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.08)] in-[.dark]:hover:border-white/20 transition-all duration-300 relative overflow-hidden group`}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-slate-100/40 via-transparent to-transparent in-[.dark]:from-white/5 rounded-bl-full pointer-events-none" />
+                <div
+                  className={`${feature.color} mb-6 relative z-10 p-3 rounded-xl bg-slate-50 in-[.dark]:bg-slate-800/60 inline-block border border-slate-100 in-[.dark]:border-white/5 shadow-xs`}
+                >
+                  <feature.icon size={32} strokeWidth={1.75} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 in-[.dark]:text-white mb-3 relative z-10">
+                  {feature.title}
+                </h3>
+                <p className="text-slate-600 in-[.dark]:text-slate-400 text-sm leading-relaxed font-normal relative z-10">
+                  {feature.desc}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Feature Split 1 - Savings */}
-      <section className="w-full px-6 py-24 max-w-7xl mx-auto overflow-hidden relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
-          <div className="flex-1 w-full relative">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-surface border border-outline-variant/50 text-on-surface text-xs font-bold uppercase tracking-widest mb-6">
+      <motion.section
+        initial={{ opacity: 0, y: 45 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto overflow-hidden relative z-10"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left Column: Text */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-xl"
+          >
+            <div className="inline-block px-4 py-1.5 rounded-full bg-purple-100/90 border border-purple-200/80 text-purple-900 in-[.dark]:bg-purple-950/60 in-[.dark]:border-purple-800/40 in-[.dark]:text-purple-300 text-xs font-bold uppercase tracking-widest mb-6 shadow-xs">
               Savings
             </div>
-            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-on-background mb-6 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-6 tracking-tight leading-[1.15]">
               Save for What Matters Most
             </h2>
-            <p className="text-xl text-on-surface-variant mb-10 leading-relaxed font-light max-w-lg">
+            <p className="text-lg md:text-xl text-slate-700 in-[.dark]:text-slate-300 mb-8 leading-relaxed font-normal">
               Whether it's an emergency fund, a new car, or your dream vacation,
               PAVE helps you reach your goals faster with smart automated
               savings.
             </p>
 
-            <ul className="space-y-6 mb-12 w-full font-light">
-              <li className="flex items-start gap-4 text-on-surface">
-                <div className="bg-primary/10 p-1 rounded-full">
-                  <CheckCircle2 size={20} className="text-primary" />
-                </div>
-                <span>Flexible savings - withdraw anytime</span>
-              </li>
-              <li className="flex items-start gap-4 text-on-surface">
-                <div className="bg-primary/10 p-1 rounded-full">
-                  <CheckCircle2 size={20} className="text-primary" />
-                </div>
-                <span>Fixed savings with higher interest rates</span>
-              </li>
-              <li className="flex items-start gap-4 text-on-surface">
-                <div className="bg-primary/10 p-1 rounded-full">
-                  <CheckCircle2 size={20} className="text-primary" />
-                </div>
-                <span>Auto-debit from your wallet</span>
-              </li>
+            <ul className="space-y-4 mb-10 w-full">
+              {[
+                "Flexible savings - withdraw anytime",
+                "Fixed savings with higher interest rates",
+                "Auto-debit from your wallet",
+              ].map((item) => (
+                <li
+                  key={item}
+                  className="flex items-center gap-3 text-slate-800 in-[.dark]:text-slate-200 font-medium text-base"
+                >
+                  <CheckCircle2 size={20} className="text-primary shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
 
             <button
               onClick={() => onNavigate("signup")}
-              className="bg-on-background hover:bg-on-background/90 text-background font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95"
+              className="bg-slate-900 hover:bg-slate-800 text-white in-[.dark]:bg-white in-[.dark]:text-slate-900 in-[.dark]:hover:bg-slate-100 font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center"
             >
               Start Saving Today
             </button>
-          </div>
+          </motion.div>
 
-          <div className="flex-1 w-full flex justify-center">
-            {/* Minimalist Visualizer */}
-            <div className="w-full max-w-md bg-surface rounded-4xl p-10 relative border-2 border-outline-variant/50 shadow-2xl">
-              <div className="flex justify-between items-end mb-6 border-b border-outline-variant pb-4">
-                <div>
-                  <div className="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-1">
-                    Emergency Fund
+          {/* Right Column: Liquid Glass Card */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full flex justify-center lg:justify-end"
+          >
+            <motion.div
+              whileHover={{ y: -6, scale: 1.01, transition: { duration: 0.3 } }}
+              className="w-full max-w-lg min-h-87.5 bg-linear-to-br from-[#E0E7FF] via-[#EEF2FF] to-[#DCE4FF] in-[.dark]:from-indigo-950/40 in-[.dark]:via-purple-950/20 in-[.dark]:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 flex items-center justify-center border-2 border-indigo-200/90 in-[.dark]:border-white/10 shadow-[0_20px_45px_-8px_rgba(99,102,241,0.22),inset_0_1px_3px_rgba(255,255,255,0.95)] hover:shadow-[0_25px_55px_-5px_rgba(99,102,241,0.28)] transition-all duration-500 relative overflow-hidden"
+            >
+              {/* Ambient Flare */}
+              <div className="absolute -top-24 -right-24 w-52 h-52 bg-linear-to-br from-indigo-400/40 to-purple-400/20 in-[.dark]:from-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Inner Floating Card */}
+              <div className="w-full bg-white in-[.dark]:bg-[#181d24] rounded-2xl p-7 md:p-9 shadow-[0_12px_32px_-4px_rgba(15,23,42,0.1),0_4px_12px_-2px_rgba(15,23,42,0.06)] border border-slate-100/90 in-[.dark]:border-white/10 relative overflow-hidden z-10">
+                <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white in-[.dark]:via-white/20 to-transparent" />
+
+                {/* Header */}
+                <div className="flex justify-between items-end mb-6 pb-4 border-b border-slate-100 in-[.dark]:border-slate-800/80">
+                  <div>
+                    <div className="text-slate-500 in-[.dark]:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1.5">
+                      Emergency Fund
+                    </div>
+                    <div className="text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white">
+                      ₦185,000
+                    </div>
                   </div>
-                  <div className="text-4xl font-display font-extrabold text-on-surface mb-1">
-                    ₦185,000
+                  <div className="text-primary in-[.dark]:text-indigo-400 text-2xl md:text-3xl font-extrabold">
+                    37%
                   </div>
                 </div>
-                <div className="text-primary text-xl font-extrabold">37%</div>
-              </div>
-              <div className="text-on-surface-variant text-sm mb-4 font-light">
-                Goal: ₦500,000
-              </div>
 
-              <div className="h-4 w-full bg-surface-variant rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full w-[37%]"></div>
+                {/* Subtitle */}
+                <div className="text-slate-600 in-[.dark]:text-slate-400 text-sm font-semibold mb-3">
+                  Goal: ₦500,000
+                </div>
+
+                {/* Progress Bar with Liquid Glow */}
+                <div className="h-4 w-full bg-[#F1F5F9] in-[.dark]:bg-slate-800/90 rounded-full overflow-hidden p-0.5 border border-slate-200/50 in-[.dark]:border-white/5">
+                  <div className="h-full bg-linear-to-r from-primary to-indigo-500 rounded-full w-[37%] transition-all duration-500 shadow-sm shadow-primary/25"></div>
+                </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
+
+      {/* Feature Split 2 - Thrift (Ajo/Esusu) */}
+      <motion.section
+        initial={{ opacity: 0, y: 45 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto overflow-hidden relative z-10"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left Column: Liquid Glass Card */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full flex justify-center lg:justify-start order-2 lg:order-1"
+          >
+            <motion.div
+              whileHover={{ y: -6, scale: 1.01, transition: { duration: 0.3 } }}
+              className="w-full max-w-lg min-h-87.5 bg-linear-to-br from-[#D1FAE5] via-[#E6F9F0] to-[#BAF7D5] in-[.dark]:from-emerald-950/40 in-[.dark]:via-teal-950/20 in-[.dark]:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 flex items-center justify-center border-2 border-emerald-300/80 in-[.dark]:border-white/10 shadow-[0_20px_45px_-8px_rgba(16,185,129,0.22),inset_0_1px_3px_rgba(255,255,255,0.95)] hover:shadow-[0_25px_55px_-5px_rgba(16,185,129,0.28)] transition-all duration-500 relative overflow-hidden"
+            >
+              {/* Ambient Flare */}
+              <div className="absolute -top-24 -right-24 w-52 h-52 bg-linear-to-br from-emerald-400/40 to-teal-400/20 in-[.dark]:from-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Inner Floating Card */}
+              <div className="w-full bg-white in-[.dark]:bg-[#181d24] rounded-2xl p-7 md:p-9 shadow-[0_12px_32px_-4px_rgba(15,23,42,0.1),0_4px_12px_-2px_rgba(15,23,42,0.06)] border border-slate-100/90 in-[.dark]:border-white/10 relative overflow-hidden z-10">
+                <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white in-[.dark]:via-white/20 to-transparent" />
+
+                {/* Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 in-[.dark]:bg-emerald-900/40 text-emerald-600 in-[.dark]:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs border border-emerald-100/60 in-[.dark]:border-emerald-800/30">
+                    <Users size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg text-slate-900 in-[.dark]:text-white tracking-tight">
+                      Community Weekly Savings
+                    </h4>
+                    <p className="text-sm text-slate-600 in-[.dark]:text-slate-400 font-medium mt-0.5">
+                      Weekly • ₦5,000/contribution
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Grid */}
+                <div className="grid grid-cols-6 gap-2.5 my-6">
+                  {/* Row 1: 3 completed (liquid green), 3 upcoming (alabaster) */}
+                  <div className="h-9 md:h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs shadow-emerald-500/20" />
+                  <div className="h-9 md:h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs shadow-emerald-500/20" />
+                  <div className="h-9 md:h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs shadow-emerald-500/20" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+
+                  {/* Row 2: 6 upcoming (alabaster) */}
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                  <div className="h-9 md:h-10 rounded-xl bg-[#F1F5F9] in-[.dark]:bg-slate-800/80 border border-slate-200/50 in-[.dark]:border-white/5" />
+                </div>
+
+                {/* Footer text */}
+                <p className="text-xs md:text-sm text-slate-500 in-[.dark]:text-slate-400 font-medium">
+                  3 of 24 contributions made
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Right Column: Text & Actions */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-xl order-1 lg:order-2"
+          >
+            <div className="inline-block px-4 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-200/80 text-emerald-900 in-[.dark]:bg-emerald-950/60 in-[.dark]:border-emerald-800/40 in-[.dark]:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-6 shadow-xs">
+              Thrift (Ajo/Esusu)
+            </div>
+            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-6 tracking-tight leading-[1.15]">
+              Grow Together with Community Savings
+            </h2>
+            <p className="text-lg md:text-xl text-slate-700 in-[.dark]:text-slate-300 mb-8 leading-relaxed font-normal">
+              Experience the power of traditional thrift contributions,
+              digitized. Regular contributions build discipline while the
+              community keeps you accountable.
+            </p>
+
+            <ul className="space-y-4 mb-10 w-full">
+              {[
+                "Daily, weekly, or monthly contributions",
+                "Automatic wallet deductions",
+                "Track your contribution calendar",
+                "Penalties for missed contributions",
+              ].map((item) => (
+                <li
+                  key={item}
+                  className="flex items-center gap-3 text-slate-800 in-[.dark]:text-slate-200 font-medium text-base"
+                >
+                  <CheckCircle2 size={20} className="text-[#10B981] shrink-0" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => onNavigate("signup")}
+              className="bg-[#10B981] hover:bg-[#0ea372] text-white font-semibold py-4 px-8 rounded-xl text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center"
+            >
+              Join a Thrift Group
+            </button>
+          </motion.div>
+        </div>
+      </motion.section>
 
       {/* FAQ Section */}
-      <section className="w-full px-6 py-24 bg-surface z-10 relative border-y border-outline-variant/30">
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full px-6 py-24 bg-slate-50/70 in-[.dark]:bg-surface/50 z-10 relative border-y border-slate-200/60 in-[.dark]:border-outline-variant/30 backdrop-blur-sm"
+      >
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-on-background mb-4 tracking-tight">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-4 tracking-tight">
               Frequently Asked Questions
             </h2>
-            <p className="text-on-surface-variant text-lg font-light">
+            <p className="text-slate-600 in-[.dark]:text-slate-300 text-lg font-normal">
               Got questions? We've got answers.
             </p>
-          </div>
+          </motion.div>
 
           <div className="space-y-4">
             {faqs.map((faq, index) => (
-              <div
+              <motion.div
                 key={index}
-                className="bg-surface border border-outline-variant/40 rounded-2xl overflow-hidden hover:border-on-background transition-colors duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className="bg-white/85 in-[.dark]:bg-slate-900/60 backdrop-blur-md border border-slate-200/70 in-[.dark]:border-white/10 rounded-2xl overflow-hidden hover:border-slate-300 in-[.dark]:hover:border-white/20 shadow-xs transition-colors duration-300"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left font-bold text-on-surface text-lg"
+                  className="w-full px-6 py-5 flex items-center justify-between text-left font-bold text-slate-900 in-[.dark]:text-white text-lg"
                 >
                   {faq.question}
                   <ChevronDown
                     size={20}
-                    className={`text-on-surface-variant transition-transform duration-300 ${openFaq === index ? "rotate-180" : ""}`}
+                    className={`text-slate-500 in-[.dark]:text-slate-400 transition-transform duration-300 ${openFaq === index ? "rotate-180" : ""}`}
                   />
                 </button>
                 <AnimatePresence>
@@ -364,37 +549,84 @@ export default function OnboardingScreen({
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="px-6 pb-6 text-on-surface-variant text-base leading-relaxed font-light">
+                      <div className="px-6 pb-6 text-slate-600 in-[.dark]:text-slate-300 text-base leading-relaxed font-normal">
                         {faq.answer}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA Section */}
-      <section className="w-full px-6 py-32 z-10 relative mb-8">
-        <div className="max-w-4xl mx-auto bg-primary rounded-[3rem] p-12 md:p-20 text-center relative shadow-2xl">
-          <h2 className="text-4xl md:text-6xl font-display font-extrabold text-on-primary mb-6 tracking-tight leading-[1.1]">
-            Ready to Start Your Financial Journey?
-          </h2>
-          <p className="text-on-primary/90 max-w-2xl mx-auto text-xl mb-12 font-light">
-            Join thousands of Nigerians building wealth with PAVE. Create your
-            free account in minutes.
-          </p>
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full px-6 py-32 z-10 relative mb-8"
+      >
+        <div className="max-w-4xl mx-auto relative">
+          {/* Animated Pulsing Ambient Glow & Backdrop Blur */}
+          <motion.div
+            animate={{
+              scale: [1, 1.05, 1],
+              opacity: [0.1, 0.3, 0.1],
+            }}
+            transition={{
+              duration: 3.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute -inset-4 bg-linear-to-r from-blue-600 via-indigo-500 to-violet-600 rounded-[3.5rem] blur-2xl -z-10 pointer-events-none"
+          />
+          <motion.div
+            animate={{
+              scale: [1.04, 0.98, 1.04],
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            }}
+            className="absolute -inset-8 bg-linear-to-tr from-cyan-500/50 via-blue-600/40 to-purple-600/50 rounded-[4rem] blur-3xl -z-10 pointer-events-none"
+          />
 
-          <button
-            onClick={() => onNavigate("signup")}
-            className="bg-background text-on-background font-bold py-5 px-10 rounded-full uppercase tracking-wider text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 inline-flex items-center"
+          {/* Main Glass Card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full bg-linear-to-br from-blue-600 via-indigo-600 to-violet-600 text-white rounded-[3rem] p-12 md:p-20 text-center relative shadow-[0_25px_60px_rgba(37,99,235,0.35),inset_0_1px_2px_rgba(255,255,255,0.4)] backdrop-blur-xl border border-white/20 overflow-hidden"
           >
-            Create Free Account <ArrowRight size={20} className="ml-2" />
-          </button>
+            {/* Specular glass reflection flares */}
+            <div className="absolute -top-32 -left-32 w-72 h-72 bg-white/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-indigo-300/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/40 to-transparent" />
+
+            <h2 className="text-4xl md:text-6xl font-display font-extrabold text-white mb-6 tracking-tight leading-[1.1] relative z-10">
+              Ready to Start Your Financial Journey?
+            </h2>
+            <p className="text-white/90 max-w-2xl mx-auto text-xl mb-12 font-normal leading-relaxed relative z-10">
+              Join thousands of Nigerians building wealth with PAVE. Create your
+              free account in minutes.
+            </p>
+
+            <button
+              onClick={() => onNavigate("signup")}
+              className="bg-slate-900 hover:bg-slate-950 text-white font-bold py-5 px-10 rounded-full uppercase tracking-wider text-sm transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95 inline-flex items-center relative z-10 border border-white/10"
+            >
+              Create Free Account <ArrowRight size={20} className="ml-2" />
+            </button>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Footer */}
       <footer className="w-full border-t-2 border-outline-variant/50 bg-surface z-10 relative">
