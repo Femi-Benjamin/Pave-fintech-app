@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Wallet,
@@ -22,18 +22,25 @@ export default function OnboardingScreen({
 }: OnboardingScreenProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isDark, setIsDark] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  useEffect(() => {
+    if (!isDark) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (gridRef.current) {
+        gridRef.current.style.setProperty("--mouse-x", `${e.clientX}px`);
+        gridRef.current.style.setProperty("--mouse-y", `${e.clientY}px`);
+      }
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [isDark]);
 
   const toggleTheme = () => {
     const nextDark = !isDark;
@@ -76,20 +83,23 @@ export default function OnboardingScreen({
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] in-[.dark]:bg-background flex flex-col antialiased font-sans text-on-background overflow-x-hidden scrollbar-hide transition-colors duration-300">
+    <div className="min-h-screen bg-[#F1F3F7] in-[.dark]:bg-background flex flex-col antialiased font-sans text-on-background overflow-x-hidden scrollbar-hide transition-colors duration-300">
       {/* Background Dot Graphic - refined soft visibility */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(#cbd5e1_1.2px,transparent_1.2px)] in-[.dark]:bg-[radial-gradient(#374151_1px,transparent_1px)] bg-size-[24px_24px] opacity-30 in-[.dark]:opacity-25"></div>
 
-      {/* Illuminated Grid Hover Effect - Wide FOV with dialed-back dot visibility */}
-      <div
-        className="fixed inset-0 z-0 pointer-events-none opacity-100 transition-opacity duration-0"
-        style={{
-          backgroundImage: `radial-gradient(${isDark ? "rgba(139, 92, 246, 0.65)" : "rgba(124, 58, 237, 0.65)"} 1.25px, transparent 1.25px)`,
-          backgroundSize: "24px 24px",
-          WebkitMaskImage: `radial-gradient(420px circle at ${mousePosition.x}px ${mousePosition.y}px, black 15%, rgba(0,0,0,0.5) 45%, transparent 75%)`,
-          maskImage: `radial-gradient(420px circle at ${mousePosition.x}px ${mousePosition.y}px, black 15%, rgba(0,0,0,0.5) 45%, transparent 75%)`,
-        }}
-      ></div>
+      {/* Illuminated Grid Hover Effect - Dark Mode Only & 0 React Re-renders */}
+      {isDark && (
+        <div
+          ref={gridRef}
+          className="fixed inset-0 z-0 pointer-events-none opacity-100 transition-opacity duration-0"
+          style={{
+            backgroundImage: `radial-gradient(rgba(139, 92, 246, 0.65) 1.25px, transparent 1.25px)`,
+            backgroundSize: "24px 24px",
+            WebkitMaskImage: `radial-gradient(420px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 15%, rgba(0,0,0,0.5) 45%, transparent 75%)`,
+            maskImage: `radial-gradient(420px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 15%, rgba(0,0,0,0.5) 45%, transparent 75%)`,
+          }}
+        />
+      )}
 
       {/* Top Brand/Nav */}
       <header className="w-full px-6 py-6 flex justify-between items-center max-w-7xl mx-auto relative z-10">
@@ -119,15 +129,6 @@ export default function OnboardingScreen({
 
       {/* Hero Section */}
       <section className="w-full px-6 py-5 flex flex-col items-center text-center max-w-5xl mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8 inline-flex items-center justify-center px-4 py-2 bg-surface border border-outline-variant/50 text-on-surface-variant text-sm font-medium rounded-full shadow-sm backdrop-blur-sm"
-        >
-          <span className="mr-2">🚀</span> Building Financial Discipline
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,26 +192,64 @@ export default function OnboardingScreen({
         </motion.div>
       </section>
 
+      {/* Minimal Clean Ticker Marquee */}
+      <div className="w-full max-w-full min-w-0 overflow-hidden relative z-10 border-y border-slate-200/80 in-[.dark]:border-white/10 bg-white/40 in-[.dark]:bg-surface/30 backdrop-blur-xs py-3 mt-4">
+        {/* Soft edge gradient fades */}
+        <div className="absolute left-0 inset-y-0 w-12 md:w-32 z-10 pointer-events-none bg-linear-to-r from-[#F1F3F7] in-[.dark]:from-background to-transparent" />
+        <div className="absolute right-0 inset-y-0 w-12 md:w-32 z-10 pointer-events-none bg-linear-to-l from-[#F1F3F7] in-[.dark]:from-background to-transparent" />
+
+        <div className="animate-marquee-slow flex items-center">
+          {[0, 1].map((trackIdx) => (
+            <div
+              key={`min-track-${trackIdx}`}
+              className="flex items-center shrink-0"
+              aria-hidden={trackIdx === 1 ? "true" : undefined}
+            >
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div
+                  key={`min-${trackIdx}-${idx}`}
+                  className="flex items-center gap-5 md:gap-7 px-3 md:px-4 select-none whitespace-nowrap"
+                >
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.22em] text-slate-900 in-[.dark]:text-slate-100 flex items-center gap-2 shrink-0">
+                    <span>🚀</span> BUILDING FINANCIAL DISCIPLINE
+                  </span>
+                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">/</span>
+                  <span className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] md:tracking-[0.2em] text-slate-500 in-[.dark]:text-slate-400 shrink-0">
+                    AUTOMATED SAVINGS
+                  </span>
+                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">/</span>
+                  <span className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] md:tracking-[0.2em] text-slate-500 in-[.dark]:text-slate-400 shrink-0">
+                    COMMUNITY THRIFT
+                  </span>
+                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">/</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Features Grid */}
       <motion.section
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.2 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full px-6 py-24 bg-slate-50/70 in-[.dark]:bg-surface/50 z-10 relative border-y border-slate-200/60 in-[.dark]:border-outline-variant/30 backdrop-blur-sm"
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-full min-w-0 px-4 sm:px-6 py-16 md:py-24 bg-slate-50/70 in-[.dark]:bg-surface/50 z-10 relative border-y border-slate-200/60 in-[.dark]:border-outline-variant/30 backdrop-blur-sm overflow-hidden"
       >
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-20"
+            className="text-center mb-12 md:mb-20 px-2"
           >
-            <h2 className="text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-6 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-4 sm:mb-6 tracking-tight text-center break-words">
               Everything You Need to Save & Grow
             </h2>
-            <p className="text-slate-600 in-[.dark]:text-slate-300 max-w-2xl mx-auto text-lg font-normal">
+            <p className="text-slate-600 in-[.dark]:text-slate-300 max-w-2xl mx-auto text-base sm:text-lg font-normal text-center leading-relaxed">
               From your digital wallet to traditional thrift contributions, PAVE
               has all the tools you need to build lasting financial habits.
             </p>
@@ -247,18 +286,9 @@ export default function OnboardingScreen({
                 bgGradient: "from-sky-50/60 via-white/80 to-blue-50/40",
               },
             ].map((feature, idx) => (
-              <motion.div
+              <div
                 key={feature.title}
-                initial={{ opacity: 0, y: 35 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false, amount: 0.2 }}
-                transition={{
-                  duration: 0.5,
-                  delay: idx * 0.1,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                whileHover={{ y: -6, transition: { duration: 0.25 } }}
-                className={`bg-white/85 in-[.dark]:bg-slate-900/60 backdrop-blur-xl p-8 rounded-2xl border border-white/90 in-[.dark]:border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.03),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_20px_45px_rgba(0,0,0,0.08)] in-[.dark]:hover:border-white/20 transition-all duration-300 relative overflow-hidden group`}
+                className="bg-white/85 in-[.dark]:bg-slate-900/60 backdrop-blur-md p-8 rounded-2xl border border-white/90 in-[.dark]:border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.03),inset_0_1px_2px_rgba(255,255,255,0.95)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 transition-all duration-200 relative overflow-hidden group"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-slate-100/40 via-transparent to-transparent in-[.dark]:from-white/5 rounded-bl-full pointer-events-none" />
                 <div
@@ -272,7 +302,7 @@ export default function OnboardingScreen({
                 <p className="text-slate-600 in-[.dark]:text-slate-400 text-sm leading-relaxed font-normal relative z-10">
                   {feature.desc}
                 </p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -563,66 +593,42 @@ export default function OnboardingScreen({
 
       {/* CTA Section */}
       <motion.section
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.2 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full px-6 py-32 z-10 relative mb-8"
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.5 }}
+        className="w-full px-6 py-24 md:py-32 z-10 relative mb-8"
       >
-        <div className="max-w-4xl mx-auto relative">
-          {/* Animated Pulsing Ambient Glow & Backdrop Blur */}
-          <motion.div
-            animate={{
-              scale: [1, 1.05, 1],
-              opacity: [0.1, 0.3, 0.1],
-            }}
-            transition={{
-              duration: 3.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute -inset-4 bg-linear-to-r from-blue-600 via-indigo-500 to-violet-600 rounded-[3.5rem] blur-2xl -z-10 pointer-events-none"
-          />
-          <motion.div
-            animate={{
-              scale: [1.04, 0.98, 1.04],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.5,
-            }}
-            className="absolute -inset-8 bg-linear-to-tr from-cyan-500/50 via-blue-600/40 to-purple-600/50 rounded-[4rem] blur-3xl -z-10 pointer-events-none"
-          />
+        <div className="max-w-4xl mx-auto relative px-2">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute -inset-2 bg-linear-to-r from-purple-200/60 via-indigo-100/50 to-blue-200/60 in-[.dark]:from-indigo-950/40 in-[.dark]:via-purple-950/30 in-[.dark]:to-slate-900/40 rounded-[3rem] blur-xl -z-10 pointer-events-none opacity-70 in-[.dark]:opacity-50" />
 
-          {/* Main Glass Card */}
+          {/* Card: Clean Offwhite in Light Mode vs Low-Glare in Dark Mode */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            initial={{ opacity: 0, scale: 0.97, y: 20 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.25 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full bg-linear-to-br from-blue-600 via-indigo-600 to-violet-600 text-white rounded-[3rem] p-12 md:p-20 text-center relative shadow-[0_25px_60px_rgba(37,99,235,0.35),inset_0_1px_2px_rgba(255,255,255,0.4)] backdrop-blur-xl border border-white/20 overflow-hidden"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5 }}
+            className="w-full bg-[#F1F5F9] in-[.dark]:bg-linear-to-br in-[.dark]:from-[#111625] in-[.dark]:via-[#161d2f] in-[.dark]:to-[#0d121f] text-slate-900 in-[.dark]:text-white rounded-3xl md:rounded-[3rem] p-8 sm:p-12 md:p-18 text-center relative shadow-[0_20px_50px_-10px_rgba(15,23,42,0.08)] in-[.dark]:shadow-xl in-[.dark]:shadow-black/30 border-2 border-slate-300/80 in-[.dark]:border-white/10 overflow-hidden"
           >
-            {/* Specular glass reflection flares */}
-            <div className="absolute -top-32 -left-32 w-72 h-72 bg-white/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-indigo-300/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/40 to-transparent" />
+            {/* Subtle soft flares inside */}
+            <div className="absolute -top-32 -left-32 w-64 h-64 bg-indigo-200/40 in-[.dark]:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-purple-200/40 in-[.dark]:bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-slate-300 in-[.dark]:via-white/15 to-transparent" />
 
-            <h2 className="text-4xl md:text-6xl font-display font-extrabold text-white mb-6 tracking-tight leading-[1.1] relative z-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-4 sm:mb-6 tracking-tight leading-[1.15] relative z-10">
               Ready to Start Your Financial Journey?
             </h2>
-            <p className="text-white/90 max-w-2xl mx-auto text-xl mb-12 font-normal leading-relaxed relative z-10">
+            <p className="text-slate-600 in-[.dark]:text-slate-300 max-w-2xl mx-auto text-base sm:text-lg mb-8 md:mb-10 font-normal leading-relaxed relative z-10 px-2">
               Join thousands of Nigerians building wealth with PAVE. Create your
               free account in minutes.
             </p>
 
             <button
               onClick={() => onNavigate("signup")}
-              className="bg-slate-900 hover:bg-slate-950 text-white font-bold py-5 px-10 rounded-full uppercase tracking-wider text-sm transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95 inline-flex items-center relative z-10 border border-white/10"
+              className="bg-primary hover:bg-primary/90 text-white font-bold py-4 px-9 rounded-full uppercase tracking-wider text-xs sm:text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 inline-flex items-center relative z-10 border border-primary/20 in-[.dark]:border-white/10 cursor-pointer"
             >
-              Create Free Account <ArrowRight size={20} className="ml-2" />
+              Create Free Account <ArrowRight size={18} className="ml-2" />
             </button>
           </motion.div>
         </div>
