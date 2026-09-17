@@ -112,12 +112,7 @@ export default function OnboardingScreen({
           >
             {isDark ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <button
-            onClick={() => onNavigate("login")}
-            className="hidden md:block text-on-surface-variant hover:text-primary font-medium text-sm transition-colors"
-          >
-            Log In
-          </button>
+
           <button
             onClick={() => onNavigate("signup")}
             className="bg-primary hover:bg-primary/90 text-on-primary font-semibold py-2 px-5 rounded-full opacity-90 transition-all text-sm shadow-md hover:shadow-lg active:scale-95"
@@ -214,15 +209,21 @@ export default function OnboardingScreen({
                   <span className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] md:tracking-[0.22em] text-slate-900 in-[.dark]:text-slate-100 flex items-center gap-2 shrink-0">
                     <span>🚀</span> BUILDING FINANCIAL DISCIPLINE
                   </span>
-                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">/</span>
+                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">
+                    /
+                  </span>
                   <span className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] md:tracking-[0.2em] text-slate-500 in-[.dark]:text-slate-400 shrink-0">
                     AUTOMATED SAVINGS
                   </span>
-                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">/</span>
+                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">
+                    /
+                  </span>
                   <span className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] md:tracking-[0.2em] text-slate-500 in-[.dark]:text-slate-400 shrink-0">
                     COMMUNITY THRIFT
                   </span>
-                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">/</span>
+                  <span className="text-slate-300 in-[.dark]:text-slate-700 text-xs shrink-0">
+                    /
+                  </span>
                 </div>
               ))}
             </div>
@@ -246,7 +247,7 @@ export default function OnboardingScreen({
             transition={{ duration: 0.5 }}
             className="text-center mb-12 md:mb-20 px-2"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-4 sm:mb-6 tracking-tight text-center break-words">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-extrabold text-slate-900 in-[.dark]:text-white mb-4 sm:mb-6 tracking-tight text-center wrap-break-words">
               Everything You Need to Save & Grow
             </h2>
             <p className="text-slate-600 in-[.dark]:text-slate-300 max-w-2xl mx-auto text-base sm:text-lg font-normal text-center leading-relaxed">
