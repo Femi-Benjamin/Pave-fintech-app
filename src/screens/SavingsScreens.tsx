@@ -1,16 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Plus, Calendar, ArrowLeft, Check } from "lucide-react";
+import { Plus, Calendar, ArrowLeft, Check, RotateCw } from "lucide-react";
 import { PaveBtn, Badge, ScreenHeader } from "../components/UI";
 import { Screen, fmt, pct, MOCK_SAVINGS } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
+import { SavingsScreenSkeleton } from "../components/Skeleton";
 
 export function SavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const { savings, programs } = useLocalStore();
   const [tab, setTab] = useState<"personal" | "programs">("personal");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 650);
+    return () => clearTimeout(timer);
+  }, []);
+
   const totalSaved = savings.reduce((acc, s) => acc + s.current, 0);
+
+  if (isLoading) {
+    return <SavingsScreenSkeleton />;
+  }
+
   return (
-    <div className="flex-1 overflow-y-auto">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="flex-1 overflow-y-auto"
+    >
       <div
         style={{
           background: "linear-gradient(145deg, #D97706 0%, #B45309 100%)",
@@ -188,7 +208,7 @@ export function SavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         )}
         <div className="h-6" />
       </div>
-    </div>
+    </motion.div>
   );
 }
 

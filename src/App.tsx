@@ -4,6 +4,7 @@ import OnboardingLandingScreen from "./components/OnboardingScreen";
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen } from "./pave-data";
 import { StoreProvider } from "./hooks/useLocalStore";
+import { NetworkStatusToast } from "./components/NetworkStatus";
 
 // Modular Screens
 import {
@@ -272,6 +273,7 @@ export default function App() {
 
   return (
     <StoreProvider>
+      <NetworkStatusToast />
       {view === "onboarding" ? (
         /* 1. OnboardingScreen.tsx is the first thing seen */
         <OnboardingLandingScreen onNavigate={handleNavigateFromOnboarding} />

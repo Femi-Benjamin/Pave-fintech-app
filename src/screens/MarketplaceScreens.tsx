@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import {
   Search,
@@ -9,6 +9,7 @@ import {
   Package,
   Truck,
   AlertCircle,
+  RotateCw,
 } from "lucide-react";
 import {
   Badge,
@@ -18,6 +19,7 @@ import {
 } from "../components/UI";
 import { Screen, fmt, pct, MOCK_PRODUCTS } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
+import { MarketplaceScreenSkeleton } from "../components/Skeleton";
 
 export function MarketplaceScreen({
   onNav,
@@ -29,14 +31,33 @@ export function MarketplaceScreen({
   const { products } = useLocalStore();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 650);
+    return () => clearTimeout(timer);
+  }, []);
+
   const categories = ["All", "Electronics", "Fashion", "Home", "Kitchen"];
   const filtered = products.filter(
     (p) =>
       (category === "All" || p.category === category) &&
       p.name.toLowerCase().includes(search.toLowerCase()),
   );
+
+  if (isLoading) {
+    return <MarketplaceScreenSkeleton />;
+  }
+
   return (
-    <div className="flex-1 overflow-y-auto">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="flex-1 overflow-y-auto"
+    >
       <div
         style={{
           background: "linear-gradient(145deg, #7C3AED 0%, #6D28D9 100%)",
@@ -153,7 +174,7 @@ export function MarketplaceScreen({
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import {
   Plus,
   Search,
@@ -12,6 +13,7 @@ import {
 import { Avatar } from "../components/UI";
 import { Screen, MOCK_MESSAGES } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
+import { MessagesScreenSkeleton } from "../components/Skeleton";
 
 export function MessagesScreen({
   onNav,
@@ -22,11 +24,30 @@ export function MessagesScreen({
 }) {
   const { messages } = useLocalStore();
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 650);
+    return () => clearTimeout(timer);
+  }, []);
+
   const filtered = messages.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase()),
   );
+
+  if (isLoading) {
+    return <MessagesScreenSkeleton />;
+  }
+
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="flex-1 flex flex-col overflow-y-auto"
+    >
       <div className="px-6 pt-14 pb-4 bg-white border-b border-[#F1F3FB]">
         <div className="flex items-center justify-between mb-4">
           <h2
@@ -100,7 +121,7 @@ export function MessagesScreen({
           </button>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

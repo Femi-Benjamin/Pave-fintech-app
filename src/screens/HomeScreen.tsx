@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import {
   ArrowUpRight,
@@ -11,6 +11,7 @@ import {
   Landmark,
   Copy,
   ArrowDownLeft,
+  RotateCw,
 } from "lucide-react";
 import {
   AreaChart,
@@ -23,10 +24,27 @@ import Logo from "../components/Logo";
 import { Badge } from "../components/UI";
 import { Screen, SPEND_DATA, fmt, pct } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
+import { HomeScreenSkeleton } from "../components/Skeleton";
 
 export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const { walletBalance, transactions, savings } = useLocalStore();
   const [balVisible, setBalVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 650);
+  };
+
   const quickActions = [
     {
       icon: <ArrowUpRight size={20} />,
@@ -58,8 +76,17 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
     },
   ];
 
+  if (isLoading) {
+    return <HomeScreenSkeleton />;
+  }
+
   return (
-    <div className="flex-1 w-full p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto flex flex-col gap-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="flex-1 w-full p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto flex flex-col gap-6"
+    >
       {/* Top Welcome Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -71,14 +98,21 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               className="text-2xl sm:text-3xl font-extrabold text-[#0D0F1C]"
               style={{ fontFamily: "var(--font-family-display)" }}
             >
-              Welcome back, Emeka 👋
+              Welcome back, Joe 👋
             </h1>
             <p className="text-sm text-[#6B7280]">
               Here's what's happening with your finances today.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={handleRefresh}
+            title="Refresh finances"
+            className="w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#6B7280] hover:text-[#3730A3] transition-colors"
+          >
+            <RotateCw size={16} />
+          </button>
           <button
             onClick={() => onNav("notifications")}
             className="relative w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB]"
@@ -396,6 +430,6 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

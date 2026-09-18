@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import {
   MoreHorizontal,
@@ -21,13 +21,31 @@ import {
   DollarSign,
   Loader,
   BarChart2,
+  RotateCw,
 } from "lucide-react";
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
 import { Screen, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
+import { WalletScreenSkeleton } from "../components/Skeleton";
 
 export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const { walletBalance, transactions } = useLocalStore();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 650);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 650);
+  };
+
   const moneyIn = transactions
     .filter((t) => t.type === "credit")
     .reduce((acc, t) => acc + t.amount, 0);
@@ -79,8 +97,17 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
       bg: "#ECFEFF",
     },
   ];
+  if (isLoading) {
+    return <WalletScreenSkeleton />;
+  }
+
   return (
-    <div className="flex-1 overflow-y-auto">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="flex-1 overflow-y-auto"
+    >
       <div
         style={{
           background: "linear-gradient(145deg, #059669 0%, #047857 100%)",
@@ -94,9 +121,18 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           >
             My Wallet
           </h2>
-          <button className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center cursor-pointer">
-            <MoreHorizontal size={18} className="text-white" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleRefresh}
+              title="Refresh wallet"
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors"
+            >
+              <RotateCw size={15} />
+            </button>
+            <button className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors">
+              <MoreHorizontal size={18} />
+            </button>
+          </div>
         </div>
         <div className="text-white/70 text-sm mb-1">Available Balance</div>
         <div
@@ -230,7 +266,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -330,7 +366,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               <div className="flex flex-col gap-2">
                 {[
                   ["Bank", "Wema Bank"],
-                  ["Account Name", "PAVE/Emeka Adeyemi"],
+                  ["Account Name", "PAVE/Joe Adeyemi"],
                   ["Account Number", "9031 204 8871"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-sm">

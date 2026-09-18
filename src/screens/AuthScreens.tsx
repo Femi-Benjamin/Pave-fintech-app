@@ -9,8 +9,6 @@ import {
   CheckCircle,
   Hash,
   Loader,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import Logo from "../components/Logo";
 import { PaveBtn, Input } from "../components/UI";
@@ -246,26 +244,6 @@ export function SlideOnboardingScreen({
               0{slide + 1} / 0{slides.length}
             </span>
           </div>
-
-          {/* Previous / Next Arrow Controls (hidden on mobile, visible from sm up) */}
-          {slide > 0 && (
-            <button
-              onClick={handlePrev}
-              className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#374151] shadow-md items-center justify-center transition-all cursor-pointer active:scale-95 backdrop-blur-xs"
-              aria-label="Previous card"
-            >
-              <ChevronLeft size={20} />
-            </button>
-          )}
-          {slide < slides.length - 1 && (
-            <button
-              onClick={handleNext}
-              className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-[#374151] shadow-md items-center justify-center transition-all cursor-pointer active:scale-95 backdrop-blur-xs"
-              aria-label="Next card"
-            >
-              <ChevronRight size={20} />
-            </button>
-          )}
 
           {/* Draggable Card Showcase with directional slide animation */}
           <div className="my-auto py-2 z-10 w-full flex flex-col items-center">
@@ -686,7 +664,7 @@ export function RegisterScreen({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                     <Input
                       label="First Name"
-                      placeholder="Emeka"
+                      placeholder="Joe"
                       value={form.firstName}
                       onChange={set("firstName")}
                     />
@@ -699,7 +677,7 @@ export function RegisterScreen({
                   </div>
                   <Input
                     label="Email Address"
-                    placeholder="emeka@email.com"
+                    placeholder="joe@email.com"
                     type="email"
                     value={form.email}
                     onChange={set("email")}

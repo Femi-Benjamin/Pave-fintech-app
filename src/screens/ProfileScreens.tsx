@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import {
   Camera,
   User,
@@ -14,6 +15,7 @@ import {
 import { Avatar, Badge, ScreenHeader } from "../components/UI";
 import { Screen } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
+import { ProfileScreenSkeleton } from "../components/Skeleton";
 
 export function ProfileScreen({
   onNav,
@@ -23,9 +25,28 @@ export function ProfileScreen({
   onBackToWebsite?: () => void;
 }) {
   const { savings, programs, products } = useLocalStore();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 650);
+    return () => clearTimeout(timer);
+  }, []);
+
   const payingProductsCount = products.filter((p) => p.paid > 0).length;
+
+  if (isLoading) {
+    return <ProfileScreenSkeleton />;
+  }
+
   return (
-    <div className="flex-1 overflow-y-auto">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+      className="flex-1 overflow-y-auto"
+    >
       <div
         style={{
           background: "linear-gradient(145deg, #1E1B4B 0%, #3730A3 100%)",
@@ -33,7 +54,7 @@ export function ProfileScreen({
         className="px-6 pt-14 pb-8 flex flex-col items-center"
       >
         <div className="relative mb-4">
-          <Avatar name="Emeka Adeyemi" size={80} color="#6366F1" />
+          <Avatar name="Joe Adeyemi" size={80} color="#6366F1" />
           <button className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md cursor-pointer">
             <Camera size={12} className="text-[#3730A3]" />
           </button>
@@ -46,9 +67,9 @@ export function ProfileScreen({
             fontSize: 20,
           }}
         >
-          Emeka Adeyemi
+          Joe Adeyemi
         </h2>
-        <p className="text-white/70 text-sm">emeka@email.com</p>
+        <p className="text-white/70 text-sm">joe@email.com</p>
         <div className="mt-3">
           <Badge color="green">✓ KYC Verified</Badge>
         </div>
@@ -142,7 +163,7 @@ export function ProfileScreen({
         </button>
         <div className="h-4" />
       </div>
-    </div>
+    </motion.div>
   );
 }
 

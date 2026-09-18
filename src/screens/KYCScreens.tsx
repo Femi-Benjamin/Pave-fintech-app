@@ -500,11 +500,11 @@ export function KYCApprovedScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
         <div className="w-full max-w-md bg-[#F1F3FB] rounded-2xl p-5 my-6 border border-[#E5E7EB]">
           <div className="flex items-center gap-4">
-            <Avatar name="Emeka Adeyemi" size={48} color="#3730A3" />
+            <Avatar name="Joe Adeyemi" size={48} color="#3730A3" />
             <div className="text-left">
-              <div className="font-semibold text-[#0D0F1C]">Emeka Adeyemi</div>
+              <div className="font-semibold text-[#0D0F1C]">Joe Adeyemi</div>
               <div className="text-xs text-[#6B7280]">
-                emeka@email.com • Member ID: PAV-20240614
+                joe@email.com • Member ID: PAV-20240614
               </div>
               <div className="mt-1">
                 <Badge color="green">KYC Verified</Badge>

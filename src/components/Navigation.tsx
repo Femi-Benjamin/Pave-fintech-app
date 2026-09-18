@@ -11,6 +11,7 @@ import {
 import Logo from "./Logo";
 import { Avatar } from "./UI";
 import { Screen } from "../pave-data";
+import { NetworkStatusBarIcon } from "./NetworkStatus";
 
 export const BOTTOM_NAV = [
   { screen: "home" as Screen, icon: Home, label: "Home" },
@@ -43,9 +44,12 @@ export function DesktopSidebar({
       <div>
         <div className="flex items-center justify-between mb-8">
           <Logo size="md" />
-          <span className="text-[10px] uppercase font-bold tracking-widest text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
-            Web
-          </span>
+          <div className="flex items-center gap-2">
+            <NetworkStatusBarIcon />
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+              Web
+            </span>
+          </div>
         </div>
 
         <nav className="flex flex-col gap-1.5">
@@ -71,10 +75,10 @@ export function DesktopSidebar({
 
       <div className="pt-6 border-t border-[#F1F3FB] flex flex-col gap-3">
         <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#F7F8FF] border border-[#F1F3FB]">
-          <Avatar name="Emeka Adeyemi" size={38} color="#6366F1" />
+          <Avatar name="Joe Adeyemi" size={38} color="#6366F1" />
           <div className="flex-1 overflow-hidden">
             <div className="text-xs font-bold text-[#0D0F1C] truncate">
-              Emeka Adeyemi
+              Joe Adeyemi
             </div>
             <div className="text-[10px] text-[#059669] font-semibold">
               ✓ Verified Member
