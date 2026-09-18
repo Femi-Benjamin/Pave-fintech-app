@@ -197,7 +197,7 @@ function MobileApp({
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto" : "h-screen max-h-screen overflow-hidden"} relative`}
+        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : "h-screen max-h-screen overflow-hidden"} relative`}
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -212,40 +212,45 @@ function MobileApp({
           </motion.div>
         </AnimatePresence>
 
-        {/* Mobile Bottom Navigation (visible only on mobile/tablet < lg) */}
+        {/* Mobile Bottom Navigation (sticky/fixed to viewport bottom on mobile < lg) */}
         {showNav && (
-          <div className="lg:hidden bg-white border-t border-[#F1F3FB] sticky bottom-0 z-40">
-            <div className="flex">
+          <nav
+            aria-label="Bottom Navigation"
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[#F1F3FB] shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
+          >
+            <div className="flex max-w-md mx-auto">
               {BOTTOM_NAV.map((item) => {
                 const active = screen === item.screen;
                 return (
                   <button
                     key={item.screen}
                     onClick={() => nav(item.screen)}
-                    className="flex-1 flex flex-col items-center gap-1 py-3 transition-colors cursor-pointer"
+                    className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-colors cursor-pointer select-none active:scale-95"
                   >
                     <item.icon
                       size={22}
                       style={{
                         color: active ? "#3730A3" : "#9CA3AF",
-                        strokeWidth: active ? 2 : 1.5,
+                        strokeWidth: active ? 2.2 : 1.6,
                       }}
                     />
                     <span
-                      className="text-xs font-medium"
+                      className="text-xs font-semibold"
                       style={{ color: active ? "#3730A3" : "#9CA3AF" }}
                     >
                       {item.label}
                     </span>
-                    {active && (
+                    {active ? (
                       <div className="w-1 h-1 rounded-full bg-[#3730A3] mt-0.5" />
+                    ) : (
+                      <div className="w-1 h-1 rounded-full mt-0.5 opacity-0" />
                     )}
                   </button>
                 );
               })}
             </div>
-            <div className="h-2 bg-white" />
-          </div>
+            <div className="h-[env(safe-area-inset-bottom,4px)] bg-transparent" />
+          </nav>
         )}
       </div>
     </div>
