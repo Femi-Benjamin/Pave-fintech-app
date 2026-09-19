@@ -244,3 +244,44 @@
   animation: skeleton-shimmer 1.6s infinite;
   content: "";
 }
+
+/* Float & Marquee Utilities for Landing Page */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatDelayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 7s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatDelayed 8s ease-in-out infinite 1.5s;
+}
+
+.animate-marquee-continuous {
+  animation: marqueeScroll 28s linear infinite;
+}
+
