@@ -36,8 +36,72 @@ export type Screen =
   | "profile"
   | "settings";
 
+export interface Transaction {
+  id: string;
+  type: "credit" | "debit";
+  desc: string;
+  amount: number;
+  date: string;
+  category: "wallet" | "bills" | "savings" | "airtime" | "transfer" | "marketplace";
+  status: "success" | "pending" | "failed";
+}
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  goal: number;
+  current: number;
+  color: string;
+  icon: string;
+  daysLeft: number;
+  freq: string;
+}
+
+export interface ThriftProgram {
+  id: string;
+  name: string;
+  admin: string;
+  members: number;
+  target: number;
+  current: number;
+  myContrib: number;
+  nextDue: string;
+  freq: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  paid: number;
+  image: string;
+  category: string;
+  inStock: boolean;
+  rating: number;
+  reviews: number;
+  description: string;
+}
+
+export interface MessageItem {
+  id: string;
+  name: string;
+  avatar: string;
+  lastMsg: string;
+  time: string;
+  unread: number;
+  online: boolean;
+  isGroup?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  from: "me" | "them";
+  text: string;
+  time: string;
+}
+
 // ─── Mock Data ──────────────────────────────────────────────────────────────
-export const MOCK_TRANSACTIONS = [
+export const MOCK_TRANSACTIONS: Transaction[] = [
   {
     id: "1",
     type: "credit",
@@ -145,7 +209,7 @@ export const MOCK_SAVINGS = [
   },
 ];
 
-export const MOCK_PROGRAMS = [
+export const MOCK_PROGRAMS: ThriftProgram[] = [
   {
     id: "1",
     name: "PAVE Community Thrift",
@@ -170,7 +234,7 @@ export const MOCK_PROGRAMS = [
   },
 ];
 
-export const MOCK_PRODUCTS = [
+export const MOCK_PRODUCTS: Product[] = [
   {
     id: "1",
     name: "Samsung Galaxy S25 Ultra",
@@ -251,7 +315,7 @@ export const MOCK_PRODUCTS = [
   },
 ];
 
-export const MOCK_MESSAGES = [
+export const MOCK_MESSAGES: MessageItem[] = [
   {
     id: "1",
     name: "Chinwe Okonkwo",
@@ -301,7 +365,7 @@ export const MOCK_MESSAGES = [
   },
 ];
 
-export const MOCK_CHAT = [
+export const MOCK_CHAT: ChatMessage[] = [
   {
     id: "1",
     from: "them",
