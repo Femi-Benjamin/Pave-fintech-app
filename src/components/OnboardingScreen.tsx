@@ -224,7 +224,7 @@ export default function OnboardingScreen({
             {/* Get started Primary CTA */}
             <button
               onClick={() => onNavigate("signup")}
-              className="relative group inline-flex items-center justify-center text-sm font-bold text-white px-5 sm:px-6 py-2.5 rounded-full bg-gradient-to-r from-[#2B217A] via-[#4F39F6] to-[#6351F7] shadow-md shadow-[#4F39F6]/20 hover:shadow-lg hover:shadow-[#4F39F6]/35 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4F39F6] cursor-pointer"
+              className="relative group inline-flex items-center justify-center text-sm font-bold text-white px-5 sm:px-6 py-2.5 rounded-full bg-linear-to-r from-[#2B217A] via-[#4F39F6] to-[#6351F7] shadow-md shadow-[#4F39F6]/20 hover:shadow-lg hover:shadow-[#4F39F6]/35 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4F39F6] cursor-pointer"
             >
               <span>Get started</span>
               <ArrowRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -237,7 +237,7 @@ export default function OnboardingScreen({
       <div className="h-20 w-full shrink-0" aria-hidden="true" />
 
       {/* MAIN CONTENT WRAPPER */}
-      <main className="flex-grow relative z-10">
+      <main className="grow relative z-10">
         {/* HERO SPLIT SECTION */}
         <section
           className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-16 lg:pb-28 overflow-hidden"
@@ -267,7 +267,7 @@ export default function OnboardingScreen({
                   style={{ fontFamily: "var(--font-family-display)" }}
                 >
                   Modern Wealth Building,{" "}
-                  <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#2B217A] via-[#4F39F6] to-[#8B5CF6] dark:from-[#A5B4FC] dark:via-[#818CF8] dark:to-[#C084FC]">
+                  <span className="relative inline-block text-transparent bg-clip-text bg-linear-to-r from-[#2B217A] via-[#4F39F6] to-[#8B5CF6] dark:from-[#A5B4FC] dark:via-[#818CF8] dark:to-[#C084FC]">
                     Rooted in Community.
                   </span>
                 </h1>
@@ -285,7 +285,7 @@ export default function OnboardingScreen({
                   {/* Primary Action Button */}
                   <button
                     onClick={() => onNavigate("signup")}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold text-white bg-gradient-to-r from-[#2B217A] via-[#372BAA] to-[#4F39F6] hover:from-[#1E1656] hover:to-[#372BAA] shadow-xl shadow-[#4F39F6]/25 hover:shadow-2xl hover:shadow-[#4F39F6]/35 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold text-white bg-linear-to-r from-[#2B217A] via-[#372BAA] to-[#4F39F6] hover:from-[#1E1656] hover:to-[#372BAA] shadow-xl shadow-[#4F39F6]/25 hover:shadow-2xl hover:shadow-[#4F39F6]/35 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-95"
                   >
                     <span>Start Saving in 2 Mins</span>
                     <TrendingUp size={18} />
@@ -341,7 +341,11 @@ export default function OnboardingScreen({
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-1 text-amber-400">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} size={15} className="fill-current text-amber-400" />
+                        <Star
+                          key={s}
+                          size={15}
+                          className="fill-current text-amber-400"
+                        />
                       ))}
                       <span className="text-xs font-bold text-slate-800 dark:text-slate-200 ml-1">
                         4.9/5.0
@@ -367,7 +371,7 @@ export default function OnboardingScreen({
 
                 <div className="relative w-full max-w-lg">
                   {/* MAIN WALLET CARD (Dark Modern FinTech Card) */}
-                  <div className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-[#0E0E1A] p-7 sm:p-8 rounded-3xl text-white shadow-2xl border border-slate-800/80 overflow-hidden">
+                  <div className="relative bg-linear-to-br from-slate-950 via-slate-900 to-[#0E0E1A] p-7 sm:p-8 rounded-3xl text-white shadow-2xl border border-slate-800/80 overflow-hidden">
                     {/* Card Background Subtle Geometric Ring */}
                     <div className="absolute -top-16 -right-16 w-56 h-56 border border-white/5 rounded-full pointer-events-none" />
                     <div className="absolute -top-6 -right-6 w-36 h-36 border border-white/10 rounded-full pointer-events-none" />
@@ -397,7 +401,8 @@ export default function OnboardingScreen({
                       </div>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="inline-flex items-center text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                          <TrendingUp size={13} className="mr-0.5" /> +14.2% p.a.
+                          <TrendingUp size={13} className="mr-0.5" /> +14.2%
+                          p.a.
                         </span>
                         <span className="text-xs text-slate-400 font-medium">
                           Interest accrued daily • Compounding monthly
@@ -412,7 +417,10 @@ export default function OnboardingScreen({
                         className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
                         type="button"
                       >
-                        <PlusCircle size={20} className="text-indigo-400 mb-1 group-hover:scale-110 transition-transform" />
+                        <PlusCircle
+                          size={20}
+                          className="text-indigo-400 mb-1 group-hover:scale-110 transition-transform"
+                        />
                         <span className="text-xs font-semibold text-slate-200">
                           Deposit
                         </span>
@@ -422,7 +430,10 @@ export default function OnboardingScreen({
                         className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
                         type="button"
                       >
-                        <Lock size={20} className="text-amber-400 mb-1 group-hover:scale-110 transition-transform" />
+                        <Lock
+                          size={20}
+                          className="text-amber-400 mb-1 group-hover:scale-110 transition-transform"
+                        />
                         <span className="text-xs font-semibold text-slate-200">
                           Lock Savings
                         </span>
@@ -432,7 +443,10 @@ export default function OnboardingScreen({
                         className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
                         type="button"
                       >
-                        <Users size={20} className="text-emerald-400 mb-1 group-hover:scale-110 transition-transform" />
+                        <Users
+                          size={20}
+                          className="text-emerald-400 mb-1 group-hover:scale-110 transition-transform"
+                        />
                         <span className="text-xs font-semibold text-slate-200">
                           Thrift Pool
                         </span>
@@ -451,7 +465,7 @@ export default function OnboardingScreen({
                       </div>
                       <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-[#6351F7] to-emerald-400 h-full rounded-full transition-all duration-1000"
+                          className="bg-linear-to-r from-[#6351F7] to-emerald-400 h-full rounded-full transition-all duration-1000"
                           style={{ width: "72%" }}
                         />
                       </div>
@@ -460,7 +474,7 @@ export default function OnboardingScreen({
 
                   {/* FLOATING CARD 1: Thrift Status Pill / Next Payout Card */}
                   <div className="animate-float-slow absolute -bottom-7 -left-3 sm:-left-8 bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-2xl border border-slate-100 dark:border-white/10 flex items-center gap-4 max-w-xs sm:max-w-sm z-20">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
+                    <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
                       <Wallet size={24} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -536,9 +550,9 @@ export default function OnboardingScreen({
                   Automated Discipline
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
-                  Remove the temptation to spend. Configure customizable automated
-                  debit rules, strict target lockboxes, and daily micro-deposits
-                  that turn small change into monumental wealth.
+                  Remove the temptation to spend. Configure customizable
+                  automated debit rules, strict target lockboxes, and daily
+                  micro-deposits that turn small change into monumental wealth.
                 </p>
               </div>
               <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-[#4F39F6] dark:text-[#818CF8]">
@@ -587,9 +601,10 @@ export default function OnboardingScreen({
                   Institutional Grade Safety
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
-                  Sleep soundly knowing your funds are held in NDIC-insured partner
-                  banks, regulated under CBN framework, and fortified by AES
-                  256-bit bank-grade encryption and biometric authentication.
+                  Sleep soundly knowing your funds are held in NDIC-insured
+                  partner banks, regulated under CBN framework, and fortified by
+                  AES 256-bit bank-grade encryption and biometric
+                  authentication.
                 </p>
               </div>
               <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -607,11 +622,11 @@ export default function OnboardingScreen({
         >
           {/* Edge shadow / gradient fade masks for smooth seamless transitions */}
           <div
-            className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 sm:w-32 md:w-44 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 dark:to-transparent z-10"
+            className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 sm:w-32 md:w-44 bg-linear-to-r from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 dark:to-transparent z-10"
             aria-hidden="true"
           />
           <div
-            className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 sm:w-32 md:w-44 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 dark:to-transparent z-10"
+            className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 sm:w-32 md:w-44 bg-linear-to-l from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 dark:to-transparent z-10"
             aria-hidden="true"
           />
 
@@ -623,64 +638,108 @@ export default function OnboardingScreen({
                   <div className="flex items-center gap-3 px-4 shrink-0">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 dark:bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] shrink-0" />
                     <span className="inline-flex items-center gap-2 text-slate-950 dark:text-white font-black tracking-wider">
-                      <span className="text-base" role="img" aria-label="rocket">🚀</span>
+                      <span
+                        className="text-base"
+                        role="img"
+                        aria-label="rocket"
+                      >
+                        🚀
+                      </span>
                       <span>BUILDING FINANCIAL DISCIPLINE</span>
                     </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">/</span>
+                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
+                      /
+                    </span>
                   </div>
 
                   {/* Item 2: Automated Savings with icon */}
                   <div className="flex items-center gap-3 px-4 shrink-0">
                     <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="lightning">⚡</span>
+                      <span
+                        className="text-base"
+                        role="img"
+                        aria-label="lightning"
+                      >
+                        ⚡
+                      </span>
                       <span>AUTOMATED SAVINGS</span>
                     </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">/</span>
+                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
+                      /
+                    </span>
                   </div>
 
                   {/* Item 3: Community Thrift with icon */}
                   <div className="flex items-center gap-3 px-4 shrink-0">
                     <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="community">👥</span>
+                      <span
+                        className="text-base"
+                        role="img"
+                        aria-label="community"
+                      >
+                        👥
+                      </span>
                       <span>COMMUNITY THRIFT</span>
                     </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">/</span>
+                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
+                      /
+                    </span>
                   </div>
 
                   {/* Item 4: CBN Regulated Partners with icon */}
                   <div className="flex items-center gap-3 px-4 shrink-0">
                     <span className="inline-flex items-center gap-2 text-[#372BAA] dark:text-indigo-300 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="shield">🛡️</span>
+                      <span
+                        className="text-base"
+                        role="img"
+                        aria-label="shield"
+                      >
+                        🛡️
+                      </span>
                       <span>CBN REGULATED PARTNERS</span>
                     </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">/</span>
+                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
+                      /
+                    </span>
                   </div>
 
                   {/* Item 5: Up to 14.2% Annual Returns with icon */}
                   <div className="flex items-center gap-3 px-4 shrink-0">
                     <span className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="chart">📈</span>
+                      <span className="text-base" role="img" aria-label="chart">
+                        📈
+                      </span>
                       <span>UP TO 14.2% ANNUAL RETURNS</span>
                     </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">/</span>
+                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
+                      /
+                    </span>
                   </div>
 
                   {/* Item 6: NDIC Insured with icon */}
                   <div className="flex items-center gap-3 px-4 shrink-0">
                     <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="lock">🔒</span>
+                      <span className="text-base" role="img" aria-label="lock">
+                        🔒
+                      </span>
                       <span>NDIC INSURED UP TO ₦5M</span>
                     </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">/</span>
+                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
+                      /
+                    </span>
                   </div>
 
                   {/* Item 7: 256-Bit Encryption with icon */}
                   <div className="flex items-center gap-3 px-4 shrink-0">
                     <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="key">🔐</span>
+                      <span className="text-base" role="img" aria-label="key">
+                        🔐
+                      </span>
                       <span>256-BIT ENCRYPTION</span>
                     </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">/</span>
+                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
+                      /
+                    </span>
                   </div>
                 </div>
               ))}
@@ -710,7 +769,10 @@ export default function OnboardingScreen({
                 Save for What Matters Most
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
-                Whether it's building a 6-month emergency buffer, saving for a tech gadget, or planning your dream holiday, PAVE helps you reach your financial milestones faster with automated recurring transfers.
+                Whether it's building a 6-month emergency buffer, saving for a
+                tech gadget, or planning your dream holiday, PAVE helps you
+                reach your financial milestones faster with automated recurring
+                transfers.
               </p>
 
               <ul className="space-y-4 mb-10 w-full">
@@ -724,7 +786,10 @@ export default function OnboardingScreen({
                     key={item}
                     className="flex items-center gap-3 text-slate-800 dark:text-slate-200 font-medium text-base"
                   >
-                    <CheckCircle2 size={20} className="text-[#4F39F6] dark:text-[#818CF8] shrink-0" />
+                    <CheckCircle2
+                      size={20}
+                      className="text-[#4F39F6] dark:text-[#818CF8] shrink-0"
+                    />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -740,7 +805,7 @@ export default function OnboardingScreen({
 
             {/* Right Column: Liquid Glass Interactive Card */}
             <div className="w-full flex justify-center lg:justify-end">
-              <div className="w-full max-w-lg bg-gradient-to-br from-[#EEF2FF] via-[#F5F3FF] to-[#E0E7FF] dark:from-indigo-950/40 dark:via-purple-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-indigo-200/90 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
+              <div className="w-full max-w-lg bg-linear-to-br from-[#EEF2FF] via-[#F5F3FF] to-[#E0E7FF] dark:from-indigo-950/40 dark:via-purple-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-indigo-200/90 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
                 <div className="w-full bg-white dark:bg-[#111327] rounded-2xl p-7 md:p-8 shadow-md border border-slate-100 dark:border-white/10 relative overflow-hidden z-10">
                   <div className="flex justify-between items-end mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
                     <div>
@@ -761,21 +826,26 @@ export default function OnboardingScreen({
 
                   <div className="flex justify-between text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3">
                     <span>Target: ₦500,000</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">+₦14,200 accrued interest</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                      +₦14,200 accrued interest
+                    </span>
                   </div>
 
                   <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/50 dark:border-white/5">
                     <div
-                      className="h-full bg-gradient-to-r from-[#4F39F6] to-emerald-400 rounded-full transition-all duration-1000 shadow-sm"
+                      className="h-full bg-linear-to-r from-[#4F39F6] to-emerald-400 rounded-full transition-all duration-1000 shadow-sm"
                       style={{ width: "77%" }}
                     />
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5">
-                      <Clock size={14} className="text-[#4F39F6]" /> Auto-saving ₦25,000 every Friday
+                      <Clock size={14} className="text-[#4F39F6]" /> Auto-saving
+                      ₦25,000 every Friday
                     </span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">5 weeks left</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">
+                      5 weeks left
+                    </span>
                   </div>
                 </div>
               </div>
@@ -795,7 +865,7 @@ export default function OnboardingScreen({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Column: Visual Circular Matrix Card */}
             <div className="w-full flex justify-center lg:justify-start order-2 lg:order-1">
-              <div className="w-full max-w-lg bg-gradient-to-br from-[#ECFDF5] via-[#F0FDF4] to-[#D1FAE5] dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-emerald-300/80 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
+              <div className="w-full max-w-lg bg-linear-to-br from-[#ECFDF5] via-[#F0FDF4] to-[#D1FAE5] dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-emerald-300/80 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
                 <div className="w-full bg-white dark:bg-[#111327] rounded-2xl p-7 md:p-8 shadow-md border border-slate-100 dark:border-white/10 relative overflow-hidden z-10">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/30">
@@ -820,7 +890,7 @@ export default function OnboardingScreen({
                     {[1, 2, 3, 4].map((i) => (
                       <div
                         key={`comp-${i}`}
-                        className="h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 shadow-xs flex items-center justify-center text-white text-[11px] font-bold"
+                        className="h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs flex items-center justify-center text-white text-[11px] font-bold"
                       >
                         ✓
                       </div>
@@ -842,7 +912,9 @@ export default function OnboardingScreen({
 
                   <div className="flex justify-between items-center text-xs md:text-sm text-slate-600 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span>5 of 12 rotations completed</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">Total Pooled: ₦3,000,000</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                      Total Pooled: ₦3,000,000
+                    </span>
                   </div>
                 </div>
               </div>
@@ -860,7 +932,10 @@ export default function OnboardingScreen({
                 Grow Together with Ajo & Esusu
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
-                Generations of Nigerians have built capital through communal rotational thrift. PAVE removes the default risk, manual record-keeping, and awkward follow-ups by automating debits and programmatic escrow payouts.
+                Generations of Nigerians have built capital through communal
+                rotational thrift. PAVE removes the default risk, manual
+                record-keeping, and awkward follow-ups by automating debits and
+                programmatic escrow payouts.
               </p>
 
               <ul className="space-y-4 mb-10 w-full">
@@ -874,7 +949,10 @@ export default function OnboardingScreen({
                     key={item}
                     className="flex items-center gap-3 text-slate-800 dark:text-slate-200 font-medium text-base"
                   >
-                    <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
+                    <CheckCircle2
+                      size={20}
+                      className="text-emerald-500 shrink-0"
+                    />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -907,7 +985,9 @@ export default function OnboardingScreen({
                 Why Savers Earn Significantly More on PAVE
               </h2>
               <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
-                Traditional commercial banks offer meager returns that fail to outpace inflation. PAVE redistributes institutional money market yields directly to your wallet.
+                Traditional commercial banks offer meager returns that fail to
+                outpace inflation. PAVE redistributes institutional money market
+                yields directly to your wallet.
               </p>
             </div>
 
@@ -923,20 +1003,27 @@ export default function OnboardingScreen({
                     className="text-3xl font-extrabold text-slate-700 dark:text-slate-300 mb-4"
                     style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    1.5% — 3.5% <span className="text-sm font-normal text-slate-400">p.a.</span>
+                    1.5% — 3.5%{" "}
+                    <span className="text-sm font-normal text-slate-400">
+                      p.a.
+                    </span>
                   </div>
                   <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
                     <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span> Monthly maintenance and card maintenance fees
+                      <span className="text-red-500 font-bold">✕</span> Monthly
+                      maintenance and card maintenance fees
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span> Unnecessary SMS notification charges
+                      <span className="text-red-500 font-bold">✕</span>{" "}
+                      Unnecessary SMS notification charges
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span> Heavy penalties for withdrawing savings early
+                      <span className="text-red-500 font-bold">✕</span> Heavy
+                      penalties for withdrawing savings early
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span> No automated community thrift structures
+                      <span className="text-red-500 font-bold">✕</span> No
+                      automated community thrift structures
                     </li>
                   </ul>
                 </div>
@@ -946,7 +1033,7 @@ export default function OnboardingScreen({
               </div>
 
               {/* PAVE Card */}
-              <div className="bg-gradient-to-br from-[#1E1B4B] via-[#2B217A] to-[#4F39F6] text-white p-8 rounded-3xl border-2 border-indigo-400/50 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+              <div className="bg-linear-to-br from-[#1E1B4B] via-[#2B217A] to-[#4F39F6] text-white p-8 rounded-3xl border-2 border-indigo-400/50 shadow-2xl flex flex-col justify-between relative overflow-hidden">
                 <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
                   Up to 4x Better
                 </div>
@@ -958,20 +1045,27 @@ export default function OnboardingScreen({
                     className="text-4xl font-extrabold text-white mb-4"
                     style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    10.5% — 14.2% <span className="text-sm font-normal text-indigo-200">p.a.</span>
+                    10.5% — 14.2%{" "}
+                    <span className="text-sm font-normal text-indigo-200">
+                      p.a.
+                    </span>
                   </div>
                   <ul className="space-y-3 text-sm text-indigo-100">
                     <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" /> Zero account maintenance or sign-up fees
+                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                      Zero account maintenance or sign-up fees
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" /> Daily interest calculation with monthly compounding
+                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                      Daily interest calculation with monthly compounding
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" /> Flexible anytime withdrawals on emergency funds
+                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                      Flexible anytime withdrawals on emergency funds
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" /> Built-in rotational Ajo circles with zero default risk
+                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                      Built-in rotational Ajo circles with zero default risk
                     </li>
                   </ul>
                 </div>
@@ -1003,7 +1097,9 @@ export default function OnboardingScreen({
                 Your Financial Security is Non-Negotiable
               </h2>
               <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
-                PAVE employs the highest cryptographic standards and partners with regulated financial institutions so you can build wealth with total confidence.
+                PAVE employs the highest cryptographic standards and partners
+                with regulated financial institutions so you can build wealth
+                with total confidence.
               </p>
             </div>
 
@@ -1017,7 +1113,9 @@ export default function OnboardingScreen({
                   256-Bit Bank Encryption
                 </h4>
                 <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                  All traffic, payment credentials, and biometric authentications are encrypted with end-to-end TLS 1.3 and AES-256 protocols.
+                  All traffic, payment credentials, and biometric
+                  authentications are encrypted with end-to-end TLS 1.3 and
+                  AES-256 protocols.
                 </p>
               </div>
 
@@ -1030,7 +1128,9 @@ export default function OnboardingScreen({
                   NDIC Deposit Insurance
                 </h4>
                 <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                  Deposits are held in custody by CBN-licensed partner commercial banks (Wema Bank PLC) and insured by the Nigeria Deposit Insurance Corporation.
+                  Deposits are held in custody by CBN-licensed partner
+                  commercial banks (Wema Bank PLC) and insured by the Nigeria
+                  Deposit Insurance Corporation.
                 </p>
               </div>
 
@@ -1043,7 +1143,9 @@ export default function OnboardingScreen({
                   Verified KYC Community
                 </h4>
                 <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                  Strict BVN/NIN identity screening prevents bad actors, impersonation, and defaults across all community thrift circles.
+                  Strict BVN/NIN identity screening prevents bad actors,
+                  impersonation, and defaults across all community thrift
+                  circles.
                 </p>
               </div>
             </div>
@@ -1067,7 +1169,8 @@ export default function OnboardingScreen({
                 Frequently Asked Questions
               </h2>
               <p className="text-slate-600 dark:text-slate-300 mt-2 text-base">
-                Everything you need to know about PAVE savings, interest yields, and thrift rotations.
+                Everything you need to know about PAVE savings, interest yields,
+                and thrift rotations.
               </p>
             </div>
 
@@ -1113,24 +1216,27 @@ export default function OnboardingScreen({
         <section className="w-full px-6 py-20 md:py-28 z-10 relative">
           <div className="max-w-5xl mx-auto relative">
             {/* Ambient atmospheric glow */}
-            <div className="absolute -inset-3 bg-gradient-to-r from-sky-400/15 via-indigo-500/10 to-purple-500/15 dark:from-sky-500/10 dark:via-indigo-600/15 dark:to-violet-600/15 rounded-[3.2rem] blur-2xl -z-10 pointer-events-none" />
+            <div className="absolute -inset-3 bg-linear-to-r from-sky-400/15 via-indigo-500/10 to-purple-500/15 dark:from-sky-500/10 dark:via-indigo-600/15 dark:to-violet-600/15 rounded-[3.2rem] blur-2xl -z-10 pointer-events-none" />
 
             {/* Main Card: Soft Celestial Ice-Blue to Lavender Gradient (Light) & Atmospheric Cosmic Indigo (Dark) */}
-            <div className="w-full relative rounded-3xl sm:rounded-[2.5rem] md:rounded-[3rem] p-8 sm:p-14 md:p-16 text-center shadow-xl shadow-indigo-950/5 dark:shadow-2xl border border-[#E0E7FF]/90 dark:border-indigo-500/30 overflow-hidden transition-all duration-300 bg-gradient-to-br from-[#EEF5FF] via-[#F8FAFF] to-[#F5F3FF] dark:bg-gradient-to-br dark:from-[#0E122A] dark:via-[#121430] dark:to-[#181335]">
+            <div className="w-full relative rounded-3xl sm:rounded-[2.5rem] md:rounded-[3rem] p-8 sm:p-14 md:p-16 text-center shadow-xl shadow-indigo-950/5 dark:shadow-2xl border border-[#E0E7FF]/90 dark:border-indigo-500/30 overflow-hidden transition-all duration-300 bg-linear-to-br from-[#EEF5FF] via-[#F8FAFF] to-[#F5F3FF] dark:bg-linear-to-br dark:from-[#0E122A] dark:via-[#121430] dark:to-[#181335]">
               {/* Internal subtle glow accents */}
               <div
-                className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-gradient-to-br from-[#DCEBFF] to-transparent dark:from-sky-500/15 pointer-events-none blur-2xl"
+                className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-linear-to-br from-[#DCEBFF] to-transparent dark:from-sky-500/15 pointer-events-none blur-2xl"
                 aria-hidden="true"
               />
               <div
-                className="absolute -bottom-24 -right-24 w-88 h-88 rounded-full bg-gradient-to-tl from-[#EDE9FE] to-transparent dark:from-violet-500/15 pointer-events-none blur-2xl"
+                className="absolute -bottom-24 -right-24 w-88 h-88 rounded-full bg-linear-to-tl from-[#EDE9FE] to-transparent dark:from-violet-500/15 pointer-events-none blur-2xl"
                 aria-hidden="true"
               />
 
               <div className="relative z-10">
                 {/* Community Trust Badge */}
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-md border border-indigo-200/70 dark:border-white/15 text-[#3730A3] dark:text-indigo-200 text-xs font-semibold mb-6 shadow-xs">
-                  <Sparkles size={14} className="text-[#4F39F6] dark:text-indigo-300" />
+                  <Sparkles
+                    size={14}
+                    className="text-[#4F39F6] dark:text-indigo-300"
+                  />
                   <span>Join Over 45,000+ Disciplined Savers Today</span>
                 </div>
 
@@ -1144,7 +1250,9 @@ export default function OnboardingScreen({
 
                 {/* Description */}
                 <p className="text-slate-600 dark:text-slate-300 max-w-xl mx-auto text-base sm:text-lg mb-8 font-normal leading-relaxed">
-                  Join thousands of Nigerians building wealth with PAVE. Take control of your money with automated high-yield savings and disciplined community thrift contributions.
+                  Join thousands of Nigerians building wealth with PAVE. Take
+                  control of your money with automated high-yield savings and
+                  disciplined community thrift contributions.
                 </p>
 
                 {/* Primary Action Buttons */}
@@ -1163,7 +1271,10 @@ export default function OnboardingScreen({
                     onClick={() => setIsDownloadModalOpen(true)}
                     className="w-full sm:w-auto bg-white/90 hover:bg-white text-slate-800 border border-indigo-200/80 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/20 font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all cursor-pointer shadow-xs inline-flex items-center justify-center gap-2 active:scale-95 backdrop-blur-md"
                   >
-                    <Download size={16} className="text-[#3730A3] dark:text-slate-300" />
+                    <Download
+                      size={16}
+                      className="text-[#3730A3] dark:text-slate-300"
+                    />
                     <span>Download Pave App</span>
                   </button>
                 </div>
@@ -1180,7 +1291,9 @@ export default function OnboardingScreen({
             <div className="md:col-span-1">
               <Logo size="md" className="mb-6 justify-start" />
               <p className="text-sm text-slate-700 dark:text-slate-300 font-normal leading-relaxed">
-                Building financial discipline through automated high-yield savings and digitized cultural community contributions (Ajo/Esusu).
+                Building financial discipline through automated high-yield
+                savings and digitized cultural community contributions
+                (Ajo/Esusu).
               </p>
             </div>
 
@@ -1230,22 +1343,34 @@ export default function OnboardingScreen({
               </h4>
               <ul className="space-y-4 text-sm font-medium">
                 <li>
-                  <a href="#about" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#about"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     About PAVE
                   </a>
                 </li>
                 <li>
-                  <a href="#careers" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#careers"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     Careers
                   </a>
                 </li>
                 <li>
-                  <a href="#blog" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#blog"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     FinTech Blog
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#contact"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     Support Contact
                   </a>
                 </li>
@@ -1258,22 +1383,34 @@ export default function OnboardingScreen({
               </h4>
               <ul className="space-y-4 text-sm font-medium">
                 <li>
-                  <a href="#privacy" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#privacy"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     Privacy Policy
                   </a>
                 </li>
                 <li>
-                  <a href="#terms" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#terms"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     Terms of Service
                   </a>
                 </li>
                 <li>
-                  <a href="#security" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#security"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     NDIC Protection
                   </a>
                 </li>
                 <li>
-                  <a href="#cookies" className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors">
+                  <a
+                    href="#cookies"
+                    className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
+                  >
                     Cookie Policy
                   </a>
                 </li>
@@ -1282,8 +1419,13 @@ export default function OnboardingScreen({
           </div>
 
           <div className="pt-8 border-t border-slate-200 dark:border-white/15 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            <div>© {new Date().getFullYear()} PAVE TECHNOLOGIES LTD. ALL RIGHTS RESERVED.</div>
-            <div>LICENSED PARTNER BANK INTEGRATION & CBN FRAMEWORK COMPLIANT</div>
+            <div>
+              © {new Date().getFullYear()} PAVE TECHNOLOGIES LTD. ALL RIGHTS
+              RESERVED.
+            </div>
+            <div>
+              LICENSED PARTNER BANK INTEGRATION & CBN FRAMEWORK COMPLIANT
+            </div>
           </div>
         </div>
       </footer>
@@ -1334,27 +1476,36 @@ export default function OnboardingScreen({
                   Download Pave App
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  Automate high-yield savings and manage your Ajo thrift pools on the go.
+                  Automate high-yield savings and manage your Ajo thrift pools
+                  on the go.
                 </p>
               </div>
 
               {/* QR Code Section */}
               <div className="bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center gap-5">
                 <div className="w-28 h-28 shrink-0 bg-white dark:bg-slate-900 rounded-xl p-2.5 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center shadow-xs">
-                  <QrCode size={78} className="text-slate-900 dark:text-white" />
-                  <span className="text-[9px] font-bold text-[#4F39F6] tracking-tight mt-0.5">SCAN ME</span>
+                  <QrCode
+                    size={78}
+                    className="text-slate-900 dark:text-white"
+                  />
+                  <span className="text-[9px] font-bold text-[#4F39F6] tracking-tight mt-0.5">
+                    SCAN ME
+                  </span>
                 </div>
                 <div className="text-center sm:text-left">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#4F39F6] dark:text-indigo-400 block mb-1">
                     Instant Camera Scan
                   </span>
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Point your smartphone camera at the QR code to install directly on iOS or Android.
+                    Point your smartphone camera at the QR code to install
+                    directly on iOS or Android.
                   </p>
                   <button
                     onClick={() => {
                       navigator.clipboard?.writeText(window.location.origin);
-                      setDownloadSuccess("App download link copied to clipboard!");
+                      setDownloadSuccess(
+                        "App download link copied to clipboard!",
+                      );
                       setTimeout(() => setDownloadSuccess(null), 3000);
                     }}
                     className="mt-2.5 text-xs font-bold text-[#4F39F6] hover:text-[#432BD8] dark:text-indigo-400 dark:hover:text-indigo-300 inline-flex items-center gap-1 cursor-pointer"
@@ -1370,37 +1521,67 @@ export default function OnboardingScreen({
                 {/* Apple App Store Button */}
                 <button
                   onClick={() => {
-                    setDownloadSuccess("Redirecting to Apple App Store (TestFlight Preview)...");
+                    setDownloadSuccess(
+                      "Redirecting to Apple App Store (TestFlight Preview)...",
+                    );
                     setTimeout(() => setDownloadSuccess(null), 3500);
                   }}
                   className="group flex items-center justify-center gap-3.5 py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 dark:bg-[#0B0E23] dark:hover:bg-[#121636] dark:text-white dark:border-white/10 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
                 >
-                  <svg className="w-6 h-6 fill-slate-950 dark:fill-white shrink-0 group-hover:scale-105 transition-transform" viewBox="0 0 170 170">
-                    <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.59-7.71-11.66-14-5.87-9.08-10.37-19.12-13.5-30.1-3.13-11.03-4.7-21.2-4.7-30.5 0-14.18 3.52-25.77 10.56-34.78 7.04-9 15.86-13.62 26.47-13.87 4.79 0 10.22 1.25 16.29 3.75 6.06 2.5 10.15 3.78 12.26 3.84 1.74 0 6.01-1.34 12.82-4.02 6.81-2.68 12.44-3.9 16.89-3.66 12.63.74 22.84 5.38 30.63 13.92-11.03 6.67-16.42 15.79-16.18 27.35.24 9.08 3.75 16.74 10.53 22.97 6.78 6.23 14.88 9.77 24.31 10.63-2.07 6.1-4.47 12.28-7.22 18.55zM119.22 31.84c0-7.39 2.66-14.19 7.97-20.41 5.32-6.22 11.89-10.3 19.72-12.23.47 2.12.71 4.25.71 6.38 0 7.39-2.77 14.32-8.32 20.79-5.55 6.47-12.21 10.39-19.98 11.75-.14-1.98-.1-4.07-.1-6.28z"/>
+                  <svg
+                    className="w-6 h-6 fill-slate-950 dark:fill-white shrink-0 group-hover:scale-105 transition-transform"
+                    viewBox="0 0 170 170"
+                  >
+                    <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.59-7.71-11.66-14-5.87-9.08-10.37-19.12-13.5-30.1-3.13-11.03-4.7-21.2-4.7-30.5 0-14.18 3.52-25.77 10.56-34.78 7.04-9 15.86-13.62 26.47-13.87 4.79 0 10.22 1.25 16.29 3.75 6.06 2.5 10.15 3.78 12.26 3.84 1.74 0 6.01-1.34 12.82-4.02 6.81-2.68 12.44-3.9 16.89-3.66 12.63.74 22.84 5.38 30.63 13.92-11.03 6.67-16.42 15.79-16.18 27.35.24 9.08 3.75 16.74 10.53 22.97 6.78 6.23 14.88 9.77 24.31 10.63-2.07 6.1-4.47 12.28-7.22 18.55zM119.22 31.84c0-7.39 2.66-14.19 7.97-20.41 5.32-6.22 11.89-10.3 19.72-12.23.47 2.12.71 4.25.71 6.38 0 7.39-2.77 14.32-8.32 20.79-5.55 6.47-12.21 10.39-19.98 11.75-.14-1.98-.1-4.07-.1-6.28z" />
                   </svg>
                   <div className="text-left">
-                    <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">Download on</span>
-                    <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-none">Apple App Store</span>
+                    <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">
+                      Download on
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-none">
+                      Apple App Store
+                    </span>
                   </div>
                 </button>
 
                 {/* Google Play Store Button */}
                 <button
                   onClick={() => {
-                    setDownloadSuccess("Redirecting to Google Play Store (Early Access)...");
+                    setDownloadSuccess(
+                      "Redirecting to Google Play Store (Early Access)...",
+                    );
                     setTimeout(() => setDownloadSuccess(null), 3500);
                   }}
                   className="group flex items-center justify-center gap-3.5 py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 dark:bg-[#0B0E23] dark:hover:bg-[#121636] dark:text-white dark:border-white/10 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
                 >
-                  <svg className="w-6 h-6 shrink-0 group-hover:scale-105 transition-transform" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M3.6 1.8l10.8 10.2-10.8 10.2c-.4-.4-.6-1-.6-1.7V3.5c0-.7.2-1.3.6-1.7z" />
-                    <path fill="#FBBC04" d="M17.8 8.6L14.4 12l3.4 3.4 3.9-2.2c1.1-.6 1.1-1.7 0-2.3l-3.9-2.3z" />
-                    <path fill="#34A853" d="M14.4 12L3.6 22.2c.4.4 1.1.5 1.8.1l12.4-7.1L14.4 12z" />
-                    <path fill="#EA4335" d="M14.4 12l3.4-3.4L5.4 1.5c-.7-.4-1.4-.3-1.8.1L14.4 12z" />
+                  <svg
+                    className="w-6 h-6 shrink-0 group-hover:scale-105 transition-transform"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="#4285F4"
+                      d="M3.6 1.8l10.8 10.2-10.8 10.2c-.4-.4-.6-1-.6-1.7V3.5c0-.7.2-1.3.6-1.7z"
+                    />
+                    <path
+                      fill="#FBBC04"
+                      d="M17.8 8.6L14.4 12l3.4 3.4 3.9-2.2c1.1-.6 1.1-1.7 0-2.3l-3.9-2.3z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M14.4 12L3.6 22.2c.4.4 1.1.5 1.8.1l12.4-7.1L14.4 12z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M14.4 12l3.4-3.4L5.4 1.5c-.7-.4-1.4-.3-1.8.1L14.4 12z"
+                    />
                   </svg>
                   <div className="text-left">
-                    <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">Get it on</span>
-                    <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-none">Google Play Store</span>
+                    <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">
+                      Get it on
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-none">
+                      Google Play Store
+                    </span>
                   </div>
                 </button>
               </div>
@@ -1412,7 +1593,10 @@ export default function OnboardingScreen({
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-medium text-center flex items-center justify-center gap-2"
                 >
-                  <Check size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  <Check
+                    size={14}
+                    className="text-emerald-600 dark:text-emerald-400"
+                  />
                   <span>{downloadSuccess}</span>
                 </motion.div>
               )}
