@@ -266,7 +266,10 @@ export function SlideOnboardingScreen({
                 onDragEnd={(_, { offset, velocity }) => {
                   if (offset.x < -35 || (velocity.x < -200 && offset.x < -10)) {
                     handleNext();
-                  } else if (offset.x > 35 || (velocity.x > 200 && offset.x > 10)) {
+                  } else if (
+                    offset.x > 35 ||
+                    (velocity.x > 200 && offset.x > 10)
+                  ) {
                     handlePrev();
                   }
                 }}
@@ -356,9 +359,7 @@ export function SlideOnboardingScreen({
             {slide < slides.length - 1 ? (
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
-                  <PaveBtn onClick={handleNext}>
-                    Continue
-                  </PaveBtn>
+                  <PaveBtn onClick={handleNext}>Continue</PaveBtn>
                 </div>
                 <div className="sm:w-auto">
                   <PaveBtn variant="ghost" onClick={() => onNext()}>
@@ -370,7 +371,7 @@ export function SlideOnboardingScreen({
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
                   <PaveBtn onClick={() => onNext("register")}>
-                    Get Started Free
+                    Get Started
                   </PaveBtn>
                 </div>
                 <div className="sm:w-auto">
@@ -759,7 +760,11 @@ export function RegisterScreen({
   );
 }
 
-export function ForgotPasswordScreen({ onNav }: { onNav: (s: Screen) => void }) {
+export function ForgotPasswordScreen({
+  onNav,
+}: {
+  onNav: (s: Screen) => void;
+}) {
   const [sent, setSent] = useState(false);
   const [email, setEmail] = useState("");
   return (
@@ -854,7 +859,11 @@ export function ForgotPasswordScreen({ onNav }: { onNav: (s: Screen) => void }) 
   );
 }
 
-export function AcceptInvitationScreen({ onNav }: { onNav: (s: Screen) => void }) {
+export function AcceptInvitationScreen({
+  onNav,
+}: {
+  onNav: (s: Screen) => void;
+}) {
   const [code, setCode] = useState("");
   const [found, setFound] = useState(false);
   const [loading, setLoading] = useState(false);
