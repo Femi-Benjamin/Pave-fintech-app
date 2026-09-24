@@ -258,7 +258,7 @@ export default function OnboardingScreen({
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  <span>⚡ Over ₦1.2B+ Saved & Distributed in Ajo/Esusu</span>
+                  <span>⚡ Over ₦1.2M+ Saved & Distributed in Ajo/Esusu</span>
                 </div>
 
                 {/* Bold Editorial Headline with Highlighting */}
@@ -524,7 +524,7 @@ export default function OnboardingScreen({
           className="max-w-7xl mx-auto px-5 sm:px-8 pb-20 sm:pb-28"
           data-purpose="value-pillars"
         >
-          <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="text-center max-w-3xl mx-auto my-14">
             <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
               Engineered for Discipline
             </span>
@@ -1085,7 +1085,7 @@ export default function OnboardingScreen({
           id="security"
           className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto relative z-10 scroll-mt-24"
         >
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-12 md:p-16 border border-slate-200/90 dark:border-white/10 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-12 md:p-16 border border-slate-200/90 dark:border-white/10 shadow-sm">
             <div className="max-w-3xl mx-auto text-center mb-12">
               <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/40">
                 Security by Architecture

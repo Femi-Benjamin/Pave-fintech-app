@@ -194,7 +194,7 @@ function MobileApp({
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : "h-screen max-h-screen overflow-hidden"} relative`}
+        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : "h-screen max-h-screen overflow-y-auto"} relative`}
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -203,7 +203,7 @@ function MobileApp({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className={`flex-1 flex flex-col ${!showNav ? "h-full overflow-hidden" : ""}`}
+            className={`flex-1 flex flex-col ${!showNav ? "min-h-full" : ""}`}
           >
             {renderScreen()}
           </motion.div>

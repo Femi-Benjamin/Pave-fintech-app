@@ -36,10 +36,10 @@ export function KYCContainer({
 
   return (
     <div
-      className="flex-1 w-full min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-10"
+      className="flex-1 w-full min-h-screen flex items-start justify-center overflow-x-hidden p-3 sm:items-center sm:p-6 md:p-10"
       style={{ background: "#F7F8FF" }}
     >
-      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-[#F1F3FB] p-6 sm:p-10 flex flex-col min-h-135">
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-10 flex flex-col min-h-0 sm:min-h-135">
         <div className="flex items-center justify-between pb-6 border-b border-[#F1F3FB] mb-6">
           <div className="flex items-center gap-3">
             {onBack && (
@@ -50,7 +50,7 @@ export function KYCContainer({
                 <ArrowLeft size={18} />
               </button>
             )}
-            <div>
+            <div className="text-center">
               <h2
                 className="text-xl sm:text-2xl font-bold text-[#0D0F1C]"
                 style={{ fontFamily: "var(--font-family-display)" }}

@@ -83,6 +83,7 @@ export function SlideOnboardingScreen({
 }) {
   const [slide, setSlide] = useState(0);
   const [direction, setDirection] = useState(0);
+  const isTransitioning = useRef(false);
 
   const slides = [
     {
@@ -111,23 +112,37 @@ export function SlideOnboardingScreen({
   const s = slides[slide];
 
   const handleNext = () => {
+    if (isTransitioning.current) return;
     if (slide < slides.length - 1) {
+      isTransitioning.current = true;
       setDirection(1);
       setSlide((prev) => prev + 1);
+      window.setTimeout(() => {
+        isTransitioning.current = false;
+      }, 320);
     }
   };
 
   const handlePrev = () => {
+    if (isTransitioning.current) return;
     if (slide > 0) {
+      isTransitioning.current = true;
       setDirection(-1);
       setSlide((prev) => prev - 1);
+      window.setTimeout(() => {
+        isTransitioning.current = false;
+      }, 320);
     }
   };
 
   const goToSlide = (newIndex: number) => {
-    if (newIndex === slide) return;
+    if (newIndex === slide || isTransitioning.current) return;
+    isTransitioning.current = true;
     setDirection(newIndex > slide ? 1 : -1);
     setSlide(newIndex);
+    window.setTimeout(() => {
+      isTransitioning.current = false;
+    }, 320);
   };
 
   // Touch Swipe Gesture Handler (for mobile & tablet screen swiping)
@@ -268,19 +283,6 @@ export function SlideOnboardingScreen({
                   x: { type: "spring", stiffness: 300, damping: 30 },
                   opacity: { duration: 0.22 },
                   scale: { duration: 0.22 },
-                }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.3}
-                onDragEnd={(_, { offset, velocity }) => {
-                  if (offset.x < -35 || (velocity.x < -200 && offset.x < -10)) {
-                    handleNext();
-                  } else if (
-                    offset.x > 35 ||
-                    (velocity.x > 200 && offset.x > 10)
-                  ) {
-                    handlePrev();
-                  }
                 }}
                 className="flex flex-col items-center gap-4 text-center cursor-grab active:cursor-grabbing touch-pan-y"
               >
@@ -516,18 +518,18 @@ export function LoginScreen({
 
         <div className="flex-1 md:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col justify-between h-full overflow-y-auto scrollbar-hide">
           <div>
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center justify-center mb-4 sm:mb-6">
               <div className="md:hidden">
                 <Logo size="sm" />
               </div>
-              {onBackToWebsite && (
+              {/* {onBackToWebsite && (
                 <button
                   onClick={onBackToWebsite}
                   className="flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline ml-auto"
                 >
                   <ArrowLeft size={16} /> Back to Website
                 </button>
-              )}
+              )} */}
             </div>
 
             <div className="mb-4 sm:mb-6">
@@ -699,17 +701,17 @@ export function RegisterScreen({
               >
                 <ArrowLeft size={16} />
               </button>
-              <div className="md:hidden">
+              <div className="md:hidden items-center justify-center flex-1 flex">
                 <Logo size="sm" />
               </div>
-              {onBackToWebsite && (
+              {/* {onBackToWebsite && (
                 <button
                   onClick={onBackToWebsite}
                   className="text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
                 >
                   Back to Website
                 </button>
-              )}
+              )} */}
             </div>
 
             <h1
