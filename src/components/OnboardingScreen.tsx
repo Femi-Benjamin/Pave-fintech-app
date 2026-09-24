@@ -164,8 +164,8 @@ export default function OnboardingScreen({
       <header
         className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 border-b ${
           scrolled
-            ? "bg-white/80 dark:bg-[#0A0B14]/85 border-slate-200/80 dark:border-white/15 shadow-sm shadow-slate-900/5 dark:shadow-black/40"
-            : "bg-white/65 dark:bg-[#0A0B14]/65 border-slate-200/50 dark:border-white/10 shadow-xs"
+            ? "bg-white/10 dark:bg-[#0A0B14]/85 border-slate-200/80 dark:border-white/15 shadow-xs dark:shadow-black/40"
+            : "bg-white/10 dark:bg-[#0A0B14]/65 border-slate-200/50 dark:border-white/10 shadow-xs"
         }`}
         style={{
           WebkitBackdropFilter: "blur(20px)",
