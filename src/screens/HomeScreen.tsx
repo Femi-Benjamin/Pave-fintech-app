@@ -13,13 +13,7 @@ import {
   ArrowDownLeft,
   RotateCw,
 } from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import Logo from "../components/Logo";
 import { Badge } from "../components/UI";
 import { Screen, SPEND_DATA, fmt, pct } from "../pave-data";

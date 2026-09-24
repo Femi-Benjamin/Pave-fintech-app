@@ -4,7 +4,7 @@ import { WifiOff, Wifi, RefreshCw } from "lucide-react";
 
 export function useNetworkStatus() {
   const [isOnline, setIsOnline] = useState<boolean>(
-    typeof navigator !== "undefined" ? navigator.onLine : true
+    typeof navigator !== "undefined" ? navigator.onLine : true,
   );
   const [wasOffline, setWasOffline] = useState(false);
 
@@ -109,7 +109,11 @@ export function NetworkStatusToast() {
   );
 }
 
-export function NetworkStatusBarIcon({ className = "" }: { className?: string }) {
+export function NetworkStatusBarIcon({
+  className = "",
+}: {
+  className?: string;
+}) {
   const { isOnline } = useNetworkStatus();
 
   if (isOnline) {

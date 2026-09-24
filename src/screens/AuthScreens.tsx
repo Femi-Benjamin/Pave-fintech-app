@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowLeft,
@@ -13,6 +14,14 @@ import {
 import Logo from "../components/Logo";
 import { PaveBtn, Input } from "../components/UI";
 import { Screen } from "../pave-data";
+import {
+  completeRegistration,
+  forgotPassword,
+  getAuthErrorMessage,
+  login,
+  resetPassword,
+} from "../api/auth";
+import { useLocalStore } from "../hooks/useLocalStore";
 
 export function SplashScreen({ onNext }: { onNext: () => void }) {
   useEffect(() => {
@@ -456,16 +465,44 @@ export function LoginScreen({
   onNav: (s: Screen) => void;
   onBackToWebsite?: () => void;
 }) {
+  const { setAuthUser } = useLocalStore();
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [loading, setLoading] = useState(false);
-  const doLogin = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+  const [error, setError] = useState("");
+
+  const loginMutation = useMutation({
+    mutationFn: login,
+    onSuccess: (response) => {
+      const user = response.user ?? {
+        email: email.trim(),
+        firstName: "",
+        lastName: "",
+      };
+
+      localStorage.setItem("pave_token", response.token!);
+      setAuthUser(user);
       onNav("kyc-welcome");
-    }, 1200);
+    },
+    onError: (err: any) => {
+      setError(
+        getAuthErrorMessage(
+          err,
+          "Unable to sign in right now. Please try again.",
+        ),
+      );
+    },
+  });
+
+  const doLogin = async () => {
+    if (!email.trim() || !pass.trim()) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
+    setError("");
+    loginMutation.mutate({ email: email.trim(), password: pass });
   };
+
   return (
     <div
       className="flex-1 w-full h-screen max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
@@ -530,9 +567,14 @@ export function LoginScreen({
               >
                 Forgot password?
               </button>
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                  {error}
+                </div>
+              )}
               <div className="mt-1">
-                <PaveBtn onClick={doLogin} disabled={loading}>
-                  {loading ? (
+                <PaveBtn onClick={doLogin} disabled={loginMutation.isPending}>
+                  {loginMutation.isPending ? (
                     <>
                       <Loader size={16} className="animate-spin" /> Signing
                       in...
@@ -580,8 +622,7 @@ export function RegisterScreen({
   onNav: (s: Screen) => void;
   onBackToWebsite?: () => void;
 }) {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -590,17 +631,54 @@ export function RegisterScreen({
     password: "",
     confirm: "",
   });
+
+  const completeRegistrationMutation = useMutation({
+    mutationFn: completeRegistration,
+  });
+
   const set = (k: string) => (v: string) => setForm({ ...form, [k]: v });
-  const doNext = () => {
-    if (step === 1) setStep(2);
-    else {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        onNav("kyc-welcome");
-      }, 1200);
+
+  const doNext = async () => {
+    if (
+      !form.firstName.trim() ||
+      !form.lastName.trim() ||
+      !form.email.trim() ||
+      !form.phone.trim()
+    ) {
+      setError("Please complete your name, email, and phone number.");
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (form.password !== form.confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setError("");
+
+    try {
+      await completeRegistrationMutation.mutateAsync({
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        phoneNumber: form.phone.trim(),
+      });
+
+      onNav("login");
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          "We could not create your account. Please try again.",
+      );
     }
   };
+
   return (
     <div
       className="flex-1 w-full h-screen max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
@@ -616,7 +694,7 @@ export function RegisterScreen({
           <div>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <button
-                onClick={() => (step > 1 ? setStep(1) : onNav("login"))}
+                onClick={() => onNav("login")}
                 className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
               >
                 <ArrowLeft size={16} />
@@ -634,16 +712,6 @@ export function RegisterScreen({
               )}
             </div>
 
-            <div className="flex gap-2 mb-3">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="h-1.5 flex-1 rounded-full transition-all"
-                  style={{ background: i <= step ? "#3730A3" : "#E5E7EB" }}
-                />
-              ))}
-            </div>
-
             <h1
               style={{
                 fontFamily: "var(--font-family-display)",
@@ -651,92 +719,89 @@ export function RegisterScreen({
               }}
               className="text-2xl sm:text-3xl text-[#0D0F1C]"
             >
-              {step === 1 ? "Create Account" : "Set Password"}
+              Create Account
             </h1>
             <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-3 sm:mb-4">
-              {step === 1
-                ? "Fill in your personal details to get started"
-                : "Choose a strong password to secure your funds"}
+              Fill in your personal details and create a secure password.
             </p>
 
             <div className="flex flex-col gap-2.5 sm:gap-3">
-              {step === 1 ? (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                    <Input
-                      label="First Name"
-                      placeholder="Joe"
-                      value={form.firstName}
-                      onChange={set("firstName")}
-                    />
-                    <Input
-                      label="Last Name"
-                      placeholder="Adeyemi"
-                      value={form.lastName}
-                      onChange={set("lastName")}
-                    />
-                  </div>
-                  <Input
-                    label="Email Address"
-                    placeholder="joe@email.com"
-                    type="email"
-                    value={form.email}
-                    onChange={set("email")}
-                    icon={<Mail size={16} />}
-                  />
-                  <Input
-                    label="Phone Number"
-                    placeholder="+234 801 234 5678"
-                    type="tel"
-                    value={form.phone}
-                    onChange={set("phone")}
-                    icon={<Phone size={16} />}
-                  />
-                </>
-              ) : (
-                <>
-                  <Input
-                    label="Password"
-                    type="password"
-                    placeholder="Min. 8 characters"
-                    value={form.password}
-                    onChange={set("password")}
-                    icon={<Lock size={16} />}
-                  />
-                  <Input
-                    label="Confirm Password"
-                    type="password"
-                    placeholder="Repeat password"
-                    value={form.confirm}
-                    onChange={set("confirm")}
-                    icon={<Lock size={16} />}
-                  />
-                  <div className="bg-[#F1F3FB] rounded-xl p-3 flex flex-col gap-1.5">
-                    {[
-                      "8+ characters",
-                      "One uppercase letter",
-                      "One number",
-                    ].map((r) => (
-                      <div
-                        key={r}
-                        className="flex items-center gap-2 text-xs text-[#6B7280]"
-                      >
-                        <Check size={12} className="text-[#059669]" />
-                        {r}
-                      </div>
-                    ))}
-                  </div>
-                </>
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                  {error}
+                </div>
               )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                <Input
+                  label="First Name"
+                  placeholder="Joe"
+                  value={form.firstName}
+                  onChange={set("firstName")}
+                />
+                <Input
+                  label="Last Name"
+                  placeholder="Adeyemi"
+                  value={form.lastName}
+                  onChange={set("lastName")}
+                />
+              </div>
+              <Input
+                label="Email Address"
+                placeholder="joe@email.com"
+                type="email"
+                value={form.email}
+                onChange={set("email")}
+                icon={<Mail size={16} />}
+              />
+              <Input
+                label="Phone Number"
+                placeholder="+234 801 234 5678"
+                type="tel"
+                value={form.phone}
+                onChange={set("phone")}
+                icon={<Phone size={16} />}
+              />
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Min. 8 characters"
+                value={form.password}
+                onChange={set("password")}
+                icon={<Lock size={16} />}
+              />
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="Repeat password"
+                value={form.confirm}
+                onChange={set("confirm")}
+                icon={<Lock size={16} />}
+              />
+              <div className="bg-[#F1F3FB] rounded-xl p-3 flex flex-col gap-1.5">
+                {[
+                  "8+ characters",
+                  "One uppercase letter",
+                  "One number",
+                ].map((r) => (
+                  <div
+                    key={r}
+                    className="flex items-center gap-2 text-xs text-[#6B7280]"
+                  >
+                    <Check size={12} className="text-[#059669]" />
+                    {r}
+                  </div>
+                ))}
+              </div>
               <div className="mt-1">
-                <PaveBtn onClick={doNext} disabled={loading}>
-                  {loading ? (
+                <PaveBtn
+                  onClick={doNext}
+                  disabled={completeRegistrationMutation.isPending}
+                >
+                  {completeRegistrationMutation.isPending ? (
                     <>
                       <Loader size={16} className="animate-spin" />
                       Creating account...
                     </>
-                  ) : step === 1 ? (
-                    "Continue"
                   ) : (
                     "Create Account"
                   )}
@@ -766,7 +831,75 @@ export function ForgotPasswordScreen({
   onNav: (s: Screen) => void;
 }) {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
   const [email, setEmail] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const forgotPasswordMutation = useMutation({
+    mutationFn: forgotPassword,
+  });
+  const resetPasswordMutation = useMutation({
+    mutationFn: resetPassword,
+  });
+
+  const handleSendReset = async () => {
+    if (!email.trim()) {
+      setError("Please enter your email address.");
+      return;
+    }
+
+    setError("");
+
+    try {
+      await forgotPasswordMutation.mutateAsync(email.trim());
+      setSent(true);
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          "We could not send the reset link right now.",
+      );
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetToken.trim()) {
+      setError("Please enter the reset token from your email.");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setError("");
+
+    try {
+      await resetPasswordMutation.mutateAsync({
+        token: resetToken.trim(),
+        password: newPassword,
+      });
+      setSent(false);
+      setEmail("");
+      setResetToken("");
+      setNewPassword("");
+      setConfirmPassword("");
+      onNav("login");
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          "The reset code is invalid or expired. Please try again.",
+      );
+    }
+  };
+
   return (
     <div
       className="flex-1 w-full h-screen max-h-screen flex items-center justify-center p-3 sm:p-5 overflow-hidden"
@@ -792,6 +925,12 @@ export function ForgotPasswordScreen({
         </div>
 
         <div className="flex-1 flex flex-col">
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+              {error}
+            </div>
+          )}
+
           {!sent ? (
             <>
               <div className="w-14 h-14 bg-[#EEF2FF] rounded-2xl flex items-center justify-center mb-4">
@@ -807,8 +946,7 @@ export function ForgotPasswordScreen({
                 Forgot Password?
               </h2>
               <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-4">
-                No worries! Enter your registered email and we'll send a
-                password reset link.
+                Enter your registered email and we’ll send a secure reset link.
               </p>
               <Input
                 label="Email Address"
@@ -819,34 +957,83 @@ export function ForgotPasswordScreen({
                 icon={<Mail size={16} />}
               />
               <div className="mt-4">
-                <PaveBtn onClick={() => setSent(true)}>Send Reset Link</PaveBtn>
+                <PaveBtn
+                  onClick={handleSendReset}
+                  disabled={forgotPasswordMutation.isPending}
+                >
+                  {forgotPasswordMutation.isPending ? (
+                    <>
+                      <Loader size={16} className="animate-spin" /> Sending...
+                    </>
+                  ) : (
+                    "Send Reset Link"
+                  )}
+                </PaveBtn>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-4">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring" }}
-                className="w-16 h-16 bg-[#ECFDF5] rounded-full flex items-center justify-center"
-              >
-                <CheckCircle size={36} className="text-[#059669]" />
-              </motion.div>
-              <h2
-                style={{
-                  fontFamily: "var(--font-family-display)",
-                  fontWeight: 700,
-                  fontSize: 20,
-                }}
-              >
-                Check Your Email
-              </h2>
-              <p className="text-[#6B7280] text-xs sm:text-sm">
-                We sent a password reset link to{" "}
-                <strong>{email || "your email"}</strong>
-              </p>
-              <div className="mt-3 flex flex-col gap-2 w-full">
-                <PaveBtn onClick={() => onNav("login")}>Back to Login</PaveBtn>
+            <div className="flex-1 flex flex-col gap-4 py-2">
+              <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring" }}
+                  className="w-16 h-16 bg-[#ECFDF5] rounded-full flex items-center justify-center"
+                >
+                  <CheckCircle size={36} className="text-[#059669]" />
+                </motion.div>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-family-display)",
+                    fontWeight: 700,
+                    fontSize: 20,
+                  }}
+                >
+                  Check Your Email
+                </h2>
+                <p className="text-[#6B7280] text-xs sm:text-sm">
+                  We sent a reset token to{" "}
+                  <strong>{email || "your email"}</strong>.
+                </p>
+              </div>
+
+              <Input
+                label="Reset Token"
+                placeholder="Paste the token from your email"
+                value={resetToken}
+                onChange={setResetToken}
+                icon={<Hash size={16} />}
+              />
+              <Input
+                label="New Password"
+                type="password"
+                placeholder="Enter a new password"
+                value={newPassword}
+                onChange={setNewPassword}
+                icon={<Lock size={16} />}
+              />
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="Repeat your new password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                icon={<Lock size={16} />}
+              />
+
+              <div className="mt-2 flex flex-col gap-2 w-full">
+                <PaveBtn
+                  onClick={handleResetPassword}
+                  disabled={resetPasswordMutation.isPending}
+                >
+                  {resetPasswordMutation.isPending ? (
+                    <>
+                      <Loader size={16} className="animate-spin" /> Updating...
+                    </>
+                  ) : (
+                    "Update Password"
+                  )}
+                </PaveBtn>
                 <PaveBtn variant="ghost" onClick={() => setSent(false)}>
                   Resend Email
                 </PaveBtn>

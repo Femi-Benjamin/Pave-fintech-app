@@ -34,7 +34,11 @@ export function DesktopSidebar({
     { screen: "home" as Screen, icon: Home, label: "Home" },
     { screen: "wallet" as Screen, icon: Wallet, label: "Wallet" },
     { screen: "savings" as Screen, icon: PiggyBank, label: "Savings & Goals" },
-    { screen: "marketplace" as Screen, icon: ShoppingBag, label: "Marketplace" },
+    {
+      screen: "marketplace" as Screen,
+      icon: ShoppingBag,
+      label: "Marketplace",
+    },
     { screen: "messages" as Screen, icon: MessageCircle, label: "Messages" },
     { screen: "profile" as Screen, icon: User, label: "Profile" },
   ];

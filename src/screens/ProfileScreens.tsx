@@ -24,7 +24,7 @@ export function ProfileScreen({
   onNav: (s: Screen) => void;
   onBackToWebsite?: () => void;
 }) {
-  const { savings, programs, products } = useLocalStore();
+  const { savings, programs, products, logout } = useLocalStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -151,6 +151,7 @@ export function ProfileScreen({
         ))}
         <button
           onClick={() => {
+            logout();
             if (onBackToWebsite) onBackToWebsite();
             else onNav("login");
           }}

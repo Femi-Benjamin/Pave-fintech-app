@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import OnboardingLandingScreen from "./components/OnboardingScreen";
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
@@ -56,10 +57,7 @@ import {
   NotificationsScreen,
 } from "./screens/MessagesScreens";
 
-import {
-  ProfileScreen,
-  SettingsScreen,
-} from "./screens/ProfileScreens";
+import { ProfileScreen, SettingsScreen } from "./screens/ProfileScreens";
 
 // ─── Main Web App (Full Desktop & Responsive Mobile Layout) ──────────────────
 function MobileApp({
@@ -160,9 +158,7 @@ function MobileApp({
       case "product-detail":
         return <ProductDetailScreen onNav={nav} product={selectedProduct} />;
       case "payment-plan":
-        return (
-          <PaymentPlanScreen onNav={nav} product={selectedProduct} />
-        );
+        return <PaymentPlanScreen onNav={nav} product={selectedProduct} />;
       case "messages":
         return <MessagesScreen onNav={nav} setActiveChat={setActiveChat} />;
       case "chat":
@@ -261,7 +257,12 @@ function MobileApp({
 // ─── Web Application Root ───────────────────────────────────────────────────
 export default function App() {
   // Sequence: OnboardingLandingScreen → Splash → Onboarding → Auth → KYC → Home
-  const [view, setView] = useState<"onboarding" | "app">("onboarding");
+  const [queryClient] = useState(() => new QueryClient());
+  const hasSession =
+    typeof window !== "undefined" && !!localStorage.getItem("pave_token");
+  const [view, setView] = useState<"onboarding" | "app">(
+    hasSession ? "app" : "onboarding",
+  );
   const [targetAuth, setTargetAuth] = useState<"login" | "register">(
     "register",
   );
@@ -272,21 +273,23 @@ export default function App() {
   };
 
   return (
-    <StoreProvider>
-      <NetworkStatusToast />
-      {view === "onboarding" ? (
-        /* 1. OnboardingScreen.tsx is the first thing seen */
-        <OnboardingLandingScreen onNavigate={handleNavigateFromOnboarding} />
-      ) : (
-        /* Full Desktop/Laptop Web Application (with mobile responsiveness) */
-        <div className="w-full bg-[#F7F8FF] dark:bg-[#0A0B18] flex flex-col transition-colors">
-          <MobileApp
-            initialScreen="splash"
-            targetAuth={targetAuth}
-            onBackToWebsite={() => setView("onboarding")}
-          />
-        </div>
-      )}
-    </StoreProvider>
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider>
+        <NetworkStatusToast />
+        {view === "onboarding" ? (
+          /* 1. OnboardingScreen.tsx is the first thing seen */
+          <OnboardingLandingScreen onNavigate={handleNavigateFromOnboarding} />
+        ) : (
+          /* Full Desktop/Laptop Web Application (with mobile responsiveness) */
+          <div className="w-full bg-[#F7F8FF] dark:bg-[#0A0B18] flex flex-col transition-colors">
+            <MobileApp
+              initialScreen={hasSession ? "home" : "splash"}
+              targetAuth={targetAuth}
+              onBackToWebsite={() => setView("onboarding")}
+            />
+          </div>
+        )}
+      </StoreProvider>
+    </QueryClientProvider>
   );
 }

@@ -34,7 +34,9 @@ export default function Logo({
     md: "w-10 h-10 rounded-xl",
     lg: "w-14 h-14 rounded-[20px]",
     xl: "w-18 h-18 sm:w-20 sm:h-20 rounded-[24px]",
-    "2xl": isVertical ? "w-24 h-24 sm:w-32 sm:h-32 rounded-3xl sm:rounded-[2rem]" : "w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl",
+    "2xl": isVertical
+      ? "w-24 h-24 sm:w-32 sm:h-32 rounded-3xl sm:rounded-[2rem]"
+      : "w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl",
   };
 
   const gapClasses = isVertical

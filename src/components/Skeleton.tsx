@@ -145,7 +145,10 @@ export function HomeScreenSkeleton() {
             </div>
             <div className="h-40 flex items-end justify-between gap-2 pt-6 px-2">
               {[40, 75, 55, 90, 65, 80, 50].map((heightPct, idx) => (
-                <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+                <div
+                  key={idx}
+                  className="flex-1 flex flex-col items-center gap-2"
+                >
                   <div
                     className="w-full bg-[#E5E7EB]/80 rounded-t-md"
                     style={{ height: `${heightPct}%` }}
@@ -349,7 +352,10 @@ export function MarketplaceScreenSkeleton() {
       <div className="px-4 -mt-4 mb-4">
         <div className="flex gap-2 overflow-x-auto pb-1">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-8 w-20 rounded-full shrink-0 bg-white shadow-xs" />
+            <Skeleton
+              key={i}
+              className="h-8 w-20 rounded-full shrink-0 bg-white shadow-xs"
+            />
           ))}
         </div>
       </div>

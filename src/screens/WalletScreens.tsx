@@ -380,7 +380,9 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <div className="mt-auto pt-2">
             <PaveBtn
               onClick={handleFund}
-              disabled={!amount || !method || Number(amount.replace(/,/g, "")) <= 0}
+              disabled={
+                !amount || !method || Number(amount.replace(/,/g, "")) <= 0
+              }
             >
               Fund Wallet
             </PaveBtn>
@@ -663,7 +665,12 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     const num = Number(amount.replace(/,/g, ""));
     if (num <= 0 || num > walletBalance) return;
     const billObj = bills.find((b) => b.id === selected);
-    payBill("bills", billObj ? `${billObj.label} Bill` : "Utility Bill", num, meter);
+    payBill(
+      "bills",
+      billObj ? `${billObj.label} Bill` : "Utility Bill",
+      num,
+      meter,
+    );
     setSuccess(true);
   };
   return (

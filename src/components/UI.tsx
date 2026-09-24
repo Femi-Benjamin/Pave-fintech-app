@@ -157,11 +157,7 @@ export function ImageWithFallback(
       style={style}
     >
       <div className="flex items-center justify-center w-full h-full">
-        <img
-          src={ERROR_IMG_SRC}
-          alt="Error"
-          className="w-10 h-10 opacity-40"
-        />
+        <img src={ERROR_IMG_SRC} alt="Error" className="w-10 h-10 opacity-40" />
       </div>
     </div>
   ) : (

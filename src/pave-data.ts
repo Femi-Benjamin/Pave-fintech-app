@@ -42,7 +42,13 @@ export interface Transaction {
   desc: string;
   amount: number;
   date: string;
-  category: "wallet" | "bills" | "savings" | "airtime" | "transfer" | "marketplace";
+  category:
+    | "wallet"
+    | "bills"
+    | "savings"
+    | "airtime"
+    | "transfer"
+    | "marketplace";
   status: "success" | "pending" | "failed";
 }
 
