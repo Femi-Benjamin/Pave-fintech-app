@@ -27,6 +27,8 @@ export interface AuthUser {
   lastName?: string;
   fullName?: string;
   phoneNumber?: string;
+  kycStatus?: string;
+  isKycVerified?: boolean;
   role?: string;
   isVerified?: boolean;
   [key: string]: unknown;

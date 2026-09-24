@@ -24,7 +24,7 @@ export function ProfileScreen({
   onNav: (s: Screen) => void;
   onBackToWebsite?: () => void;
 }) {
-  const { savings, programs, products, logout } = useLocalStore();
+  const { savings, programs, products, authUser, logout } = useLocalStore();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +35,23 @@ export function ProfileScreen({
   }, []);
 
   const payingProductsCount = products.filter((p) => p.paid > 0).length;
+  const fullName =
+    [authUser?.firstName, authUser?.lastName]
+      .map((part) => part?.trim())
+      .filter(Boolean)
+      .join(" ") ||
+    authUser?.fullName?.trim() ||
+    "PAVE Member";
+  const email = authUser?.email?.trim() || "Email not available";
+  const kycStatus = authUser?.kycStatus?.toLowerCase();
+  const isKycVerified = kycStatus
+    ? kycStatus === "approved" || kycStatus === "verified"
+    : authUser?.isKycVerified ?? authUser?.isVerified ?? false;
+  const verificationLabel = kycStatus
+    ? `KYC ${kycStatus.charAt(0).toUpperCase()}${kycStatus.slice(1)}`
+    : isKycVerified
+      ? "KYC Verified"
+      : "KYC Pending";
 
   if (isLoading) {
     return <ProfileScreenSkeleton />;
@@ -54,7 +71,7 @@ export function ProfileScreen({
         className="px-6 pt-14 pb-8 flex flex-col items-center"
       >
         <div className="relative mb-4">
-          <Avatar name="Joe Adetemi" size={80} color="#6366F1" />
+          <Avatar name={fullName} size={80} color="#6366F1" />
           <button className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md cursor-pointer">
             <Camera size={12} className="text-[#3730A3]" />
           </button>
@@ -67,11 +84,13 @@ export function ProfileScreen({
             fontSize: 20,
           }}
         >
-          Joe Adetemi
+          {fullName}
         </h2>
-        <p className="text-white/70 text-sm">joe@email.com</p>
+        <p className="text-white/70 text-sm">{email}</p>
         <div className="mt-3">
-          <Badge color="green">✓ KYC Verified</Badge>
+          <Badge color={isKycVerified ? "green" : "gold"}>
+            {verificationLabel}
+          </Badge>
         </div>
         <div className="grid grid-cols-3 gap-4 mt-6 w-full">
           {[
