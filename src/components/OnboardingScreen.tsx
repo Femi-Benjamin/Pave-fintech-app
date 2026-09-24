@@ -258,7 +258,7 @@ export default function OnboardingScreen({
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  <span>⚡ Over ₦2.5B+ Saved & Distributed in Ajo/Esusu</span>
+                  <span>⚡ Over ₦1.2B+ Saved & Distributed in Ajo/Esusu</span>
                 </div>
 
                 {/* Bold Editorial Headline with Highlighting */}
@@ -309,7 +309,7 @@ export default function OnboardingScreen({
                 {/* Social Proof Strip */}
                 <div className="pt-6 border-t border-slate-200/80 dark:border-white/10 w-full flex flex-col sm:flex-row sm:items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
                   {/* User Avatars Stack */}
-                  <div className="flex items-center -space-x-2.5">
+                  {/* <div className="flex items-center -space-x-2.5">
                     <img
                       alt="Pave Saver 1"
                       className="w-9 h-9 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
@@ -337,8 +337,8 @@ export default function OnboardingScreen({
                     <div className="w-9 h-9 rounded-full bg-slate-900 dark:bg-indigo-600 ring-2 ring-white dark:ring-slate-900 text-[11px] font-bold text-white flex items-center justify-center">
                       +45k
                     </div>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
+                  </div> */}
+                  {/* <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-1 text-amber-400">
                       {[1, 2, 3, 4, 5].map((s) => (
                         <Star
@@ -354,7 +354,7 @@ export default function OnboardingScreen({
                     <p className="text-slate-500 dark:text-slate-400 font-medium">
                       Trusted by 45,000+ disciplined savers & thrift circles
                     </p>
-                  </div>
+                  </div> */}
                 </div>
               </motion.div>
 
