@@ -21,9 +21,13 @@ import { useLocalStore } from "../hooks/useLocalStore";
 import { HomeScreenSkeleton } from "../components/Skeleton";
 
 export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { walletBalance, transactions, savings } = useLocalStore();
+  const { walletBalance, transactions, savings, authUser } = useLocalStore();
   const [balVisible, setBalVisible] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const firstName =
+    authUser?.firstName?.trim() ||
+    authUser?.fullName?.trim().split(" ")[0] ||
+    "there";
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -92,7 +96,7 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               className="text-2xl sm:text-3xl font-extrabold text-[#0D0F1C]"
               style={{ fontFamily: "var(--font-family-display)" }}
             >
-              Welcome back, Joe 👋
+              {`Welcome, ${firstName} 👋`}
             </h1>
             <p className="text-sm text-[#6B7280]">
               Here's what's happening with your finances today.

@@ -210,7 +210,7 @@ export function ChatScreen({
 }
 
 export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const notifs = [
+  const [notifs, setNotifs] = useState([
     {
       id: "1",
       icon: "💰",
@@ -265,11 +265,24 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
       color: "#3730A3",
       read: true,
     },
-  ];
+  ]);
+
+  const markAllAsRead = () => {
+    setNotifs((current) => current.map((notification) => ({ ...notification, read: true })));
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-y-auto">
       <div className="px-6 pt-14 pb-4 bg-white border-b border-[#F1F3FB]">
         <div className="flex items-center justify-between">
+          <button
+            onClick={() => onNav("home")}
+            aria-label="Back to home"
+            title="Back to home"
+            className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer"
+          >
+            <ArrowLeft size={18} />
+          </button>
           <h2
             style={{
               fontFamily: "var(--font-family-display)",
@@ -279,7 +292,10 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           >
             Notifications
           </h2>
-          <button className="text-sm text-[#3730A3] font-medium cursor-pointer">
+          <button
+            onClick={markAllAsRead}
+            className="text-sm text-[#3730A3] font-medium cursor-pointer"
+          >
             Mark all read
           </button>
         </div>
