@@ -740,7 +740,7 @@ export function RegisterScreen({
                 />
                 <Input
                   label="Last Name"
-                  placeholder="Adeyemi"
+                  placeholder="Adetemi"
                   value={form.lastName}
                   onChange={set("lastName")}
                 />

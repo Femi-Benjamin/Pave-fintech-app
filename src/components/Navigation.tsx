@@ -82,21 +82,21 @@ export function DesktopSidebar({
           <Avatar name="Joe Adeyemi" size={38} color="#6366F1" />
           <div className="flex-1 overflow-hidden">
             <div className="text-xs font-bold text-[#0D0F1C] truncate">
-              Joe Adeyemi
+              Joe Adetemi
             </div>
             <div className="text-[10px] text-[#059669] font-semibold">
               ✓ Verified Member
             </div>
           </div>
         </div>
-        {onBackToWebsite && (
+        {/* {onBackToWebsite && (
           <button
             onClick={onBackToWebsite}
             className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#3730A3] hover:underline cursor-pointer"
           >
             <ArrowLeft size={14} /> Back to Website
           </button>
-        )}
+        )} */}
       </div>
     </aside>
   );

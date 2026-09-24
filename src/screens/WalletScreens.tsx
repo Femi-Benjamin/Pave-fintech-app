@@ -366,7 +366,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               <div className="flex flex-col gap-2">
                 {[
                   ["Bank", "Wema Bank"],
-                  ["Account Name", "PAVE/Joe Adeyemi"],
+                  ["Account Name", "PAVE/Joe Adetemi"],
                   ["Account Number", "9031 204 8871"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-sm">

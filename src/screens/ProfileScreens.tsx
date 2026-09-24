@@ -54,7 +54,7 @@ export function ProfileScreen({
         className="px-6 pt-14 pb-8 flex flex-col items-center"
       >
         <div className="relative mb-4">
-          <Avatar name="Joe Adeyemi" size={80} color="#6366F1" />
+          <Avatar name="Joe Adetemi" size={80} color="#6366F1" />
           <button className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md cursor-pointer">
             <Camera size={12} className="text-[#3730A3]" />
           </button>
@@ -67,7 +67,7 @@ export function ProfileScreen({
             fontSize: 20,
           }}
         >
-          Joe Adeyemi
+          Joe Adetemi
         </h2>
         <p className="text-white/70 text-sm">joe@email.com</p>
         <div className="mt-3">
