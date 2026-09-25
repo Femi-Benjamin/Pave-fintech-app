@@ -285,7 +285,7 @@ export default function OnboardingScreen({
                   {/* Primary Action Button */}
                   <button
                     onClick={() => onNavigate("signup")}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold text-white bg-linear-to-r from-[#2B217A] via-[#372BAA] to-[#4F39F6] hover:from-[#1E1656] hover:to-[#372BAA] shadow-xl shadow-[#4F39F6]/25 hover:shadow-2xl hover:shadow-[#4F39F6]/35 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold text-white bg-linear-to-r from-[#2B217A] via-[#372BAA] to-[#4F39F6] hover:from-[#1E1656] hover:to-[#372BAA] shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-95"
                   >
                     <span>Start Saving in 2 Mins</span>
                     <TrendingUp size={18} />
@@ -366,8 +366,8 @@ export default function OnboardingScreen({
                 className="lg:col-span-6 relative flex justify-center lg:justify-end"
               >
                 {/* Ambient Glow Behind Cards */}
-                <div className="absolute -top-10 right-0 w-80 h-80 bg-[#6351F7]/20 rounded-full blur-3xl pointer-events-none -z-10" />
-                <div className="absolute -bottom-8 left-10 w-72 h-72 bg-violet-400/20 rounded-full blur-3xl pointer-events-none -z-10" />
+                {/* <div className="absolute -top-10 right-0 w-80 h-80 bg-[#6351F7]/20 rounded-full blur-3xl pointer-events-none -z-10" />
+                <div className="absolute -bottom-8 left-10 w-72 h-72 bg-violet-400/20 rounded-full blur-3xl pointer-events-none -z-10" /> */}
 
                 <div className="relative w-full max-w-lg">
                   {/* MAIN WALLET CARD (Dark Modern FinTech Card) */}
@@ -1221,14 +1221,14 @@ export default function OnboardingScreen({
             {/* Main Card: Soft Celestial Ice-Blue to Lavender Gradient (Light) & Atmospheric Cosmic Indigo (Dark) */}
             <div className="w-full relative rounded-3xl sm:rounded-[2.5rem] md:rounded-[3rem] p-8 sm:p-14 md:p-16 text-center shadow-xl shadow-indigo-950/5 dark:shadow-2xl border border-[#E0E7FF]/90 dark:border-indigo-500/30 overflow-hidden transition-all duration-300 bg-linear-to-br from-[#EEF5FF] via-[#F8FAFF] to-[#F5F3FF] dark:bg-linear-to-br dark:from-[#0E122A] dark:via-[#121430] dark:to-[#181335]">
               {/* Internal subtle glow accents */}
-              <div
+              {/* <div
                 className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-linear-to-br from-[#DCEBFF] to-transparent dark:from-sky-500/15 pointer-events-none blur-2xl"
                 aria-hidden="true"
               />
               <div
                 className="absolute -bottom-24 -right-24 w-88 h-88 rounded-full bg-linear-to-tl from-[#EDE9FE] to-transparent dark:from-violet-500/15 pointer-events-none blur-2xl"
                 aria-hidden="true"
-              />
+              /> */}
 
               <div className="relative z-10">
                 {/* Community Trust Badge */}
