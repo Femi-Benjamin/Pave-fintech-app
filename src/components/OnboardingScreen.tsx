@@ -128,6 +128,45 @@ export default function OnboardingScreen({
     },
   ];
 
+  const audienceCards = [
+    {
+      title: "Personal savers",
+      tag: "Flexible savings",
+      description: "Make space for the goals that matter.",
+      image:
+        "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=640&q=80",
+    },
+    {
+      title: "Students",
+      tag: "Save for your next step",
+      description: "Build a saving habit while you study.",
+      image:
+        "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=640&q=80",
+    },
+    {
+      title: "Ajo / Esusu circles",
+      tag: "Save together",
+      description: "Save together and grow as a community.",
+      image:
+        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=640&q=80",
+    },
+    {
+      title: "Everyday earners",
+      tag: "Build a habit",
+      description: "Build a saving habit, one deposit at a time.",
+      image:
+        "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=640&q=80",
+    },
+    {
+      title: "Goal builders",
+      tag: "Goal-based saving",
+      description: "Turn your next big plan into progress.",
+      image:
+        "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=640&q=80",
+    },
+  ];
+  const audienceMarqueeCards = [...audienceCards, ...audienceCards];
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0B14] flex flex-col justify-between antialiased font-sans text-slate-900 dark:text-slate-100 overflow-x-clip selection:bg-[#E0E7FF] selection:text-[#3730A3] transition-colors duration-300 relative">
       {/* Background Ambient Mesh */}
@@ -240,7 +279,7 @@ export default function OnboardingScreen({
       <main className="grow relative z-10">
         {/* HERO SPLIT SECTION */}
         <section
-          className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-16 lg:pb-28 overflow-hidden"
+          className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-20 lg:pb-28 overflow-hidden"
           data-purpose="hero-split-section"
         >
           <div className="max-w-7xl mx-auto px-5 sm:px-8">
@@ -252,15 +291,6 @@ export default function OnboardingScreen({
                 transition={{ duration: 0.6 }}
                 className="lg:col-span-6 flex flex-col items-start text-left z-10"
               >
-                {/* Live Trust Chip Pill */}
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-indigo-50/90 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/40 text-[#372BAA] dark:text-indigo-300 text-xs sm:text-sm font-semibold mb-6 shadow-xs">
-                  <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span>⚡ Over ₦1.2M+ Saved & Distributed in Ajo/Esusu</span>
-                </div>
-
                 {/* Bold Editorial Headline with Highlighting */}
                 <h1
                   className="text-4xl sm:text-5xl lg:text-[3.85rem] font-black tracking-tight text-slate-950 dark:text-white leading-[1.12] mb-6"
@@ -307,7 +337,7 @@ export default function OnboardingScreen({
                 </div>
 
                 {/* Social Proof Strip */}
-                <div className="pt-6 border-t border-slate-200/80 dark:border-white/10 w-full flex flex-col sm:flex-row sm:items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                <div className="pt-6 w-full flex flex-col sm:flex-row sm:items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
                   {/* User Avatars Stack */}
                   {/* <div className="flex items-center -space-x-2.5">
                     <img
@@ -519,15 +549,95 @@ export default function OnboardingScreen({
           </div>
         </section>
 
+        {/* WHO PAVE IS FOR */}
+        <section
+          className="relative py-16 sm:py-20 md:py-24 overflow-hidden"
+          aria-labelledby="audience-heading"
+          data-purpose="audience-marquee"
+        >
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-10 sm:mb-12">
+            <div className="max-w-3xl mx-auto text-center">
+              {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+                Saving, your way
+              </span> */}
+              <h2
+                id="audience-heading"
+                className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mt-5 tracking-tight leading-[1.15]"
+                style={{ fontFamily: "var(--font-family-display)" }}
+              >
+                For every saver and every circle.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+                Build personal savings at your own pace or grow together through
+                Ajo and Esusu. PAVE helps turn good intentions into steady
+                progress.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex w-max animate-audience-marquee hover:[animation-play-state:paused]">
+            {[0, 1].map((groupIndex) => (
+              <div
+                key={groupIndex}
+                className="flex shrink-0 items-stretch gap-4 pr-4"
+                aria-hidden={groupIndex === 1}
+              >
+                {audienceMarqueeCards.map((card, cardIndex) => (
+                  <article
+                    key={`${card.title}-${cardIndex}`}
+                    className="group relative h-70 w-[min(76vw,280px)] shrink-0 overflow-hidden rounded-3xl bg-slate-300 shadow-lg sm:h-82.5 sm:w-72.5"
+                  >
+                    <img
+                      src={card.image}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/15 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                      <span className="inline-flex rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur-md">
+                        {card.tag}
+                      </span>
+                      <h3 className="mt-3 text-xl font-extrabold tracking-tight text-white sm:text-2xl">
+                        {card.title}
+                      </h3>
+                      <p className="mt-1.5 text-sm leading-relaxed text-white/80">
+                        {card.description}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 backdrop-blur-sm sm:w-16"
+            style={{
+              WebkitMaskImage: "linear-gradient(to right, black, transparent)",
+              maskImage: "linear-gradient(to right, black, transparent)",
+            }}
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 backdrop-blur-sm sm:w-16"
+            style={{
+              WebkitMaskImage: "linear-gradient(to left, black, transparent)",
+              maskImage: "linear-gradient(to left, black, transparent)",
+            }}
+            aria-hidden="true"
+          />
+        </section>
+
         {/* FEATURE VALUE PILLARS */}
         <section
           className="max-w-7xl mx-auto px-5 sm:px-8 pb-20 sm:pb-28"
           data-purpose="value-pillars"
         >
           <div className="text-center max-w-3xl mx-auto my-14">
-            <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+            {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
               Engineered for Discipline
-            </span>
+            </span> */}
             <h2
               className="text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mt-4 tracking-tight leading-[1.15]"
               style={{ fontFamily: "var(--font-family-display)" }}
@@ -614,138 +724,6 @@ export default function OnboardingScreen({
             </div>
           </div>
         </section>
-
-        {/* BOTTOM FEATURE TICKER / MARQUEE */}
-        <div
-          className="w-full border-y border-slate-200/90 dark:border-white/10 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden py-4 relative"
-          data-purpose="feature-ticker"
-        >
-          {/* Edge shadow / gradient fade masks for smooth seamless transitions */}
-          <div
-            className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 sm:w-32 md:w-44 bg-linear-to-r from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 dark:to-transparent z-10"
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 sm:w-32 md:w-44 bg-linear-to-l from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 dark:to-transparent z-10"
-            aria-hidden="true"
-          />
-
-          <div className="relative w-full overflow-hidden">
-            <div className="flex whitespace-nowrap items-center text-xs font-extrabold tracking-widest uppercase animate-marquee-continuous">
-              {[1, 2, 3, 4].map((repeat) => (
-                <div key={repeat} className="flex items-center shrink-0">
-                  {/* Item 1: Building Financial Discipline with rocket icon and mint dot */}
-                  <div className="flex items-center gap-3 px-4 shrink-0">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 dark:bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] shrink-0" />
-                    <span className="inline-flex items-center gap-2 text-slate-950 dark:text-white font-black tracking-wider">
-                      <span
-                        className="text-base"
-                        role="img"
-                        aria-label="rocket"
-                      >
-                        🚀
-                      </span>
-                      <span>BUILDING FINANCIAL DISCIPLINE</span>
-                    </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
-                      /
-                    </span>
-                  </div>
-
-                  {/* Item 2: Automated Savings with icon */}
-                  <div className="flex items-center gap-3 px-4 shrink-0">
-                    <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span
-                        className="text-base"
-                        role="img"
-                        aria-label="lightning"
-                      >
-                        ⚡
-                      </span>
-                      <span>AUTOMATED SAVINGS</span>
-                    </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
-                      /
-                    </span>
-                  </div>
-
-                  {/* Item 3: Community Thrift with icon */}
-                  <div className="flex items-center gap-3 px-4 shrink-0">
-                    <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span
-                        className="text-base"
-                        role="img"
-                        aria-label="community"
-                      >
-                        👥
-                      </span>
-                      <span>COMMUNITY THRIFT</span>
-                    </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
-                      /
-                    </span>
-                  </div>
-
-                  {/* Item 4: CBN Regulated Partners with icon */}
-                  <div className="flex items-center gap-3 px-4 shrink-0">
-                    <span className="inline-flex items-center gap-2 text-[#372BAA] dark:text-indigo-300 font-bold tracking-wider">
-                      <span
-                        className="text-base"
-                        role="img"
-                        aria-label="shield"
-                      >
-                        🛡️
-                      </span>
-                      <span>CBN REGULATED PARTNERS</span>
-                    </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
-                      /
-                    </span>
-                  </div>
-
-                  {/* Item 5: Up to 14.2% Annual Returns with icon */}
-                  <div className="flex items-center gap-3 px-4 shrink-0">
-                    <span className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="chart">
-                        📈
-                      </span>
-                      <span>UP TO 14.2% ANNUAL RETURNS</span>
-                    </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
-                      /
-                    </span>
-                  </div>
-
-                  {/* Item 6: NDIC Insured with icon */}
-                  <div className="flex items-center gap-3 px-4 shrink-0">
-                    <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="lock">
-                        🔒
-                      </span>
-                      <span>NDIC INSURED UP TO ₦5M</span>
-                    </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
-                      /
-                    </span>
-                  </div>
-
-                  {/* Item 7: 256-Bit Encryption with icon */}
-                  <div className="flex items-center gap-3 px-4 shrink-0">
-                    <span className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold tracking-wider">
-                      <span className="text-base" role="img" aria-label="key">
-                        🔐
-                      </span>
-                      <span>256-BIT ENCRYPTION</span>
-                    </span>
-                    <span className="text-slate-300 dark:text-slate-700 font-light mx-2 select-none">
-                      /
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* SECTION: SMART SAVINGS DEEP-DIVE (#products) */}
         <motion.section
@@ -975,11 +953,11 @@ export default function OnboardingScreen({
         >
           <div className="max-w-5xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+              {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
                 Transparent Returns
-              </span>
+              </span> */}
               <h2
-                className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
+                className="text-4xl md:text-5xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
                 style={{ fontFamily: "var(--font-family-display)" }}
               >
                 Why Savers Earn Significantly More on PAVE
@@ -1159,9 +1137,9 @@ export default function OnboardingScreen({
         >
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-14">
-              <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+              {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
                 Got Questions?
-              </span>
+              </span> */}
               <h2
                 className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
                 style={{ fontFamily: "var(--font-family-display)" }}

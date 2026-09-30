@@ -98,16 +98,16 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             >
               {`Welcome, ${firstName} 👋`}
             </h1>
-            <p className="text-sm text-[#6B7280]">
+            {/* <p className="hidden sm:block text-sm text-[#6B7280]">
               Here's what's happening with your finances today.
-            </p>
+            </p> */}
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleRefresh}
             title="Refresh finances"
-            className="w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#6B7280] hover:text-[#3730A3] transition-colors"
+            className="hidden sm:flex w-10 h-10 rounded-full bg-white border border-[#E5E7EB] items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#6B7280] hover:text-[#3730A3] transition-colors"
           >
             <RotateCw size={16} />
           </button>

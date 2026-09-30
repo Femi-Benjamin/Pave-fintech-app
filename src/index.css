@@ -264,15 +264,6 @@
   }
 }
 
-@keyframes marqueeScroll {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
 .animate-float-slow {
   animation: floatSlow 7s ease-in-out infinite;
 }
@@ -281,7 +272,18 @@
   animation: floatDelayed 8s ease-in-out infinite 1.5s;
 }
 
-.animate-marquee-continuous {
-  animation: marqueeScroll 28s linear infinite;
+@keyframes audienceMarquee {
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
+.animate-audience-marquee {
+  animation: audienceMarquee 60s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-audience-marquee {
+    animation: none;
+  }
+}

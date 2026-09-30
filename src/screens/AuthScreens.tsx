@@ -8,6 +8,7 @@ import {
   Phone,
   Check,
   CheckCircle,
+  Circle,
   Hash,
   Loader,
 } from "lucide-react";
@@ -639,6 +640,11 @@ export function RegisterScreen({
   });
 
   const set = (k: string) => (v: string) => setForm({ ...form, [k]: v });
+  const passwordRequirements = [
+    { label: "8+ characters", met: form.password.length >= 8 },
+    { label: "One uppercase letter", met: /[A-Z]/.test(form.password) },
+    { label: "One number", met: /\d/.test(form.password) },
+  ];
 
   const doNext = async () => {
     if (
@@ -763,38 +769,49 @@ export function RegisterScreen({
                 onChange={set("phone")}
                 icon={<Phone size={16} />}
               />
-              <Input
-                label="Password"
-                type="password"
-                placeholder="Min. 8 characters"
-                value={form.password}
-                onChange={set("password")}
-                icon={<Lock size={16} />}
-              />
-              <Input
-                label="Confirm Password"
-                type="password"
-                placeholder="Repeat password"
-                value={form.confirm}
-                onChange={set("confirm")}
-                icon={<Lock size={16} />}
-              />
-              <div className="bg-[#F1F3FB] rounded-xl p-3 flex flex-col gap-1.5">
-                {[
-                  "8+ characters",
-                  "One uppercase letter",
-                  "One number",
-                ].map((r) => (
-                  <div
-                    key={r}
-                    className="flex items-center gap-2 text-xs text-[#6B7280]"
-                  >
-                    <Check size={12} className="text-[#059669]" />
-                    {r}
-                  </div>
-                ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                <Input
+                  label="Password"
+                  type="password"
+                  placeholder="Min. 8 characters"
+                  value={form.password}
+                  onChange={set("password")}
+                  icon={<Lock size={16} />}
+                />
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  placeholder="Repeat password"
+                  value={form.confirm}
+                  onChange={set("confirm")}
+                  icon={<Lock size={16} />}
+                />
               </div>
-              <div className="mt-1">
+              {form.password.length > 0 &&
+                passwordRequirements.some(({ met }) => !met) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-[#F1F3FB] rounded-xl p-3 flex flex-col gap-1.5"
+                >
+                  {passwordRequirements.map(({ label, met }) => (
+                    <div
+                      key={label}
+                      className={`flex items-center gap-2 text-xs ${
+                        met ? "text-[#059669]" : "text-[#6B7280]"
+                      }`}
+                    >
+                      {met ? (
+                        <Check size={12} className="text-[#059669]" />
+                      ) : (
+                        <Circle size={12} className="text-[#9CA3AF]" />
+                      )}
+                      {label}
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+              <div className="mt-5">
                 <PaveBtn
                   onClick={doNext}
                   disabled={completeRegistrationMutation.isPending}
