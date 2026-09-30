@@ -243,7 +243,7 @@ export function SlideOnboardingScreen({
 
   return (
     <div
-      className="flex-1 w-full h-screen max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden select-none"
+      className="flex-1 w-full h-dvh max-h-dvh flex items-center justify-center p-2 sm:p-5 lg:p-6 overflow-hidden select-none"
       style={{ background: "#F7F8FF" }}
       onWheel={handleWheel}
     >
@@ -251,11 +251,11 @@ export function SlideOnboardingScreen({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-full max-h-[calc(100vh-24px)] lg:max-h-190 touch-pan-y"
+        className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-full max-h-full md:max-h-[calc(100vh-24px)] lg:max-h-190 touch-pan-y"
       >
         {/* Top / Left Half: Interactive Draggable Card & Visual Showcase */}
         <div
-          className="md:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col items-center justify-between relative overflow-hidden transition-colors duration-500 h-full"
+          className="md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col items-center justify-between relative overflow-hidden transition-colors duration-500 h-full"
           style={{
             background: `linear-gradient(145deg, ${s.color}15 0%, ${s.color}30 100%)`,
           }}
@@ -271,7 +271,7 @@ export function SlideOnboardingScreen({
           </div>
 
           {/* Draggable Card Showcase with directional slide animation */}
-          <div className="my-auto py-2 z-10 w-full flex flex-col items-center">
+          <div className="my-auto py-1 sm:py-2 z-10 w-full flex flex-col items-center">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={slide}
@@ -285,10 +285,10 @@ export function SlideOnboardingScreen({
                   opacity: { duration: 0.22 },
                   scale: { duration: 0.22 },
                 }}
-                className="flex flex-col items-center gap-4 text-center cursor-grab active:cursor-grabbing touch-pan-y"
+                className="flex flex-col items-center gap-2 sm:gap-4 text-center cursor-grab active:cursor-grabbing touch-pan-y"
               >
                 <div
-                  className="w-36 h-36 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-2xl sm:rounded-3xl flex items-center justify-center text-6xl sm:text-7xl lg:text-8xl shadow-xl border-2 border-white/70 transition-transform duration-300 hover:scale-105 active:scale-95"
+                  className="w-28 h-28 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-2xl sm:rounded-3xl flex items-center justify-center text-5xl sm:text-7xl lg:text-8xl shadow-xl border-2 border-white/70 transition-transform duration-300 hover:scale-105 active:scale-95"
                   style={{ background: "white" }}
                 >
                   {s.icon}
@@ -327,7 +327,7 @@ export function SlideOnboardingScreen({
         </div>
 
         {/* Bottom / Right Half: Step Text & Navigation Actions */}
-        <div className="md:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col justify-between h-full bg-white">
+        <div className="md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between h-full bg-white">
           <div className="flex justify-between items-center text-xs sm:text-sm text-[#9CA3AF] font-bold uppercase tracking-wider">
             <span>
               Step {slide + 1} of {slides.length}
@@ -340,7 +340,7 @@ export function SlideOnboardingScreen({
             </button>
           </div>
 
-          <div className="my-auto py-4 sm:py-6">
+          <div className="my-auto py-2 sm:py-6">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={slide}

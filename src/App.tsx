@@ -91,7 +91,8 @@ function MobileApp({
     "settings",
   ];
   const showNav = mainScreens.includes(screen);
-  const isAuthScreen = screen === "login" || screen === "register";
+  const isFixedIntroScreen =
+    screen === "onboarding" || screen === "login" || screen === "register";
 
   const nav = (s: Screen) => setScreen(s);
 
@@ -181,7 +182,7 @@ function MobileApp({
 
   return (
     <div
-      className={`flex w-full ${showNav ? "min-h-screen" : isAuthScreen ? "h-dvh max-h-dvh overflow-hidden" : "h-screen max-h-screen overflow-hidden"} bg-[#F7F8FF]`}
+      className={`flex w-full ${showNav ? "min-h-screen" : isFixedIntroScreen ? "h-dvh max-h-dvh overflow-hidden" : "h-screen max-h-screen overflow-hidden"} bg-[#F7F8FF]`}
       style={{ fontFamily: "var(--font-family-body)" }}
     >
       {/* Desktop Sidebar (visible on large screens for authenticated main app) */}
@@ -195,7 +196,7 @@ function MobileApp({
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : isAuthScreen ? "h-dvh max-h-dvh overflow-hidden" : "h-screen max-h-screen overflow-y-auto"} relative`}
+        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : isFixedIntroScreen ? "h-dvh max-h-dvh overflow-hidden" : "h-screen max-h-screen overflow-y-auto"} relative`}
       >
         <AnimatePresence mode="wait">
           <motion.div
