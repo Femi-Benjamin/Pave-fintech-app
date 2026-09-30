@@ -72,6 +72,7 @@ function MobileApp({
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [activeChat, setActiveChat] = useState<any>(null);
+  const [kycNin, setKycNin] = useState("");
 
   useEffect(() => {
     if (initialScreen) {
@@ -117,11 +118,17 @@ function MobileApp({
       case "kyc-welcome":
         return <KYCWelcomeScreen onNav={nav} />;
       case "kyc-nin":
-        return <KYCNINScreen onNav={nav} />;
+        return (
+          <KYCNINScreen
+            onNav={nav}
+            nin={kycNin}
+            onNinChange={setKycNin}
+          />
+        );
       case "kyc-id-type":
         return <KYCIDTypeScreen onNav={nav} />;
       case "kyc-id-upload":
-        return <KYCIDUploadScreen onNav={nav} />;
+        return <KYCIDUploadScreen onNav={nav} nin={kycNin} />;
       case "kyc-selfie":
         return <KYCSelfieScreen onNav={nav} />;
       case "kyc-pending":

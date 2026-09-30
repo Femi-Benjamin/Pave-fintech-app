@@ -8,10 +8,8 @@ import {
   Phone,
   QrCode,
   Landmark,
-  Copy,
   ArrowDownLeft,
   ArrowUpRight,
-  CreditCard,
   Check,
   CheckCircle,
   Search,
@@ -24,13 +22,82 @@ import {
   RotateCw,
 } from "lucide-react";
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
-import { Screen, fmt } from "../pave-data";
+import { Screen, Transaction, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { WalletScreenSkeleton } from "../components/Skeleton";
+import { getApiErrorMessage } from "../api/auth";
+import {
+  useAllTransactionsQuery,
+  useDedicationVirtualAccountQuery,
+  useFundWalletMutation,
+  useWalletBalanceQuery,
+} from "../hooks/usePaveApi";
+import type { TransactionRecord } from "../api/transactions";
+
+function toWalletTransaction(
+  transaction: TransactionRecord,
+  index: number,
+): Transaction {
+  const transactionKind = `${transaction.transactionType ?? ""} ${transaction.type ?? ""}`.toLowerCase();
+  const type: Transaction["type"] =
+    transactionKind.includes("credit") ||
+    transactionKind.includes("fund") ||
+    transactionKind.includes("deposit")
+      ? "credit"
+      : "debit";
+
+  const categoryText =
+    `${transaction.destination ?? ""} ${transaction.type ?? ""} ${transaction.description ?? ""}`.toLowerCase();
+  const category: Transaction["category"] = categoryText.includes("saving")
+    ? "savings"
+    : categoryText.includes("bill") || categoryText.includes("electricity")
+      ? "bills"
+      : categoryText.includes("airtime") || categoryText.includes("data")
+        ? "airtime"
+        : categoryText.includes("transfer")
+          ? "transfer"
+          : categoryText.includes("market") || categoryText.includes("purchase")
+            ? "marketplace"
+            : "wallet";
+  const normalizedStatus = transaction.status?.toLowerCase() ?? "";
+  const status: Transaction["status"] = normalizedStatus.includes("success")
+    ? "success"
+    : normalizedStatus.includes("pending")
+      ? "pending"
+      : "failed";
+  const createdAt = transaction.createdAt;
+  const parsedDate = createdAt ? new Date(createdAt) : undefined;
+
+  return {
+    id:
+      transaction.id ??
+      transaction._id ??
+      transaction.reference ??
+      `transaction-${index}`,
+    type,
+    desc: transaction.description ?? transaction.type ?? "Transaction",
+    amount: Number(transaction.amount) || 0,
+    date:
+      parsedDate && !Number.isNaN(parsedDate.getTime())
+        ? parsedDate.toLocaleDateString()
+        : createdAt ?? "",
+    category,
+    status,
+  };
+}
 
 export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { walletBalance, transactions } = useLocalStore();
+  const { walletBalance, transactions: localTransactions } = useLocalStore();
   const [isLoading, setIsLoading] = useState(true);
+  const virtualAccountQuery = useDedicationVirtualAccountQuery(false);
+  const walletBalanceQuery = useWalletBalanceQuery();
+  const transactionsQuery = useAllTransactionsQuery();
+  const transactions =
+    transactionsQuery.data?.transactions.map(toWalletTransaction) ??
+    localTransactions;
+  const displayedBalance = walletBalanceQuery.data
+    ? Number(walletBalanceQuery.data.balance)
+    : walletBalance;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -41,6 +108,10 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
   const handleRefresh = () => {
     setIsLoading(true);
+    void Promise.all([
+      walletBalanceQuery.refetch(),
+      transactionsQuery.refetch(),
+    ]);
     setTimeout(() => {
       setIsLoading(false);
     }, 650);
@@ -143,15 +214,22 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             fontSize: 36,
           }}
         >
-          {fmt(walletBalance)}
+          {fmt(displayedBalance)}
         </div>
+        {walletBalanceQuery.isError && (
+          <p role="alert" className="mb-3 text-xs text-white">
+            {getApiErrorMessage(
+              walletBalanceQuery.error,
+              "Unable to refresh your wallet balance.",
+            )}
+          </p>
+        )}
         <div className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2.5 w-fit">
           <Landmark size={14} className="text-white/70" />
           <span className="text-white/70 text-xs">PAVE/Wema: </span>
           <span className="text-white text-xs font-mono font-semibold">
-            9031 204 8871
+          Virtual account details load when requested below.
           </span>
-          <Copy size={12} className="text-white/60" />
         </div>
       </div>
 
@@ -161,7 +239,17 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             {actions.map((a) => (
               <button
                 key={a.label}
-                onClick={() => onNav(a.screen as Screen)}
+                onClick={() => {
+                  if (a.label === "Virtual Account") {
+                    void virtualAccountQuery.refetch();
+                    return;
+                  }
+                  onNav(a.screen as Screen);
+                }}
+                disabled={
+                  a.label === "Virtual Account" &&
+                  virtualAccountQuery.isFetching
+                }
                 className="flex flex-col items-center gap-2 cursor-pointer"
               >
                 <div
@@ -171,11 +259,39 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   {a.icon}
                 </div>
                 <span className="text-xs text-[#374151] font-medium text-center leading-tight">
-                  {a.label}
+                  {a.label === "Virtual Account" &&
+                  virtualAccountQuery.isFetching
+                    ? "Loading..."
+                    : a.label}
                 </span>
               </button>
             ))}
           </div>
+          {virtualAccountQuery.isError && (
+            <p role="alert" className="mt-4 text-sm text-red-600">
+              {getApiErrorMessage(
+                virtualAccountQuery.error,
+                "Unable to load virtual account details.",
+              )}
+            </p>
+          )}
+          {virtualAccountQuery.isSuccess && (
+            <div
+              role="status"
+              className="mt-4 rounded-xl border border-[#A5F3FC] bg-[#ECFEFF] p-4"
+            >
+              <h3 className="mb-2 text-sm font-semibold text-[#0D0F1C]">
+                Virtual account details
+              </h3>
+              <pre className="whitespace-pre-wrap break-words text-xs text-[#374151]">
+                {JSON.stringify(
+                  virtualAccountQuery.data.data,
+                  null,
+                  2,
+                )}
+              </pre>
+            </div>
+          )}
         </div>
 
         {/* Stats */}
@@ -232,6 +348,14 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           >
             Transaction History
           </h3>
+          {transactionsQuery.isError && (
+            <p role="alert" className="mb-3 text-sm text-red-600">
+              {getApiErrorMessage(
+                transactionsQuery.error,
+                "Unable to load your transactions.",
+              )}
+            </p>
+          )}
           <div className="flex flex-col gap-2">
             {transactions.map((t) => (
               <div
@@ -271,23 +395,20 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
 }
 
 export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { fundWallet } = useLocalStore();
-  const [method, setMethod] = useState("");
   const [amount, setAmount] = useState("");
-  const [success, setSuccess] = useState(false);
+  const fundingMutation = useFundWalletMutation();
   const presets = ["5,000", "10,000", "20,000", "50,000", "100,000"];
 
   const handleFund = () => {
     const num = Number(amount.replace(/,/g, ""));
     if (num > 0) {
-      fundWallet(num, method === "bank" ? "Bank Transfer" : "Debit Card");
-      setSuccess(true);
+      fundingMutation.mutate({ amount: String(num) });
     }
   };
   return (
     <div className="flex-1 flex flex-col">
       <ScreenHeader title="Fund Wallet" onBack={() => onNav("wallet")} />
-      {!success ? (
+      {!fundingMutation.isSuccess ? (
         <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-[#374151]">
@@ -316,75 +437,30 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               ))}
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[#374151]">
-              Payment Method
-            </label>
-            {[
-              {
-                id: "bank",
-                label: "Bank Transfer",
-                desc: "Transfer to virtual account",
-                icon: <Landmark size={20} />,
-              },
-              {
-                id: "card",
-                label: "Debit Card",
-                desc: "Pay with your card",
-                icon: <CreditCard size={20} />,
-              },
-            ].map((m) => (
-              <button
-                key={m.id}
-                onClick={() => setMethod(m.id)}
-                className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer ${method === m.id ? "border-[#3730A3] bg-[#EEF2FF]" : "border-[#E5E7EB] bg-white"}`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-[#F1F3FB] flex items-center justify-center text-[#3730A3]">
-                  {m.icon}
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="text-sm font-semibold text-[#0D0F1C]">
-                    {m.label}
-                  </div>
-                  <div className="text-xs text-[#9CA3AF]">{m.desc}</div>
-                </div>
-                <div
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${method === m.id ? "border-[#3730A3] bg-[#3730A3]" : "border-[#D1D5DB]"}`}
-                >
-                  {method === m.id && (
-                    <Check size={12} className="text-white" />
-                  )}
-                </div>
-              </button>
-            ))}
+          <div className="rounded-2xl bg-[#EEF2FF] p-4 text-sm text-[#3730A3]">
+            We’ll create a secure Paystack checkout link to complete your
+            wallet funding.
           </div>
-          {method === "bank" && (
-            <div className="bg-[#EEF2FF] rounded-2xl p-4">
-              <div className="text-xs font-semibold text-[#3730A3] mb-3">
-                Transfer to this account:
-              </div>
-              <div className="flex flex-col gap-2">
-                {[
-                  ["Bank", "Wema Bank"],
-                  ["Account Name", "PAVE/Joe Adetemi"],
-                  ["Account Number", "9031 204 8871"],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-sm">
-                    <span className="text-[#6B7280]">{k}</span>
-                    <span className="font-semibold">{v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {fundingMutation.isError && (
+            <p role="alert" className="text-sm text-red-600">
+              {getApiErrorMessage(
+                fundingMutation.error,
+                "Unable to start wallet funding.",
+              )}
+            </p>
           )}
           <div className="mt-auto pt-2">
             <PaveBtn
               onClick={handleFund}
               disabled={
-                !amount || !method || Number(amount.replace(/,/g, "")) <= 0
+                !amount ||
+                Number(amount.replace(/,/g, "")) <= 0 ||
+                fundingMutation.isPending
               }
             >
-              Fund Wallet
+              {fundingMutation.isPending
+                ? "Preparing payment..."
+                : "Fund Wallet"}
             </PaveBtn>
           </div>
         </div>
@@ -406,12 +482,22 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 fontSize: 24,
               }}
             >
-              ₦{amount} Funded!
+              Complete your ₦{amount} funding
             </h2>
             <p className="text-[#6B7280] text-sm mt-2">
-              Your wallet has been credited successfully.
+              {fundingMutation.data.message}
             </p>
           </div>
+          {fundingMutation.data.paystackLink && (
+            <a
+              href={fundingMutation.data.paystackLink}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full rounded-xl bg-[#3730A3] px-5 py-4 text-center text-sm font-semibold text-white"
+            >
+              Continue to payment
+            </a>
+          )}
           <PaveBtn onClick={() => onNav("wallet")}>Back to Wallet</PaveBtn>
         </div>
       )}
@@ -969,7 +1055,11 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
 }
 
 export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { transactions } = useLocalStore();
+  const { transactions: localTransactions } = useLocalStore();
+  const transactionsQuery = useAllTransactionsQuery();
+  const transactions =
+    transactionsQuery.data?.transactions.map(toWalletTransaction) ??
+    localTransactions;
   const [filter, setFilter] = useState("All");
   const filters = ["All", "Credit", "Debit", "Savings", "Bills"];
   const filtered = transactions.filter(
@@ -1007,6 +1097,19 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         </div>
       </div>
       <div className="flex-1 px-4 py-4">
+        {transactionsQuery.isError && (
+          <p role="alert" className="mb-3 text-sm text-red-600">
+            {getApiErrorMessage(
+              transactionsQuery.error,
+              "Unable to load your transactions.",
+            )}
+          </p>
+        )}
+        {transactionsQuery.isLoading && (
+          <p role="status" className="mb-3 text-sm text-[#6B7280]">
+            Loading transactions…
+          </p>
+        )}
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-12 gap-3">
             <BarChart2 size={40} className="text-[#E5E7EB]" />
@@ -1045,7 +1148,21 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     {t.type === "credit" ? "+" : "-"}
                     {fmt(t.amount)}
                   </div>
-                  <Badge color="green">Success</Badge>
+                  <Badge
+                    color={
+                      t.status === "success"
+                        ? "green"
+                        : t.status === "pending"
+                          ? "gold"
+                          : "red"
+                    }
+                  >
+                    {t.status === "success"
+                      ? "Success"
+                      : t.status === "pending"
+                        ? "Pending"
+                        : "Failed"}
+                  </Badge>
                 </div>
               </div>
             ))}

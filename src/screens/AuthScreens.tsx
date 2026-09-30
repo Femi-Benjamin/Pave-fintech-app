@@ -17,12 +17,15 @@ import { PaveBtn, Input } from "../components/UI";
 import { Screen } from "../pave-data";
 import {
   completeRegistration,
-  forgotPassword,
   getAuthErrorMessage,
   login,
-  resetPassword,
 } from "../api/auth";
 import { useLocalStore } from "../hooks/useLocalStore";
+import {
+  useForgotPasswordMutation,
+  useLoginWithFingerMutation,
+  useResetPasswordMutation,
+} from "../hooks/usePaveApi";
 
 export function SplashScreen({ onNext }: { onNext: () => void }) {
   useEffect(() => {
@@ -468,23 +471,38 @@ export function LoginScreen({
   onNav: (s: Screen) => void;
   onBackToWebsite?: () => void;
 }) {
-  const { setAuthUser } = useLocalStore();
+  const { setAuthUser, authUser } = useLocalStore();
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
+  const [fingerError, setFingerError] = useState("");
+  const fingerUserId = localStorage.getItem("pave_finger_user_id");
+  const fingerLoginMutation = useLoginWithFingerMutation();
+
+  const finishLogin = (
+    response: Awaited<ReturnType<typeof login>>,
+    fallbackUserId?: string,
+  ) => {
+    const user = response.user ?? {
+      id: fallbackUserId,
+      email: email.trim(),
+      firstName: "",
+      lastName: "",
+    };
+    const userId = user.id ?? user._id ?? fallbackUserId;
+
+    localStorage.setItem("pave_token", response.token!);
+    if (userId && localStorage.getItem("pave_biometric_enabled") === "true") {
+      localStorage.setItem("pave_finger_user_id", userId);
+    }
+    setAuthUser(user);
+    onNav("kyc-welcome");
+  };
 
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (response) => {
-      const user = response.user ?? {
-        email: email.trim(),
-        firstName: "",
-        lastName: "",
-      };
-
-      localStorage.setItem("pave_token", response.token!);
-      setAuthUser(user);
-      onNav("kyc-welcome");
+      finishLogin(response);
     },
     onError: (err: any) => {
       setError(
@@ -504,6 +522,18 @@ export function LoginScreen({
 
     setError("");
     loginMutation.mutate({ email: email.trim(), password: pass });
+  };
+
+  const doFingerLogin = () => {
+    if (!fingerUserId) return;
+    setFingerError("");
+    fingerLoginMutation.mutate(fingerUserId, {
+      onSuccess: (response) => finishLogin(response, fingerUserId),
+      onError: (err) =>
+        setFingerError(
+          getAuthErrorMessage(err, "Unable to sign in with fingerprint."),
+        ),
+    });
   };
 
   return (
@@ -587,6 +617,33 @@ export function LoginScreen({
                   )}
                 </PaveBtn>
               </div>
+              {fingerUserId && (
+                <>
+                  {fingerError && (
+                    <div
+                      role="alert"
+                      className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
+                    >
+                      {fingerError}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={doFingerLogin}
+                    disabled={fingerLoginMutation.isPending}
+                    className="w-full py-3 rounded-xl border-2 border-[#E5E7EB] flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#374151] cursor-pointer hover:bg-[#F1F3FB] transition-colors disabled:opacity-50"
+                  >
+                    {fingerLoginMutation.isPending ? (
+                      <>
+                        <Loader size={16} className="animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      "Sign In with Fingerprint"
+                    )}
+                  </button>
+                </>
+              )}
               <div className="relative flex items-center gap-3 my-1">
                 <div className="flex-1 h-px bg-[#E5E7EB]" />
                 <span className="text-[11px] text-[#9CA3AF] uppercase font-bold tracking-wider">
@@ -739,7 +796,7 @@ export function RegisterScreen({
                   {error}
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-2.5 sm:gap-3">
                 <Input
                   label="First Name"
                   placeholder="Joe"
@@ -856,12 +913,8 @@ export function ForgotPasswordScreen({
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const forgotPasswordMutation = useMutation({
-    mutationFn: forgotPassword,
-  });
-  const resetPasswordMutation = useMutation({
-    mutationFn: resetPassword,
-  });
+  const forgotPasswordMutation = useForgotPasswordMutation();
+  const resetPasswordMutation = useResetPasswordMutation();
 
   const handleSendReset = async () => {
     if (!email.trim()) {

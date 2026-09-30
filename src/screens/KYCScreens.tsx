@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
@@ -12,6 +12,11 @@ import {
 } from "lucide-react";
 import { PaveBtn, Input, Badge, Avatar } from "../components/UI";
 import { Screen } from "../pave-data";
+import { getApiErrorMessage } from "../api/auth";
+import {
+  useUploadNinImageMutation,
+  useVerifyNinMutation,
+} from "../hooks/usePaveApi";
 
 export function KYCContainer({
   title,
@@ -146,16 +151,15 @@ export function KYCWelcomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   );
 }
 
-export function KYCNINScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const [nin, setNin] = useState("");
-  const [loading, setLoading] = useState(false);
-  const doVerify = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onNav("kyc-id-type");
-    }, 2000);
-  };
+export function KYCNINScreen({
+  onNav,
+  nin,
+  onNinChange,
+}: {
+  onNav: (s: Screen) => void;
+  nin: string;
+  onNinChange: (nin: string) => void;
+}) {
   return (
     <KYCContainer
       title="NIN Verification"
@@ -178,7 +182,9 @@ export function KYCNINScreen({ onNav }: { onNav: (s: Screen) => void }) {
           label="11-digit NIN"
           placeholder="e.g. 12345678901"
           value={nin}
-          onChange={setNin}
+          onChange={(value: string) =>
+            onNinChange(value.replace(/\D/g, "").slice(0, 11))
+          }
           icon={<Hash size={16} />}
         />
 
@@ -192,15 +198,11 @@ export function KYCNINScreen({ onNav }: { onNav: (s: Screen) => void }) {
       </div>
 
       <div className="pt-4 border-t border-[#F1F3FB]">
-        <PaveBtn onClick={doVerify} disabled={nin.length !== 11 || loading}>
-          {loading ? (
-            <>
-              <Loader size={16} className="animate-spin" />
-              Verifying NIN...
-            </>
-          ) : (
-            "Verify NIN & Continue"
-          )}
+        <PaveBtn
+          onClick={() => onNav("kyc-id-type")}
+          disabled={nin.length !== 11}
+        >
+          Continue to ID Type
         </PaveBtn>
       </div>
     </KYCContainer>
@@ -266,9 +268,57 @@ export function KYCIDTypeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   );
 }
 
-export function KYCIDUploadScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const [front, setFront] = useState(false);
-  const [back, setBack] = useState(false);
+export function KYCIDUploadScreen({
+  onNav,
+  nin,
+}: {
+  onNav: (s: Screen) => void;
+  nin: string;
+}) {
+  const [frontFile, setFrontFile] = useState<File | null>(null);
+  const [backFile, setBackFile] = useState<File | null>(null);
+  const [billFileName, setBillFileName] = useState("");
+  const frontInputRef = useRef<HTMLInputElement>(null);
+  const backInputRef = useRef<HTMLInputElement>(null);
+  const billInputRef = useRef<HTMLInputElement>(null);
+  const [billUploadError, setBillUploadError] = useState("");
+  const [verifyError, setVerifyError] = useState("");
+  const uploadNinImageMutation = useUploadNinImageMutation();
+  const verifyNinMutation = useVerifyNinMutation();
+
+  const uploadBillImage = (file?: File) => {
+    if (!file) return;
+
+    setBillUploadError("");
+    setBillFileName("");
+    uploadNinImageMutation.mutate(file, {
+      onSuccess: () => {
+        setBillFileName(file.name);
+      },
+      onError: (error) => {
+        setBillUploadError(
+          getApiErrorMessage(error, "Unable to upload the NIN image."),
+        );
+      },
+    });
+  };
+
+  const doVerifyNin = () => {
+    if (!frontFile || !backFile || nin.length !== 11) return;
+
+    setVerifyError("");
+    verifyNinMutation.mutate(
+      { nin, ninFrontId: frontFile, ninBackId: backFile },
+      {
+        onSuccess: () => onNav("kyc-selfie"),
+        onError: (error) =>
+          setVerifyError(
+            getApiErrorMessage(error, "Unable to verify your NIN."),
+          ),
+      },
+    );
+  };
+
   return (
     <KYCContainer
       title="Upload ID Document"
@@ -288,36 +338,115 @@ export function KYCIDUploadScreen({ onNav }: { onNav: (s: Screen) => void }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[
-            ["Front Side", front, () => setFront(true)],
-            ["Back Side", back, () => setBack(true)],
-          ].map(([label, done, action]: any) => (
-            <button
-              key={label}
-              onClick={action}
-              className={`relative flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${done ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
-            >
-              {done ? (
-                <>
-                  <CheckCircle size={36} className="text-[#059669]" />
-                  <span className="text-sm font-semibold text-[#059669]">
-                    {label} uploaded ✓
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Upload size={32} className="text-[#9CA3AF]" />
-                  <span className="text-sm font-semibold text-[#374151]">
-                    Upload {label}
-                  </span>
-                  <span className="text-xs text-[#9CA3AF]">
-                    JPG, PNG up to 5MB
-                  </span>
-                </>
-              )}
-            </button>
+          {(
+            [
+              {
+                side: "front",
+                label: "Front Side",
+                file: frontFile,
+                inputRef: frontInputRef,
+              },
+              {
+                side: "back",
+                label: "Back Side",
+                file: backFile,
+                inputRef: backInputRef,
+              },
+            ] as const
+          ).map(({ side, label, file, inputRef }) => (
+            <div key={side}>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0] ?? null;
+                  if (side === "front") setFrontFile(file);
+                  else setBackFile(file);
+                  event.currentTarget.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                disabled={verifyNinMutation.isPending}
+                className={`relative flex w-full flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer disabled:opacity-60 ${file ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
+              >
+                {file ? (
+                  <>
+                    <CheckCircle size={36} className="text-[#059669]" />
+                    <span className="text-sm font-semibold text-[#059669]">
+                      {label} selected
+                    </span>
+                    <span className="max-w-full truncate text-xs text-[#6B7280]">
+                      {file.name}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Upload size={32} className="text-[#9CA3AF]" />
+                    <span className="text-sm font-semibold text-[#374151]">
+                      Upload {label}
+                    </span>
+                    <span className="text-xs text-[#9CA3AF]">
+                      JPG, PNG up to 5MB
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
           ))}
         </div>
+        <div className="rounded-xl border border-[#F1F3FB] bg-white p-4">
+          <input
+            ref={billInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => {
+              uploadBillImage(event.currentTarget.files?.[0]);
+              event.currentTarget.value = "";
+            }}
+          />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[#0D0F1C]">
+                Supporting bill image (optional)
+              </p>
+              <p className="text-xs text-[#6B7280]">
+                {billFileName || "The upload endpoint expects a nepaBill image."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => billInputRef.current?.click()}
+              disabled={uploadNinImageMutation.isPending}
+              className="rounded-lg border border-[#D1D5DB] px-3 py-2 text-sm font-medium text-[#3730A3] disabled:opacity-50"
+            >
+              {uploadNinImageMutation.isPending
+                ? "Uploading..."
+                : billFileName
+                  ? "Replace image"
+                  : "Upload image"}
+            </button>
+          </div>
+          {uploadNinImageMutation.isPending && (
+            <p className="mt-2 text-xs text-[#6B7280]" role="status">
+              Uploading NIN image...
+            </p>
+          )}
+          {billUploadError && (
+            <p role="alert" className="mt-2 text-sm text-red-600">
+              {billUploadError}
+            </p>
+          )}
+        </div>
+        {verifyError && (
+          <p role="alert" className="text-sm text-red-600">
+            {verifyError}
+          </p>
+        )}
 
         <div className="bg-[#FFFBEB] rounded-xl p-4 flex gap-3">
           <AlertCircle size={16} className="text-[#D97706] shrink-0 mt-0.5" />
@@ -329,8 +458,23 @@ export function KYCIDUploadScreen({ onNav }: { onNav: (s: Screen) => void }) {
       </div>
 
       <div className="pt-4 border-t border-[#F1F3FB]">
-        <PaveBtn onClick={() => onNav("kyc-selfie")} disabled={!front || !back}>
-          Continue to Selfie Verification
+        <PaveBtn
+          onClick={doVerifyNin}
+          disabled={
+            nin.length !== 11 ||
+            !frontFile ||
+            !backFile ||
+            verifyNinMutation.isPending
+          }
+        >
+          {verifyNinMutation.isPending ? (
+            <>
+              <Loader size={16} className="animate-spin" />
+              Verifying NIN...
+            </>
+          ) : (
+            "Verify NIN & Continue"
+          )}
         </PaveBtn>
       </div>
     </KYCContainer>
