@@ -508,7 +508,7 @@ export function LoginScreen({
 
   return (
     <div
-      className="flex-1 w-full min-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 md:overflow-hidden"
+      className="flex-1 w-full h-dvh max-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
@@ -517,7 +517,7 @@ export function LoginScreen({
           subtitle="Access your virtual account, savings circles, and installment orders seamlessly."
         />
 
-        <div className="flex-1 md:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
+        <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
             <div className="flex items-center justify-center mb-4 sm:mb-6">
               <div className="md:hidden">
@@ -689,7 +689,7 @@ export function RegisterScreen({
 
   return (
     <div
-      className="flex-1 w-full min-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 md:overflow-hidden"
+      className="flex-1 w-full h-dvh max-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
@@ -698,7 +698,7 @@ export function RegisterScreen({
           subtitle="Join Nigeria's smart cooperative community with automated savings and verified accountability."
         />
 
-        <div className="flex-1 md:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
+        <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <button
@@ -769,7 +769,7 @@ export function RegisterScreen({
                 onChange={set("phone")}
                 icon={<Phone size={16} />}
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 <Input
                   label="Password"
                   type="password"
