@@ -508,7 +508,7 @@ export function LoginScreen({
 
   return (
     <div
-      className="flex-1 w-full min-h-dvh md:h-screen md:max-h-screen flex items-start md:items-center justify-center p-3 sm:p-5 lg:p-6 md:overflow-hidden"
+      className="flex-1 w-full min-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 md:overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
@@ -689,7 +689,7 @@ export function RegisterScreen({
 
   return (
     <div
-      className="flex-1 w-full min-h-dvh md:h-screen md:max-h-screen flex items-start md:items-center justify-center p-3 sm:p-5 lg:p-6 md:overflow-hidden"
+      className="flex-1 w-full min-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 md:overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
