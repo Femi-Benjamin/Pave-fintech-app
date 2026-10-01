@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
   MoreHorizontal,
@@ -30,9 +30,14 @@ import {
   useAllTransactionsQuery,
   useDedicationVirtualAccountQuery,
   useFundWalletMutation,
+  useSearchUserTransactionsQuery,
+  useTransactionByIdQuery,
   useWalletBalanceQuery,
 } from "../hooks/usePaveApi";
-import type { TransactionRecord } from "../api/transactions";
+import type {
+  TransactionRecord,
+  UserTransactionSearchParams,
+} from "../api/transactions";
 
 function toWalletTransaction(
   transaction: TransactionRecord,
@@ -87,34 +92,20 @@ function toWalletTransaction(
 }
 
 export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { walletBalance, transactions: localTransactions } = useLocalStore();
-  const [isLoading, setIsLoading] = useState(true);
   const virtualAccountQuery = useDedicationVirtualAccountQuery(false);
   const walletBalanceQuery = useWalletBalanceQuery();
   const transactionsQuery = useAllTransactionsQuery();
   const transactions =
-    transactionsQuery.data?.transactions.map(toWalletTransaction) ??
-    localTransactions;
+    transactionsQuery.data?.transactions.map(toWalletTransaction) ?? [];
   const displayedBalance = walletBalanceQuery.data
     ? Number(walletBalanceQuery.data.balance)
-    : walletBalance;
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 650);
-    return () => clearTimeout(timer);
-  }, []);
+    : null;
 
   const handleRefresh = () => {
-    setIsLoading(true);
     void Promise.all([
       walletBalanceQuery.refetch(),
       transactionsQuery.refetch(),
     ]);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 650);
   };
 
   const moneyIn = transactions
@@ -168,7 +159,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
       bg: "#ECFEFF",
     },
   ];
-  if (isLoading) {
+  if (walletBalanceQuery.isLoading || transactionsQuery.isLoading) {
     return <WalletScreenSkeleton />;
   }
 
@@ -214,7 +205,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             fontSize: 36,
           }}
         >
-          {fmt(displayedBalance)}
+          {displayedBalance === null ? "Unavailable" : fmt(displayedBalance)}
         </div>
         {walletBalanceQuery.isError && (
           <p role="alert" className="mb-3 text-xs text-white">
@@ -355,6 +346,9 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 "Unable to load your transactions.",
               )}
             </p>
+          )}
+          {transactions.length === 0 && !transactionsQuery.isError && (
+            <p className="text-sm text-[#6B7280]">No transactions found.</p>
           )}
           <div className="flex flex-col gap-2">
             {transactions.map((t) => (
@@ -1055,11 +1049,28 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
 }
 
 export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { transactions: localTransactions } = useLocalStore();
   const transactionsQuery = useAllTransactionsQuery();
-  const transactions =
-    transactionsQuery.data?.transactions.map(toWalletTransaction) ??
-    localTransactions;
+  const [searchMeterNumber, setSearchMeterNumber] = useState("");
+  const [searchAmount, setSearchAmount] = useState("");
+  const [searchStartDate, setSearchStartDate] = useState("");
+  const [searchEndDate, setSearchEndDate] = useState("");
+  const [searchParams, setSearchParams] =
+    useState<UserTransactionSearchParams>({});
+  const [searchActive, setSearchActive] = useState(false);
+  const [searchInputError, setSearchInputError] = useState("");
+  const [selectedTransactionId, setSelectedTransactionId] = useState("");
+  const searchQuery = useSearchUserTransactionsQuery(
+    searchParams,
+    searchActive,
+  );
+  const records = searchActive
+    ? searchQuery.data?.data ?? []
+    : transactionsQuery.data?.transactions ?? [];
+  const transactions = records.map(toWalletTransaction);
+  const transactionDetailQuery = useTransactionByIdQuery(
+    selectedTransactionId,
+    Boolean(selectedTransactionId),
+  );
   const [filter, setFilter] = useState("All");
   const filters = ["All", "Credit", "Debit", "Savings", "Bills"];
   const filtered = transactions.filter(
@@ -1071,6 +1082,36 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         filter !== "Debit" &&
         t.category.toLowerCase() === filter.toLowerCase()),
   );
+  const submitSearch = () => {
+    const params: UserTransactionSearchParams = {
+      meterNumber: searchMeterNumber.trim() || undefined,
+      amount: searchAmount.trim() || undefined,
+      startDate: searchStartDate || undefined,
+      endDate: searchEndDate || undefined,
+    };
+    if (
+      !params.meterNumber &&
+      !params.amount &&
+      !(params.startDate && params.endDate)
+    ) {
+      setSearchInputError(
+        "Search using a meter number, an amount, or both dates.",
+      );
+      return;
+    }
+
+    setSearchInputError("");
+    setSelectedTransactionId("");
+    setSearchParams(params);
+    setSearchActive(true);
+  };
+  const clearSearch = () => {
+    setSearchActive(false);
+    setSearchParams({});
+    setSearchInputError("");
+    setSelectedTransactionId("");
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-y-auto">
       <div className="px-6 pt-14 pb-4 bg-white border-b border-[#F1F3FB]">
@@ -1095,9 +1136,61 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </button>
           ))}
         </div>
+        <section className="mt-4 rounded-xl bg-[#F7F8FF] p-3">
+          <h3 className="mb-2 text-sm font-semibold text-[#0D0F1C]">
+            Search transactions
+          </h3>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <input
+              value={searchMeterNumber}
+              onChange={(event) => setSearchMeterNumber(event.target.value)}
+              placeholder="Meter number"
+              aria-label="Meter number"
+              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+            />
+            <input
+              type="number"
+              min="0"
+              value={searchAmount}
+              onChange={(event) => setSearchAmount(event.target.value)}
+              placeholder="Amount"
+              aria-label="Transaction amount"
+              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+            />
+            <input
+              type="date"
+              value={searchStartDate}
+              onChange={(event) => setSearchStartDate(event.target.value)}
+              aria-label="Search start date"
+              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+            />
+            <input
+              type="date"
+              value={searchEndDate}
+              onChange={(event) => setSearchEndDate(event.target.value)}
+              aria-label="Search end date"
+              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+            />
+          </div>
+          {searchInputError && (
+            <p role="alert" className="mt-2 text-xs text-red-600">
+              {searchInputError}
+            </p>
+          )}
+          <div className="mt-3 flex gap-2">
+            <PaveBtn small onClick={submitSearch} disabled={searchQuery.isFetching}>
+              {searchQuery.isFetching ? "Searching..." : "Search"}
+            </PaveBtn>
+            {searchActive && (
+              <PaveBtn small variant="ghost" onClick={clearSearch}>
+                Clear
+              </PaveBtn>
+            )}
+          </div>
+        </section>
       </div>
       <div className="flex-1 px-4 py-4">
-        {transactionsQuery.isError && (
+        {!searchActive && transactionsQuery.isError && (
           <p role="alert" className="mb-3 text-sm text-red-600">
             {getApiErrorMessage(
               transactionsQuery.error,
@@ -1105,22 +1198,96 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             )}
           </p>
         )}
-        {transactionsQuery.isLoading && (
+        {!searchActive && transactionsQuery.isLoading && (
           <p role="status" className="mb-3 text-sm text-[#6B7280]">
             Loading transactions…
           </p>
         )}
+        {searchActive && searchQuery.isFetching && (
+          <p role="status" className="mb-3 text-sm text-[#6B7280]">
+            Searching transactions...
+          </p>
+        )}
+        {searchActive && searchQuery.isError && (
+          <p role="alert" className="mb-3 text-sm text-red-600">
+            {getApiErrorMessage(
+              searchQuery.error,
+              "Unable to search transactions.",
+            )}
+          </p>
+        )}
+        {transactionDetailQuery.isLoading && (
+          <p role="status" className="mb-3 text-sm text-[#6B7280]">
+            Loading transaction details...
+          </p>
+        )}
+        {transactionDetailQuery.isError && (
+          <p role="alert" className="mb-3 text-sm text-red-600">
+            {getApiErrorMessage(
+              transactionDetailQuery.error,
+              "Unable to load transaction details.",
+            )}
+          </p>
+        )}
+        {transactionDetailQuery.data && (
+          <section className="mb-4 rounded-xl border border-[#C7D2FE] bg-white p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[#0D0F1C]">
+                Transaction details
+              </h3>
+              <button
+                onClick={() => setSelectedTransactionId("")}
+                className="text-xs font-medium text-[#3730A3]"
+              >
+                Close
+              </button>
+            </div>
+            <dl className="grid grid-cols-2 gap-2 text-sm">
+              {Object.entries(transactionDetailQuery.data.transaction)
+                .filter(([, value]) => value !== null && value !== undefined)
+                .map(([key, value]) => (
+                  <div key={key} className="min-w-0">
+                    <dt className="text-xs text-[#9CA3AF]">{key}</dt>
+                    <dd className="break-words font-medium text-[#0D0F1C]">
+                      {typeof value === "object"
+                        ? JSON.stringify(value)
+                        : String(value)}
+                    </dd>
+                  </div>
+                ))}
+            </dl>
+          </section>
+        )}
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-12 gap-3">
             <BarChart2 size={40} className="text-[#E5E7EB]" />
-            <p className="text-[#9CA3AF] text-sm">No transactions found</p>
+            <p className="text-[#9CA3AF] text-sm">
+              {searchActive && searchQuery.isError
+                ? "Search failed"
+                : "No transactions found"}
+            </p>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
             {filtered.map((t) => (
-              <div
+              <button
+                type="button"
                 key={t.id}
-                className="bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB]"
+                onClick={() => {
+                  const record = records.find(
+                    (candidate) =>
+                      candidate.id === t.id || candidate._id === t.id,
+                  );
+                  const id = record?.id ?? record?._id;
+                  if (id) setSelectedTransactionId(id);
+                }}
+                disabled={
+                  !records.some(
+                    (candidate) =>
+                      candidate.id === t.id || candidate._id === t.id,
+                  )
+                }
+                className="w-full text-left bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB] disabled:cursor-default"
               >
                 <div
                   className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${t.type === "credit" ? "bg-[#ECFDF5]" : "bg-[#F9FAFB]"}`}
@@ -1164,7 +1331,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                         : "Failed"}
                   </Badge>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}

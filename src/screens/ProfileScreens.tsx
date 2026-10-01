@@ -21,6 +21,7 @@ import { getApiErrorMessage } from "../api/auth";
 import {
   useDeleteUserAccountMutation,
   useProfileQuery,
+  useSavingsQuery,
   useUpdateProfileMutation,
   useUserAccountDetailsQuery,
   useUploadUserImageMutation,
@@ -36,8 +37,7 @@ export function ProfileScreen({
   onNav: (s: Screen) => void;
   onBackToWebsite?: () => void;
 }) {
-  const { savings, programs, products, authUser, setAuthUser, logout } =
-    useLocalStore();
+  const { products, authUser, setAuthUser, logout } = useLocalStore();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const uploadImageMutation = useUploadUserImageMutation();
   const email = authUser?.email?.trim() || "";
@@ -47,6 +47,9 @@ export function ProfileScreen({
   );
   const updateProfileMutation = useUpdateProfileMutation(email);
   const accountDetailsQuery = useUserAccountDetailsQuery(false);
+  const savingsQuery = useSavingsQuery(
+    Boolean(localStorage.getItem("pave_token")),
+  );
   const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
   const [isAccountDetailsOpen, setIsAccountDetailsOpen] = useState(false);
   const [profileForm, setProfileForm] = useState<UpdateProfilePayload>({
@@ -195,10 +198,14 @@ export function ProfileScreen({
             {verificationLabel}
           </Badge>
         </div>
-        <div className="grid grid-cols-3 gap-4 mt-6 w-full">
+        <div className="grid grid-cols-2 gap-4 mt-6 w-full">
           {[
-            ["Goals", String(savings.length)],
-            ["Groups", String(programs.length)],
+            [
+              "Goals",
+              savingsQuery.isLoading
+                ? "..."
+                : String(savingsQuery.data?.data.savings.length ?? 0),
+            ],
             ["Products", String(payingProductsCount || 1)],
           ].map(([k, v]) => (
             <div key={k} className="text-center">
@@ -207,6 +214,14 @@ export function ProfileScreen({
             </div>
           ))}
         </div>
+        {savingsQuery.isError && (
+          <p role="alert" className="mt-3 text-center text-xs text-red-200">
+            {getApiErrorMessage(
+              savingsQuery.error,
+              "Unable to load your savings summary.",
+            )}
+          </p>
+        )}
       </div>
 
       <div className="px-6 py-5 flex flex-col gap-2">

@@ -31,14 +31,26 @@ import {
   getAllTransactions,
   getTransactionById,
   getWalletBalance,
-  postTransferWebhook,
   searchUserTransactions,
 } from "../api/transactions";
 import type {
   FundingWalletPayload,
-  TransferWebhookPayload,
   UserTransactionSearchParams,
 } from "../api/transactions";
+import {
+  createSavingContribution,
+  createSaving,
+  deleteSaving,
+  getSaving,
+  getSavings,
+  updateSaving,
+  withdrawContribution,
+} from "../api/savings";
+import type {
+  CreateSavingPayload,
+  SavingContributionPayload,
+  UpdateSavingPayload,
+} from "../api/savings";
 
 export const transactionQueryKeys = {
   all: ["transactions"] as const,
@@ -50,6 +62,116 @@ export const transactionQueryKeys = {
   walletBalance: ["walletBalance"] as const,
   dedicationVirtualAccount: ["dedicationVirtualAccount"] as const,
 };
+
+export const savingsQueryKeys = {
+  all: ["savings"] as const,
+  list: () => [...savingsQueryKeys.all, "list"] as const,
+  detail: (savingId: string) =>
+    [...savingsQueryKeys.all, "detail", savingId] as const,
+};
+
+export function useSavingsQuery(enabled = true) {
+  return useQuery({
+    queryKey: savingsQueryKeys.list(),
+    queryFn: getSavings,
+    enabled,
+  });
+}
+
+export function useSavingQuery(savingId: string, enabled = true) {
+  return useQuery({
+    queryKey: savingsQueryKeys.detail(savingId),
+    queryFn: () => getSaving(savingId),
+    enabled: enabled && Boolean(savingId.trim()),
+  });
+}
+
+export function useCreateSavingMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateSavingPayload) => createSaving(payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: savingsQueryKeys.all }),
+  });
+}
+
+export function useUpdateSavingMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      savingId,
+      payload,
+    }: {
+      savingId: string;
+      payload: UpdateSavingPayload;
+    }) => updateSaving(savingId, payload),
+    onSuccess: async (_response, { savingId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: savingsQueryKeys.list() }),
+        queryClient.invalidateQueries({
+          queryKey: savingsQueryKeys.detail(savingId),
+        }),
+      ]);
+    },
+  });
+}
+
+export function useDeleteSavingMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteSaving,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: savingsQueryKeys.all }),
+  });
+}
+
+export function useWithdrawContributionMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      savingId,
+      payload,
+    }: {
+      savingId: string;
+      payload: SavingContributionPayload;
+    }) => withdrawContribution(savingId, payload),
+    onSuccess: async (_response, { savingId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: savingsQueryKeys.list() }),
+        queryClient.invalidateQueries({
+          queryKey: savingsQueryKeys.detail(savingId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: transactionQueryKeys.walletBalance,
+        }),
+      ]);
+    },
+  });
+}
+
+export function useCreateSavingContributionMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      savingId,
+      payload,
+    }: {
+      savingId: string;
+      payload: SavingContributionPayload;
+    }) => createSavingContribution(savingId, payload),
+    onSuccess: async (_response, { savingId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: savingsQueryKeys.list() }),
+        queryClient.invalidateQueries({
+          queryKey: savingsQueryKeys.detail(savingId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: transactionQueryKeys.walletBalance,
+        }),
+      ]);
+    },
+  });
+}
 
 export function useUploadUserImageMutation() {
   return useMutation({ mutationFn: uploadUserImage });
@@ -147,24 +269,6 @@ export function useWalletBalanceQuery(enabled = true) {
     queryKey: transactionQueryKeys.walletBalance,
     queryFn: getWalletBalance,
     enabled,
-  });
-}
-
-export function useTransferWebhookMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: TransferWebhookPayload) =>
-      postTransferWebhook(payload),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: transactionQueryKeys.walletBalance,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: transactionQueryKeys.list(),
-        }),
-      ]);
-    },
   });
 }
 

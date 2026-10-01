@@ -256,15 +256,6 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
       color: "#059669",
       read: true,
     },
-    {
-      id: "6",
-      icon: "📅",
-      title: "Group Contribution Due",
-      body: "PAVE Community Thrift contribution is due in 3 days.",
-      time: "2d ago",
-      color: "#3730A3",
-      read: true,
-    },
   ]);
 
   const markAllAsRead = () => {

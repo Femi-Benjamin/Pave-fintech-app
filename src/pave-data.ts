@@ -52,29 +52,6 @@ export interface Transaction {
   status: "success" | "pending" | "failed";
 }
 
-export interface SavingsGoal {
-  id: string;
-  name: string;
-  goal: number;
-  current: number;
-  color: string;
-  icon: string;
-  daysLeft: number;
-  freq: string;
-}
-
-export interface ThriftProgram {
-  id: string;
-  name: string;
-  admin: string;
-  members: number;
-  target: number;
-  current: number;
-  myContrib: number;
-  nextDue: string;
-  freq: string;
-}
-
 export interface Product {
   id: string;
   name: string;
@@ -127,15 +104,6 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     status: "success",
   },
   {
-    id: "3",
-    type: "debit",
-    desc: "Savings Deposit",
-    amount: 20000,
-    date: "Jun 12",
-    category: "savings",
-    status: "success",
-  },
-  {
     id: "4",
     type: "debit",
     desc: "MTN Airtime",
@@ -179,64 +147,6 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     date: "Jun 7",
     category: "wallet",
     status: "success",
-  },
-];
-
-export const MOCK_SAVINGS = [
-  {
-    id: "1",
-    name: "New iPhone",
-    goal: 450000,
-    current: 187500,
-    color: "#3730A3",
-    icon: "📱",
-    daysLeft: 45,
-    freq: "Weekly",
-  },
-  {
-    id: "2",
-    name: "School Fees",
-    goal: 200000,
-    current: 120000,
-    color: "#059669",
-    icon: "🎓",
-    daysLeft: 22,
-    freq: "Monthly",
-  },
-  {
-    id: "3",
-    name: "Emergency Fund",
-    goal: 500000,
-    current: 75000,
-    color: "#D97706",
-    icon: "🛡️",
-    daysLeft: 90,
-    freq: "Daily",
-  },
-];
-
-export const MOCK_PROGRAMS: ThriftProgram[] = [
-  {
-    id: "1",
-    name: "PAVE Community Thrift",
-    admin: "Okonkwo Group",
-    members: 24,
-    target: 1000000,
-    current: 680000,
-    myContrib: 45000,
-    nextDue: "Jun 20",
-    freq: "Monthly",
-  },
-  {
-    id: "2",
-    name: "Staff Cooperative",
-    admin: "Lagos Tech Circle",
-    members: 18,
-    target: 500000,
-    current: 220000,
-    myContrib: 25000,
-    nextDue: "Jun 25",
-    freq: "Bi-weekly",
   },
 ];
 
@@ -332,16 +242,6 @@ export const MOCK_MESSAGES: MessageItem[] = [
     online: true,
   },
   {
-    id: "2",
-    name: "PAVE Community Thrift",
-    avatar: "PCT",
-    lastMsg: "Admin: Next contribution due Friday",
-    time: "1h",
-    unread: 5,
-    online: false,
-    isGroup: true,
-  },
-  {
     id: "3",
     name: "Emeka Adeyemi",
     avatar: "EA",
@@ -349,16 +249,6 @@ export const MOCK_MESSAGES: MessageItem[] = [
     time: "3h",
     unread: 0,
     online: true,
-  },
-  {
-    id: "4",
-    name: "Staff Cooperative",
-    avatar: "SC",
-    lastMsg: "Welcome to the group!",
-    time: "1d",
-    unread: 0,
-    online: false,
-    isGroup: true,
   },
   {
     id: "5",
@@ -371,38 +261,7 @@ export const MOCK_MESSAGES: MessageItem[] = [
   },
 ];
 
-export const MOCK_CHAT: ChatMessage[] = [
-  {
-    id: "1",
-    from: "them",
-    text: "Hi! Your savings goal is coming along great 🎉",
-    time: "10:22 AM",
-  },
-  {
-    id: "2",
-    from: "me",
-    text: "Thank you! I'm trying to stay consistent",
-    time: "10:24 AM",
-  },
-  {
-    id: "3",
-    from: "them",
-    text: "Your next weekly deposit is due on Saturday. Will you be ready?",
-    time: "10:25 AM",
-  },
-  {
-    id: "4",
-    from: "me",
-    text: "Yes, I've set a reminder already",
-    time: "10:27 AM",
-  },
-  {
-    id: "5",
-    from: "them",
-    text: "Perfect! You're 42% of the way to your iPhone goal 📱",
-    time: "10:28 AM",
-  },
-];
+export const MOCK_CHAT: ChatMessage[] = [];
 
 export const SPEND_DATA = [
   { day: "Mon", amount: 12000 },

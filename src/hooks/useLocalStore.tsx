@@ -7,14 +7,10 @@ import React, {
 } from "react";
 import {
   Transaction,
-  SavingsGoal,
-  ThriftProgram,
   Product,
   MessageItem,
   ChatMessage,
   MOCK_TRANSACTIONS,
-  MOCK_SAVINGS,
-  MOCK_PROGRAMS,
   MOCK_PRODUCTS,
   MOCK_MESSAGES,
   MOCK_CHAT,
@@ -37,8 +33,6 @@ export interface AuthUser {
 export interface LocalStoreData {
   walletBalance: number;
   transactions: Transaction[];
-  savings: SavingsGoal[];
-  programs: ThriftProgram[];
   products: Product[];
   messages: MessageItem[];
   chatMessages: ChatMessage[];
@@ -64,26 +58,9 @@ export interface StoreContextType extends LocalStoreData {
     network: string,
     amount: number,
   ) => { success: boolean; message?: string };
-  addSavingsGoal: (goal: Omit<SavingsGoal, "id" | "current">) => SavingsGoal;
-  depositToSavings: (
-    goalId: string,
-    amount: number,
-  ) => { success: boolean; message?: string };
-  contributeToThrift: (
-    programId: string,
-    amount: number,
-  ) => { success: boolean; message?: string };
-  joinProgram: (
-    program: Omit<ThriftProgram, "id" | "current" | "myContrib">,
-  ) => ThriftProgram;
   payProductInstallment: (
     productId: string,
     amount: number,
-  ) => { success: boolean; message?: string };
-  startSavingPlan: (
-    productId: string,
-    initialDeposit: number,
-    frequency: string,
   ) => { success: boolean; message?: string };
   sendMessage: (to: string, text: string) => void;
   setAuthUser: (user: AuthUser | null) => void;
@@ -97,8 +74,6 @@ const AUTH_USER_KEY = "pave_auth_user";
 const DEFAULT_STORE: LocalStoreData = {
   walletBalance: 247500,
   transactions: MOCK_TRANSACTIONS,
-  savings: MOCK_SAVINGS,
-  programs: MOCK_PROGRAMS,
   products: MOCK_PRODUCTS,
   messages: MOCK_MESSAGES,
   chatMessages: MOCK_CHAT,
@@ -118,12 +93,6 @@ function getInitialStore(): LocalStoreData {
         transactions: Array.isArray(parsed.transactions)
           ? parsed.transactions
           : DEFAULT_STORE.transactions,
-        savings: Array.isArray(parsed.savings)
-          ? parsed.savings
-          : DEFAULT_STORE.savings,
-        programs: Array.isArray(parsed.programs)
-          ? parsed.programs
-          : DEFAULT_STORE.programs,
         products: Array.isArray(parsed.products)
           ? parsed.products
           : DEFAULT_STORE.products,
@@ -291,107 +260,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [store.walletBalance],
   );
 
-  const addSavingsGoal = useCallback(
-    (goal: Omit<SavingsGoal, "id" | "current">) => {
-      const newGoal: SavingsGoal = {
-        ...goal,
-        id: `goal_${Date.now()}`,
-        current: 0,
-      };
-      setStore((prev) => ({
-        ...prev,
-        savings: [newGoal, ...prev.savings],
-      }));
-      return newGoal;
-    },
-    [],
-  );
-
-  const depositToSavings = useCallback(
-    (goalId: string, amount: number) => {
-      if (amount <= 0) {
-        return { success: false, message: "Invalid amount" };
-      }
-      if (amount > store.walletBalance) {
-        return { success: false, message: "Insufficient wallet balance" };
-      }
-      const goal = store.savings.find((g) => g.id === goalId);
-      const newTx: Transaction = {
-        id: `tx_${Date.now()}`,
-        type: "debit",
-        desc: `Deposit to ${goal ? goal.name : "Savings"}`,
-        amount,
-        date: "Just now",
-        category: "savings",
-        status: "success",
-      };
-      setStore((prev) => ({
-        ...prev,
-        walletBalance: prev.walletBalance - amount,
-        transactions: [newTx, ...prev.transactions],
-        savings: prev.savings.map((g) =>
-          g.id === goalId ? { ...g, current: g.current + amount } : g,
-        ),
-      }));
-      return { success: true };
-    },
-    [store.walletBalance, store.savings],
-  );
-
-  const contributeToThrift = useCallback(
-    (programId: string, amount: number) => {
-      if (amount <= 0) {
-        return { success: false, message: "Invalid amount" };
-      }
-      if (amount > store.walletBalance) {
-        return { success: false, message: "Insufficient wallet balance" };
-      }
-      const prog = store.programs.find((p) => p.id === programId);
-      const newTx: Transaction = {
-        id: `tx_${Date.now()}`,
-        type: "debit",
-        desc: `Thrift Contribution - ${prog ? prog.name : "Program"}`,
-        amount,
-        date: "Just now",
-        category: "savings",
-        status: "success",
-      };
-      setStore((prev) => ({
-        ...prev,
-        walletBalance: prev.walletBalance - amount,
-        transactions: [newTx, ...prev.transactions],
-        programs: prev.programs.map((p) =>
-          p.id === programId
-            ? {
-                ...p,
-                current: p.current + amount,
-                myContrib: p.myContrib + amount,
-              }
-            : p,
-        ),
-      }));
-      return { success: true };
-    },
-    [store.walletBalance, store.programs],
-  );
-
-  const joinProgram = useCallback(
-    (program: Omit<ThriftProgram, "id" | "current" | "myContrib">) => {
-      const newProgram: ThriftProgram = {
-        ...program,
-        id: `prog_${Date.now()}`,
-        current: 0,
-        myContrib: 0,
-      };
-      setStore((prev) => ({
-        ...prev,
-        programs: [newProgram, ...prev.programs],
-      }));
-      return newProgram;
-    },
-    [],
-  );
-
   const payProductInstallment = useCallback(
     (productId: string, amount: number) => {
       if (amount <= 0) {
@@ -425,28 +293,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [store.walletBalance, store.products],
   );
 
-  const startSavingPlan = useCallback(
-    (productId: string, initialDeposit: number, frequency: string) => {
-      const prod = store.products.find((p) => p.id === productId);
-      const newGoal: SavingsGoal = {
-        id: `goal_prod_${Date.now()}`,
-        name: `Product: ${prod ? prod.name : "Device"}`,
-        goal: prod ? prod.price : initialDeposit * 2,
-        current: 0,
-        color: "#7C3AED",
-        icon: "🛍️",
-        daysLeft: 90,
-        freq: frequency,
-      };
-      setStore((prev) => ({
-        ...prev,
-        savings: [newGoal, ...prev.savings],
-      }));
-      return { success: true };
-    },
-    [store.products],
-  );
-
   const sendMessage = useCallback((to: string, text: string) => {
     if (!text.trim()) return;
     const newMsg: ChatMessage = {
@@ -477,12 +323,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     transferMoney,
     payBill,
     buyAirtime,
-    addSavingsGoal,
-    depositToSavings,
-    contributeToThrift,
-    joinProgram,
     payProductInstallment,
-    startSavingPlan,
     sendMessage,
     setAuthUser,
     logout,

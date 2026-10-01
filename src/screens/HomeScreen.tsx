@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
   ArrowUpRight,
@@ -9,7 +9,6 @@ import {
   Eye,
   EyeOff,
   Landmark,
-  Copy,
   ArrowDownLeft,
   RotateCw,
 } from "lucide-react";
@@ -19,28 +18,69 @@ import { Badge } from "../components/UI";
 import { Screen, SPEND_DATA, fmt, pct } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { HomeScreenSkeleton } from "../components/Skeleton";
+import {
+  useAllTransactionsQuery,
+  useSavingsQuery,
+  useWalletBalanceQuery,
+} from "../hooks/usePaveApi";
+import type { TransactionRecord } from "../api/transactions";
+import { getApiErrorMessage } from "../api/auth";
 
-export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { walletBalance, transactions, savings, authUser } = useLocalStore();
+function homeTransaction(record: TransactionRecord, index: number) {
+  const kind = `${record.transactionType ?? ""} ${record.type ?? ""}`.toLowerCase();
+  const type = kind.includes("credit") || kind.includes("deposit") ? "credit" : "debit";
+  const description = `${record.destination ?? ""} ${record.description ?? ""} ${record.type ?? ""}`.toLowerCase();
+  const category = description.includes("saving")
+    ? "savings"
+    : description.includes("bill")
+      ? "bills"
+      : description.includes("airtime")
+        ? "airtime"
+        : description.includes("transfer")
+          ? "transfer"
+          : "wallet";
+
+  return {
+    id: record.id ?? record._id ?? record.reference ?? `transaction-${index}`,
+    type,
+    desc: record.description ?? record.type ?? "Transaction",
+    amount: Number(record.amount) || 0,
+    date: record.createdAt
+      ? new Date(record.createdAt).toLocaleDateString()
+      : "",
+    category,
+  };
+}
+
+export function HomeScreen({
+  onNav,
+  onSelectSaving,
+}: {
+  onNav: (s: Screen) => void;
+  onSelectSaving: (savingId: string) => void;
+}) {
+  const { authUser } = useLocalStore();
+  const walletBalanceQuery = useWalletBalanceQuery();
+  const savingsQuery = useSavingsQuery();
+  const transactionsQuery = useAllTransactionsQuery();
+  const savings = savingsQuery.data?.data.savings ?? [];
+  const transactions =
+    transactionsQuery.data?.transactions.map(homeTransaction) ?? [];
+  const walletBalance = walletBalanceQuery.data
+    ? Number(walletBalanceQuery.data.balance)
+    : null;
   const [balVisible, setBalVisible] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
   const firstName =
     authUser?.firstName?.trim() ||
     authUser?.fullName?.trim().split(" ")[0] ||
     "there";
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 700);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 650);
+    void Promise.all([
+      walletBalanceQuery.refetch(),
+      savingsQuery.refetch(),
+      transactionsQuery.refetch(),
+    ]);
   };
 
   const quickActions = [
@@ -74,7 +114,11 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
     },
   ];
 
-  if (isLoading) {
+  if (
+    walletBalanceQuery.isLoading ||
+    savingsQuery.isLoading ||
+    transactionsQuery.isLoading
+  ) {
     return <HomeScreenSkeleton />;
   }
 
@@ -152,19 +196,28 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 letterSpacing: "-0.5px",
               }}
             >
-              {balVisible ? fmt(walletBalance) : "₦ ••••••••"}
+              {balVisible
+                ? walletBalance === null
+                  ? "Unavailable"
+                  : fmt(walletBalance)
+                : "₦ ••••••••"}
             </div>
+            {walletBalanceQuery.isError && (
+              <p role="alert" className="mb-3 text-xs text-white">
+                {getApiErrorMessage(
+                  walletBalanceQuery.error,
+                  "Unable to load your wallet balance.",
+                )}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/15">
               <div className="flex items-center gap-2">
                 <Landmark size={16} className="text-white/70" />
                 <span className="text-white/70 text-xs">Virtual Account:</span>
                 <span className="text-white text-xs font-mono font-bold">
-                  9031 204 8871
+                  View account details in Wallet
                 </span>
-                <button className="text-white/70 hover:text-white cursor-pointer ml-1">
-                  <Copy size={13} />
-                </button>
               </div>
               <span className="text-xs text-white/80 bg-white/10 px-3 py-1 rounded-full">
                 Wema Bank • PAVE
@@ -223,45 +276,74 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               {savings.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => onNav("savings-detail")}
+                  onClick={() => {
+                    onSelectSaving(s.id);
+                    onNav("savings-detail");
+                  }}
                   className="bg-[#F7F8FF] rounded-2xl p-4 border border-[#F1F3FB] hover:border-[#C7D2FE] transition-all text-left cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{s.icon}</span>
+                      <span className="text-2xl">
+                        {s.name.slice(0, 1).toUpperCase()}
+                      </span>
                       <div>
                         <div className="text-sm font-bold text-[#0D0F1C]">
                           {s.name}
                         </div>
-                        <div className="text-xs text-[#9CA3AF]">{s.freq}</div>
+                        <div className="text-xs text-[#9CA3AF]">
+                          {s.frequency}
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-bold text-[#0D0F1C]">
-                        {fmt(s.current)}
+                        {fmt(Number(s.totalSaved) || 0)}
                       </div>
                       <div className="text-xs text-[#9CA3AF]">
-                        of {fmt(s.goal)}
+                        of {fmt(Number(s.targetAmount) || 0)}
                       </div>
                     </div>
                   </div>
                   <div className="h-2 bg-white rounded-full overflow-hidden mb-2">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${pct(s.current, s.goal)}%` }}
+                      animate={{
+                        width: `${
+                          Number(s.targetAmount) > 0
+                            ? pct(Number(s.totalSaved), Number(s.targetAmount))
+                            : 0
+                        }%`,
+                      }}
                       transition={{ duration: 1, ease: "easeOut" }}
                       className="h-full rounded-full"
-                      style={{ background: s.color }}
+                      style={{ background: "#3730A3" }}
                     />
                   </div>
                   <div className="flex justify-between text-xs text-[#9CA3AF]">
                     <span className="font-semibold text-[#3730A3]">
-                      {pct(s.current, s.goal)}% reached
+                      {Number(s.targetAmount) > 0
+                        ? pct(Number(s.totalSaved), Number(s.targetAmount))
+                        : 0}
+                      % reached
                     </span>
-                    <span>{s.daysLeft} days left</span>
+                    <span>{s.status ?? ""}</span>
                   </div>
                 </button>
               ))}
+              {savingsQuery.isError && (
+                <p role="alert" className="text-sm text-red-600">
+                  {getApiErrorMessage(
+                    savingsQuery.error,
+                    "Unable to load your savings goals.",
+                  )}
+                </p>
+              )}
+              {!savingsQuery.isError && savings.length === 0 && (
+                <p className="text-sm text-[#6B7280]">
+                  You don't have any savings goals yet.
+                </p>
+              )}
             </div>
           </div>
 
@@ -314,11 +396,22 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   </div>
                 </div>
               ))}
+              {transactionsQuery.isError && (
+                <p role="alert" className="text-sm text-red-600">
+                  {getApiErrorMessage(
+                    transactionsQuery.error,
+                    "Unable to load recent transactions.",
+                  )}
+                </p>
+              )}
+              {!transactionsQuery.isError && transactions.length === 0 && (
+                <p className="text-sm text-[#6B7280]">No recent transactions.</p>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right Column (4 cols on lg): Spending Chart + Community Thrift */}
+        {/* Right Column (4 cols on lg): Spending Chart + Marketplace */}
         <div className="lg:col-span-4 flex flex-col gap-6">
           {/* Spending Analysis Chart Card */}
           <div className="bg-white rounded-2xl p-5 shadow-xs border border-[#F1F3FB]">
@@ -363,40 +456,6 @@ export function HomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-
-          {/* Community Thrift Summary Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-xs border border-[#F1F3FB]">
-            <div className="flex items-center justify-between mb-3">
-              <h3
-                className="font-bold text-base text-[#0D0F1C]"
-                style={{ fontFamily: "var(--font-family-display)" }}
-              >
-                Community Thrift
-              </h3>
-              <Badge color="green">Active</Badge>
-            </div>
-            <div className="p-4 rounded-xl bg-[#F7F8FF] border border-[#F1F3FB] mb-4">
-              <div className="font-bold text-sm text-[#0D0F1C]">
-                PAVE Community Thrift
-              </div>
-              <div className="text-xs text-[#6B7280] mt-0.5">
-                24 members • Admin: Okonkwo Group
-              </div>
-              <div className="mt-3 flex justify-between text-xs">
-                <span className="text-[#6B7280]">Target: ₦1,000,000</span>
-                <span className="font-bold text-[#3730A3]">68%</span>
-              </div>
-              <div className="h-1.5 bg-white rounded-full overflow-hidden mt-1.5">
-                <div className="h-full bg-[#3730A3] rounded-full w-[68%]" />
-              </div>
-            </div>
-            <button
-              onClick={() => onNav("savings-programs")}
-              className="w-full py-3 rounded-xl border border-[#3730A3] text-[#3730A3] text-xs font-bold hover:bg-[#EEF2FF] transition-colors cursor-pointer"
-            >
-              Manage Thrift Circles
-            </button>
           </div>
 
           {/* Marketplace Promo Card */}

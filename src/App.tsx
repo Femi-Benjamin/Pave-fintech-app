@@ -42,7 +42,6 @@ import {
   SavingsScreen,
   CreateSavingsScreen,
   SavingsDetailScreen,
-  JoinProgramScreen,
 } from "./screens/SavingsScreens";
 
 import {
@@ -71,6 +70,7 @@ function MobileApp({
 }) {
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedSavingId, setSelectedSavingId] = useState("");
   const [activeChat, setActiveChat] = useState<any>(null);
   const [kycNin, setKycNin] = useState("");
 
@@ -136,7 +136,9 @@ function MobileApp({
       case "kyc-approved":
         return <KYCApprovedScreen onNav={nav} />;
       case "home":
-        return <HomeScreen onNav={nav} />;
+        return (
+          <HomeScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+        );
       case "wallet":
         return <WalletScreen onNav={nav} />;
       case "fund-wallet":
@@ -148,15 +150,22 @@ function MobileApp({
       case "airtime":
         return <AirtimeScreen onNav={nav} />;
       case "savings":
-        return <SavingsScreen onNav={nav} />;
+        return (
+          <SavingsScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+        );
       case "create-savings":
         return <CreateSavingsScreen onNav={nav} />;
       case "savings-detail":
-        return <SavingsDetailScreen onNav={nav} />;
-      case "join-program":
-        return <JoinProgramScreen onNav={nav} />;
+        return (
+          <SavingsDetailScreen
+            onNav={nav}
+            savingId={selectedSavingId}
+          />
+        );
       case "savings-programs":
-        return <SavingsScreen onNav={nav} />;
+        return (
+          <SavingsScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+        );
       case "marketplace":
         return (
           <MarketplaceScreen
@@ -183,7 +192,9 @@ function MobileApp({
       case "settings":
         return <SettingsScreen onNav={nav} />;
       default:
-        return <HomeScreen onNav={nav} />;
+        return (
+          <HomeScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+        );
     }
   };
 

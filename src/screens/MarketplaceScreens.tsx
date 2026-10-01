@@ -20,6 +20,9 @@ import {
 import { Screen, fmt, pct, MOCK_PRODUCTS } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { MarketplaceScreenSkeleton } from "../components/Skeleton";
+import { useCreateSavingMutation } from "../hooks/usePaveApi";
+import { getApiErrorMessage } from "../api/auth";
+import type { SavingFrequency } from "../api/savings";
 
 export function MarketplaceScreen({
   onNav,
@@ -299,20 +302,42 @@ export function PaymentPlanScreen({
   onNav: (s: Screen) => void;
   product?: any;
 }) {
-  const { products, startSavingPlan } = useLocalStore();
+  const { products } = useLocalStore();
   const p = product || products[0] || MOCK_PRODUCTS[0];
-  const [freq, setFreq] = useState("Weekly");
-  const [success, setSuccess] = useState(false);
-  const freqs = ["Daily", "Weekly", "Monthly"];
+  const [freq, setFreq] = useState<"Daily" | "Weekly" | "Monthly">("Weekly");
+  const [successMessage, setSuccessMessage] = useState("");
+  const createSavingMutation = useCreateSavingMutation();
+  const freqs: Array<typeof freq> = ["Daily", "Weekly", "Monthly"];
+  const frequencyByPlan: Record<typeof freq, SavingFrequency> = {
+    Daily: "daily",
+    Weekly: "weekly",
+    Monthly: "monthly",
+  };
   const installment = {
     Daily: Math.ceil(p.price / 2 / 90),
     Weekly: Math.ceil(p.price / 2 / 13),
     Monthly: Math.ceil(p.price / 2 / 3),
   };
 
-  const handleStartPlan = () => {
-    startSavingPlan(p.id, Math.round(p.price / 2), freq);
-    setSuccess(true);
+  const handleStartPlan = async () => {
+    const startDate = new Date();
+    const endDate = new Date(startDate.getTime() + 90 * 86400000);
+    const frequency = frequencyByPlan[freq];
+    try {
+      const response = await createSavingMutation.mutateAsync({
+        name: `Product: ${p.name}`,
+        description: `Savings goal for ${p.name}`,
+        startDate: startDate.toISOString().slice(0, 10),
+        endDate: endDate.toISOString().slice(0, 10),
+        targetAmount: Math.round(p.price / 2),
+        amount: installment[freq],
+        frequency,
+        autoDebit: false,
+      });
+      setSuccessMessage(response.message);
+    } catch {
+      // The mutation error is rendered with the form.
+    }
   };
   return (
     <div className="flex-1 flex flex-col">
@@ -320,7 +345,7 @@ export function PaymentPlanScreen({
         title="Payment Plan"
         onBack={() => onNav("product-detail")}
       />
-      {!success ? (
+      {!successMessage ? (
         <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
           <div className="flex items-center gap-4 bg-[#F5F3FF] rounded-2xl p-4">
             <ImageWithFallback
@@ -360,7 +385,7 @@ export function PaymentPlanScreen({
             </div>
             {[
               ["Total to Save (50%)", fmt(p.price / 2)],
-              ["Installment Amount", fmt((installment as any)[freq])],
+              ["Installment Amount", fmt(installment[freq])],
               ["Frequency", freq],
               [
                 "Estimated Completion",
@@ -385,8 +410,22 @@ export function PaymentPlanScreen({
               delivered. You continue paying the balance afterward.
             </p>
           </div>
-          <PaveBtn onClick={handleStartPlan} variant="gold">
-            Start Saving Plan
+          {createSavingMutation.isError && (
+            <p role="alert" className="text-sm text-red-600">
+              {getApiErrorMessage(
+                createSavingMutation.error,
+                "Unable to create this savings goal.",
+              )}
+            </p>
+          )}
+          <PaveBtn
+            onClick={() => void handleStartPlan()}
+            variant="gold"
+            disabled={createSavingMutation.isPending}
+          >
+            {createSavingMutation.isPending
+              ? "Creating savings goal..."
+              : "Start Saving Plan"}
           </PaveBtn>
         </div>
       ) : (
@@ -410,14 +449,7 @@ export function PaymentPlanScreen({
               Plan Activated!
             </h2>
             <p className="text-[#6B7280] text-sm mt-2">
-              Your payment plan for {p.name} is now active. Your first
-              installment will be on{" "}
-              {freq === "Daily"
-                ? "tomorrow"
-                : freq === "Weekly"
-                  ? "next week"
-                  : "next month"}
-              .
+              {successMessage}
             </p>
           </div>
           <PaveBtn onClick={() => onNav("savings")}>View in My Savings</PaveBtn>

@@ -121,6 +121,14 @@ export async function getAllTransactions() {
   const { data } = await api.get<TransactionsResponse>(
     `${transactionBasePath}/getAllTransactions`,
   );
+
+  if (!data.status) {
+    throw new Error(data.message || "Unable to load transactions.");
+  }
+  if (!Array.isArray(data.transactions)) {
+    throw new Error("The transactions response is invalid.");
+  }
+
   return data;
 }
 
