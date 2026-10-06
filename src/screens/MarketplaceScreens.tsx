@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
   Search,
@@ -19,7 +19,6 @@ import {
 } from "../components/UI";
 import { Screen, fmt, pct, MOCK_PRODUCTS } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
-import { MarketplaceScreenSkeleton } from "../components/Skeleton";
 import { useCreateSavingMutation } from "../hooks/usePaveApi";
 import { getApiErrorMessage } from "../api/auth";
 import type { SavingFrequency } from "../api/savings";
@@ -34,14 +33,6 @@ export function MarketplaceScreen({
   const { products } = useLocalStore();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 650);
-    return () => clearTimeout(timer);
-  }, []);
 
   const categories = ["All", "Electronics", "Fashion", "Home", "Kitchen"];
   const filtered = products.filter(
@@ -49,10 +40,6 @@ export function MarketplaceScreen({
       (category === "All" || p.category === category) &&
       p.name.toLowerCase().includes(search.toLowerCase()),
   );
-
-  if (isLoading) {
-    return <MarketplaceScreenSkeleton />;
-  }
 
   return (
     <motion.div

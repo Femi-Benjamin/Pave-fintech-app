@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { lazy, Suspense, useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import OnboardingLandingScreen from "./components/OnboardingScreen";
@@ -6,57 +6,165 @@ import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen } from "./pave-data";
 import { StoreProvider } from "./hooks/useLocalStore";
 import { NetworkStatusToast } from "./components/NetworkStatus";
+import { CoreScreenSkeleton } from "./components/Skeleton";
 
-// Modular Screens
-import {
-  SplashScreen,
-  SlideOnboardingScreen,
-  LoginScreen,
-  RegisterScreen,
-  ForgotPasswordScreen,
-  AcceptInvitationScreen,
-} from "./screens/AuthScreens";
+const SplashScreen = lazy(() =>
+  import("./screens/AuthScreens").then((screens) => ({
+    default: screens.SplashScreen,
+  })),
+);
+const SlideOnboardingScreen = lazy(() =>
+  import("./screens/AuthScreens").then((screens) => ({
+    default: screens.SlideOnboardingScreen,
+  })),
+);
+const LoginScreen = lazy(() =>
+  import("./screens/AuthScreens").then((screens) => ({
+    default: screens.LoginScreen,
+  })),
+);
+const RegisterScreen = lazy(() =>
+  import("./screens/AuthScreens").then((screens) => ({
+    default: screens.RegisterScreen,
+  })),
+);
+const ForgotPasswordScreen = lazy(() =>
+  import("./screens/AuthScreens").then((screens) => ({
+    default: screens.ForgotPasswordScreen,
+  })),
+);
+const AcceptInvitationScreen = lazy(() =>
+  import("./screens/AuthScreens").then((screens) => ({
+    default: screens.AcceptInvitationScreen,
+  })),
+);
 
-import {
-  KYCWelcomeScreen,
-  KYCNINScreen,
-  KYCIDTypeScreen,
-  KYCIDUploadScreen,
-  KYCSelfieScreen,
-  KYCPendingScreen,
-  KYCApprovedScreen,
-} from "./screens/KYCScreens";
+const KYCWelcomeScreen = lazy(() =>
+  import("./screens/KYCScreens").then((screens) => ({
+    default: screens.KYCWelcomeScreen,
+  })),
+);
+const KYCNINScreen = lazy(() =>
+  import("./screens/KYCScreens").then((screens) => ({
+    default: screens.KYCNINScreen,
+  })),
+);
+const KYCIDTypeScreen = lazy(() =>
+  import("./screens/KYCScreens").then((screens) => ({
+    default: screens.KYCIDTypeScreen,
+  })),
+);
+const KYCIDUploadScreen = lazy(() =>
+  import("./screens/KYCScreens").then((screens) => ({
+    default: screens.KYCIDUploadScreen,
+  })),
+);
+const KYCSelfieScreen = lazy(() =>
+  import("./screens/KYCScreens").then((screens) => ({
+    default: screens.KYCSelfieScreen,
+  })),
+);
+const KYCPendingScreen = lazy(() =>
+  import("./screens/KYCScreens").then((screens) => ({
+    default: screens.KYCPendingScreen,
+  })),
+);
+const KYCApprovedScreen = lazy(() =>
+  import("./screens/KYCScreens").then((screens) => ({
+    default: screens.KYCApprovedScreen,
+  })),
+);
 
-import { HomeScreen } from "./screens/HomeScreen";
-
-import {
-  WalletScreen,
-  FundWalletScreen,
-  TransferScreen,
-  BillsScreen,
-  AirtimeScreen,
-  TransactionsScreen,
-} from "./screens/WalletScreens";
-
-import {
-  SavingsScreen,
-  CreateSavingsScreen,
-  SavingsDetailScreen,
-} from "./screens/SavingsScreens";
-
-import {
-  MarketplaceScreen,
-  ProductDetailScreen,
-  PaymentPlanScreen,
-} from "./screens/MarketplaceScreens";
-
-import {
-  MessagesScreen,
-  ChatScreen,
-  NotificationsScreen,
-} from "./screens/MessagesScreens";
-
-import { ProfileScreen, SettingsScreen } from "./screens/ProfileScreens";
+const HomeScreen = lazy(() =>
+  import("./screens/HomeScreen").then((screens) => ({
+    default: screens.HomeScreen,
+  })),
+);
+const WalletScreen = lazy(() =>
+  import("./screens/WalletScreens").then((screens) => ({
+    default: screens.WalletScreen,
+  })),
+);
+const FundWalletScreen = lazy(() =>
+  import("./screens/WalletScreens").then((screens) => ({
+    default: screens.FundWalletScreen,
+  })),
+);
+const TransferScreen = lazy(() =>
+  import("./screens/WalletScreens").then((screens) => ({
+    default: screens.TransferScreen,
+  })),
+);
+const BillsScreen = lazy(() =>
+  import("./screens/WalletScreens").then((screens) => ({
+    default: screens.BillsScreen,
+  })),
+);
+const AirtimeScreen = lazy(() =>
+  import("./screens/WalletScreens").then((screens) => ({
+    default: screens.AirtimeScreen,
+  })),
+);
+const TransactionsScreen = lazy(() =>
+  import("./screens/WalletScreens").then((screens) => ({
+    default: screens.TransactionsScreen,
+  })),
+);
+const SavingsScreen = lazy(() =>
+  import("./screens/SavingsScreens").then((screens) => ({
+    default: screens.SavingsScreen,
+  })),
+);
+const CreateSavingsScreen = lazy(() =>
+  import("./screens/SavingsScreens").then((screens) => ({
+    default: screens.CreateSavingsScreen,
+  })),
+);
+const SavingsDetailScreen = lazy(() =>
+  import("./screens/SavingsScreens").then((screens) => ({
+    default: screens.SavingsDetailScreen,
+  })),
+);
+const MarketplaceScreen = lazy(() =>
+  import("./screens/MarketplaceScreens").then((screens) => ({
+    default: screens.MarketplaceScreen,
+  })),
+);
+const ProductDetailScreen = lazy(() =>
+  import("./screens/MarketplaceScreens").then((screens) => ({
+    default: screens.ProductDetailScreen,
+  })),
+);
+const PaymentPlanScreen = lazy(() =>
+  import("./screens/MarketplaceScreens").then((screens) => ({
+    default: screens.PaymentPlanScreen,
+  })),
+);
+const MessagesScreen = lazy(() =>
+  import("./screens/MessagesScreens").then((screens) => ({
+    default: screens.MessagesScreen,
+  })),
+);
+const ChatScreen = lazy(() =>
+  import("./screens/MessagesScreens").then((screens) => ({
+    default: screens.ChatScreen,
+  })),
+);
+const NotificationsScreen = lazy(() =>
+  import("./screens/MessagesScreens").then((screens) => ({
+    default: screens.NotificationsScreen,
+  })),
+);
+const ProfileScreen = lazy(() =>
+  import("./screens/ProfileScreens").then((screens) => ({
+    default: screens.ProfileScreen,
+  })),
+);
+const SettingsScreen = lazy(() =>
+  import("./screens/ProfileScreens").then((screens) => ({
+    default: screens.SettingsScreen,
+  })),
+);
 
 // ─── Main Web App (Full Desktop & Responsive Mobile Layout) ──────────────────
 function MobileApp({
@@ -73,6 +181,23 @@ function MobileApp({
   const [selectedSavingId, setSelectedSavingId] = useState("");
   const [activeChat, setActiveChat] = useState<any>(null);
   const [kycNin, setKycNin] = useState("");
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      void Promise.all([
+        import("./screens/HomeScreen"),
+        import("./screens/WalletScreens"),
+        import("./screens/SavingsScreens"),
+        import("./screens/MarketplaceScreens"),
+        import("./screens/MessagesScreens"),
+        import("./screens/ProfileScreens"),
+      ]).catch((error: unknown) => {
+        console.error("Unable to preload primary app screens.", error);
+      });
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     if (initialScreen) {
@@ -225,7 +350,22 @@ function MobileApp({
             transition={{ duration: 0.15 }}
             className={`flex-1 flex flex-col ${!showNav ? "min-h-full" : ""}`}
           >
-            {renderScreen()}
+            <Suspense
+              fallback={
+                ["home", "wallet", "savings", "marketplace", "messages", "profile"].includes(screen)
+                  ? <CoreScreenSkeleton />
+                  : (
+                    <div
+                      className="flex flex-1 items-center justify-center text-sm text-[#6B7280]"
+                      role="status"
+                    >
+                      Loading...
+                    </div>
+                  )
+              }
+            >
+              {renderScreen()}
+            </Suspense>
           </motion.div>
         </AnimatePresence>
 

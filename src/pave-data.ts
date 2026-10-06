@@ -263,16 +263,6 @@ export const MOCK_MESSAGES: MessageItem[] = [
 
 export const MOCK_CHAT: ChatMessage[] = [];
 
-export const SPEND_DATA = [
-  { day: "Mon", amount: 12000 },
-  { day: "Tue", amount: 8500 },
-  { day: "Wed", amount: 22000 },
-  { day: "Thu", amount: 5000 },
-  { day: "Fri", amount: 18000 },
-  { day: "Sat", amount: 35000 },
-  { day: "Sun", amount: 9000 },
-];
-
 export const PIE_DATA = [
   { name: "Savings", value: 45, color: "#3730A3" },
   { name: "Bills", value: 20, color: "#059669" },

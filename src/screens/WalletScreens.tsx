@@ -24,14 +24,22 @@ import {
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
 import { Screen, Transaction, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
-import { WalletScreenSkeleton } from "../components/Skeleton";
+import { Skeleton } from "../components/Skeleton";
 import { getApiErrorMessage } from "../api/auth";
 import {
   useAllTransactionsQuery,
+  useBuyAirtimeMutation,
+  useBuyDataMutation,
+  useBuyElectricityMutation,
+  useBuyTvSubscriptionMutation,
+  useDataDetailsQuery,
   useDedicationVirtualAccountQuery,
   useFundWalletMutation,
   useSearchUserTransactionsQuery,
+  useTvSubscriptionDetailsQuery,
   useTransactionByIdQuery,
+  useVerifyElectricityAccountQuery,
+  useVerifyTvAccountQuery,
   useWalletBalanceQuery,
 } from "../hooks/usePaveApi";
 import type {
@@ -43,7 +51,8 @@ function toWalletTransaction(
   transaction: TransactionRecord,
   index: number,
 ): Transaction {
-  const transactionKind = `${transaction.transactionType ?? ""} ${transaction.type ?? ""}`.toLowerCase();
+  const transactionKind =
+    `${transaction.transactionType ?? ""} ${transaction.type ?? ""}`.toLowerCase();
   const type: Transaction["type"] =
     transactionKind.includes("credit") ||
     transactionKind.includes("fund") ||
@@ -85,7 +94,7 @@ function toWalletTransaction(
     date:
       parsedDate && !Number.isNaN(parsedDate.getTime())
         ? parsedDate.toLocaleDateString()
-        : createdAt ?? "",
+        : (createdAt ?? ""),
     category,
     status,
   };
@@ -159,10 +168,6 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
       bg: "#ECFEFF",
     },
   ];
-  if (walletBalanceQuery.isLoading || transactionsQuery.isLoading) {
-    return <WalletScreenSkeleton />;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -191,9 +196,9 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             >
               <RotateCw size={15} />
             </button>
-            <button className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors">
+            {/* <button className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors">
               <MoreHorizontal size={18} />
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="text-white/70 text-sm mb-1">Available Balance</div>
@@ -205,7 +210,13 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             fontSize: 36,
           }}
         >
-          {displayedBalance === null ? "Unavailable" : fmt(displayedBalance)}
+          {walletBalanceQuery.isLoading ? (
+            <Skeleton dark className="h-10 w-56 rounded-xl" />
+          ) : displayedBalance === null ? (
+            "Unavailable"
+          ) : (
+            fmt(displayedBalance)
+          )}
         </div>
         {walletBalanceQuery.isError && (
           <p role="alert" className="mb-3 text-xs text-white">
@@ -219,7 +230,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <Landmark size={14} className="text-white/70" />
           <span className="text-white/70 text-xs">PAVE/Wema: </span>
           <span className="text-white text-xs font-mono font-semibold">
-          Virtual account details load when requested below.
+            Virtual account details load when requested below.
           </span>
         </div>
       </div>
@@ -275,11 +286,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 Virtual account details
               </h3>
               <pre className="whitespace-pre-wrap break-words text-xs text-[#374151]">
-                {JSON.stringify(
-                  virtualAccountQuery.data.data,
-                  null,
-                  2,
-                )}
+                {JSON.stringify(virtualAccountQuery.data.data, null, 2)}
               </pre>
             </div>
           )}
@@ -320,7 +327,11 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 className="font-semibold text-[#0D0F1C]"
                 style={{ fontFamily: "var(--font-family-display)" }}
               >
-                {s.value}
+                {transactionsQuery.isLoading ? (
+                  <Skeleton className="h-5 w-20 rounded-md" />
+                ) : (
+                  s.value
+                )}
               </div>
               <div className="text-xs text-[#9CA3AF]">This month</div>
             </div>
@@ -347,7 +358,26 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               )}
             </p>
           )}
-          {transactions.length === 0 && !transactionsQuery.isError && (
+          {transactionsQuery.isLoading && (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB]"
+                >
+                  <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                  <div className="flex-1">
+                    <Skeleton className="h-4 w-2/3 rounded-md mb-2" />
+                    <Skeleton className="h-3 w-1/2 rounded-md" />
+                  </div>
+                  <Skeleton className="h-4 w-16 rounded-md" />
+                </div>
+              ))}
+            </div>
+          )}
+          {transactions.length === 0 &&
+            !transactionsQuery.isLoading &&
+            !transactionsQuery.isError && (
             <p className="text-sm text-[#6B7280]">No transactions found.</p>
           )}
           <div className="flex flex-col gap-2">
@@ -432,8 +462,8 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </div>
           </div>
           <div className="rounded-2xl bg-[#EEF2FF] p-4 text-sm text-[#3730A3]">
-            We’ll create a secure Paystack checkout link to complete your
-            wallet funding.
+            We’ll create a secure Paystack checkout link to complete your wallet
+            funding.
           </div>
           {fundingMutation.isError && (
             <p role="alert" className="text-sm text-red-600">
@@ -727,47 +757,177 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
 }
 
 export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { walletBalance, payBill } = useLocalStore();
-  const [selected, setSelected] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [selected, setSelected] = useState<"electricity" | "tv" | "">("");
+  const [serviceID, setServiceID] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountType, setAccountType] = useState<"prepaid" | "postpaid">(
+    "prepaid",
+  );
+  const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
-  const [meter, setMeter] = useState("");
-  const bills = [
-    { id: "electricity", label: "Electricity", icon: "⚡", color: "#D97706" },
-    { id: "water", label: "Water", icon: "💧", color: "#0891B2" },
-    { id: "tv", label: "Cable TV", icon: "📺", color: "#7C3AED" },
-    { id: "internet", label: "Internet", icon: "🌐", color: "#059669" },
-    { id: "school", label: "School Fees", icon: "🎓", color: "#3730A3" },
-    { id: "govt", label: "Govt Fees", icon: "🏛️", color: "#374151" },
+  const [variationCode, setVariationCode] = useState("");
+  const [lookupParams, setLookupParams] = useState<{
+    serviceID: string;
+    accountNumber: string;
+    accountType: "prepaid" | "postpaid";
+  } | null>(null);
+  const [purchase, setPurchase] = useState<{
+    message: string;
+    reference?: string;
+    token?: string;
+  } | null>(null);
+  const walletBalanceQuery = useWalletBalanceQuery();
+  const tvDetailsQuery = useTvSubscriptionDetailsQuery(
+    serviceID,
+    selected === "tv",
+  );
+  const tvLookup = useVerifyTvAccountQuery(
+    {
+      serviceID: lookupParams?.serviceID ?? "",
+      smartcardNumber: lookupParams?.accountNumber ?? "",
+    },
+    selected === "tv" && lookupParams !== null,
+  );
+  const electricityLookup = useVerifyElectricityAccountQuery(
+    {
+      serviceID: lookupParams?.serviceID ?? "",
+      meterNumber: lookupParams?.accountNumber ?? "",
+      type: lookupParams?.accountType ?? accountType,
+    },
+    selected === "electricity" && lookupParams !== null,
+  );
+  const tvPurchaseMutation = useBuyTvSubscriptionMutation();
+  const electricityPurchaseMutation = useBuyElectricityMutation();
+  const walletBalance = Number(walletBalanceQuery.data?.balance ?? 0);
+  const lookupMatchesCurrent =
+    lookupParams?.serviceID === serviceID &&
+    lookupParams?.accountNumber === accountNumber &&
+    (selected !== "electricity" || lookupParams?.accountType === accountType);
+  const lookupQuery = selected === "tv" ? tvLookup : electricityLookup;
+  const isVerified = lookupMatchesCurrent && lookupQuery.isSuccess;
+  const variations = tvDetailsQuery.data?.data.content.variations ?? [];
+  const customer = lookupQuery.data?.data.content;
+  const providers =
+    selected === "tv"
+      ? [
+          { id: "dstv", label: "DStv" },
+          { id: "gotv", label: "GOtv" },
+          { id: "startimes", label: "StarTimes" },
+        ]
+      : [
+          { id: "ikeja-electric", label: "Ikeja Electric" },
+          { id: "eko-electric", label: "Eko Electric" },
+          { id: "abuja-electric", label: "Abuja Electric" },
+          { id: "kano-electric", label: "Kano Electric" },
+          { id: "portharcourt-electric", label: "Port Harcourt Electric" },
+          { id: "jos-electric", label: "Jos Electric" },
+          { id: "ibadan-electric", label: "Ibadan Electric" },
+          { id: "kaduna-electric", label: "Kaduna Electric" },
+          { id: "enugu-electric", label: "Enugu Electric" },
+          { id: "benin-electric", label: "Benin Electric" },
+        ];
+  const tvPackages = [
+    { id: "electricity", label: "Electricity", icon: "⚡" },
+    { id: "tv", label: "Cable TV", icon: "📺" },
   ];
+  const purchaseMutation =
+    selected === "tv" ? tvPurchaseMutation : electricityPurchaseMutation;
+  const errorMessage = [
+    walletBalanceQuery.isError
+      ? getApiErrorMessage(
+          walletBalanceQuery.error,
+          "Unable to load wallet balance.",
+        )
+      : "",
+    tvDetailsQuery.isError
+      ? getApiErrorMessage(tvDetailsQuery.error, "Unable to load TV packages.")
+      : "",
+    lookupQuery.isError
+      ? getApiErrorMessage(lookupQuery.error, "Unable to verify this account.")
+      : "",
+    purchaseMutation.isError
+      ? getApiErrorMessage(purchaseMutation.error, "Payment failed.")
+      : "",
+  ].find(Boolean);
+  const clearLookup = () => {
+    setLookupParams(null);
+    setAmount("");
+    setVariationCode("");
+  };
+  const buyBill = () => {
+    const numericAmount = Number(amount.replace(/,/g, ""));
+    if (
+      !isVerified ||
+      !phone.trim() ||
+      numericAmount <= 0 ||
+      numericAmount > walletBalance ||
+      !walletBalanceQuery.data
+    ) {
+      return;
+    }
+    const onSuccess = (response: {
+      message: string;
+      data: {
+        reference?: string;
+        metadata?: { content?: { transactions?: { token?: string } } };
+      };
+    }) =>
+      setPurchase({
+        message: response.message,
+        reference: response.data.reference,
+        token: response.data.metadata?.content?.transactions?.token,
+      });
 
-  const handlePay = () => {
-    const num = Number(amount.replace(/,/g, ""));
-    if (num <= 0 || num > walletBalance) return;
-    const billObj = bills.find((b) => b.id === selected);
-    payBill(
-      "bills",
-      billObj ? `${billObj.label} Bill` : "Utility Bill",
-      num,
-      meter,
-    );
-    setSuccess(true);
+    if (selected === "tv") {
+      tvPurchaseMutation.mutate(
+        {
+          serviceID,
+          smartcardNumber: accountNumber,
+          phone,
+          amount: numericAmount,
+          variation_code: variationCode,
+        },
+        { onSuccess },
+      );
+    } else {
+      electricityPurchaseMutation.mutate(
+        {
+          serviceID,
+          meterNumber: accountNumber,
+          phone,
+          amount: numericAmount,
+          variation_code: accountType,
+        },
+        { onSuccess },
+      );
+    }
   };
   return (
     <div className="flex-1 flex flex-col">
       <ScreenHeader title="Pay Bills" onBack={() => onNav("wallet")} />
-      {!success ? (
+      {!purchase ? (
         <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
-          <div className="grid grid-cols-3 gap-3">
-            {bills.map((b) => (
+          <div className="grid grid-cols-2 gap-3">
+            {tvPackages.map((bill) => (
               <button
-                key={b.id}
-                onClick={() => setSelected(b.id)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer ${selected === b.id ? "border-[#3730A3] bg-[#EEF2FF]" : "border-[#E5E7EB] bg-white"}`}
+                key={bill.id}
+                onClick={() => {
+                  const nextSelected = bill.id as "electricity" | "tv";
+                  setSelected(nextSelected);
+                  setServiceID(
+                    nextSelected === "tv" ? "dstv" : "ikeja-electric",
+                  );
+                  setAccountNumber("");
+                  setPhone("");
+                  setLookupParams(null);
+                  setAmount("");
+                  setVariationCode("");
+                }}
+                className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer ${selected === bill.id ? "border-[#3730A3] bg-[#EEF2FF]" : "border-[#E5E7EB] bg-white"}`}
               >
-                <span className="text-2xl">{b.icon}</span>
+                <span className="text-2xl">{bill.icon}</span>
                 <span className="text-xs font-medium text-[#374151]">
-                  {b.label}
+                  {bill.label}
                 </span>
               </button>
             ))}
@@ -778,51 +938,184 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               animate={{ opacity: 1 }}
               className="flex flex-col gap-4"
             >
+              <label className="text-sm font-medium text-[#374151]">
+                {selected === "tv" ? "TV provider" : "Distribution company"}
+                <select
+                  value={serviceID}
+                  onChange={(event) => {
+                    setServiceID(event.target.value);
+                    setAccountNumber("");
+                    setPhone("");
+                    clearLookup();
+                  }}
+                  className="mt-1.5 w-full bg-[#F1F3FB] rounded-xl px-4 py-3.5 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+                >
+                  {providers.map((provider) => (
+                    <option key={provider.id} value={provider.id}>
+                      {provider.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {selected === "electricity" && (
+                <label className="text-sm font-medium text-[#374151]">
+                  Meter type
+                  <select
+                    value={accountType}
+                    onChange={(event) => {
+                      setAccountType(event.target.value as typeof accountType);
+                      setLookupParams(null);
+                      setAmount("");
+                    }}
+                    className="mt-1.5 w-full bg-[#F1F3FB] rounded-xl px-4 py-3.5 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+                  >
+                    <option value="prepaid">Prepaid</option>
+                    <option value="postpaid">Postpaid</option>
+                  </select>
+                </label>
+              )}
               <Input
                 label={
                   selected === "electricity"
                     ? "Meter Number"
-                    : "Reference Number"
+                    : "Smartcard Number"
                 }
                 placeholder={
                   selected === "electricity"
-                    ? "0123456789012"
-                    : "Enter reference"
+                    ? "Enter meter number"
+                    : "Enter smartcard number"
                 }
-                value={meter}
-                onChange={setMeter}
+                value={accountNumber}
+                onChange={(value: string) => {
+                  setAccountNumber(value);
+                  setLookupParams(null);
+                  setAmount("");
+                  setVariationCode("");
+                }}
                 icon={<Hash size={16} />}
               />
-              <Input
-                label="Amount (₦)"
-                placeholder="Enter amount"
-                value={amount}
-                onChange={setAmount}
-                icon={<DollarSign size={16} />}
-              />
+              <PaveBtn
+                variant="outline"
+                onClick={() => {
+                  setLookupParams({
+                    serviceID,
+                    accountNumber,
+                    accountType,
+                  });
+                  setAmount("");
+                  setVariationCode("");
+                }}
+                disabled={
+                  !accountNumber.trim() ||
+                  !serviceID ||
+                  lookupQuery.isFetching ||
+                  !walletBalanceQuery.data
+                }
+              >
+                {lookupQuery.isFetching ? "Verifying..." : "Verify Account"}
+              </PaveBtn>
+              {lookupQuery.isSuccess && lookupMatchesCurrent && (
+                <div className="rounded-xl bg-[#ECFDF5] px-4 py-3 text-sm text-[#047857]">
+                  Account verified
+                  {customer?.Customer_Name ? `: ${customer.Customer_Name}` : ""}
+                  {customer?.Address ? ` · ${customer.Address}` : ""}
+                </div>
+              )}
+              {isVerified && selected === "tv" && (
+                <label className="text-sm font-medium text-[#374151]">
+                  Subscription package
+                  <select
+                    value={variationCode}
+                    onChange={(event) => {
+                      setVariationCode(event.target.value);
+                      const plan = variations.find(
+                        (item) => item.variation_code === event.target.value,
+                      );
+                      setAmount(plan?.variation_amount ?? "");
+                    }}
+                    className="mt-1.5 w-full bg-[#F1F3FB] rounded-xl px-4 py-3.5 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+                  >
+                    <option value="">Choose a package</option>
+                    {variations.map((plan) => (
+                      <option
+                        key={plan.variation_code}
+                        value={plan.variation_code}
+                      >
+                        {plan.name} · ₦
+                        {Number(plan.variation_amount).toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+                  {tvDetailsQuery.isLoading && (
+                    <span className="mt-1 block text-xs text-[#6B7280]">
+                      Loading available packages...
+                    </span>
+                  )}
+                </label>
+              )}
+              {isVerified && selected === "electricity" && (
+                <Input
+                  label="Amount (₦)"
+                  placeholder="Enter amount"
+                  value={amount}
+                  onChange={setAmount}
+                  icon={<DollarSign size={16} />}
+                />
+              )}
+              {isVerified && (
+                <Input
+                  label="Phone Number"
+                  placeholder="08011111111"
+                  type="tel"
+                  value={phone}
+                  onChange={setPhone}
+                  icon={<Phone size={16} />}
+                />
+              )}
               {amount && Number(amount.replace(/,/g, "")) > walletBalance && (
                 <div className="text-xs text-red-500 font-medium">
                   Insufficient wallet balance ({fmt(walletBalance)})
                 </div>
               )}
-              <PaveBtn
-                onClick={handlePay}
-                disabled={
-                  !meter ||
-                  !amount ||
-                  Number(amount.replace(/,/g, "")) <= 0 ||
-                  Number(amount.replace(/,/g, "")) > walletBalance
-                }
-              >
-                Pay Now
-              </PaveBtn>
+              {isVerified && (
+                <PaveBtn
+                  onClick={buyBill}
+                  disabled={
+                    !phone.trim() ||
+                    !amount ||
+                    (selected === "tv" && !variationCode) ||
+                    Number(amount.replace(/,/g, "")) <= 0 ||
+                    Number(amount.replace(/,/g, "")) > walletBalance ||
+                    !walletBalanceQuery.data ||
+                    purchaseMutation.isPending
+                  }
+                >
+                  {purchaseMutation.isPending ? "Processing..." : "Pay Now"}
+                </PaveBtn>
+              )}
             </motion.div>
+          )}
+          {tvDetailsQuery.isLoading && selected === "tv" && (
+            <p className="text-sm text-[#6B7280]">Loading TV packages...</p>
+          )}
+          {errorMessage && (
+            <p
+              role="alert"
+              className="rounded-xl bg-[#FEF2F2] p-3 text-sm text-red-700"
+            >
+              {errorMessage}
+            </p>
+          )}
+          {walletBalanceQuery.data && (
+            <p className="text-xs text-[#6B7280]">
+              Available balance: {fmt(walletBalance)}
+            </p>
           )}
           {!selected && (
             <div className="flex flex-col items-center py-8 text-center gap-3">
               <Zap size={40} className="text-[#E5E7EB]" />
               <p className="text-[#9CA3AF] text-sm">
-                Select a bill category above to continue
+                Choose electricity or cable TV to continue
               </p>
             </div>
           )}
@@ -845,18 +1138,30 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 fontSize: 24,
               }}
             >
-              Payment Successful!
+              Payment Successful
             </h2>
-            <p className="text-[#6B7280] text-sm mt-2">
-              ₦{amount} bill payment completed
-            </p>
+            <p className="text-[#6B7280] text-sm mt-2">{purchase.message}</p>
+            {purchase.reference && (
+              <p className="text-xs text-[#6B7280] mt-2">
+                Reference: {purchase.reference}
+              </p>
+            )}
+            {purchase.token && (
+              <p className="text-sm font-semibold text-[#3730A3] mt-3">
+                Electricity token: {purchase.token}
+              </p>
+            )}
           </div>
           <PaveBtn
             onClick={() => {
-              setSuccess(false);
+              setPurchase(null);
               setSelected("");
+              setServiceID("");
+              setAccountNumber("");
+              setPhone("");
               setAmount("");
-              setMeter("");
+              setVariationCode("");
+              setLookupParams(null);
             }}
           >
             Pay Another Bill
@@ -871,42 +1176,140 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
 }
 
 export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const { walletBalance, buyAirtime } = useLocalStore();
+  const walletBalanceQuery = useWalletBalanceQuery();
   const [tab, setTab] = useState<"airtime" | "data">("airtime");
   const [network, setNetwork] = useState("");
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  const handleBuy = () => {
-    const num = Number(amount.replace(/,/g, ""));
-    if (num <= 0 || num > walletBalance) return;
-    buyAirtime(phone, network.toUpperCase(), num);
-    setSuccess(true);
+  const [variationCode, setVariationCode] = useState("");
+  const [purchase, setPurchase] = useState<{
+    message: string;
+    reference?: string;
+  } | null>(null);
+  const airtimeMutation = useBuyAirtimeMutation();
+  const dataMutation = useBuyDataMutation();
+  const airtimeServiceIDs: Record<string, string> = {
+    mtn: "mtn",
+    airtel: "airtel",
+    glo: "glo",
+    "9mobile": "etisalat",
   };
+  const dataServiceIDs: Record<string, string> = {
+    mtn: "mtn-data",
+    airtel: "airtel-data",
+    glo: "glo-data",
+    "9mobile": "etisalat-data",
+  };
+  const serviceID =
+    tab === "data"
+      ? (dataServiceIDs[network] ?? "")
+      : (airtimeServiceIDs[network] ?? "");
+  const dataDetailsQuery = useDataDetailsQuery(serviceID, tab === "data");
+  const variations = dataDetailsQuery.data?.data.content.variations ?? [];
+  const walletBalance = Number(walletBalanceQuery.data?.balance ?? 0);
+  const purchaseMutation = tab === "airtime" ? airtimeMutation : dataMutation;
+  const errorMessage = [
+    walletBalanceQuery.isError
+      ? getApiErrorMessage(
+          walletBalanceQuery.error,
+          "Unable to load wallet balance.",
+        )
+      : "",
+    dataDetailsQuery.isError
+      ? getApiErrorMessage(
+          dataDetailsQuery.error,
+          "Unable to load data bundles.",
+        )
+      : "",
+    purchaseMutation.isError
+      ? getApiErrorMessage(purchaseMutation.error, "Purchase failed.")
+      : "",
+  ].find(Boolean);
   const networks = [
-    { id: "mtn", label: "MTN", color: "#FBBF24", bg: "#FFFBEB" },
-    { id: "airtel", label: "Airtel", color: "#DC2626", bg: "#FEF2F2" },
-    { id: "glo", label: "Glo", color: "#059669", bg: "#ECFDF5" },
-    { id: "9mobile", label: "9Mobile", color: "#059669", bg: "#ECFDF5" },
+    {
+      id: "mtn",
+      label: "MTN",
+      color: "#FBBF24",
+      bg: "#FFFBEB",
+      logo: "/logos/mtn.png",
+    },
+    {
+      id: "airtel",
+      label: "Airtel",
+      color: "#DC2626",
+      bg: "#FEF2F2",
+      logo: "/logos/airtel.png",
+    },
+    {
+      id: "glo",
+      label: "Glo",
+      color: "#059669",
+      bg: "#ECFDF5",
+      logo: "/logos/glo.png",
+    },
+    {
+      id: "9mobile",
+      label: "9Mobile",
+      color: "#059669",
+      bg: "#ECFDF5",
+      logo: "/logos/9mobile.png",
+    },
   ];
-  const dataplans = [
-    { label: "500MB", price: "₦200", validity: "1 day" },
-    { label: "1GB", price: "₦500", validity: "7 days" },
-    { label: "2GB", price: "₦1,000", validity: "30 days" },
-    { label: "5GB", price: "₦2,000", validity: "30 days" },
-    { label: "10GB", price: "₦3,500", validity: "30 days" },
-  ];
+  const handleBuy = () => {
+    const numericAmount = Number(amount.replace(/,/g, ""));
+    if (
+      !network ||
+      !phone.trim() ||
+      numericAmount <= 0 ||
+      numericAmount > walletBalance ||
+      !walletBalanceQuery.data
+    ) {
+      return;
+    }
+    if (tab === "airtime") {
+      airtimeMutation.mutate(
+        { serviceID, phone, amount: numericAmount },
+        {
+          onSuccess: (response) =>
+            setPurchase({
+              message: response.message,
+              reference: response.data.reference,
+            }),
+        },
+      );
+    } else if (variationCode) {
+      dataMutation.mutate(
+        {
+          serviceID,
+          phone,
+          amount: numericAmount,
+          variation_code: variationCode,
+        },
+        {
+          onSuccess: (response) =>
+            setPurchase({
+              message: response.message,
+              reference: response.data.reference,
+            }),
+        },
+      );
+    }
+  };
   return (
     <div className="flex-1 flex flex-col">
       <ScreenHeader title="Airtime & Data" onBack={() => onNav("wallet")} />
-      {!success ? (
+      {!purchase ? (
         <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
           <div className="bg-[#F1F3FB] p-1 rounded-xl flex">
             {(["airtime", "data"] as const).map((t) => (
               <button
                 key={t}
-                onClick={() => setTab(t)}
+                onClick={() => {
+                  setTab(t);
+                  setNetwork("");
+                  setAmount("");
+                  setVariationCode("");
+                }}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${tab === t ? "bg-white text-[#0D0F1C] shadow-sm" : "text-[#9CA3AF]"}`}
               >
                 {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -917,13 +1320,19 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             {networks.map((n) => (
               <button
                 key={n.id}
-                onClick={() => setNetwork(n.id)}
+                onClick={() => {
+                  setNetwork(n.id);
+                  setAmount("");
+                  setVariationCode("");
+                }}
                 className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all cursor-pointer ${network === n.id ? "border-[#3730A3]" : "border-[#E5E7EB]"}`}
                 style={{ background: n.bg }}
               >
-                <span className="text-lg font-bold" style={{ color: n.color }}>
-                  {n.label[0]}
-                </span>
+                <img
+                  src={n.logo}
+                  alt={`${n.label} logo`}
+                  className="h-8 w-full max-w-20 object-contain"
+                />
                 <span className="text-xs" style={{ color: n.color }}>
                   {n.label}
                 </span>
@@ -970,27 +1379,50 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </>
           ) : (
             <div className="flex flex-col gap-2">
-              {dataplans.map((p) => (
+              {variations.map((plan) => (
                 <button
-                  key={p.label}
-                  onClick={() => setAmount(p.price.replace("₦", ""))}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer ${amount === p.price.replace("₦", "") ? "border-[#3730A3] bg-[#EEF2FF]" : "border-[#E5E7EB] bg-white"}`}
+                  key={plan.variation_code}
+                  onClick={() => {
+                    setAmount(plan.variation_amount);
+                    setVariationCode(plan.variation_code);
+                  }}
+                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer ${variationCode === plan.variation_code ? "border-[#3730A3] bg-[#EEF2FF]" : "border-[#E5E7EB] bg-white"}`}
                 >
                   <div className="text-left">
-                    <div className="font-semibold text-sm">{p.label}</div>
-                    <div className="text-xs text-[#9CA3AF]">
-                      Valid for {p.validity}
-                    </div>
+                    <div className="font-semibold text-sm">{plan.name}</div>
                   </div>
-                  <div className="font-semibold text-[#3730A3]">{p.price}</div>
+                  <div className="font-semibold text-[#3730A3]">
+                    ₦{Number(plan.variation_amount).toLocaleString()}
+                  </div>
                 </button>
               ))}
+              {dataDetailsQuery.isLoading && (
+                <p className="text-center text-sm text-[#6B7280]">
+                  Loading available bundles...
+                </p>
+              )}
+              {dataDetailsQuery.isSuccess && variations.length === 0 && (
+                <p className="text-center text-sm text-[#6B7280]">
+                  No data bundles are currently available for this network.
+                </p>
+              )}
             </div>
           )}
           {amount && Number(amount.replace(/,/g, "")) > walletBalance && (
             <div className="text-xs text-red-500 font-medium">
               Insufficient wallet balance ({fmt(walletBalance)})
             </div>
+          )}
+          {walletBalanceQuery.isLoading && (
+            <p className="text-sm text-[#6B7280]">Loading wallet balance...</p>
+          )}
+          {errorMessage && (
+            <p
+              role="alert"
+              className="rounded-xl bg-[#FEF2F2] p-3 text-sm text-red-700"
+            >
+              {errorMessage}
+            </p>
           )}
           <PaveBtn
             onClick={handleBuy}
@@ -999,10 +1431,15 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               !phone ||
               !amount ||
               Number(amount.replace(/,/g, "")) <= 0 ||
-              Number(amount.replace(/,/g, "")) > walletBalance
+              Number(amount.replace(/,/g, "")) > walletBalance ||
+              (tab === "data" && !variationCode) ||
+              !walletBalanceQuery.data ||
+              purchaseMutation.isPending
             }
           >
-            Buy {tab === "airtime" ? "Airtime" : "Data"}
+            {purchaseMutation.isPending
+              ? "Processing..."
+              : `Buy ${tab === "airtime" ? "Airtime" : "Data"}`}
           </PaveBtn>
         </div>
       ) : (
@@ -1026,15 +1463,21 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               Success! 🎉
             </h2>
             <p className="text-[#6B7280] text-sm mt-2">
-              {tab === "airtime" ? `₦${amount} airtime` : `Data bundle`} sent to{" "}
-              {phone}
+              {purchase.message} Sent to {phone}.
             </p>
+            {purchase.reference && (
+              <p className="text-xs text-[#6B7280] mt-2">
+                Reference: {purchase.reference}
+              </p>
+            )}
           </div>
           <PaveBtn
             onClick={() => {
-              setSuccess(false);
+              setPurchase(null);
               setAmount("");
               setPhone("");
+              setVariationCode("");
+              setNetwork("");
             }}
           >
             Buy More
@@ -1054,8 +1497,9 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [searchAmount, setSearchAmount] = useState("");
   const [searchStartDate, setSearchStartDate] = useState("");
   const [searchEndDate, setSearchEndDate] = useState("");
-  const [searchParams, setSearchParams] =
-    useState<UserTransactionSearchParams>({});
+  const [searchParams, setSearchParams] = useState<UserTransactionSearchParams>(
+    {},
+  );
   const [searchActive, setSearchActive] = useState(false);
   const [searchInputError, setSearchInputError] = useState("");
   const [selectedTransactionId, setSelectedTransactionId] = useState("");
@@ -1064,8 +1508,8 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     searchActive,
   );
   const records = searchActive
-    ? searchQuery.data?.data ?? []
-    : transactionsQuery.data?.transactions ?? [];
+    ? (searchQuery.data?.data ?? [])
+    : (transactionsQuery.data?.transactions ?? []);
   const transactions = records.map(toWalletTransaction);
   const transactionDetailQuery = useTransactionByIdQuery(
     selectedTransactionId,
@@ -1178,7 +1622,11 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </p>
           )}
           <div className="mt-3 flex gap-2">
-            <PaveBtn small onClick={submitSearch} disabled={searchQuery.isFetching}>
+            <PaveBtn
+              small
+              onClick={submitSearch}
+              disabled={searchQuery.isFetching}
+            >
               {searchQuery.isFetching ? "Searching..." : "Search"}
             </PaveBtn>
             {searchActive && (

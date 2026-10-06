@@ -15,9 +15,9 @@ import {
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import Logo from "../components/Logo";
 import { Badge } from "../components/UI";
-import { Screen, SPEND_DATA, fmt, pct } from "../pave-data";
+import { Screen, fmt, pct } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
-import { HomeScreenSkeleton } from "../components/Skeleton";
+import { Skeleton } from "../components/Skeleton";
 import {
   useAllTransactionsQuery,
   useSavingsQuery,
@@ -52,6 +52,47 @@ function homeTransaction(record: TransactionRecord, index: number) {
   };
 }
 
+function getWeeklySpending(transactions: TransactionRecord[]) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - 6);
+
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + index);
+    return {
+      date,
+      key: `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
+      day: date.toLocaleDateString(undefined, { weekday: "short" }),
+      amount: 0,
+    };
+  });
+  const amountsByDay = new Map(days.map((day) => [day.key, day]));
+
+  transactions.forEach((transaction) => {
+    const status = transaction.status?.toLowerCase();
+    if (!status || !["success", "successful", "completed"].includes(status)) {
+      return;
+    }
+
+    const kind =
+      `${transaction.transactionType ?? ""} ${transaction.type ?? ""}`.toLowerCase();
+    if (kind.includes("credit") || kind.includes("deposit")) return;
+
+    const createdAt = transaction.createdAt
+      ? new Date(transaction.createdAt)
+      : null;
+    if (!createdAt || Number.isNaN(createdAt.getTime())) return;
+
+    const key = `${createdAt.getFullYear()}-${createdAt.getMonth()}-${createdAt.getDate()}`;
+    const day = amountsByDay.get(key);
+    if (day) day.amount += Number(transaction.amount) || 0;
+  });
+
+  return days.map(({ day, amount }) => ({ day, amount }));
+}
+
 export function HomeScreen({
   onNav,
   onSelectSaving,
@@ -66,6 +107,10 @@ export function HomeScreen({
   const savings = savingsQuery.data?.data.savings ?? [];
   const transactions =
     transactionsQuery.data?.transactions.map(homeTransaction) ?? [];
+  const weeklySpending = getWeeklySpending(
+    transactionsQuery.data?.transactions ?? [],
+  );
+  const hasWeeklySpending = weeklySpending.some((day) => day.amount > 0);
   const walletBalance = walletBalanceQuery.data
     ? Number(walletBalanceQuery.data.balance)
     : null;
@@ -113,14 +158,6 @@ export function HomeScreen({
       screen: "fund-wallet",
     },
   ];
-
-  if (
-    walletBalanceQuery.isLoading ||
-    savingsQuery.isLoading ||
-    transactionsQuery.isLoading
-  ) {
-    return <HomeScreenSkeleton />;
-  }
 
   return (
     <motion.div
@@ -196,7 +233,9 @@ export function HomeScreen({
                 letterSpacing: "-0.5px",
               }}
             >
-              {balVisible
+              {walletBalanceQuery.isLoading && balVisible ? (
+                <Skeleton dark className="h-10 w-56 rounded-xl" />
+              ) : balVisible
                 ? walletBalance === null
                   ? "Unavailable"
                   : fmt(walletBalance)
@@ -331,6 +370,17 @@ export function HomeScreen({
                   </div>
                 </button>
               ))}
+              {savingsQuery.isLoading &&
+                [1, 2].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-[#F1F3FB] p-4"
+                  >
+                    <Skeleton className="h-4 w-2/3 rounded-md mb-3" />
+                    <Skeleton className="h-3 w-1/2 rounded-md mb-4" />
+                    <Skeleton className="h-2 w-full rounded-full" />
+                  </div>
+                ))}
               {savingsQuery.isError && (
                 <p role="alert" className="text-sm text-red-600">
                   {getApiErrorMessage(
@@ -339,7 +389,9 @@ export function HomeScreen({
                   )}
                 </p>
               )}
-              {!savingsQuery.isError && savings.length === 0 && (
+              {!savingsQuery.isLoading &&
+                !savingsQuery.isError &&
+                savings.length === 0 && (
                 <p className="text-sm text-[#6B7280]">
                   You don't have any savings goals yet.
                 </p>
@@ -396,6 +448,17 @@ export function HomeScreen({
                   </div>
                 </div>
               ))}
+              {transactionsQuery.isLoading &&
+                [1, 2, 3].map((item) => (
+                  <div key={item} className="flex items-center gap-3 py-2">
+                    <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-2/3 rounded-md mb-2" />
+                      <Skeleton className="h-3 w-1/2 rounded-md" />
+                    </div>
+                    <Skeleton className="h-4 w-16 rounded-md" />
+                  </div>
+                ))}
               {transactionsQuery.isError && (
                 <p role="alert" className="text-sm text-red-600">
                   {getApiErrorMessage(
@@ -404,7 +467,9 @@ export function HomeScreen({
                   )}
                 </p>
               )}
-              {!transactionsQuery.isError && transactions.length === 0 && (
+              {!transactionsQuery.isLoading &&
+                !transactionsQuery.isError &&
+                transactions.length === 0 && (
                 <p className="text-sm text-[#6B7280]">No recent transactions.</p>
               )}
             </div>
@@ -422,40 +487,63 @@ export function HomeScreen({
               >
                 Weekly Spending
               </h3>
-              <Badge color="indigo">June 2024</Badge>
+              <Badge color="indigo">Last 7 days</Badge>
             </div>
-            <ResponsiveContainer width="100%" height={160}>
-              <AreaChart data={SPEND_DATA}>
-                <defs>
-                  <linearGradient id="spendGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3730A3" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#3730A3" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="day"
-                  tick={{ fontSize: 11, fill: "#9CA3AF" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  formatter={(v: any) => `₦${Number(v).toLocaleString()}`}
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: "none",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="amount"
-                  stroke="#3730A3"
-                  strokeWidth={2.5}
-                  fill="url(#spendGrad)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {transactionsQuery.isLoading ? (
+              <div
+                className="flex h-40 items-center justify-center text-sm text-[#6B7280]"
+                role="status"
+              >
+                Loading spending...
+              </div>
+            ) : transactionsQuery.isError ? (
+              <div
+                className="flex h-40 items-center justify-center text-center text-sm text-red-600"
+                role="alert"
+              >
+                {getApiErrorMessage(
+                  transactionsQuery.error,
+                  "Unable to load weekly spending.",
+                )}
+              </div>
+            ) : hasWeeklySpending ? (
+              <ResponsiveContainer width="100%" height={160}>
+                <AreaChart data={weeklySpending}>
+                  <defs>
+                    <linearGradient id="spendGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3730A3" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#3730A3" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fontSize: 11, fill: "#9CA3AF" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    formatter={(value) => `₦${Number(value ?? 0).toLocaleString()}`}
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "none",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                      fontSize: 12,
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="amount"
+                    stroke="#3730A3"
+                    strokeWidth={2.5}
+                    fill="url(#spendGrad)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-40 items-center justify-center text-center text-sm text-[#6B7280]">
+                No successful spending in the last 7 days.
+              </div>
+            )}
           </div>
 
           {/* Marketplace Promo Card */}

@@ -41,10 +41,10 @@ export function KYCContainer({
 
   return (
     <div
-      className="flex-1 w-full min-h-screen flex items-start justify-center overflow-x-hidden p-3 sm:items-center sm:p-6 md:p-10"
+      className="flex-1 w-full min-h-screen flex items-center justify-center overflow-x-hidden p-3 sm:p-6 md:p-10"
       style={{ background: "#F7F8FF" }}
     >
-      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-10 flex flex-col min-h-0 sm:min-h-135">
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-[#F1F3FB] p-4 sm:p-10 flex flex-col min-h-0 sm:min-h-135">
         <div className="flex items-center justify-between pb-6 border-b border-[#F1F3FB] mb-6">
           <div className="flex items-center gap-3">
             {onBack && (
@@ -103,19 +103,19 @@ export function KYCWelcomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
       subtitle="Complete your verification to unlock unrestricted withdrawals and group thrifts."
       step={1}
     >
-      <div className="flex flex-col items-center justify-center text-center py-4">
+      <div className="flex flex-col items-center justify-center text-center py-2 sm:py-4">
         <div
-          className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl mb-4 shadow-sm"
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center text-3xl sm:text-4xl mb-2 sm:mb-4 shadow-sm"
           style={{ background: "linear-gradient(135deg, #EEF2FF, #C7D2FE)" }}
         >
           🔐
         </div>
-        <p className="text-[#6B7280] text-sm max-w-md mx-auto leading-relaxed">
+        <p className="text-[#6B7280] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
           We need to verify your identity to protect your funds and comply with
           Central Bank of Nigeria regulations. This takes about 3 minutes.
         </p>
 
-        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 my-3 sm:my-6">
           {[
             ["NIN Verification", "Your 11-digit National ID Number", "🪪"],
             ["ID Document", "Upload a valid government ID", "📄"],
@@ -123,9 +123,9 @@ export function KYCWelcomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
           ].map(([t, d, ic]) => (
             <div
               key={t}
-              className="bg-[#F1F3FB] rounded-2xl p-5 flex flex-col items-center text-center gap-3 border border-transparent hover:border-[#3730A3]/20 transition-all"
+              className="bg-[#F1F3FB] rounded-2xl p-3 sm:p-5 flex flex-row sm:flex-col items-center text-left sm:text-center gap-3 border border-transparent hover:border-[#3730A3]/20 transition-all"
             >
-              <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-2xl shadow-xs">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-2xl bg-white flex items-center justify-center text-xl sm:text-2xl shadow-xs">
                 {ic}
               </div>
               <div>
@@ -137,7 +137,7 @@ export function KYCWelcomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#F1F3FB]">
+      <div className="flex flex-col sm:flex-row gap-3 pt-3 sm:pt-4 border-t border-[#F1F3FB]">
         <div className="flex-1">
           <PaveBtn onClick={() => onNav("kyc-nin")}>Start Verification</PaveBtn>
         </div>

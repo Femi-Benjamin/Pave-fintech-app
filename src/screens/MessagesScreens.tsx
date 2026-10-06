@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
   Plus,
@@ -13,7 +13,6 @@ import {
 import { Avatar } from "../components/UI";
 import { Screen, MOCK_MESSAGES } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
-import { MessagesScreenSkeleton } from "../components/Skeleton";
 
 export function MessagesScreen({
   onNav,
@@ -24,22 +23,10 @@ export function MessagesScreen({
 }) {
   const { messages } = useLocalStore();
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 650);
-    return () => clearTimeout(timer);
-  }, []);
 
   const filtered = messages.filter((m) =>
     m.name.toLowerCase().includes(search.toLowerCase()),
   );
-
-  if (isLoading) {
-    return <MessagesScreenSkeleton />;
-  }
 
   return (
     <motion.div

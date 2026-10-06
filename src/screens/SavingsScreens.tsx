@@ -26,7 +26,7 @@ import {
   useWalletBalanceQuery,
   useWithdrawContributionMutation,
 } from "../hooks/usePaveApi";
-import { SavingsScreenSkeleton } from "../components/Skeleton";
+import { Skeleton } from "../components/Skeleton";
 
 function amount(value: number | string) {
   return Number(value) || 0;
@@ -65,10 +65,6 @@ export function SavingsScreen({
     0,
   );
 
-  if (savingsQuery.isLoading) {
-    return <SavingsScreenSkeleton />;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -99,10 +95,16 @@ export function SavingsScreen({
               className="text-white font-bold"
               style={{ fontFamily: "var(--font-family-display)", fontSize: 22 }}
             >
-              {fmt(totalSaved)}
+              {savingsQuery.isLoading ? (
+                <Skeleton dark className="h-7 w-24 rounded-md" />
+              ) : (
+                fmt(totalSaved)
+              )}
             </div>
             <div className="text-white/60 text-xs mt-1">
-              Across {savings.length} goals
+              {savingsQuery.isLoading
+                ? "Loading goals..."
+                : `Across ${savings.length} goals`}
             </div>
           </div>
           <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
@@ -111,7 +113,11 @@ export function SavingsScreen({
               className="text-white font-bold"
               style={{ fontFamily: "var(--font-family-display)", fontSize: 22 }}
             >
-              {savings.filter((saving) => saving.status === "active").length}
+              {savingsQuery.isLoading ? (
+                <Skeleton dark className="h-7 w-12 rounded-md" />
+              ) : (
+                savings.filter((saving) => saving.status === "active").length
+              )}
             </div>
             <div className="text-white/60 text-xs mt-1">From your savings</div>
           </div>
@@ -144,11 +150,24 @@ export function SavingsScreen({
             </button>
           </div>
         )}
-        {!savingsQuery.isError && savings.length === 0 && (
+        {!savingsQuery.isLoading &&
+          !savingsQuery.isError &&
+          savings.length === 0 && (
           <p className="rounded-2xl bg-white p-5 text-sm text-[#6B7280]">
             You don't have any savings goals yet. Create one to get started.
           </p>
         )}
+        {savingsQuery.isLoading &&
+          [1, 2].map((item) => (
+            <div
+              key={item}
+              className="bg-white rounded-2xl p-5 border border-[#F1F3FB]"
+            >
+              <Skeleton className="h-5 w-36 rounded-md mb-4" />
+              <Skeleton className="h-3 w-28 rounded-md mb-5" />
+              <Skeleton className="h-2 w-full rounded-full" />
+            </div>
+          ))}
         {savings.map((saving, index) => {
           const saved = amount(saving.totalSaved);
           const target = amount(saving.targetAmount);

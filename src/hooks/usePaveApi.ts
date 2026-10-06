@@ -51,6 +51,25 @@ import type {
   SavingContributionPayload,
   UpdateSavingPayload,
 } from "../api/savings";
+import {
+  buyAirtime,
+  buyData,
+  buyElectricity,
+  buyTvSubscription,
+  getDataDetails,
+  getTvSubscriptionDetails,
+  verifyElectricityAccountNumber,
+  verifyTvAccountNumber,
+} from "../api/bills";
+import type {
+  BillPurchaseResponse,
+  BuyAirtimePayload,
+  BuyDataPayload,
+  BuyElectricityPayload,
+  BuyTvSubscriptionPayload,
+  VerifyElectricityAccountPayload,
+  VerifyTvAccountPayload,
+} from "../api/bills";
 
 export const transactionQueryKeys = {
   all: ["transactions"] as const,
@@ -69,6 +88,102 @@ export const savingsQueryKeys = {
   detail: (savingId: string) =>
     [...savingsQueryKeys.all, "detail", savingId] as const,
 };
+
+export const billQueryKeys = {
+  all: ["bills"] as const,
+  dataDetails: (serviceID: string) =>
+    [...billQueryKeys.all, "dataDetails", serviceID] as const,
+  tvSubscriptionDetails: (serviceID: string) =>
+    [...billQueryKeys.all, "tvSubscriptionDetails", serviceID] as const,
+  verifyTvAccount: (payload: VerifyTvAccountPayload) =>
+    [...billQueryKeys.all, "verifyTvAccount", payload] as const,
+  verifyElectricityAccount: (payload: VerifyElectricityAccountPayload) =>
+    [...billQueryKeys.all, "verifyElectricityAccount", payload] as const,
+};
+
+function useBillPurchaseMutation<TPayload>(
+  mutationFn: (payload: TPayload) => Promise<BillPurchaseResponse>,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: transactionQueryKeys.walletBalance,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: transactionQueryKeys.list(),
+        }),
+      ]);
+    },
+  });
+}
+
+export function useBuyAirtimeMutation() {
+  return useBillPurchaseMutation<BuyAirtimePayload>(buyAirtime);
+}
+
+export function useDataDetailsQuery(serviceID: string, enabled = true) {
+  return useQuery({
+    queryKey: billQueryKeys.dataDetails(serviceID),
+    queryFn: () => getDataDetails(serviceID),
+    enabled: enabled && Boolean(serviceID.trim()),
+  });
+}
+
+export function useBuyDataMutation() {
+  return useBillPurchaseMutation<BuyDataPayload>(buyData);
+}
+
+export function useTvSubscriptionDetailsQuery(
+  serviceID: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: billQueryKeys.tvSubscriptionDetails(serviceID),
+    queryFn: () => getTvSubscriptionDetails(serviceID),
+    enabled: enabled && Boolean(serviceID.trim()),
+  });
+}
+
+export function useVerifyTvAccountQuery(
+  payload: VerifyTvAccountPayload,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: billQueryKeys.verifyTvAccount(payload),
+    queryFn: () => verifyTvAccountNumber(payload),
+    enabled:
+      enabled &&
+      Boolean(payload.serviceID.trim()) &&
+      Boolean(payload.smartcardNumber.trim()),
+  });
+}
+
+export function useBuyTvSubscriptionMutation() {
+  return useBillPurchaseMutation<BuyTvSubscriptionPayload>(
+    buyTvSubscription,
+  );
+}
+
+export function useVerifyElectricityAccountQuery(
+  payload: VerifyElectricityAccountPayload,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: billQueryKeys.verifyElectricityAccount(payload),
+    queryFn: () => verifyElectricityAccountNumber(payload),
+    enabled:
+      enabled &&
+      Boolean(payload.serviceID.trim()) &&
+      Boolean(payload.meterNumber.trim()),
+  });
+}
+
+export function useBuyElectricityMutation() {
+  return useBillPurchaseMutation<BuyElectricityPayload>(buyElectricity);
+}
 
 export function useSavingsQuery(enabled = true) {
   return useQuery({
