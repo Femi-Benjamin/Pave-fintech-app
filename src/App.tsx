@@ -200,10 +200,12 @@ function MobileApp({
   }, []);
 
   useEffect(() => {
-    if (initialScreen) {
+    if (targetAuth === "login") {
+      setScreen("login");
+    } else if (initialScreen) {
       setScreen(initialScreen);
     }
-  }, [initialScreen]);
+  }, [initialScreen, targetAuth]);
 
   const mainScreens: Screen[] = [
     "home",
@@ -443,7 +445,7 @@ export default function App() {
           /* Full Desktop/Laptop Web Application (with mobile responsiveness) */
           <div className="w-full bg-[#F7F8FF] dark:bg-[#0A0B18] flex flex-col transition-colors">
             <MobileApp
-              initialScreen={hasSession ? "home" : "splash"}
+              initialScreen={hasSession ? "home" : targetAuth === "login" ? "login" : "splash"}
               targetAuth={targetAuth}
               onBackToWebsite={() => setView("onboarding")}
             />

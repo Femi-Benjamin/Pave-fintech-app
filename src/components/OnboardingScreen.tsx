@@ -29,6 +29,15 @@ import {
   QrCode,
 } from "lucide-react";
 import Logo from "./Logo";
+import ProductNavbar, { ProductPageId } from "./ProductNavbar";
+import RotatingSavingsPage from "../screens/products/RotatingSavingsPage";
+import PersonalSavingsPage from "../screens/products/PersonalSavingsPage";
+import ThriftContributionsPage from "../screens/products/ThriftContributionsPage";
+import SendReceiveMoneyPage from "../screens/products/SendReceiveMoneyPage";
+import AirtimeDataPage from "../screens/products/AirtimeDataPage";
+import UtilityBillsPage from "../screens/products/UtilityBillsPage";
+import InvestmentClanPage from "../screens/products/InvestmentClanPage";
+import CompanyPages from "../screens/products/CompanyPages";
 
 interface OnboardingScreenProps {
   onNavigate: (screen: "signup" | "login") => void;
@@ -37,6 +46,7 @@ interface OnboardingScreenProps {
 export default function OnboardingScreen({
   onNavigate,
 }: OnboardingScreenProps) {
+  const [currentPage, setCurrentPage] = useState<ProductPageId>("home");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isDark, setIsDark] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -167,116 +177,101 @@ export default function OnboardingScreen({
   ];
   const audienceMarqueeCards = [...audienceCards, ...audienceCards];
 
+  const handleOpenApp = (action?: "login" | "signup") => {
+    onNavigate(action === "login" ? "login" : "signup");
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0A0B14] flex flex-col justify-between antialiased font-sans text-slate-900 dark:text-slate-100 overflow-x-clip selection:bg-[#E0E7FF] selection:text-[#3730A3] transition-colors duration-300 relative">
-      {/* Background Ambient Mesh */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-80 dark:opacity-25">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              radial-gradient(circle at 18% 18%, rgba(99, 81, 247, 0.08) 0%, transparent 45%),
-              radial-gradient(circle at 85% 25%, rgba(139, 92, 246, 0.07) 0%, transparent 40%),
-              radial-gradient(circle at 50% 85%, rgba(59, 130, 246, 0.05) 0%, transparent 45%),
-              radial-gradient(${isDark ? "rgba(255, 255, 255, 0.07)" : "#cbd5e1"} 1px, transparent 1px)
-            `,
-            backgroundSize: "100% 100%, 100% 100%, 100% 100%, 28px 28px",
-          }}
-        />
-      </div>
+      {/* Background Ambient Mesh - Only rendered on home landing screen */}
+      {currentPage === "home" && (
+        <>
+          <div className="fixed inset-0 z-0 pointer-events-none opacity-80 dark:opacity-25">
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `
+                  radial-gradient(circle at 18% 18%, rgba(99, 81, 247, 0.08) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 25%, rgba(139, 92, 246, 0.07) 0%, transparent 40%),
+                  radial-gradient(circle at 50% 85%, rgba(59, 130, 246, 0.05) 0%, transparent 45%),
+                  radial-gradient(${isDark ? "rgba(255, 255, 255, 0.07)" : "#cbd5e1"} 1px, transparent 1px)
+                `,
+                backgroundSize: "100% 100%, 100% 100%, 100% 100%, 28px 28px",
+              }}
+            />
+          </div>
 
-      {/* Illuminated Grid Hover Effect - Dark Mode (Subtle Ambient Glimmer) */}
-      {isDark && (
-        <div
-          ref={gridRef}
-          className="fixed inset-0 z-0 pointer-events-none opacity-60 transition-opacity duration-300"
-          style={{
-            backgroundImage: `radial-gradient(rgba(139, 92, 246, 0.20) 1px, transparent 1px)`,
-            backgroundSize: "28px 28px",
-            WebkitMaskImage: `radial-gradient(340px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 10%, rgba(0,0,0,0.35) 40%, transparent 70%)`,
-            maskImage: `radial-gradient(340px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 10%, rgba(0,0,0,0.35) 40%, transparent 70%)`,
-          }}
+          {/* Illuminated Grid Hover Effect - Dark Mode (Subtle Ambient Glimmer) */}
+          {isDark && (
+            <div
+              ref={gridRef}
+              className="fixed inset-0 z-0 pointer-events-none opacity-60 transition-opacity duration-300"
+              style={{
+                backgroundImage: `radial-gradient(rgba(139, 92, 246, 0.20) 1px, transparent 1px)`,
+                backgroundSize: "28px 28px",
+                WebkitMaskImage: `radial-gradient(340px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 10%, rgba(0,0,0,0.35) 40%, transparent 70%)`,
+                maskImage: `radial-gradient(340px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px), black 10%, rgba(0,0,0,0.35) 40%, transparent 70%)`,
+              }}
+            />
+          )}
+        </>
+      )}
+
+      {/* MAIN NAVIGATION BAR (AJO.MONEY INSPIRED MEGA DROPDOWN MENU) */}
+      <ProductNavbar
+        currentPage={currentPage}
+        onNavigatePage={(page) => {
+          setCurrentPage(page);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        onOpenApp={handleOpenApp}
+        isDark={isDark}
+        onToggleTheme={toggleTheme}
+      />
+
+      {/* PRODUCT SUB-PAGES */}
+      {currentPage === "rotating-savings" && (
+        <RotatingSavingsPage onOpenApp={handleOpenApp} />
+      )}
+      {currentPage === "personal-savings" && (
+        <PersonalSavingsPage onOpenApp={handleOpenApp} />
+      )}
+      {currentPage === "thrift-contributions" && (
+        <ThriftContributionsPage onOpenApp={handleOpenApp} />
+      )}
+      {currentPage === "send-and-receive-money" && (
+        <SendReceiveMoneyPage onOpenApp={handleOpenApp} />
+      )}
+      {currentPage === "airtime-and-data" && (
+        <AirtimeDataPage onOpenApp={handleOpenApp} />
+      )}
+      {currentPage === "utility-bills" && (
+        <UtilityBillsPage onOpenApp={handleOpenApp} />
+      )}
+      {currentPage === "investment-clan" && (
+        <InvestmentClanPage onOpenApp={handleOpenApp} />
+      )}
+      {["about-us", "our-story", "our-team"].includes(currentPage) && (
+        <CompanyPages
+          onOpenApp={handleOpenApp}
+          section={
+            currentPage === "our-story"
+              ? "story"
+              : currentPage === "our-team"
+                ? "team"
+                : "about"
+          }
         />
       )}
 
-      {/* MAIN HEADER (STICKY / FIXED GLASS NAVIGATION) */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 border-b ${
-          scrolled
-            ? "bg-white/10 dark:bg-[#0A0B14]/85 border-slate-200/80 dark:border-white/15 shadow-xs dark:shadow-black/40"
-            : "bg-white/10 dark:bg-[#0A0B14]/65 border-slate-200/50 dark:border-white/10 shadow-xs"
-        }`}
-        style={{
-          WebkitBackdropFilter: "blur(20px)",
-          backdropFilter: "blur(20px)",
-        }}
-        data-purpose="site-navigation-bar"
-      >
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
-          {/* Brand Logo */}
-          <div
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="cursor-pointer"
-          >
-            <Logo size="md" />
-          </div>
+      {/* MAIN HOMEPAGE CONTENT (RENDERED WHEN CURRENT PAGE IS HOME) */}
+      {currentPage === "home" && (
+        <>
+          {/* Spacer for fixed navigation bar */}
+          <div className="h-20 w-full shrink-0" aria-hidden="true" />
 
-          {/* Center Nav Links */}
-          <nav
-            aria-label="Primary Navigation"
-            className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-tight"
-          >
-            <button
-              onClick={() => scrollToSection("products")}
-              className="hover:text-[#4F39F6] dark:hover:text-[#818CF8] transition-colors py-1 cursor-pointer"
-            >
-              Products
-            </button>
-            <button
-              onClick={() => scrollToSection("thrift")}
-              className="hover:text-[#4F39F6] dark:hover:text-[#818CF8] transition-colors py-1 flex items-center gap-1.5 cursor-pointer"
-            >
-              How Thrift Works
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
-                Ajo
-              </span>
-            </button>
-            <button
-              onClick={() => scrollToSection("yields")}
-              className="hover:text-[#4F39F6] dark:hover:text-[#818CF8] transition-colors py-1 cursor-pointer"
-            >
-              Rates & Yields
-            </button>
-          </nav>
-
-          {/* Right Header Actions */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-slate-500 hover:text-[#4F39F6] dark:text-slate-400 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100/60 dark:hover:bg-white/5 cursor-pointer"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun size={19} /> : <Moon size={19} />}
-            </button>
-
-            {/* Get started Primary CTA */}
-            <button
-              onClick={() => onNavigate("signup")}
-              className="relative group inline-flex items-center justify-center text-sm font-bold text-white px-5 sm:px-6 py-2.5 rounded-full bg-linear-to-r from-[#2B217A] via-[#4F39F6] to-[#6351F7] shadow-md shadow-[#4F39F6]/20 hover:shadow-lg hover:shadow-[#4F39F6]/35 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4F39F6] cursor-pointer"
-            >
-              <span>Get started</span>
-              <ArrowRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Spacer for fixed navigation bar */}
-      <div className="h-20 w-full shrink-0" aria-hidden="true" />
-
-      {/* MAIN CONTENT WRAPPER */}
-      <main className="grow relative z-10">
+          {/* MAIN CONTENT WRAPPER */}
+          <main className="grow relative z-10">
         {/* HERO SPLIT SECTION */}
         <section
           className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-20 lg:pb-28 overflow-hidden"
@@ -1261,6 +1256,8 @@ export default function OnboardingScreen({
           </div>
         </section>
       </main>
+        </>
+      )}
 
       {/* FOOTER */}
       <footer className="w-full border-t border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#0E0E1A] z-10 relative">
@@ -1273,6 +1270,51 @@ export default function OnboardingScreen({
                 savings and digitized cultural community contributions
                 (Ajo/Esusu).
               </p>
+
+              {/* Social Media Links */}
+              <div className="mt-6 flex items-center gap-3">
+                {/* LinkedIn Logo & Link */}
+                <a
+                  href="https://www.linkedin.com/company/paceployt-ltd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn: paceployt ltd"
+                  title="LinkedIn - paceployt ltd"
+                  className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-[#0A66C2] dark:hover:bg-[#0A66C2] text-slate-700 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all flex items-center justify-center border border-slate-200/80 dark:border-white/10 shadow-xs hover:scale-105 active:scale-95 group cursor-pointer"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+                  </svg>
+                </a>
+
+                {/* Instagram Logo & Link */}
+                <a
+                  href="https://www.instagram.com/paceployt.ltd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram: paceployt.ltd"
+                  title="Instagram - paceployt.ltd"
+                  className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-gradient-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] text-slate-700 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all flex items-center justify-center border border-slate-200/80 dark:border-white/10 shadow-xs hover:scale-105 active:scale-95 group cursor-pointer"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                  </svg>
+                </a>
+
+                {/* Twitter / X Logo & Link */}
+                <a
+                  href="https://x.com/Paceployt_ltd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter: @Paceployt_ltd"
+                  title="Twitter / X - @Paceployt_ltd"
+                  className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-black dark:hover:bg-black text-slate-700 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all flex items-center justify-center border border-slate-200/80 dark:border-white/10 shadow-xs hover:scale-105 active:scale-95 group cursor-pointer"
+                >
+                  <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+              </div>
             </div>
 
             <div className="md:ml-auto">
@@ -1398,9 +1440,10 @@ export default function OnboardingScreen({
 
           <div className="pt-8 border-t border-slate-200 dark:border-white/15 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
             <div>
-              © {new Date().getFullYear()} PAVE TECHNOLOGIES LTD. ALL RIGHTS
+              © {new Date().getFullYear()} PACEPLOYT LTD (PAVE). ALL RIGHTS
               RESERVED.
             </div>
+
             <div>
               LICENSED PARTNER BANK INTEGRATION & CBN FRAMEWORK COMPLIANT
             </div>
