@@ -15,11 +15,7 @@ import {
 import Logo from "../components/Logo";
 import { PaveBtn, Input } from "../components/UI";
 import { Screen } from "../pave-data";
-import {
-  completeRegistration,
-  getAuthErrorMessage,
-  login,
-} from "../api/auth";
+import { completeRegistration, getAuthErrorMessage, login } from "../api/auth";
 import { useLocalStore } from "../hooks/useLocalStore";
 import {
   useForgotPasswordMutation,
@@ -452,10 +448,10 @@ export function AuthBrandPanel({
       </div>
 
       <div className="relative z-10 pt-4 border-t border-white/15 flex items-center justify-between text-xs text-white/70">
-        <span>Trusted by 20,000+ Nigerians</span>
-        <span className="font-bold text-white text-xs sm:text-sm">
+        <span>Trusted by 2000+ Nigerians</span>
+        {/* <span className="font-bold text-white text-xs sm:text-sm">
           ₦2.4B+ Saved
-        </span>
+        </span> */}
       </div>
 
       <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none" />
@@ -574,7 +570,7 @@ export function LoginScreen({
                 Welcome back
               </h1>
               <p className="text-[#6B7280] text-xs sm:text-sm mt-1">
-                Sign in to your PAVE account to continue
+                Sign in to your PAVE account to continue 👋
               </p>
             </div>
 
@@ -846,28 +842,28 @@ export function RegisterScreen({
               </div>
               {form.password.length > 0 &&
                 passwordRequirements.some(({ met }) => !met) && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-[#F1F3FB] rounded-xl p-3 flex flex-col gap-1.5"
-                >
-                  {passwordRequirements.map(({ label, met }) => (
-                    <div
-                      key={label}
-                      className={`flex items-center gap-2 text-xs ${
-                        met ? "text-[#059669]" : "text-[#6B7280]"
-                      }`}
-                    >
-                      {met ? (
-                        <Check size={12} className="text-[#059669]" />
-                      ) : (
-                        <Circle size={12} className="text-[#9CA3AF]" />
-                      )}
-                      {label}
-                    </div>
-                  ))}
-                </motion.div>
-              )}
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#F1F3FB] rounded-xl p-3 flex flex-col gap-1.5"
+                  >
+                    {passwordRequirements.map(({ label, met }) => (
+                      <div
+                        key={label}
+                        className={`flex items-center gap-2 text-xs ${
+                          met ? "text-[#059669]" : "text-[#6B7280]"
+                        }`}
+                      >
+                        {met ? (
+                          <Check size={12} className="text-[#059669]" />
+                        ) : (
+                          <Circle size={12} className="text-[#9CA3AF]" />
+                        )}
+                        {label}
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
               <div className="mt-5">
                 <PaveBtn
                   onClick={doNext}

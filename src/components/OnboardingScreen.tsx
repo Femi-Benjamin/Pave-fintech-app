@@ -306,7 +306,7 @@ export default function OnboardingScreen({
                 <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal mb-8 max-w-xl">
                   The high-yield digital wallet that unifies automated personal
                   savings with disciplined, trustless thrift contributions
-                  (Ajo/Esusu). Enjoy guaranteed rotational payouts, zero default
+                  (Ajo/Esusu/Adashe). Enjoy guaranteed rotational payouts, zero default
                   risk, and NDIC/CBN-compliant security.
                 </p>
 
@@ -569,7 +569,7 @@ export default function OnboardingScreen({
               </h2>
               <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                 Build personal savings at your own pace or grow together through
-                Ajo and Esusu. PAVE helps turn good intentions into steady
+                Ajo, Esusu and Adashe. PAVE helps turn good intentions into steady
                 progress.
               </p>
             </div>
@@ -684,7 +684,7 @@ export default function OnboardingScreen({
                   className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
                   style={{ fontFamily: "var(--font-family-display)" }}
                 >
-                  Modern Ajo / Esusu Pools
+                  Modern Ajo / Esusu / Adashe Pools
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
                   The tradition you know, digitized for safety. Verified circles

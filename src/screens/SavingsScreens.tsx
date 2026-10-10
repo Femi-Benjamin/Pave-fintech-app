@@ -86,7 +86,7 @@ export function SavingsScreen({
             fontSize: 22,
           }}
         >
-          My Savings
+          My AJO
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
@@ -133,11 +133,14 @@ export function SavingsScreen({
             <Plus size={20} className="text-white" />
           </div>
           <span className="text-[#3730A3] font-medium text-sm">
-            Create New Savings Goal
+            Create New AJO Group
           </span>
         </button>
         {savingsQuery.isError && (
-          <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">
+          <div
+            role="alert"
+            className="rounded-xl bg-red-50 p-4 text-sm text-red-700"
+          >
             {getApiErrorMessage(
               savingsQuery.error,
               "Unable to load your savings.",
@@ -153,10 +156,10 @@ export function SavingsScreen({
         {!savingsQuery.isLoading &&
           !savingsQuery.isError &&
           savings.length === 0 && (
-          <p className="rounded-2xl bg-white p-5 text-sm text-[#6B7280]">
-            You don't have any savings goals yet. Create one to get started.
-          </p>
-        )}
+            <p className="rounded-2xl bg-white p-5 text-sm text-[#6B7280]">
+              You don't have any AJO groups yet. Create one to get started.
+            </p>
+          )}
         {savingsQuery.isLoading &&
           [1, 2].map((item) => (
             <div
@@ -301,13 +304,13 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 fontSize: 24,
               }}
             >
-              Goal Created! 🎉
+              AJO Created! 🎉
             </h2>
             <p className="text-[#6B7280] text-sm mt-2">
               {createSavingMutation.data?.message}
             </p>
           </div>
-          <PaveBtn onClick={() => onNav("savings")}>View My Goals</PaveBtn>
+          <PaveBtn onClick={() => onNav("savings")}>View My AJO Groups</PaveBtn>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
@@ -324,7 +327,7 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             <>
               <div>
                 <label className="text-sm font-medium text-[#374151] block mb-1.5">
-                  Goal Name
+                  AJO Group Name
                 </label>
                 <input
                   value={form.name}
@@ -462,7 +465,7 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </div>
               <div className="bg-white rounded-2xl border border-[#F1F3FB] p-5 flex flex-col gap-3">
                 <div className="font-semibold text-[#0D0F1C] mb-1">
-                  Goal Summary
+                  AJO Summary
                 </div>
                 {[
                   ["Goal Name", form.name || "—"],
@@ -482,7 +485,7 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 <p role="alert" className="text-sm text-red-600">
                   {getApiErrorMessage(
                     createSavingMutation.error,
-                    "Unable to create your savings goal.",
+                    "Unable to create your savings Ajo.",
                   )}
                 </p>
               )}
@@ -500,10 +503,10 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 {createSavingMutation.isPending ? (
                   <>
                     <Loader size={16} className="animate-spin" />
-                    Creating goal...
+                    Creating AJO...
                   </>
                 ) : (
-                  "🎯 Create Goal"
+                  "🎯 Create Ajo"
                 )}
               </PaveBtn>
             </>
@@ -684,7 +687,8 @@ export function SavingsDetailScreen({
           {saving.name}
         </h2>
         <div className="text-white/70 text-xs mb-6">
-          {saving.frequency} contributions · {saving.status ?? "Status unavailable"}
+          {saving.frequency} contributions ·{" "}
+          {saving.status ?? "Status unavailable"}
         </div>
         <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
           <div className="text-white/70 text-xs mb-1">Saved so far</div>
@@ -698,7 +702,9 @@ export function SavingsDetailScreen({
             />
           </div>
           <div className="flex justify-between mt-2 text-white/70 text-xs">
-            <span>{progress}% of {fmt(target)}</span>
+            <span>
+              {progress}% of {fmt(target)}
+            </span>
             <span>{fmt(Math.max(0, target - saved))} to go</span>
           </div>
         </div>
@@ -813,9 +819,7 @@ export function SavingsDetailScreen({
               <PaveBtn
                 onClick={() => void submitContribution()}
                 disabled={
-                  busy ||
-                  Number(contributionAmount) <= 0 ||
-                  !remarks.trim()
+                  busy || Number(contributionAmount) <= 0 || !remarks.trim()
                 }
               >
                 {busy ? <Loader size={16} className="animate-spin" /> : null}
@@ -994,7 +998,7 @@ export function SavingsDetailScreen({
                   <div className="text-xs text-[#9CA3AF]">
                     {contribution.paidAt
                       ? new Date(contribution.paidAt).toLocaleDateString()
-                      : contribution.status ?? ""}
+                      : (contribution.status ?? "")}
                   </div>
                 </div>
                 <div className="text-sm font-semibold text-[#059669]">
