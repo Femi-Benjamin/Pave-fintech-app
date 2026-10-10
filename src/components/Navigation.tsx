@@ -17,7 +17,7 @@ import { useLocalStore } from "../hooks/useLocalStore";
 export const BOTTOM_NAV = [
   { screen: "home" as Screen, icon: Home, label: "Home" },
   { screen: "wallet" as Screen, icon: Wallet, label: "Wallet" },
-  { screen: "savings" as Screen, icon: PiggyBank, label: "Savings" },
+  { screen: "ajo" as Screen, icon: PiggyBank, label: "Ajo" },
   { screen: "marketplace" as Screen, icon: ShoppingBag, label: "Shop" },
   { screen: "profile" as Screen, icon: User, label: "Profile" },
 ];
@@ -55,7 +55,7 @@ export function DesktopSidebar({
   const navItems = [
     { screen: "home" as Screen, icon: Home, label: "Home" },
     { screen: "wallet" as Screen, icon: Wallet, label: "Wallet" },
-    { screen: "savings" as Screen, icon: PiggyBank, label: "Savings & Goals" },
+    { screen: "ajo" as Screen, icon: PiggyBank, label: "Ajo" },
     {
       screen: "marketplace" as Screen,
       icon: ShoppingBag,
