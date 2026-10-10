@@ -97,7 +97,7 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 text-white">
                 <div className="inline-block px-3 py-1 rounded-full bg-emerald-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   Emergency Vault · 85% Target Reached
@@ -301,7 +301,7 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
             </div>
 
             {/* Calculations Output */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-[#064E3B] to-[#059669] text-white rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-xl">
+            <div className="lg:col-span-5 bg-linear-to-br from-[#064E3B] to-[#059669] text-white rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-xl">
               <div>
                 <span className="text-xs uppercase font-extrabold tracking-wider text-emerald-200">
                   Projected Maturity Value

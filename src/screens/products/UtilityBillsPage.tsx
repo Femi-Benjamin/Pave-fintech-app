@@ -138,7 +138,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 text-white">
                 <div className="inline-block px-3 py-1 rounded-full bg-rose-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   Prepaid Power Active

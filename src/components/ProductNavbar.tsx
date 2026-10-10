@@ -139,7 +139,7 @@ export default function ProductNavbar({
             {isProductsOpen && (
               <div
                 onMouseLeave={() => setIsProductsOpen(false)}
-                className="absolute top-full left-0 -ml-16 mt-2 w-[780px] bg-white dark:bg-[#111327] rounded-3xl shadow-2xl border border-slate-200/80 dark:border-white/10 p-6 grid grid-cols-12 gap-6 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                className="absolute top-full left-0 -ml-16 mt-2 w-195 bg-white dark:bg-[#111327] rounded-3xl shadow-2xl border border-slate-200/80 dark:border-white/10 p-6 grid grid-cols-12 gap-6 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
               >
                 {/* Column 1: Savings and Credit (4 cols) */}
                 <div className="col-span-4 flex flex-col gap-4">
@@ -345,10 +345,10 @@ export default function ProductNavbar({
 
       {/* Mobile Drawer Navigation */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white dark:bg-[#0A0B14] border-b border-slate-200 dark:border-white/10 px-5 py-6 flex flex-col gap-4 max-h-[85vh] overflow-y-auto">
+        <div className="lg:hidden bg-[#F4F6FC] dark:bg-[#111327] border-b border-slate-200 dark:border-white/10 px-6 sm:px-8 py-6 flex flex-col gap-4 max-h-[85vh] overflow-y-auto">
           {/* Mobile Theme Toggle */}
           <div className="flex items-center justify-between pb-3.5 border-b border-slate-200 dark:border-white/10">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
               Appearance
             </span>
             <button
@@ -370,46 +370,46 @@ export default function ProductNavbar({
             </button>
           </div>
 
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
             Products: Savings & Credit
           </div>
           <button
             onClick={() => handleSelectPage("rotating-savings")}
-            className="flex items-center gap-3 text-left py-2 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-[#3730A3]"
+            className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-indigo-200 dark:hover:border-indigo-400/30 hover:text-[#3730A3]"
           >
             <Users size={18} className="text-[#3730A3]" /> Rotating group savings
           </button>
           <button
             onClick={() => handleSelectPage("personal-savings")}
-            className="flex items-center gap-3 text-left py-2 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-[#059669]"
+            className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-emerald-200 dark:hover:border-emerald-400/30 hover:text-[#059669]"
           >
             <Wallet size={18} className="text-[#059669]" /> Personal savings
           </button>
           <button
             onClick={() => handleSelectPage("thrift-contributions")}
-            className="flex items-center gap-3 text-left py-2 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-[#D97706]"
+            className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-amber-200 dark:hover:border-amber-400/30 hover:text-[#D97706]"
           >
             <RotateCw size={18} className="text-[#D97706]" /> Thrift contribution
           </button>
 
-          <div className="pt-2 border-t border-slate-200 dark:border-white/10 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          <div className="pt-2 border-t border-slate-200 dark:border-white/10 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
             Products: Wallet & Payments
           </div>
           <button
             onClick={() => handleSelectPage("send-and-receive-money")}
-            className="flex items-center gap-3 text-left py-2 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-[#7C3AED]"
+            className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-purple-200 dark:hover:border-purple-400/30 hover:text-[#7C3AED]"
           >
             <Send size={18} className="text-[#7C3AED]" /> Send and receive money
           </button>
           <button
             onClick={() => handleSelectPage("airtime-and-data")}
-            className="flex items-center gap-3 text-left py-2 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-[#2563EB]"
+            className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-blue-200 dark:hover:border-blue-400/30 hover:text-[#2563EB]"
           >
             <Smartphone size={18} className="text-[#2563EB]" /> Airtime and data
           </button>
           <button
             onClick={() => handleSelectPage("utility-bills")}
-            className="flex items-center gap-3 text-left py-2 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-[#E11D48]"
+            className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-rose-200 dark:hover:border-rose-400/30 hover:text-[#E11D48]"
           >
             <Zap size={18} className="text-[#E11D48]" /> Utility bills
           </button>

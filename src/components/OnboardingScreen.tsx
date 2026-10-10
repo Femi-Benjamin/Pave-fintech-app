@@ -899,9 +899,6 @@ export default function OnboardingScreen({
             >
               <div className="max-w-5xl mx-auto">
                 <div className="text-center max-w-2xl mx-auto mb-16">
-                  {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
-                Transparent Returns
-              </span> */}
                   <h2
                     className="text-4xl md:text-5xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
                     style={{ fontFamily: "var(--font-family-display)" }}
@@ -1083,9 +1080,6 @@ export default function OnboardingScreen({
             >
               <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-14">
-                  {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
-                Got Questions?
-              </span> */}
                   <h2
                     className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
                     style={{ fontFamily: "var(--font-family-display)" }}
