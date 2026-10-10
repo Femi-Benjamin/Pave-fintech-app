@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect } from "react";
+import React, { lazy, Suspense, useState, useEffect, useCallback } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "motion/react";
 import OnboardingLandingScreen from "./components/OnboardingScreen";
@@ -125,6 +125,11 @@ const SavingsDetailScreen = lazy(() =>
     default: screens.SavingsDetailScreen,
   })),
 );
+const GroupSavingDetailScreen = lazy(() =>
+  import("./screens/SavingsScreens").then((screens) => ({
+    default: screens.GroupSavingDetailScreen,
+  })),
+);
 const MarketplaceScreen = lazy(() =>
   import("./screens/MarketplaceScreens").then((screens) => ({
     default: screens.MarketplaceScreen,
@@ -179,6 +184,7 @@ function MobileApp({
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedSavingId, setSelectedSavingId] = useState("");
+  const [ajoSuccessNotice, setAjoSuccessNotice] = useState("");
   const [activeChat, setActiveChat] = useState<any>(null);
   const [kycNin, setKycNin] = useState("");
 
@@ -223,6 +229,10 @@ function MobileApp({
     screen === "onboarding" || screen === "login" || screen === "register";
 
   const nav = (s: Screen) => setScreen(s);
+  const dismissAjoSuccessNotice = useCallback(
+    () => setAjoSuccessNotice(""),
+    [],
+  );
 
   const renderScreen = () => {
     switch (screen) {
@@ -278,10 +288,22 @@ function MobileApp({
         return <AirtimeScreen onNav={nav} />;
       case "savings":
         return (
-          <SavingsScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+          <SavingsScreen
+            onNav={nav}
+            onSelectSaving={setSelectedSavingId}
+            successNotice={ajoSuccessNotice}
+            onDismissSuccess={dismissAjoSuccessNotice}
+          />
         );
       case "create-savings":
-        return <CreateSavingsScreen onNav={nav} />;
+        return (
+          <CreateSavingsScreen
+            onNav={nav}
+            onCreated={() =>
+              setAjoSuccessNotice("AJO Group Created Successfully")
+            }
+          />
+        );
       case "savings-detail":
         return (
           <SavingsDetailScreen
@@ -289,9 +311,21 @@ function MobileApp({
             savingId={selectedSavingId}
           />
         );
+      case "group-saving-detail":
+        return (
+          <GroupSavingDetailScreen
+            onNav={nav}
+            groupId={selectedSavingId}
+          />
+        );
       case "savings-programs":
         return (
-          <SavingsScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+          <SavingsScreen
+            onNav={nav}
+            onSelectSaving={setSelectedSavingId}
+            successNotice={ajoSuccessNotice}
+            onDismissSuccess={dismissAjoSuccessNotice}
+          />
         );
       case "marketplace":
         return (

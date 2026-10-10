@@ -24,6 +24,7 @@ export type Screen =
   | "savings"
   | "create-savings"
   | "savings-detail"
+  | "group-saving-detail"
   | "savings-programs"
   | "join-program"
   | "marketplace"

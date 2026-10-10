@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
@@ -12,18 +12,30 @@ import { PaveBtn, ScreenHeader } from "../components/UI";
 import { Screen, fmt, pct } from "../pave-data";
 import { getApiErrorMessage } from "../api/auth";
 import type {
+  GroupSavingUpdatePayload,
   Saving,
   SavingFrequency,
   SavingContributionPayload,
 } from "../api/savings";
 import {
+  useContributeToGroupSavingMutation,
   useCreateSavingContributionMutation,
-  useCreateSavingMutation,
+  useCreateGroupSavingMutation,
+  useDeleteGroupSavingMutation,
   useDeleteSavingMutation,
+  useGroupSavingQuery,
+  useGroupWithdrawalQuery,
+  useGroupWithdrawalsQuery,
+  useInviteMemberToGroupMutation,
+  useJoinGroupSavingMutation,
+  useLeaveGroupSavingMutation,
+  useMyGroupWithdrawalsQuery,
+  useGroupSavingsQuery,
   useSavingQuery,
-  useSavingsQuery,
   useUpdateSavingMutation,
+  useUpdateGroupSavingMutation,
   useWalletBalanceQuery,
+  useWithdrawFromGroupSavingMutation,
   useWithdrawContributionMutation,
 } from "../hooks/usePaveApi";
 import { Skeleton } from "../components/Skeleton";
@@ -36,9 +48,15 @@ function isSavingFrequency(value: string): value is SavingFrequency {
   return ["daily", "weekly", "monthly", "bi-weekly", "yearly"].includes(value);
 }
 
-function percentSaved(saving: Saving) {
+function percentSaved(
+  saving: Pick<Saving, "targetAmount"> & {
+    totalSaved?: number | string;
+    currentBalance?: number | string;
+  },
+) {
   const target = amount(saving.targetAmount);
-  return target > 0 ? pct(amount(saving.totalSaved), target) : 0;
+  const saved = amount(saving.totalSaved ?? saving.currentBalance ?? 0);
+  return target > 0 ? pct(saved, target) : 0;
 }
 
 function remainingDays(endDate: string) {
@@ -54,14 +72,26 @@ function savingColor(index: number) {
 export function SavingsScreen({
   onNav,
   onSelectSaving,
+  successNotice,
+  onDismissSuccess,
 }: {
   onNav: (s: Screen) => void;
   onSelectSaving: (savingId: string) => void;
+  successNotice?: string;
+  onDismissSuccess?: () => void;
 }) {
-  const savingsQuery = useSavingsQuery();
-  const savings = savingsQuery.data?.data.savings ?? [];
+  const savingsQuery = useGroupSavingsQuery();
+  const joinGroupMutation = useJoinGroupSavingMutation();
+  const savings = savingsQuery.data?.data ?? [];
+  const [showJoinForm, setShowJoinForm] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
+  useEffect(() => {
+    if (!successNotice || !onDismissSuccess) return;
+    const timeout = window.setTimeout(onDismissSuccess, 4000);
+    return () => window.clearTimeout(timeout);
+  }, [successNotice, onDismissSuccess]);
   const totalSaved = savings.reduce(
-    (total, saving) => total + amount(saving.totalSaved),
+    (total, saving) => total + amount(saving.currentBalance),
     0,
   );
 
@@ -125,6 +155,24 @@ export function SavingsScreen({
       </div>
 
       <div className="px-6 -mt-4 flex flex-col gap-5">
+        {successNotice && (
+          <div
+            role="status"
+            className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 shadow-sm"
+          >
+            <span>{successNotice}</span>
+            {onDismissSuccess && (
+              <button
+                type="button"
+                onClick={onDismissSuccess}
+                className="cursor-pointer text-emerald-700"
+                aria-label="Dismiss success message"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        )}
         <button
           onClick={() => onNav("create-savings")}
           className="flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-[#C7D2FE] bg-[#EEF2FF] hover:bg-[#E0E7FF] transition-colors cursor-pointer"
@@ -136,6 +184,45 @@ export function SavingsScreen({
             Create New AJO Group
           </span>
         </button>
+        <button
+          type="button"
+          onClick={() => setShowJoinForm((visible) => !visible)}
+          className="self-start text-sm font-medium text-[#3730A3]"
+        >
+          Join a group with an invite code
+        </button>
+        {showJoinForm && (
+          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+            <label className="mb-2 block text-sm font-medium text-[#374151]">
+              Group invite code
+              <input
+                value={inviteCode}
+                onChange={(event) => setInviteCode(event.target.value)}
+                className="mt-2 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
+                placeholder="Enter invite code"
+              />
+            </label>
+            {joinGroupMutation.isError && (
+              <p role="alert" className="mb-3 text-sm text-red-600">
+                {getApiErrorMessage(
+                  joinGroupMutation.error,
+                  "Unable to join this AJO group.",
+                )}
+              </p>
+            )}
+            {joinGroupMutation.isSuccess && (
+              <p role="status" className="mb-3 text-sm text-green-700">
+                {joinGroupMutation.data.message}
+              </p>
+            )}
+            <PaveBtn
+              onClick={() => joinGroupMutation.mutate(inviteCode)}
+              disabled={joinGroupMutation.isPending || !inviteCode.trim()}
+            >
+              {joinGroupMutation.isPending ? "Joining..." : "Join AJO Group"}
+            </PaveBtn>
+          </section>
+        )}
         {savingsQuery.isError && (
           <div
             role="alert"
@@ -172,14 +259,17 @@ export function SavingsScreen({
             </div>
           ))}
         {savings.map((saving, index) => {
-          const saved = amount(saving.totalSaved);
+          const saved = amount(saving.currentBalance);
           const target = amount(saving.targetAmount);
           const days = remainingDays(saving.endDate);
           const progress = percentSaved(saving);
           return (
             <button
               key={saving.id}
-              onClick={() => onSelectSaving(saving.id)}
+              onClick={() => {
+                onSelectSaving(saving.id);
+                onNav("group-saving-detail");
+              }}
               className="bg-white rounded-2xl p-5 border border-[#F1F3FB] shadow-sm text-left cursor-pointer"
             >
               <div className="flex items-center justify-between mb-4">
@@ -229,8 +319,14 @@ export function SavingsScreen({
   );
 }
 
-export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const createSavingMutation = useCreateSavingMutation();
+export function CreateSavingsScreen({
+  onNav,
+  onCreated,
+}: {
+  onNav: (s: Screen) => void;
+  onCreated: () => void;
+}) {
+  const createGroupSavingMutation = useCreateGroupSavingMutation();
   const [step, setStep] = useState(1);
   const defaultStartDate = new Date().toISOString().slice(0, 10);
   const defaultEndDate = new Date(Date.now() + 90 * 86400000)
@@ -247,8 +343,6 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   });
   const set = (k: keyof typeof form) => (v: string) =>
     setForm((previous) => ({ ...previous, [k]: v }));
-  const [success, setSuccess] = useState(false);
-
   const handleCreate = async () => {
     const targetAmount = Number(form.goal.replace(/,/g, ""));
     const contributionAmount = Number(form.amount.replace(/,/g, ""));
@@ -264,17 +358,21 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     }
 
     try {
-      await createSavingMutation.mutateAsync({
+      await createGroupSavingMutation.mutateAsync({
         name: form.name.trim(),
         description: form.purpose.trim(),
+        targetAmount,
+        contributionAmount,
+        currency: "NGN",
+        frequency,
+        maxMembers: 10,
         startDate: form.startDate,
         endDate: form.endDate,
-        targetAmount,
-        amount: contributionAmount,
-        frequency,
-        autoDebit: false,
+        visibility: "private",
+        image: "",
       });
-      setSuccess(true);
+      onCreated();
+      onNav("savings");
     } catch {
       // The mutation error is rendered in the form.
     }
@@ -286,233 +384,205 @@ export function CreateSavingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         title="Create Savings Goal"
         onBack={() => (step > 1 ? setStep(step - 1) : onNav("savings"))}
       />
-      {success ? (
-        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring" }}
-            className="text-6xl"
-          >
-            🎯
-          </motion.div>
-          <div>
-            <h2
-              style={{
-                fontFamily: "var(--font-family-display)",
-                fontWeight: 700,
-                fontSize: 24,
-              }}
-            >
-              AJO Created! 🎉
-            </h2>
-            <p className="text-[#6B7280] text-sm mt-2">
-              {createSavingMutation.data?.message}
-            </p>
-          </div>
-          <PaveBtn onClick={() => onNav("savings")}>View My AJO Groups</PaveBtn>
+      <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
+        <div className="flex gap-2">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-1.5 flex-1 rounded-full transition-all"
+              style={{ background: i <= step ? "#3730A3" : "#E5E7EB" }}
+            />
+          ))}
         </div>
-      ) : (
-        <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
-          <div className="flex gap-2">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-1.5 flex-1 rounded-full transition-all"
-                style={{ background: i <= step ? "#3730A3" : "#E5E7EB" }}
+        {step === 1 && (
+          <>
+            <div>
+              <label className="text-sm font-medium text-[#374151] block mb-1.5">
+                AJO Group Name
+              </label>
+              <input
+                value={form.name}
+                onChange={(e) => set("name")(e.target.value)}
+                placeholder="e.g. New iPhone, Holiday Trip..."
+                className="w-full bg-[#F1F3FB] rounded-xl px-4 py-3.5 text-sm outline-none border border-transparent focus:border-[#3730A3] transition-colors"
               />
-            ))}
-          </div>
-          {step === 1 && (
-            <>
-              <div>
-                <label className="text-sm font-medium text-[#374151] block mb-1.5">
-                  AJO Group Name
-                </label>
-                <input
-                  value={form.name}
-                  onChange={(e) => set("name")(e.target.value)}
-                  placeholder="e.g. New iPhone, Holiday Trip..."
-                  className="w-full bg-[#F1F3FB] rounded-xl px-4 py-3.5 text-sm outline-none border border-transparent focus:border-[#3730A3] transition-colors"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-[#374151] block mb-1.5">
-                  Target Amount (₦)
-                </label>
-                <input
-                  value={form.goal}
-                  onChange={(e) => set("goal")(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full bg-[#F1F3FB] rounded-xl px-5 py-4 outline-none border border-transparent focus:border-[#3730A3] transition-colors"
-                  style={{
-                    fontFamily: "var(--font-family-display)",
-                    fontWeight: 600,
-                    fontSize: 24,
-                  }}
-                />
-              </div>
-              <PaveBtn
-                onClick={() => setStep(2)}
-                disabled={
-                  !form.name.trim() ||
-                  !form.goal ||
-                  Number(form.goal.replace(/,/g, "")) <= 0
-                }
-              >
-                Continue
-              </PaveBtn>
-            </>
-          )}
-          {step === 2 && (
-            <>
-              <div>
-                <label className="text-sm font-medium text-[#374151] block mb-1.5">
-                  Deposit Amount per {form.freq || "Period"} (₦)
-                </label>
-                <input
-                  value={form.amount}
-                  onChange={(e) => set("amount")(e.target.value)}
-                  placeholder="e.g. 5,000"
-                  className="w-full bg-[#F1F3FB] rounded-xl px-5 py-4 outline-none border border-transparent focus:border-[#3730A3] transition-colors"
-                  style={{
-                    fontFamily: "var(--font-family-display)",
-                    fontWeight: 600,
-                    fontSize: 22,
-                  }}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-[#374151] block mb-2">
-                  Save Every
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {freqs.map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => set("freq")(f)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium border transition-all cursor-pointer ${form.freq === f ? "bg-[#3730A3] border-[#3730A3] text-white" : "border-[#E5E7EB] text-[#374151]"}`}
-                    >
-                      {f}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <label className="text-sm font-medium text-[#374151] block">
-                Start Date
-                <input
-                  type="date"
-                  value={form.startDate}
-                  onChange={(event) => set("startDate")(event.target.value)}
-                  className="mt-1.5 w-full bg-[#F1F3FB] rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-[#3730A3]"
-                />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-[#374151] block mb-1.5">
+                Target Amount (₦)
               </label>
-              <label className="text-sm font-medium text-[#374151] block">
-                Target Date
-                <input
-                  type="date"
-                  min={form.startDate}
-                  value={form.endDate}
-                  onChange={(event) => set("endDate")(event.target.value)}
-                  className="mt-1.5 w-full bg-[#F1F3FB] rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-[#3730A3]"
-                />
+              <input
+                value={form.goal}
+                onChange={(e) => set("goal")(e.target.value)}
+                placeholder="0.00"
+                className="w-full bg-[#F1F3FB] rounded-xl px-5 py-4 outline-none border border-transparent focus:border-[#3730A3] transition-colors"
+                style={{
+                  fontFamily: "var(--font-family-display)",
+                  fontWeight: 600,
+                  fontSize: 24,
+                }}
+              />
+            </div>
+            <PaveBtn
+              onClick={() => setStep(2)}
+              disabled={
+                !form.name.trim() ||
+                !form.goal ||
+                Number(form.goal.replace(/,/g, "")) <= 0
+              }
+            >
+              Continue
+            </PaveBtn>
+          </>
+        )}
+        {step === 2 && (
+          <>
+            <div>
+              <label className="text-sm font-medium text-[#374151] block mb-1.5">
+                Deposit Amount per {form.freq || "Person"} (₦)
               </label>
-              {form.goal && form.amount && form.freq && (
-                <div className="bg-[#EEF2FF] rounded-xl p-4 text-sm">
-                  <div className="font-semibold text-[#3730A3] mb-2">
-                    📊 Projection
-                  </div>
-                  <div className="text-[#374151]">
-                    Saving ₦{form.amount} {form.freq.toLowerCase()} will reach
-                    your goal of ₦{form.goal} in approximately{" "}
-                    <strong>
-                      {Math.ceil(
-                        Number(form.goal.replace(/,/g, "")) /
-                          Number(form.amount.replace(/,/g, "")),
-                      )}{" "}
-                      {form.freq.toLowerCase()} periods
-                    </strong>
-                    .
-                  </div>
-                </div>
-              )}
-              <PaveBtn
-                onClick={() => setStep(3)}
-                disabled={
-                  !form.amount ||
-                  Number(form.amount.replace(/,/g, "")) <= 0 ||
-                  !form.freq ||
-                  new Date(form.endDate) <= new Date(form.startDate)
-                }
-              >
-                Continue
-              </PaveBtn>
-            </>
-          )}
-          {step === 3 && (
-            <>
-              <div>
-                <label className="text-sm font-medium text-[#374151] block mb-1.5">
-                  Purpose / Motivation
-                </label>
-                <textarea
-                  value={form.purpose}
-                  onChange={(e) => set("purpose")(e.target.value)}
-                  placeholder="Why are you saving for this? Remind yourself..."
-                  rows={4}
-                  className="w-full bg-[#F1F3FB] rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-[#3730A3] transition-colors resize-none"
-                />
-              </div>
-              <div className="bg-white rounded-2xl border border-[#F1F3FB] p-5 flex flex-col gap-3">
-                <div className="font-semibold text-[#0D0F1C] mb-1">
-                  AJO Summary
-                </div>
-                {[
-                  ["Goal Name", form.name || "—"],
-                  ["Target Amount", form.goal ? `₦${form.goal}` : "—"],
-                  ["Frequency", form.freq || "—"],
-                  ["Deposit Amount", form.amount ? `₦${form.amount}` : "—"],
-                  ["Start Date", form.startDate],
-                  ["Target Date", form.endDate],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-sm">
-                    <span className="text-[#9CA3AF]">{k}</span>
-                    <span className="font-medium text-[#0D0F1C]">{v}</span>
-                  </div>
+              <input
+                value={form.amount}
+                onChange={(e) => set("amount")(e.target.value)}
+                placeholder="e.g. 5,000"
+                className="w-full bg-[#F1F3FB] rounded-xl px-5 py-4 outline-none border border-transparent focus:border-[#3730A3] transition-colors"
+                style={{
+                  fontFamily: "var(--font-family-display)",
+                  fontWeight: 600,
+                  fontSize: 22,
+                }}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-[#374151] block mb-2">
+                Save Every
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {freqs.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => set("freq")(f)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium border transition-all cursor-pointer ${form.freq === f ? "bg-[#3730A3] border-[#3730A3] text-white" : "border-[#E5E7EB] text-[#374151]"}`}
+                  >
+                    {f}
+                  </button>
                 ))}
               </div>
-              {createSavingMutation.isError && (
-                <p role="alert" className="text-sm text-red-600">
-                  {getApiErrorMessage(
-                    createSavingMutation.error,
-                    "Unable to create your savings Ajo.",
-                  )}
-                </p>
-              )}
-              <PaveBtn
-                onClick={() => void handleCreate()}
-                variant="green"
-                disabled={
-                  createSavingMutation.isPending ||
-                  !form.amount ||
-                  Number(form.amount.replace(/,/g, "")) <= 0 ||
-                  !form.freq ||
-                  new Date(form.endDate) <= new Date(form.startDate)
-                }
-              >
-                {createSavingMutation.isPending ? (
-                  <>
-                    <Loader size={16} className="animate-spin" />
-                    Creating AJO...
-                  </>
-                ) : (
-                  "🎯 Create Ajo"
+            </div>
+            <label className="text-sm font-medium text-[#374151] block">
+              Start Date
+              <input
+                type="date"
+                value={form.startDate}
+                onChange={(event) => set("startDate")(event.target.value)}
+                className="mt-1.5 w-full bg-[#F1F3FB] rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+              />
+            </label>
+            <label className="text-sm font-medium text-[#374151] block">
+              Target Date
+              <input
+                type="date"
+                min={form.startDate}
+                value={form.endDate}
+                onChange={(event) => set("endDate")(event.target.value)}
+                className="mt-1.5 w-full bg-[#F1F3FB] rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+              />
+            </label>
+            {form.goal && form.amount && form.freq && (
+              <div className="bg-[#EEF2FF] rounded-xl p-4 text-sm">
+                <div className="font-semibold text-[#3730A3] mb-2">
+                  📊 Projection
+                </div>
+                <div className="text-[#374151]">
+                  Saving ₦{form.amount} {form.freq.toLowerCase()} will reach
+                  your goal of ₦{form.goal} in approximately{" "}
+                  <strong>
+                    {Math.ceil(
+                      Number(form.goal.replace(/,/g, "")) /
+                        Number(form.amount.replace(/,/g, "")),
+                    )}{" "}
+                    {form.freq.toLowerCase()} periods
+                  </strong>
+                  .
+                </div>
+              </div>
+            )}
+            <PaveBtn
+              onClick={() => setStep(3)}
+              disabled={
+                !form.amount ||
+                Number(form.amount.replace(/,/g, "")) <= 0 ||
+                !form.freq ||
+                new Date(form.endDate) <= new Date(form.startDate)
+              }
+            >
+              Continue
+            </PaveBtn>
+          </>
+        )}
+        {step === 3 && (
+          <>
+            <div>
+              <label className="text-sm font-medium text-[#374151] block mb-1.5">
+                Purpose / Motivation
+              </label>
+              <textarea
+                value={form.purpose}
+                onChange={(e) => set("purpose")(e.target.value)}
+                placeholder="Why are you saving for this? Remind yourself..."
+                rows={4}
+                className="w-full bg-[#F1F3FB] rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-[#3730A3] transition-colors resize-none"
+              />
+            </div>
+            <div className="bg-white rounded-2xl border border-[#F1F3FB] p-5 flex flex-col gap-3">
+              <div className="font-semibold text-[#0D0F1C] mb-1">
+                AJO Summary
+              </div>
+              {[
+                ["Goal Name", form.name || "—"],
+                ["Target Amount", form.goal ? `₦${form.goal}` : "—"],
+                ["Frequency", form.freq || "—"],
+                ["Deposit Amount", form.amount ? `₦${form.amount}` : "—"],
+                ["Start Date", form.startDate],
+                ["Target Date", form.endDate],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between text-sm">
+                  <span className="text-[#9CA3AF]">{k}</span>
+                  <span className="font-medium text-[#0D0F1C]">{v}</span>
+                </div>
+              ))}
+            </div>
+            {createGroupSavingMutation.isError && (
+              <p role="alert" className="text-sm text-red-600">
+                {getApiErrorMessage(
+                  createGroupSavingMutation.error,
+                  "Unable to create your savings Ajo.",
                 )}
-              </PaveBtn>
-            </>
-          )}
-        </div>
-      )}
+              </p>
+            )}
+            <PaveBtn
+              onClick={() => void handleCreate()}
+              variant="green"
+              disabled={
+                createGroupSavingMutation.isPending ||
+                !form.amount ||
+                Number(form.amount.replace(/,/g, "")) <= 0 ||
+                !form.freq ||
+                new Date(form.endDate) <= new Date(form.startDate)
+              }
+            >
+              {createGroupSavingMutation.isPending ? (
+                <>
+                  <Loader size={16} className="animate-spin" />
+                  Creating AJO...
+                </>
+              ) : (
+                "🎯 Create Ajo"
+              )}
+            </PaveBtn>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -1006,6 +1076,765 @@ export function SavingsDetailScreen({
                 </div>
               </div>
             ))
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export function GroupSavingDetailScreen({
+  onNav,
+  groupId,
+}: {
+  onNav: (s: Screen) => void;
+  groupId: string;
+}) {
+  const [selectedWithdrawalId, setSelectedWithdrawalId] = useState("");
+  const groupQuery = useGroupSavingQuery(groupId);
+  const group = groupQuery.data?.data;
+  const groupWithdrawalsQuery = useGroupWithdrawalsQuery(groupId);
+  const myWithdrawalsQuery = useMyGroupWithdrawalsQuery();
+  const withdrawalDetailQuery = useGroupWithdrawalQuery(
+    selectedWithdrawalId,
+    Boolean(selectedWithdrawalId),
+  );
+  const walletBalanceQuery = useWalletBalanceQuery();
+  const contributeMutation = useContributeToGroupSavingMutation();
+  const withdrawMutation = useWithdrawFromGroupSavingMutation();
+  const updateMutation = useUpdateGroupSavingMutation();
+  const deleteMutation = useDeleteGroupSavingMutation();
+  const leaveMutation = useLeaveGroupSavingMutation();
+  const inviteMutation = useInviteMemberToGroupMutation();
+  const [activeAction, setActiveAction] = useState<
+    "contribute" | "withdraw" | null
+  >(null);
+  const [contributionAmount, setContributionAmount] = useState("");
+  const [withdrawalAmount, setWithdrawalAmount] = useState("");
+  const [narration, setNarration] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    targetAmount: "",
+    contributionAmount: "",
+    maxMembers: "",
+    frequency: "monthly" as SavingFrequency,
+    startDate: "",
+    endDate: "",
+    visibility: "private" as "private" | "public",
+    allowMemberWithdrawal: false,
+    status: "active",
+    image: "",
+  });
+  const owner = Boolean(
+    group?.members?.some((member) => member.role === "owner"),
+  );
+  const busy =
+    contributeMutation.isPending ||
+    withdrawMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    leaveMutation.isPending ||
+    inviteMutation.isPending;
+
+  const openEditor = () => {
+    if (!group) return;
+    setEditForm({
+      name: group.name,
+      description: group.description ?? "",
+      targetAmount: String(group.targetAmount),
+      contributionAmount: String(group.contributionAmount),
+      maxMembers: String(group.maxMembers),
+      frequency: group.frequency,
+      startDate: group.startDate.slice(0, 10),
+      endDate: group.endDate.slice(0, 10),
+      visibility: group.visibility,
+      allowMemberWithdrawal: group.allowMemberWithdrawal ?? false,
+      status: group.status,
+      image: group.image ?? "",
+    });
+    setIsEditing(true);
+    setActionMessage("");
+  };
+
+  const submitContribution = async () => {
+    const amountValue = Number(contributionAmount);
+    if (amountValue <= 0) return;
+    setActionMessage("");
+    try {
+      const response = await contributeMutation.mutateAsync({
+        groupId,
+        payload: { paymentMethod: "wallet", amount: amountValue },
+      });
+      setActionMessage(response.message);
+      setContributionAmount("");
+      setActiveAction(null);
+    } catch {
+      // The mutation error is rendered in the action form.
+    }
+  };
+
+  const submitWithdrawal = async () => {
+    const amountValue = Number(withdrawalAmount);
+    if (amountValue <= 0 || !narration.trim()) return;
+    setActionMessage("");
+    try {
+      const response = await withdrawMutation.mutateAsync({
+        groupId,
+        payload: { amount: amountValue, narration: narration.trim() },
+      });
+      setActionMessage(response.message);
+      setWithdrawalAmount("");
+      setNarration("");
+      setActiveAction(null);
+    } catch {
+      // The mutation error is rendered in the action form.
+    }
+  };
+
+  const submitUpdate = async () => {
+    const targetAmount = Number(editForm.targetAmount);
+    const contributionAmount = Number(editForm.contributionAmount);
+    const maxMembers = Number(editForm.maxMembers);
+    if (
+      !editForm.name.trim() ||
+      targetAmount <= 0 ||
+      contributionAmount <= 0 ||
+      maxMembers < (group?.currentMembers ?? 1) ||
+      new Date(editForm.endDate) <= new Date(editForm.startDate)
+    ) {
+      return;
+    }
+    const payload: GroupSavingUpdatePayload = {
+      name: editForm.name.trim(),
+      description: editForm.description.trim(),
+      targetAmount,
+      contributionAmount,
+      currency: group?.currency ?? "NGN",
+      frequency: editForm.frequency,
+      maxMembers,
+      startDate: editForm.startDate,
+      endDate: editForm.endDate,
+      visibility: editForm.visibility,
+      allowMemberWithdrawal: editForm.allowMemberWithdrawal,
+      status: editForm.status,
+      image: editForm.image,
+    };
+    setActionMessage("");
+    try {
+      const response = await updateMutation.mutateAsync({ groupId, payload });
+      setActionMessage(response.message);
+      setIsEditing(false);
+    } catch {
+      // The mutation error is rendered in the edit form.
+    }
+  };
+
+  const submitInvite = async () => {
+    setActionMessage("");
+    try {
+      const response = await inviteMutation.mutateAsync({
+        groupId,
+        email: inviteEmail,
+      });
+      setActionMessage(response.message);
+      setInviteEmail("");
+    } catch {
+      // The mutation error is rendered beside the invite form.
+    }
+  };
+
+  const deleteGroup = () => {
+    if (
+      !window.confirm("Delete this AJO group? This action cannot be undone.")
+    ) {
+      return;
+    }
+    deleteMutation.mutate(groupId, { onSuccess: () => onNav("savings") });
+  };
+
+  const leaveGroup = () => {
+    if (!window.confirm("Leave this AJO group?")) return;
+    leaveMutation.mutate(groupId, { onSuccess: () => onNav("savings") });
+  };
+
+  if (!groupId) {
+    return (
+      <div className="flex-1 p-6">
+        <p role="alert" className="mb-4 text-sm text-red-600">
+          Select an AJO group to view its details.
+        </p>
+        <PaveBtn onClick={() => onNav("savings")}>Back to My AJO</PaveBtn>
+      </div>
+    );
+  }
+
+  if (groupQuery.isLoading) {
+    return (
+      <div role="status" className="flex-1 p-6 text-sm text-[#6B7280]">
+        Loading AJO group...
+      </div>
+    );
+  }
+
+  if (groupQuery.isError || !group) {
+    return (
+      <div className="flex-1 p-6">
+        <p role="alert" className="mb-4 text-sm text-red-600">
+          {getApiErrorMessage(
+            groupQuery.error,
+            "Unable to load this AJO group.",
+          )}
+        </p>
+        <div className="flex gap-2">
+          <PaveBtn onClick={() => void groupQuery.refetch()}>Retry</PaveBtn>
+          <PaveBtn variant="ghost" onClick={() => onNav("savings")}>
+            Back to My AJO
+          </PaveBtn>
+        </div>
+      </div>
+    );
+  }
+
+  const saved = amount(group.currentBalance);
+  const target = amount(group.targetAmount);
+  const progress = target > 0 ? pct(saved, target) : 0;
+  const myWithdrawals =
+    myWithdrawalsQuery.data?.data.filter(
+      (withdrawal) => withdrawal.groupSavingId === groupId,
+    ) ?? [];
+
+  return (
+    <div className="flex-1 flex flex-col overflow-y-auto">
+      <div
+        style={{
+          background: "linear-gradient(145deg, #D97706 0%, #B45309 100%)",
+        }}
+        className="px-6 pt-14 pb-8"
+      >
+        <button
+          onClick={() => onNav("savings")}
+          className="mb-4 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/15"
+          aria-label="Back to My AJO"
+        >
+          <ArrowLeft size={18} className="text-white" />
+        </button>
+        <h2 className="mb-1 text-xl font-bold text-white">{group.name}</h2>
+        <p className="mb-5 text-xs text-white/70">
+          {group.frequency} contributions · {group.status}
+        </p>
+        <div className="rounded-2xl border border-white/20 bg-white/15 p-4 backdrop-blur-sm">
+          <div className="mb-1 text-xs text-white/70">Group balance</div>
+          <div className="mb-3 text-3xl font-bold text-white">{fmt(saved)}</div>
+          <div className="h-3 overflow-hidden rounded-full bg-white/20">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 1.2 }}
+              className="h-full rounded-full bg-white"
+            />
+          </div>
+          <div className="mt-2 flex justify-between text-xs text-white/70">
+            <span>
+              {progress}% of {fmt(target)}
+            </span>
+            <span>{fmt(Math.max(0, target - saved))} to go</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4 px-6 pb-8">
+        <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+          <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
+            Group details
+          </h3>
+          {[
+            ["Contribution", fmt(amount(group.contributionAmount))],
+            ["Members", `${group.currentMembers} / ${group.maxMembers}`],
+            ["Starts", new Date(group.startDate).toLocaleDateString()],
+            ["Ends", new Date(group.endDate).toLocaleDateString()],
+            ["Visibility", group.visibility],
+            ["Invite code", group.inviteCode || "Unavailable"],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="flex justify-between gap-4 py-1.5 text-sm"
+            >
+              <span className="text-[#9CA3AF]">{label}</span>
+              <span className="text-right font-medium text-[#0D0F1C]">
+                {value}
+              </span>
+            </div>
+          ))}
+          {group.description && (
+            <p className="mt-2 border-t border-[#F1F3FB] pt-3 text-sm text-[#6B7280]">
+              {group.description}
+            </p>
+          )}
+        </section>
+
+        <div className="grid grid-cols-2 gap-3">
+          <PaveBtn
+            onClick={() => {
+              setActiveAction("contribute");
+              setActionMessage("");
+            }}
+            disabled={busy}
+            full={false}
+          >
+            Contribute
+          </PaveBtn>
+          <PaveBtn
+            variant="outline"
+            onClick={() => {
+              setActiveAction("withdraw");
+              setActionMessage("");
+            }}
+            disabled={busy || !group.allowMemberWithdrawal}
+            full={false}
+          >
+            Withdraw
+          </PaveBtn>
+        </div>
+        {!group.allowMemberWithdrawal && (
+          <p className="-mt-2 text-xs text-[#9CA3AF]">
+            Withdrawals are disabled by the group owner.
+          </p>
+        )}
+        {owner && (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <PaveBtn
+                variant="ghost"
+                onClick={openEditor}
+                disabled={busy}
+                full={false}
+              >
+                <Pencil size={15} />
+                Edit group
+              </PaveBtn>
+              <PaveBtn
+                variant="danger"
+                onClick={deleteGroup}
+                disabled={busy}
+                full={false}
+              >
+                <Trash2 size={15} />
+                Delete group
+              </PaveBtn>
+            </div>
+            <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+              <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
+                Invite a member
+              </h3>
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(event) => setInviteEmail(event.target.value)}
+                placeholder="Member email"
+                aria-label="Member email"
+                className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
+              />
+              {inviteMutation.isError && (
+                <p role="alert" className="mb-3 text-sm text-red-600">
+                  {getApiErrorMessage(
+                    inviteMutation.error,
+                    "Unable to invite this member.",
+                  )}
+                </p>
+              )}
+              <PaveBtn
+                onClick={() => void submitInvite()}
+                disabled={busy || !inviteEmail.trim()}
+              >
+                {inviteMutation.isPending ? "Sending..." : "Send invitation"}
+              </PaveBtn>
+            </section>
+          </>
+        )}
+        {!owner && (
+          <PaveBtn variant="danger" onClick={leaveGroup} disabled={busy}>
+            {leaveMutation.isPending ? "Leaving..." : "Leave group"}
+          </PaveBtn>
+        )}
+
+        {actionMessage && (
+          <p role="status" className="text-sm text-green-700">
+            {actionMessage}
+          </p>
+        )}
+
+        {activeAction && (
+          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+            <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
+              {activeAction === "contribute"
+                ? "Contribute from wallet"
+                : "Request a withdrawal"}
+            </h3>
+            {activeAction === "contribute" && (
+              <p className="mb-3 text-xs text-[#6B7280]">
+                Wallet balance:{" "}
+                {walletBalanceQuery.data
+                  ? fmt(amount(walletBalanceQuery.data.balance))
+                  : walletBalanceQuery.isFetching
+                    ? "Loading..."
+                    : "Unavailable"}
+              </p>
+            )}
+            <input
+              type="number"
+              min="1"
+              value={
+                activeAction === "contribute"
+                  ? contributionAmount
+                  : withdrawalAmount
+              }
+              onChange={(event) =>
+                activeAction === "contribute"
+                  ? setContributionAmount(event.target.value)
+                  : setWithdrawalAmount(event.target.value)
+              }
+              placeholder="Amount"
+              aria-label="Amount"
+              className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
+            />
+            {activeAction === "withdraw" && (
+              <input
+                value={narration}
+                onChange={(event) => setNarration(event.target.value)}
+                placeholder="Reason for withdrawal"
+                aria-label="Withdrawal narration"
+                className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
+              />
+            )}
+            {(activeAction === "contribute"
+              ? contributeMutation.isError
+              : withdrawMutation.isError) && (
+              <p role="alert" className="mb-3 text-sm text-red-600">
+                {getApiErrorMessage(
+                  activeAction === "contribute"
+                    ? contributeMutation.error
+                    : withdrawMutation.error,
+                  "Unable to process this group transaction.",
+                )}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <PaveBtn
+                onClick={() =>
+                  void (activeAction === "contribute"
+                    ? submitContribution()
+                    : submitWithdrawal())
+                }
+                disabled={
+                  busy ||
+                  Number(
+                    activeAction === "contribute"
+                      ? contributionAmount
+                      : withdrawalAmount,
+                  ) <= 0 ||
+                  (activeAction === "withdraw" && !narration.trim())
+                }
+              >
+                {busy ? <Loader size={16} className="animate-spin" /> : null}
+                {busy ? "Processing..." : "Confirm"}
+              </PaveBtn>
+              <PaveBtn
+                variant="ghost"
+                onClick={() => setActiveAction(null)}
+                disabled={busy}
+              >
+                Cancel
+              </PaveBtn>
+            </div>
+          </section>
+        )}
+
+        {isEditing && (
+          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+            <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
+              Edit AJO group
+            </h3>
+            <div className="flex flex-col gap-3">
+              <input
+                value={editForm.name}
+                onChange={(event) =>
+                  setEditForm({ ...editForm, name: event.target.value })
+                }
+                aria-label="Group name"
+                placeholder="Group name"
+                className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm"
+              />
+              <textarea
+                value={editForm.description}
+                onChange={(event) =>
+                  setEditForm({ ...editForm, description: event.target.value })
+                }
+                aria-label="Group description"
+                placeholder="Description"
+                className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm"
+              />
+              <input
+                type="number"
+                min="1"
+                value={editForm.targetAmount}
+                onChange={(event) =>
+                  setEditForm({ ...editForm, targetAmount: event.target.value })
+                }
+                aria-label="Target amount"
+                placeholder="Target amount"
+                className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm"
+              />
+              <input
+                type="number"
+                min="1"
+                value={editForm.contributionAmount}
+                onChange={(event) =>
+                  setEditForm({
+                    ...editForm,
+                    contributionAmount: event.target.value,
+                  })
+                }
+                aria-label="Contribution amount"
+                placeholder="Contribution amount"
+                className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm"
+              />
+              <input
+                type="number"
+                min={group.currentMembers}
+                value={editForm.maxMembers}
+                onChange={(event) =>
+                  setEditForm({ ...editForm, maxMembers: event.target.value })
+                }
+                aria-label="Maximum members"
+                placeholder="Maximum members"
+                className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm"
+              />
+              <select
+                value={editForm.frequency}
+                onChange={(event) =>
+                  setEditForm({
+                    ...editForm,
+                    frequency: event.target.value as SavingFrequency,
+                  })
+                }
+                aria-label="Contribution frequency"
+                className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm"
+              >
+                {["daily", "weekly", "bi-weekly", "monthly", "yearly"].map(
+                  (frequency) => (
+                    <option key={frequency} value={frequency}>
+                      {frequency}
+                    </option>
+                  ),
+                )}
+              </select>
+              <label className="text-sm text-[#374151]">
+                Start date
+                <input
+                  type="date"
+                  value={editForm.startDate}
+                  onChange={(event) =>
+                    setEditForm({ ...editForm, startDate: event.target.value })
+                  }
+                  className="mt-1 w-full rounded-xl bg-[#F1F3FB] px-4 py-3"
+                />
+              </label>
+              <label className="text-sm text-[#374151]">
+                End date
+                <input
+                  type="date"
+                  min={editForm.startDate}
+                  value={editForm.endDate}
+                  onChange={(event) =>
+                    setEditForm({ ...editForm, endDate: event.target.value })
+                  }
+                  className="mt-1 w-full rounded-xl bg-[#F1F3FB] px-4 py-3"
+                />
+              </label>
+              <select
+                value={editForm.visibility}
+                onChange={(event) =>
+                  setEditForm({
+                    ...editForm,
+                    visibility: event.target.value as "private" | "public",
+                  })
+                }
+                aria-label="Group visibility"
+                className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm"
+              >
+                <option value="private">Private</option>
+                <option value="public">Public</option>
+              </select>
+              <label className="flex items-center gap-2 text-sm text-[#374151]">
+                <input
+                  type="checkbox"
+                  checked={editForm.allowMemberWithdrawal}
+                  onChange={(event) =>
+                    setEditForm({
+                      ...editForm,
+                      allowMemberWithdrawal: event.target.checked,
+                    })
+                  }
+                />
+                Allow member withdrawals
+              </label>
+              {updateMutation.isError && (
+                <p role="alert" className="text-sm text-red-600">
+                  {getApiErrorMessage(
+                    updateMutation.error,
+                    "Unable to update this AJO group.",
+                  )}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <PaveBtn onClick={() => void submitUpdate()} disabled={busy}>
+                  {updateMutation.isPending ? "Saving..." : "Save changes"}
+                </PaveBtn>
+                <PaveBtn
+                  variant="ghost"
+                  onClick={() => setIsEditing(false)}
+                  disabled={busy}
+                >
+                  Cancel
+                </PaveBtn>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {deleteMutation.isError && (
+          <p role="alert" className="text-sm text-red-600">
+            {getApiErrorMessage(
+              deleteMutation.error,
+              "Unable to delete this AJO group.",
+            )}
+          </p>
+        )}
+        {leaveMutation.isError && (
+          <p role="alert" className="text-sm text-red-600">
+            {getApiErrorMessage(
+              leaveMutation.error,
+              "Unable to leave this AJO group.",
+            )}
+          </p>
+        )}
+
+        <section>
+          <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
+            Members ({group.members?.length ?? group.currentMembers})
+          </h3>
+          {(group.members ?? []).map((member) => (
+            <div
+              key={member.id}
+              className="flex justify-between border-b border-[#F1F3FB] py-3 text-sm"
+            >
+              <span className="text-[#374151]">
+                {member.User?.firstName || member.User?.email || member.userId}
+                {member.role === "owner" ? " · Owner" : ""}
+              </span>
+              <span className="font-medium">
+                {fmt(amount(member.totalContribution))}
+              </span>
+            </div>
+          ))}
+        </section>
+
+        <section>
+          <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
+            Group withdrawals
+          </h3>
+          {groupWithdrawalsQuery.isError && (
+            <p role="alert" className="mb-2 text-sm text-red-600">
+              {getApiErrorMessage(
+                groupWithdrawalsQuery.error,
+                "Unable to load group withdrawals.",
+              )}
+            </p>
+          )}
+          {(groupWithdrawalsQuery.data?.data ?? []).map((withdrawal) => (
+            <button
+              key={withdrawal.id}
+              onClick={() =>
+                setSelectedWithdrawalId(
+                  selectedWithdrawalId === withdrawal.id ? "" : withdrawal.id,
+                )
+              }
+              className="flex w-full items-center justify-between border-b border-[#F1F3FB] py-3 text-left"
+            >
+              <span>
+                <span className="block text-sm font-medium text-[#374151]">
+                  {withdrawal.User?.firstName ||
+                    withdrawal.User?.email ||
+                    "Member"}{" "}
+                  · {withdrawal.status}
+                </span>
+                <span className="text-xs text-[#9CA3AF]">
+                  {new Date(withdrawal.createdAt).toLocaleDateString()}
+                </span>
+              </span>
+              <span className="text-sm font-semibold">
+                {fmt(amount(withdrawal.amount))}
+              </span>
+            </button>
+          ))}
+          {groupWithdrawalsQuery.isSuccess &&
+            groupWithdrawalsQuery.data.data.length === 0 && (
+              <p className="rounded-xl bg-white p-4 text-sm text-[#6B7280]">
+                No group withdrawals yet.
+              </p>
+            )}
+          {selectedWithdrawalId && withdrawalDetailQuery.data && (
+            <div className="mt-3 rounded-xl bg-white p-4 text-sm">
+              <div>Reference: {withdrawalDetailQuery.data.reference}</div>
+              <div>Status: {withdrawalDetailQuery.data.status}</div>
+              <div>
+                Narration: {withdrawalDetailQuery.data.narration || "—"}
+              </div>
+            </div>
+          )}
+          {selectedWithdrawalId && withdrawalDetailQuery.isError && (
+            <p role="alert" className="mt-2 text-sm text-red-600">
+              {getApiErrorMessage(
+                withdrawalDetailQuery.error,
+                "Unable to load withdrawal details.",
+              )}
+            </p>
+          )}
+        </section>
+
+        <section>
+          <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
+            My withdrawals
+          </h3>
+          {myWithdrawalsQuery.isError && (
+            <p role="alert" className="mb-2 text-sm text-red-600">
+              {getApiErrorMessage(
+                myWithdrawalsQuery.error,
+                "Unable to load your withdrawals.",
+              )}
+            </p>
+          )}
+          {myWithdrawals.map((withdrawal) => (
+            <div
+              key={withdrawal.id}
+              className="flex justify-between border-b border-[#F1F3FB] py-3 text-sm"
+            >
+              <span className="text-[#6B7280]">
+                {withdrawal.status} · {withdrawal.reference}
+              </span>
+              <span className="font-semibold">
+                {fmt(amount(withdrawal.amount))}
+              </span>
+            </div>
+          ))}
+          {myWithdrawalsQuery.isSuccess && myWithdrawals.length === 0 && (
+            <p className="rounded-xl bg-white p-4 text-sm text-[#6B7280]">
+              You have no withdrawals from this group.
+            </p>
           )}
         </section>
       </div>
