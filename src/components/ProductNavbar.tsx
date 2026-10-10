@@ -27,7 +27,6 @@ export type ProductPageId =
   | "send-and-receive-money"
   | "airtime-and-data"
   | "utility-bills"
-  | "investment-clan"
   | "about-us"
   | "our-story"
   | "our-team";
@@ -122,7 +121,6 @@ export default function ProductNavbar({
                   "send-and-receive-money",
                   "airtime-and-data",
                   "utility-bills",
-                  "investment-clan",
                 ].includes(currentPage)
                   ? "text-[#3730A3] dark:text-[#818CF8] bg-indigo-50/70 dark:bg-indigo-950/40"
                   : "hover:text-[#3730A3] dark:hover:text-[#818CF8]"
@@ -259,35 +257,8 @@ export default function ProductNavbar({
                   </button>
                 </div>
 
-                {/* Column 3: Investment & Company (4 cols) */}
+                {/* Column 3: Company (4 cols) */}
                 <div className="col-span-4 bg-slate-50 dark:bg-white/5 rounded-2xl p-4 flex flex-col justify-between">
-                  <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      Investment
-                    </span>
-                    <button
-                      onClick={() => handleSelectPage("investment-clan")}
-                      className="mt-2.5 flex items-start gap-3 p-2 rounded-xl hover:bg-white dark:hover:bg-white/10 transition-colors text-left group cursor-pointer w-full"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/60 text-[#3730A3] dark:text-[#818CF8] flex items-center justify-center shrink-0">
-                        <TrendingUp size={16} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#3730A3] dark:group-hover:text-[#818CF8]">
-                            Investment clan
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60">
-                            Coming Soon
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          Cooperative asset syndicates & inflation-hedged wealth.
-                        </p>
-                      </div>
-                    </button>
-                  </div>
-
                   <div className="pt-4 mt-4 border-t border-slate-200/60 dark:border-white/10">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                       Company
@@ -303,7 +274,7 @@ export default function ProductNavbar({
                         onClick={() => handleSelectPage("our-story")}
                         className="text-left py-1 hover:text-[#3730A3] dark:hover:text-[#818CF8] transition-colors cursor-pointer"
                       >
-                        Our Story & CBN Compliance
+                        Our Story & Security
                       </button>
                       <button
                         onClick={() => handleSelectPage("our-team")}
@@ -442,19 +413,6 @@ export default function ProductNavbar({
           >
             <Zap size={18} className="text-[#E11D48]" /> Utility bills
           </button>
-          <button
-            onClick={() => handleSelectPage("investment-clan")}
-            className="flex items-center justify-between text-left py-2 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-[#3730A3]"
-          >
-            <div className="flex items-center gap-3">
-              <TrendingUp size={18} className="text-[#3730A3]" /> 
-              <span>Investment clan</span>
-            </div>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-              Coming Soon
-            </span>
-          </button>
-
           <div className="pt-2 border-t border-slate-200 dark:border-white/10 flex flex-col gap-2">
             <button
               onClick={() => handleSelectPage("about-us")}

@@ -36,7 +36,6 @@ import ThriftContributionsPage from "../screens/products/ThriftContributionsPage
 import SendReceiveMoneyPage from "../screens/products/SendReceiveMoneyPage";
 import AirtimeDataPage from "../screens/products/AirtimeDataPage";
 import UtilityBillsPage from "../screens/products/UtilityBillsPage";
-import InvestmentClanPage from "../screens/products/InvestmentClanPage";
 import CompanyPages from "../screens/products/CompanyPages";
 
 interface OnboardingScreenProps {
@@ -248,9 +247,6 @@ export default function OnboardingScreen({
       {currentPage === "utility-bills" && (
         <UtilityBillsPage onOpenApp={handleOpenApp} />
       )}
-      {currentPage === "investment-clan" && (
-        <InvestmentClanPage onOpenApp={handleOpenApp} />
-      )}
       {["about-us", "our-story", "our-team"].includes(currentPage) && (
         <CompanyPages
           onOpenApp={handleOpenApp}
@@ -272,929 +268,886 @@ export default function OnboardingScreen({
 
           {/* MAIN CONTENT WRAPPER */}
           <main className="grow relative z-10">
-        {/* HERO SPLIT SECTION */}
-        <section
-          className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-20 lg:pb-28 overflow-hidden"
-          data-purpose="hero-split-section"
-        >
-          <div className="max-w-7xl mx-auto px-5 sm:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-              {/* LEFT COLUMN: Value Proposition & Conversion */}
-              <motion.div
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="lg:col-span-6 flex flex-col items-start text-left z-10"
-              >
-                {/* Bold Editorial Headline with Highlighting */}
-                <h1
-                  className="text-4xl sm:text-5xl lg:text-[3.85rem] font-black tracking-tight text-slate-950 dark:text-white leading-[1.12] mb-6"
-                  style={{ fontFamily: "var(--font-family-display)" }}
-                >
-                  Modern Wealth Building,{" "}
-                  <span className="relative inline-block text-transparent bg-clip-text bg-linear-to-r from-[#2B217A] via-[#4F39F6] to-[#8B5CF6] dark:from-[#A5B4FC] dark:via-[#818CF8] dark:to-[#C084FC]">
-                    Rooted in Community.
-                  </span>
-                </h1>
-
-                {/* Sub-copy Description */}
-                <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal mb-8 max-w-xl">
-                  The high-yield digital wallet that unifies automated personal
-                  savings with disciplined, trustless thrift contributions
-                  (Ajo/Esusu/Adashe). Enjoy guaranteed rotational payouts, zero default
-                  risk, and NDIC/CBN-compliant security.
-                </p>
-
-                {/* Interactive CTA Group */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto mb-10">
-                  {/* Primary Action Button */}
-                  <button
-                    onClick={() => onNavigate("signup")}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold text-white bg-linear-to-r from-[#2B217A] via-[#372BAA] to-[#4F39F6] hover:from-[#1E1656] hover:to-[#372BAA] shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-95"
+            {/* HERO SPLIT SECTION */}
+            <section
+              className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-20 lg:pb-28 overflow-hidden"
+              data-purpose="hero-split-section"
+            >
+              <div className="max-w-7xl mx-auto px-5 sm:px-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                  {/* LEFT COLUMN: Value Proposition & Conversion */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 25 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="lg:col-span-6 flex flex-col items-start text-left z-10"
                   >
-                    <span>Start Saving in 2 Mins</span>
-                    <TrendingUp size={18} />
-                  </button>
-
-                  {/* Secondary Video Trigger Button */}
-                  <button
-                    onClick={() => {
-                      scrollToSection("thrift");
-                      setIsVideoModalOpen(true);
-                    }}
-                    className="inline-flex items-center justify-center gap-3 px-6 py-4 rounded-full text-sm font-bold text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 border border-slate-200/90 dark:border-white/10 shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer active:scale-95"
-                  >
-                    <span className="w-7 h-7 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-[#4F39F6] dark:text-[#818CF8]">
-                      <Play size={13} className="ml-0.5 fill-current" />
-                    </span>
-                    <span>Watch How Thrift Works</span>
-                  </button>
-                </div>
-
-                {/* Social Proof Strip */}
-                <div className="pt-6 w-full flex flex-col sm:flex-row sm:items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  {/* User Avatars Stack */}
-                  {/* <div className="flex items-center -space-x-2.5">
-                    <img
-                      alt="Pave Saver 1"
-                      className="w-9 h-9 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                      referrerPolicy="no-referrer"
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                    />
-                    <img
-                      alt="Pave Saver 2"
-                      className="w-9 h-9 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                      referrerPolicy="no-referrer"
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-                    />
-                    <img
-                      alt="Pave Saver 3"
-                      className="w-9 h-9 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                      referrerPolicy="no-referrer"
-                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80"
-                    />
-                    <img
-                      alt="Pave Saver 4"
-                      className="w-9 h-9 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                      referrerPolicy="no-referrer"
-                      src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80"
-                    />
-                    <div className="w-9 h-9 rounded-full bg-slate-900 dark:bg-indigo-600 ring-2 ring-white dark:ring-slate-900 text-[11px] font-bold text-white flex items-center justify-center">
-                      +45k
-                    </div>
-                  </div> */}
-                  {/* <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-1 text-amber-400">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star
-                          key={s}
-                          size={15}
-                          className="fill-current text-amber-400"
-                        />
-                      ))}
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 ml-1">
-                        4.9/5.0
+                    {/* Bold Editorial Headline with Highlighting */}
+                    <h1
+                      className="text-4xl sm:text-5xl lg:text-[3.85rem] font-black tracking-tight text-slate-950 dark:text-white leading-[1.12] mb-6"
+                      style={{ fontFamily: "var(--font-family-display)" }}
+                    >
+                      Modern Wealth Building,{" "}
+                      <span className="relative inline-block text-transparent bg-clip-text bg-linear-to-r from-[#2B217A] via-[#4F39F6] to-[#8B5CF6] dark:from-[#A5B4FC] dark:via-[#818CF8] dark:to-[#C084FC]">
+                        Rooted in Community.
                       </span>
-                    </div>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium">
-                      Trusted by 45,000+ disciplined savers & thrift circles
+                    </h1>
+
+                    {/* Sub-copy Description */}
+                    <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal mb-8 max-w-xl">
+                      The high-yield digital wallet that unifies automated
+                      personal savings with disciplined, trustless thrift
+                      contributions (Ajo/Esusu/Adashe). Enjoy guaranteed
+                      rotational payouts, zero default risk, and
+                      NDIC/CBN-compliant security.
                     </p>
-                  </div> */}
+
+                    {/* Interactive CTA Group */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto mb-10">
+                      {/* Primary Action Button */}
+                      <button
+                        onClick={() => onNavigate("signup")}
+                        className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold text-white bg-linear-to-r from-[#2B217A] via-[#372BAA] to-[#4F39F6] hover:from-[#1E1656] hover:to-[#372BAA] shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer active:scale-95"
+                      >
+                        <span>Start Saving in 2 Mins</span>
+                        <TrendingUp size={18} />
+                      </button>
+
+                      {/* Secondary Video Trigger Button */}
+                      <button
+                        onClick={() => {
+                          scrollToSection("thrift");
+                          setIsVideoModalOpen(true);
+                        }}
+                        className="inline-flex items-center justify-center gap-3 px-6 py-4 rounded-full text-sm font-bold text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 border border-slate-200/90 dark:border-white/10 shadow-xs hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer active:scale-95"
+                      >
+                        <span className="w-7 h-7 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-[#4F39F6] dark:text-[#818CF8]">
+                          <Play size={13} className="ml-0.5 fill-current" />
+                        </span>
+                        <span>Watch How Thrift Works</span>
+                      </button>
+                    </div>
+                  </motion.div>
+
+                  {/* RIGHT COLUMN: High-Fidelity App Mockup & Interactive Thrift Interface */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                    className="lg:col-span-6 relative flex justify-center lg:justify-end"
+                  >
+                    <div className="relative w-full max-w-lg">
+                      {/* MAIN WALLET CARD (Dark Modern FinTech Card) */}
+                      <div className="relative bg-linear-to-br from-slate-950 via-slate-900 to-[#0E0E1A] p-7 sm:p-8 rounded-3xl text-white shadow-2xl border border-slate-800/80 overflow-hidden">
+                        {/* Card Background Subtle Geometric Ring */}
+                        <div className="absolute -top-16 -right-16 w-56 h-56 border border-white/5 rounded-full pointer-events-none" />
+                        <div className="absolute -top-6 -right-6 w-36 h-36 border border-white/10 rounded-full pointer-events-none" />
+
+                        {/* Top Row: Card Title & Bank Tier Pill */}
+                        <div className="flex items-center justify-between mb-7">
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                              PAVE Vault Balance
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 text-white border border-white/10">
+                            Tier 3 Verified
+                          </span>
+                        </div>
+
+                        {/* Balance Display */}
+                        <div className="mb-6">
+                          <div className="flex items-baseline gap-2">
+                            <span
+                              className="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold tracking-tight"
+                              style={{
+                                fontFamily: "var(--font-family-display)",
+                              }}
+                            >
+                              ₦4,850,000.00
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="inline-flex items-center text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                              <TrendingUp size={13} className="mr-0.5" /> +14.2%
+                              p.a.
+                            </span>
+                            <span className="text-xs text-slate-400 font-medium">
+                              Interest accrued daily • Compounding monthly
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Quick Action Buttons */}
+                        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-800/90 mb-6">
+                          <button
+                            onClick={() => onNavigate("signup")}
+                            className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
+                            type="button"
+                          >
+                            <PlusCircle
+                              size={20}
+                              className="text-indigo-400 mb-1 group-hover:scale-110 transition-transform"
+                            />
+                            <span className="text-xs font-semibold text-slate-200">
+                              Deposit
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => onNavigate("signup")}
+                            className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
+                            type="button"
+                          >
+                            <Lock
+                              size={20}
+                              className="text-amber-400 mb-1 group-hover:scale-110 transition-transform"
+                            />
+                            <span className="text-xs font-semibold text-slate-200">
+                              Lock Savings
+                            </span>
+                          </button>
+                          <button
+                            onClick={() => onNavigate("signup")}
+                            className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
+                            type="button"
+                          >
+                            <Users
+                              size={20}
+                              className="text-emerald-400 mb-1 group-hover:scale-110 transition-transform"
+                            />
+                            <span className="text-xs font-semibold text-slate-200">
+                              Thrift Pool
+                            </span>
+                          </button>
+                        </div>
+
+                        {/* Live Thrift Circle Mini Progress */}
+                        <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                          <div className="flex items-center justify-between text-xs mb-2">
+                            <span className="text-slate-300 font-medium">
+                              Lekki Tech Savers Circle (Ajo)
+                            </span>
+                            <span className="text-emerald-400 font-bold">
+                              Month 3 of 10
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className="bg-linear-to-r from-[#6351F7] to-emerald-400 h-full rounded-full transition-all duration-1000"
+                              style={{ width: "72%" }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* FLOATING CARD 1: Thrift Status Pill / Next Payout Card */}
+                      <div className="animate-float-slow absolute -bottom-7 -left-3 sm:-left-8 bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-2xl border border-slate-100 dark:border-white/10 flex items-center gap-4 max-w-xs sm:max-w-sm z-20">
+                        <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
+                          <Wallet size={24} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
+                              Next Payout
+                            </span>
+                            <span className="text-xs text-slate-400 font-medium">
+                              Slot #3
+                            </span>
+                          </div>
+                          <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                            ₦1,200,000 incoming
+                          </p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <Clock
+                              size={12}
+                              className="text-slate-400 shrink-0"
+                            />{" "}
+                            in 4 days • 10 members paid
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* FLOATING CARD 2: Micro-Metrics Card (Round-ups Active) */}
+                      <div className="animate-float-delayed hidden sm:flex absolute -top-6 -right-6 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-slate-200/80 dark:border-white/10 items-center gap-3.5 z-20">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-[#4F39F6] dark:text-[#818CF8] flex items-center justify-center">
+                          <PiggyBank size={20} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              Auto Round-ups Active
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            +₦34,200 saved this week
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
-              </motion.div>
+              </div>
+            </section>
 
-              {/* RIGHT COLUMN: High-Fidelity App Mockup & Interactive Thrift Interface */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="lg:col-span-6 relative flex justify-center lg:justify-end"
-              >
-                {/* Ambient Glow Behind Cards */}
-                {/* <div className="absolute -top-10 right-0 w-80 h-80 bg-[#6351F7]/20 rounded-full blur-3xl pointer-events-none -z-10" />
-                <div className="absolute -bottom-8 left-10 w-72 h-72 bg-violet-400/20 rounded-full blur-3xl pointer-events-none -z-10" /> */}
-
-                <div className="relative w-full max-w-lg">
-                  {/* MAIN WALLET CARD (Dark Modern FinTech Card) */}
-                  <div className="relative bg-linear-to-br from-slate-950 via-slate-900 to-[#0E0E1A] p-7 sm:p-8 rounded-3xl text-white shadow-2xl border border-slate-800/80 overflow-hidden">
-                    {/* Card Background Subtle Geometric Ring */}
-                    <div className="absolute -top-16 -right-16 w-56 h-56 border border-white/5 rounded-full pointer-events-none" />
-                    <div className="absolute -top-6 -right-6 w-36 h-36 border border-white/10 rounded-full pointer-events-none" />
-
-                    {/* Top Row: Card Title & Bank Tier Pill */}
-                    <div className="flex items-center justify-between mb-7">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                          PAVE Vault Balance
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 text-white border border-white/10">
-                        Tier 3 Verified
-                      </span>
-                    </div>
-
-                    {/* Balance Display */}
-                    <div className="mb-6">
-                      <div className="flex items-baseline gap-2">
-                        <span
-                          className="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold tracking-tight"
-                          style={{ fontFamily: "var(--font-family-display)" }}
-                        >
-                          ₦4,850,000.00
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="inline-flex items-center text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                          <TrendingUp size={13} className="mr-0.5" /> +14.2%
-                          p.a.
-                        </span>
-                        <span className="text-xs text-slate-400 font-medium">
-                          Interest accrued daily • Compounding monthly
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Quick Action Buttons */}
-                    <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-800/90 mb-6">
-                      <button
-                        onClick={() => onNavigate("signup")}
-                        className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
-                        type="button"
-                      >
-                        <PlusCircle
-                          size={20}
-                          className="text-indigo-400 mb-1 group-hover:scale-110 transition-transform"
-                        />
-                        <span className="text-xs font-semibold text-slate-200">
-                          Deposit
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => onNavigate("signup")}
-                        className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
-                        type="button"
-                      >
-                        <Lock
-                          size={20}
-                          className="text-amber-400 mb-1 group-hover:scale-110 transition-transform"
-                        />
-                        <span className="text-xs font-semibold text-slate-200">
-                          Lock Savings
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => onNavigate("signup")}
-                        className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group"
-                        type="button"
-                      >
-                        <Users
-                          size={20}
-                          className="text-emerald-400 mb-1 group-hover:scale-110 transition-transform"
-                        />
-                        <span className="text-xs font-semibold text-slate-200">
-                          Thrift Pool
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Live Thrift Circle Mini Progress */}
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                      <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="text-slate-300 font-medium">
-                          Lekki Tech Savers Circle (Ajo)
-                        </span>
-                        <span className="text-emerald-400 font-bold">
-                          Month 3 of 10
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                        <div
-                          className="bg-linear-to-r from-[#6351F7] to-emerald-400 h-full rounded-full transition-all duration-1000"
-                          style={{ width: "72%" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* FLOATING CARD 1: Thrift Status Pill / Next Payout Card */}
-                  <div className="animate-float-slow absolute -bottom-7 -left-3 sm:-left-8 bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 shadow-2xl border border-slate-100 dark:border-white/10 flex items-center gap-4 max-w-xs sm:max-w-sm z-20">
-                    <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
-                      <Wallet size={24} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
-                          Next Payout
-                        </span>
-                        <span className="text-xs text-slate-400 font-medium">
-                          Slot #3
-                        </span>
-                      </div>
-                      <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
-                        ₦1,200,000 incoming
-                      </p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                        <Clock size={12} className="text-slate-400 shrink-0" />{" "}
-                        in 4 days • 10 members paid
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* FLOATING CARD 2: Micro-Metrics Card (Round-ups Active) */}
-                  <div className="animate-float-delayed hidden sm:flex absolute -top-6 -right-6 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-slate-200/80 dark:border-white/10 items-center gap-3.5 z-20">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-[#4F39F6] dark:text-[#818CF8] flex items-center justify-center">
-                      <PiggyBank size={20} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                          Auto Round-ups Active
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                        +₦34,200 saved this week
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* WHO PAVE IS FOR */}
-        <section
-          className="relative py-16 sm:py-20 md:py-24 overflow-hidden"
-          aria-labelledby="audience-heading"
-          data-purpose="audience-marquee"
-        >
-          <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-10 sm:mb-12">
-            <div className="max-w-3xl mx-auto text-center">
-              {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+            {/* WHO PAVE IS FOR */}
+            <section
+              className="relative py-16 sm:py-20 md:py-24 overflow-hidden"
+              aria-labelledby="audience-heading"
+              data-purpose="audience-marquee"
+            >
+              <div className="max-w-7xl mx-auto px-5 sm:px-8 mb-10 sm:mb-12">
+                <div className="max-w-3xl mx-auto text-center">
+                  {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
                 Saving, your way
               </span> */}
-              <h2
-                id="audience-heading"
-                className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mt-5 tracking-tight leading-[1.15]"
-                style={{ fontFamily: "var(--font-family-display)" }}
-              >
-                For every saver and every circle.
-              </h2>
-              <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Build personal savings at your own pace or grow together through
-                Ajo, Esusu and Adashe. PAVE helps turn good intentions into steady
-                progress.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex w-max animate-audience-marquee hover:[animation-play-state:paused]">
-            {[0, 1].map((groupIndex) => (
-              <div
-                key={groupIndex}
-                className="flex shrink-0 items-stretch gap-4 pr-4"
-                aria-hidden={groupIndex === 1}
-              >
-                {audienceMarqueeCards.map((card, cardIndex) => (
-                  <article
-                    key={`${card.title}-${cardIndex}`}
-                    className="group relative h-70 w-[min(76vw,280px)] shrink-0 overflow-hidden rounded-3xl bg-slate-300 shadow-lg sm:h-82.5 sm:w-72.5"
+                  <h2
+                    id="audience-heading"
+                    className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mt-5 tracking-tight leading-[1.15]"
+                    style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    <img
-                      src={card.image}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/15 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                      <span className="inline-flex rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur-md">
-                        {card.tag}
-                      </span>
-                      <h3 className="mt-3 text-xl font-extrabold tracking-tight text-white sm:text-2xl">
-                        {card.title}
-                      </h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-white/80">
-                        {card.description}
-                      </p>
-                    </div>
-                  </article>
+                    For every saver and every circle.
+                  </h2>
+                  <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Build personal savings at your own pace or grow together
+                    through Ajo, Esusu and Adashe. PAVE helps turn good
+                    intentions into steady progress.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex w-max animate-audience-marquee hover:[animation-play-state:paused]">
+                {[0, 1].map((groupIndex) => (
+                  <div
+                    key={groupIndex}
+                    className="flex shrink-0 items-stretch gap-4 pr-4"
+                    aria-hidden={groupIndex === 1}
+                  >
+                    {audienceMarqueeCards.map((card, cardIndex) => (
+                      <article
+                        key={`${card.title}-${cardIndex}`}
+                        className="group relative h-70 w-[min(76vw,280px)] shrink-0 overflow-hidden rounded-3xl bg-slate-300 shadow-lg sm:h-82.5 sm:w-72.5"
+                      >
+                        <img
+                          src={card.image}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/15 to-transparent" />
+                        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                          <span className="inline-flex rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur-md">
+                            {card.tag}
+                          </span>
+                          <h3 className="mt-3 text-xl font-extrabold tracking-tight text-white sm:text-2xl">
+                            {card.title}
+                          </h3>
+                          <p className="mt-1.5 text-sm leading-relaxed text-white/80">
+                            {card.description}
+                          </p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
                 ))}
               </div>
-            ))}
-          </div>
-          <div
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 backdrop-blur-sm sm:w-16"
-            style={{
-              WebkitMaskImage: "linear-gradient(to right, black, transparent)",
-              maskImage: "linear-gradient(to right, black, transparent)",
-            }}
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 backdrop-blur-sm sm:w-16"
-            style={{
-              WebkitMaskImage: "linear-gradient(to left, black, transparent)",
-              maskImage: "linear-gradient(to left, black, transparent)",
-            }}
-            aria-hidden="true"
-          />
-        </section>
+              <div
+                className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 backdrop-blur-sm sm:w-16"
+                style={{
+                  WebkitMaskImage:
+                    "linear-gradient(to right, black, transparent)",
+                  maskImage: "linear-gradient(to right, black, transparent)",
+                }}
+                aria-hidden="true"
+              />
+              <div
+                className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 backdrop-blur-sm sm:w-16"
+                style={{
+                  WebkitMaskImage:
+                    "linear-gradient(to left, black, transparent)",
+                  maskImage: "linear-gradient(to left, black, transparent)",
+                }}
+                aria-hidden="true"
+              />
+            </section>
 
-        {/* FEATURE VALUE PILLARS */}
-        <section
-          className="max-w-7xl mx-auto px-5 sm:px-8 pb-20 sm:pb-28"
-          data-purpose="value-pillars"
-        >
-          <div className="text-center max-w-3xl mx-auto my-14">
-            {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+            {/* FEATURE VALUE PILLARS */}
+            <section
+              className="max-w-7xl mx-auto px-5 sm:px-8 pb-20 sm:pb-28"
+              data-purpose="value-pillars"
+            >
+              <div className="text-center max-w-3xl mx-auto my-14">
+                {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
               Engineered for Discipline
             </span> */}
-            <h2
-              className="text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mt-4 tracking-tight leading-[1.15]"
-              style={{ fontFamily: "var(--font-family-display)" }}
-            >
-              Everything you need to multiply and protect your capital.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {/* Pillar 1: Automated Discipline */}
-            <div className="bg-white dark:bg-slate-900/80 rounded-3xl p-7 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm hover:border-[#818CF8]/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-[#4F39F6] dark:text-[#818CF8] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#4F39F6] group-hover:text-white transition-all duration-300 shadow-xs">
-                  <Sliders size={24} />
-                </div>
-                <h3
-                  className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
+                <h2
+                  className="text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mt-4 tracking-tight leading-[1.15]"
                   style={{ fontFamily: "var(--font-family-display)" }}
                 >
-                  Automated Discipline
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
-                  Remove the temptation to spend. Configure customizable
-                  automated debit rules, strict target lockboxes, and daily
-                  micro-deposits that turn small change into monumental wealth.
-                </p>
+                  Everything you need to multiply and protect your capital.
+                </h2>
               </div>
-              <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-[#4F39F6] dark:text-[#818CF8]">
-                <span>Smart Rules • Strict Locks</span>
-                <CheckCircle2 size={18} />
-              </div>
-            </div>
 
-            {/* Pillar 2: Modern Ajo / Esusu Pools */}
-            <div className="bg-white dark:bg-slate-900/80 rounded-3xl p-7 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                Popular
-              </div>
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs">
-                  <Users size={24} />
-                </div>
-                <h3
-                  className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
-                  style={{ fontFamily: "var(--font-family-display)" }}
-                >
-                  Modern Ajo / Esusu / Adashe Pools
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
-                  The tradition you know, digitized for safety. Verified circles
-                  with automated collection and programmatic rotational payouts.
-                  Zero default risk, zero awkward reminders, zero social drama.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                <span>Automated Rotation • Trustless</span>
-                <BadgeCheck size={18} />
-              </div>
-            </div>
-
-            {/* Pillar 3: Institutional Grade Safety */}
-            <div className="bg-white dark:bg-slate-900/80 rounded-3xl p-7 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm hover:border-amber-500/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-amber-600 group-hover:text-white transition-all duration-300 shadow-xs">
-                  <ShieldCheck size={24} />
-                </div>
-                <h3
-                  className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
-                  style={{ fontFamily: "var(--font-family-display)" }}
-                >
-                  Institutional Grade Safety
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
-                  Sleep soundly knowing your funds are held in NDIC-insured
-                  partner banks, regulated under CBN framework, and fortified by
-                  AES 256-bit bank-grade encryption and biometric
-                  authentication.
-                </p>
-              </div>
-              <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                <span>NDIC Insured • CBN Compliant</span>
-                <Lock size={18} />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION: SMART SAVINGS DEEP-DIVE (#products) */}
-        <motion.section
-          id="products"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto overflow-hidden relative z-10 scroll-mt-24"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Column: Text */}
-            <div className="w-full max-w-xl">
-              <div className="inline-block px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/40 text-[#372BAA] dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-6 shadow-xs">
-                Smart Savings Plans
-              </div>
-              <h2
-                className="text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mb-6 tracking-tight leading-[1.15]"
-                style={{ fontFamily: "var(--font-family-display)" }}
-              >
-                Save for What Matters Most
-              </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
-                Whether it's building a 6-month emergency buffer, saving for a
-                tech gadget, or planning your dream holiday, PAVE helps you
-                reach your financial milestones faster with automated recurring
-                transfers.
-              </p>
-
-              <ul className="space-y-4 mb-10 w-full">
-                {[
-                  "Flexible Wallet Savings — withdraw whenever unexpected needs arise",
-                  "Strict Fixed Lockbox — lock funds for 30–365 days with premium compound yield",
-                  "Zero hidden maintenance fees or deceptive SMS charges",
-                  "Automated recurring debits directly from your linked account",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-center gap-3 text-slate-800 dark:text-slate-200 font-medium text-base"
-                  >
-                    <CheckCircle2
-                      size={20}
-                      className="text-[#4F39F6] dark:text-[#818CF8] shrink-0"
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={() => onNavigate("signup")}
-                className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center cursor-pointer"
-              >
-                Start Saving Today
-              </button>
-            </div>
-
-            {/* Right Column: Liquid Glass Interactive Card */}
-            <div className="w-full flex justify-center lg:justify-end">
-              <div className="w-full max-w-lg bg-linear-to-br from-[#EEF2FF] via-[#F5F3FF] to-[#E0E7FF] dark:from-indigo-950/40 dark:via-purple-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-indigo-200/90 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
-                <div className="w-full bg-white dark:bg-[#111327] rounded-2xl p-7 md:p-8 shadow-md border border-slate-100 dark:border-white/10 relative overflow-hidden z-10">
-                  <div className="flex justify-between items-end mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-                    <div>
-                      <div className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1.5">
-                        Emergency Safety Net
-                      </div>
-                      <div
-                        className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white"
-                        style={{ fontFamily: "var(--font-family-display)" }}
-                      >
-                        ₦385,000
-                      </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                {/* Pillar 1: Automated Discipline */}
+                <div className="bg-white dark:bg-slate-900/80 rounded-3xl p-7 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm hover:border-[#818CF8]/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                  <div>
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-[#4F39F6] dark:text-[#818CF8] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#4F39F6] group-hover:text-white transition-all duration-300 shadow-xs">
+                      <Sliders size={24} />
                     </div>
-                    <div className="text-[#4F39F6] dark:text-indigo-400 text-2xl md:text-3xl font-extrabold">
-                      77%
-                    </div>
+                    <h3
+                      className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
+                      style={{ fontFamily: "var(--font-family-display)" }}
+                    >
+                      Automated Discipline
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
+                      Remove the temptation to spend. Configure customizable
+                      automated debit rules, strict target lockboxes, and daily
+                      micro-deposits that turn small change into monumental
+                      wealth.
+                    </p>
                   </div>
-
-                  <div className="flex justify-between text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3">
-                    <span>Target: ₦500,000</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                      +₦14,200 accrued interest
-                    </span>
-                  </div>
-
-                  <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/50 dark:border-white/5">
-                    <div
-                      className="h-full bg-linear-to-r from-[#4F39F6] to-emerald-400 rounded-full transition-all duration-1000 shadow-sm"
-                      style={{ width: "77%" }}
-                    />
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1.5">
-                      <Clock size={14} className="text-[#4F39F6]" /> Auto-saving
-                      ₦25,000 every Friday
-                    </span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">
-                      5 weeks left
-                    </span>
+                  <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-[#4F39F6] dark:text-[#818CF8]">
+                    <span>Smart Rules • Strict Locks</span>
+                    <CheckCircle2 size={18} />
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
 
-        {/* SECTION: THRIFT (AJO/ESUSU) DEEP-DIVE (#thrift) */}
-        <motion.section
-          id="thrift"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto overflow-hidden relative z-10 scroll-mt-24"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Column: Visual Circular Matrix Card */}
-            <div className="w-full flex justify-center lg:justify-start order-2 lg:order-1">
-              <div className="w-full max-w-lg bg-linear-to-br from-[#ECFDF5] via-[#F0FDF4] to-[#D1FAE5] dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-emerald-300/80 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
-                <div className="w-full bg-white dark:bg-[#111327] rounded-2xl p-7 md:p-8 shadow-md border border-slate-100 dark:border-white/10 relative overflow-hidden z-10">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/30">
+                {/* Pillar 2: Modern Ajo / Esusu Pools */}
+                <div className="bg-white dark:bg-slate-900/80 rounded-3xl p-7 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                    Popular
+                  </div>
+                  <div>
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-xs">
                       <Users size={24} />
                     </div>
-                    <div>
-                      <h4
-                        className="font-bold text-lg text-slate-900 dark:text-white tracking-tight"
-                        style={{ fontFamily: "var(--font-family-display)" }}
-                      >
-                        Lagos Founders Thrift Circle
-                      </h4>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                        Monthly Rotation • ₦50,000 / member
-                      </p>
-                    </div>
+                    <h3
+                      className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
+                      style={{ fontFamily: "var(--font-family-display)" }}
+                    >
+                      Modern Ajo / Esusu / Adashe Pools
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
+                      The tradition you know, digitized for safety. Verified
+                      circles with automated collection and programmatic
+                      rotational payouts. Zero default risk, zero awkward
+                      reminders, zero social drama.
+                    </p>
                   </div>
-
-                  {/* Progress Matrix */}
-                  <div className="grid grid-cols-6 gap-2.5 my-6">
-                    {/* 4 Completed Cycles */}
-                    {[1, 2, 3, 4].map((i) => (
-                      <div
-                        key={`comp-${i}`}
-                        className="h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs flex items-center justify-center text-white text-[11px] font-bold"
-                      >
-                        ✓
-                      </div>
-                    ))}
-                    {/* Active Cycle */}
-                    <div className="h-10 rounded-xl bg-[#4F39F6] text-white flex items-center justify-center text-[10px] font-extrabold animate-pulse ring-2 ring-[#4F39F6]/50">
-                      NOW
-                    </div>
-                    {/* 7 Remaining Cycles */}
-                    {[6, 7, 8, 9, 10, 11, 12].map((i) => (
-                      <div
-                        key={`rem-${i}`}
-                        className="h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-white/5 flex items-center justify-center text-slate-400 text-xs"
-                      >
-                        #{i}
-                      </div>
-                    ))}
+                  <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <span>Automated Rotation • Trustless</span>
+                    <BadgeCheck size={18} />
                   </div>
+                </div>
 
-                  <div className="flex justify-between items-center text-xs md:text-sm text-slate-600 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <span>5 of 12 rotations completed</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                      Total Pooled: ₦3,000,000
-                    </span>
+                {/* Pillar 3: Institutional Grade Safety */}
+                <div className="bg-white dark:bg-slate-900/80 rounded-3xl p-7 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm hover:border-amber-500/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                  <div>
+                    <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-amber-600 group-hover:text-white transition-all duration-300 shadow-xs">
+                      <ShieldCheck size={24} />
+                    </div>
+                    <h3
+                      className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
+                      style={{ fontFamily: "var(--font-family-display)" }}
+                    >
+                      Institutional Grade Safety
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
+                      Sleep soundly knowing your funds are held in NDIC-insured
+                      partner banks, regulated under CBN framework, and
+                      fortified by AES 256-bit bank-grade encryption and
+                      biometric authentication.
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <span>NDIC Insured • CBN Compliant</span>
+                    <Lock size={18} />
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* Right Column: Text & Features */}
-            <div className="w-full max-w-xl order-1 lg:order-2">
-              <div className="inline-block px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/40 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-6 shadow-xs">
-                Cultural Heritage, Digitized
-              </div>
-              <h2
-                className="text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mb-6 tracking-tight leading-[1.15]"
-                style={{ fontFamily: "var(--font-family-display)" }}
-              >
-                Grow Together with Ajo & Esusu
-              </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
-                Generations of Nigerians have built capital through communal
-                rotational thrift. PAVE removes the default risk, manual
-                record-keeping, and awkward follow-ups by automating debits and
-                programmatic escrow payouts.
-              </p>
-
-              <ul className="space-y-4 mb-10 w-full">
-                {[
-                  "Verified participant KYC ensures 100% genuine identity",
-                  "Automated wallet deductions prevent forgotten dues",
-                  "Transparent live calendar tracking each member's collection turn",
-                  "Instant lump-sum payout directly into your available balance",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-center gap-3 text-slate-800 dark:text-slate-200 font-medium text-base"
+            {/* SECTION: SMART SAVINGS DEEP-DIVE (#products) */}
+            <motion.section
+              id="products"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6 }}
+              className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto overflow-hidden relative z-10 scroll-mt-24"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                {/* Left Column: Text */}
+                <div className="w-full max-w-xl">
+                  <div className="inline-block px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/40 text-[#372BAA] dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-6 shadow-xs">
+                    Smart Savings Plans
+                  </div>
+                  <h2
+                    className="text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mb-6 tracking-tight leading-[1.15]"
+                    style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    <CheckCircle2
-                      size={20}
-                      className="text-emerald-500 shrink-0"
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+                    Save for What Matters Most
+                  </h2>
+                  <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
+                    Whether it's building a 6-month emergency buffer, saving for
+                    a tech gadget, or planning your dream holiday, PAVE helps
+                    you reach your financial milestones faster with automated
+                    recurring transfers.
+                  </p>
 
-              <button
-                onClick={() => onNavigate("signup")}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center cursor-pointer"
-              >
-                Join a Thrift Circle
-              </button>
-            </div>
-          </div>
-        </motion.section>
+                  <ul className="space-y-4 mb-10 w-full">
+                    {[
+                      "Flexible Wallet Savings — withdraw whenever unexpected needs arise",
+                      "Strict Fixed Lockbox — lock funds for 30–365 days with premium compound yield",
+                      "Zero hidden maintenance fees or deceptive SMS charges",
+                      "Automated recurring debits directly from your linked account",
+                    ].map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-center gap-3 text-slate-800 dark:text-slate-200 font-medium text-base"
+                      >
+                        <CheckCircle2
+                          size={20}
+                          className="text-[#4F39F6] dark:text-[#818CF8] shrink-0"
+                        />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-        {/* SECTION: RATES & YIELDS COMPARISON (#yields) */}
-        <section
-          id="yields"
-          className="w-full px-6 py-20 md:py-28 bg-slate-50/70 dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-white/10 relative z-10 scroll-mt-24"
-        >
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center max-w-2xl mx-auto mb-16">
-              {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+                  <button
+                    onClick={() => onNavigate("signup")}
+                    className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center cursor-pointer"
+                  >
+                    Start Saving Today
+                  </button>
+                </div>
+
+                {/* Right Column: Liquid Glass Interactive Card */}
+                <div className="w-full flex justify-center lg:justify-end">
+                  <div className="w-full max-w-lg bg-linear-to-br from-[#EEF2FF] via-[#F5F3FF] to-[#E0E7FF] dark:from-indigo-950/40 dark:via-purple-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-indigo-200/90 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
+                    <div className="w-full bg-white dark:bg-[#111327] rounded-2xl p-7 md:p-8 shadow-md border border-slate-100 dark:border-white/10 relative overflow-hidden z-10">
+                      <div className="flex justify-between items-end mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <div>
+                          <div className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1.5">
+                            Emergency Safety Net
+                          </div>
+                          <div
+                            className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white"
+                            style={{ fontFamily: "var(--font-family-display)" }}
+                          >
+                            ₦385,000
+                          </div>
+                        </div>
+                        <div className="text-[#4F39F6] dark:text-indigo-400 text-2xl md:text-3xl font-extrabold">
+                          77%
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3">
+                        <span>Target: ₦500,000</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                          +₦14,200 accrued interest
+                        </span>
+                      </div>
+
+                      <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/50 dark:border-white/5">
+                        <div
+                          className="h-full bg-linear-to-r from-[#4F39F6] to-emerald-400 rounded-full transition-all duration-1000 shadow-sm"
+                          style={{ width: "77%" }}
+                        />
+                      </div>
+
+                      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={14} className="text-[#4F39F6]" />{" "}
+                          Auto-saving ₦25,000 every Friday
+                        </span>
+                        <span className="font-bold text-slate-800 dark:text-slate-200">
+                          5 weeks left
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.section>
+
+            {/* SECTION: THRIFT (AJO/ESUSU) DEEP-DIVE (#thrift) */}
+            <motion.section
+              id="thrift"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6 }}
+              className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto overflow-hidden relative z-10 scroll-mt-24"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                {/* Left Column: Visual Circular Matrix Card */}
+                <div className="w-full flex justify-center lg:justify-start order-2 lg:order-1">
+                  <div className="w-full max-w-lg bg-linear-to-br from-[#ECFDF5] via-[#F0FDF4] to-[#D1FAE5] dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-slate-900/50 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-10 flex items-center justify-center border-2 border-emerald-300/80 dark:border-white/10 shadow-xl transition-all duration-300 relative overflow-hidden">
+                    <div className="w-full bg-white dark:bg-[#111327] rounded-2xl p-7 md:p-8 shadow-md border border-slate-100 dark:border-white/10 relative overflow-hidden z-10">
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-800/30">
+                          <Users size={24} />
+                        </div>
+                        <div>
+                          <h4
+                            className="font-bold text-lg text-slate-900 dark:text-white tracking-tight"
+                            style={{ fontFamily: "var(--font-family-display)" }}
+                          >
+                            Lagos Founders Thrift Circle
+                          </h4>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                            Monthly Rotation • ₦50,000 / member
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Progress Matrix */}
+                      <div className="grid grid-cols-6 gap-2.5 my-6">
+                        {/* 4 Completed Cycles */}
+                        {[1, 2, 3, 4].map((i) => (
+                          <div
+                            key={`comp-${i}`}
+                            className="h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs flex items-center justify-center text-white text-[11px] font-bold"
+                          >
+                            ✓
+                          </div>
+                        ))}
+                        {/* Active Cycle */}
+                        <div className="h-10 rounded-xl bg-[#4F39F6] text-white flex items-center justify-center text-[10px] font-extrabold animate-pulse ring-2 ring-[#4F39F6]/50">
+                          NOW
+                        </div>
+                        {/* 7 Remaining Cycles */}
+                        {[6, 7, 8, 9, 10, 11, 12].map((i) => (
+                          <div
+                            key={`rem-${i}`}
+                            className="h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-white/5 flex items-center justify-center text-slate-400 text-xs"
+                          >
+                            #{i}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between items-center text-xs md:text-sm text-slate-600 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <span>5 of 12 rotations completed</span>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                          Total Pooled: ₦3,000,000
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Text & Features */}
+                <div className="w-full max-w-xl order-1 lg:order-2">
+                  <div className="inline-block px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/40 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-6 shadow-xs">
+                    Cultural Heritage, Digitized
+                  </div>
+                  <h2
+                    className="text-4xl md:text-5xl font-extrabold text-slate-950 dark:text-white mb-6 tracking-tight leading-[1.15]"
+                    style={{ fontFamily: "var(--font-family-display)" }}
+                  >
+                    Grow Together with Ajo & Esusu
+                  </h2>
+                  <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
+                    Generations of Nigerians have built capital through communal
+                    rotational thrift. PAVE removes the default risk, manual
+                    record-keeping, and awkward follow-ups by automating debits
+                    and programmatic escrow payouts.
+                  </p>
+
+                  <ul className="space-y-4 mb-10 w-full">
+                    {[
+                      "Verified participant KYC ensures 100% genuine identity",
+                      "Automated wallet deductions prevent forgotten dues",
+                      "Transparent live calendar tracking each member's collection turn",
+                      "Instant lump-sum payout directly into your available balance",
+                    ].map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-center gap-3 text-slate-800 dark:text-slate-200 font-medium text-base"
+                      >
+                        <CheckCircle2
+                          size={20}
+                          className="text-emerald-500 shrink-0"
+                        />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    onClick={() => onNavigate("signup")}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center cursor-pointer"
+                  >
+                    Join a Thrift Circle
+                  </button>
+                </div>
+              </div>
+            </motion.section>
+
+            {/* SECTION: RATES & YIELDS COMPARISON (#yields) */}
+            <section
+              id="yields"
+              className="w-full px-6 py-20 md:py-28 bg-slate-50/70 dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-white/10 relative z-10 scroll-mt-24"
+            >
+              <div className="max-w-5xl mx-auto">
+                <div className="text-center max-w-2xl mx-auto mb-16">
+                  {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
                 Transparent Returns
               </span> */}
-              <h2
-                className="text-4xl md:text-5xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
-                style={{ fontFamily: "var(--font-family-display)" }}
-              >
-                Why Savers Earn Significantly More on PAVE
-              </h2>
-              <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
-                Traditional commercial banks offer meager returns that fail to
-                outpace inflation. PAVE redistributes institutional money market
-                yields directly to your wallet.
-              </p>
-            </div>
-
-            {/* Comparison Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-              {/* Traditional Bank Card */}
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-white/10 flex flex-col justify-between shadow-xs">
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                    Traditional Banks
-                  </div>
-                  <div
-                    className="text-3xl font-extrabold text-slate-700 dark:text-slate-300 mb-4"
+                  <h2
+                    className="text-4xl md:text-5xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
                     style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    1.5% — 3.5%{" "}
-                    <span className="text-sm font-normal text-slate-400">
-                      p.a.
-                    </span>
-                  </div>
-                  <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-                    <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span> Monthly
-                      maintenance and card maintenance fees
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span>{" "}
-                      Unnecessary SMS notification charges
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span> Heavy
-                      penalties for withdrawing savings early
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-red-500 font-bold">✕</span> No
-                      automated community thrift structures
-                    </li>
-                  </ul>
+                    Why Savers Earn Significantly More on PAVE
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
+                    Traditional commercial banks offer meager returns that fail
+                    to outpace inflation. PAVE redistributes institutional money
+                    market yields directly to your wallet.
+                  </p>
                 </div>
-                <div className="pt-6 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400">
-                  Standard savings accounts in Nigeria
+
+                {/* Comparison Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                  {/* Traditional Bank Card */}
+                  <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-white/10 flex flex-col justify-between shadow-xs">
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                        Traditional Banks
+                      </div>
+                      <div
+                        className="text-3xl font-extrabold text-slate-700 dark:text-slate-300 mb-4"
+                        style={{ fontFamily: "var(--font-family-display)" }}
+                      >
+                        1.5% — 3.5%{" "}
+                        <span className="text-sm font-normal text-slate-400">
+                          p.a.
+                        </span>
+                      </div>
+                      <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                        <li className="flex items-center gap-2">
+                          <span className="text-red-500 font-bold">✕</span>{" "}
+                          Monthly maintenance and card maintenance fees
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-red-500 font-bold">✕</span>{" "}
+                          Unnecessary SMS notification charges
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-red-500 font-bold">✕</span>{" "}
+                          Heavy penalties for withdrawing savings early
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-red-500 font-bold">✕</span> No
+                          automated community thrift structures
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="pt-6 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400">
+                      Standard savings accounts in Nigeria
+                    </div>
+                  </div>
+
+                  {/* PAVE Card */}
+                  <div className="bg-linear-to-br from-[#1E1B4B] via-[#2B217A] to-[#4F39F6] text-white p-8 rounded-3xl border-2 border-indigo-400/50 shadow-2xl flex flex-col justify-between relative overflow-hidden">
+                    <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
+                      Up to 4x Better
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-2">
+                        PAVE Smart Yield Engine
+                      </div>
+                      <div
+                        className="text-4xl font-extrabold text-white mb-4"
+                        style={{ fontFamily: "var(--font-family-display)" }}
+                      >
+                        10.5% — 14.2%{" "}
+                        <span className="text-sm font-normal text-indigo-200">
+                          p.a.
+                        </span>
+                      </div>
+                      <ul className="space-y-3 text-sm text-indigo-100">
+                        <li className="flex items-center gap-2">
+                          <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                          Zero account maintenance or sign-up fees
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                          Daily interest calculation with monthly compounding
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                          Flexible anytime withdrawals on emergency funds
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
+                          Built-in rotational Ajo circles with zero default risk
+                        </li>
+                      </ul>
+                    </div>
+                    <button
+                      onClick={() => onNavigate("signup")}
+                      className="mt-8 bg-white text-[#2B217A] hover:bg-slate-100 font-bold py-3.5 px-6 rounded-2xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer text-center"
+                    >
+                      Start Earning Higher Rates
+                    </button>
+                  </div>
                 </div>
               </div>
+            </section>
 
-              {/* PAVE Card */}
-              <div className="bg-linear-to-br from-[#1E1B4B] via-[#2B217A] to-[#4F39F6] text-white p-8 rounded-3xl border-2 border-indigo-400/50 shadow-2xl flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
-                  Up to 4x Better
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-2">
-                    PAVE Smart Yield Engine
-                  </div>
-                  <div
-                    className="text-4xl font-extrabold text-white mb-4"
+            {/* SECTION: SECURITY & COMPLIANCE (#security) */}
+            <section
+              id="security"
+              className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto relative z-10 scroll-mt-24"
+            >
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-12 md:p-16 border border-slate-200/90 dark:border-white/10 shadow-sm">
+                <div className="max-w-3xl mx-auto text-center mb-12">
+                  <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/40">
+                    Security by Architecture
+                  </span>
+                  <h2
+                    className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
                     style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    10.5% — 14.2%{" "}
-                    <span className="text-sm font-normal text-indigo-200">
-                      p.a.
-                    </span>
+                    Your Financial Security is Non-Negotiable
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
+                    PAVE employs the highest cryptographic standards and
+                    partners with regulated financial institutions so you can
+                    build wealth with total confidence.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Card 1: 256-Bit Bank Encryption */}
+                  <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-indigo-500/30 transition-all duration-300 group">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-100/90 dark:border-indigo-800/50 text-[#4F39F6] dark:text-[#818CF8] flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
+                      <Lock size={26} strokeWidth={2.2} />
+                    </div>
+                    <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
+                      256-Bit Bank Encryption
+                    </h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
+                      All traffic, payment credentials, and biometric
+                      authentications are encrypted with end-to-end TLS 1.3 and
+                      AES-256 protocols.
+                    </p>
                   </div>
-                  <ul className="space-y-3 text-sm text-indigo-100">
-                    <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
-                      Zero account maintenance or sign-up fees
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
-                      Daily interest calculation with monthly compounding
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
-                      Flexible anytime withdrawals on emergency funds
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="text-emerald-400 w-4 h-4 shrink-0" />{" "}
-                      Built-in rotational Ajo circles with zero default risk
-                    </li>
-                  </ul>
+
+                  {/* Card 2: NDIC Deposit Insurance */}
+                  <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-emerald-500/30 transition-all duration-300 group">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100/90 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
+                      <Building2 size={26} strokeWidth={2.2} />
+                    </div>
+                    <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
+                      NDIC Deposit Insurance
+                    </h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
+                      Deposits are held in custody by CBN-licensed partner
+                      commercial banks (Wema Bank PLC) and insured by the
+                      Nigeria Deposit Insurance Corporation.
+                    </p>
+                  </div>
+
+                  {/* Card 3: Verified KYC Community */}
+                  <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-amber-500/30 transition-all duration-300 group">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/70 border border-amber-100/90 dark:border-amber-800/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
+                      <ShieldCheck size={26} strokeWidth={2.2} />
+                    </div>
+                    <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
+                      Verified KYC Community
+                    </h4>
+                    <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
+                      Strict BVN/NIN identity screening prevents bad actors,
+                      impersonation, and defaults across all community thrift
+                      circles.
+                    </p>
+                  </div>
                 </div>
-                <button
-                  onClick={() => onNavigate("signup")}
-                  className="mt-8 bg-white text-[#2B217A] hover:bg-slate-100 font-bold py-3.5 px-6 rounded-2xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer text-center"
-                >
-                  Start Earning Higher Rates
-                </button>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* SECTION: SECURITY & COMPLIANCE (#security) */}
-        <section
-          id="security"
-          className="w-full px-6 py-20 md:py-28 max-w-7xl mx-auto relative z-10 scroll-mt-24"
-        >
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-12 md:p-16 border border-slate-200/90 dark:border-white/10 shadow-sm">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/40">
-                Security by Architecture
-              </span>
-              <h2
-                className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
-                style={{ fontFamily: "var(--font-family-display)" }}
-              >
-                Your Financial Security is Non-Negotiable
-              </h2>
-              <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
-                PAVE employs the highest cryptographic standards and partners
-                with regulated financial institutions so you can build wealth
-                with total confidence.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Card 1: 256-Bit Bank Encryption */}
-              <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-indigo-500/30 transition-all duration-300 group">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-100/90 dark:border-indigo-800/50 text-[#4F39F6] dark:text-[#818CF8] flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
-                  <Lock size={26} strokeWidth={2.2} />
-                </div>
-                <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
-                  256-Bit Bank Encryption
-                </h4>
-                <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                  All traffic, payment credentials, and biometric
-                  authentications are encrypted with end-to-end TLS 1.3 and
-                  AES-256 protocols.
-                </p>
-              </div>
-
-              {/* Card 2: NDIC Deposit Insurance */}
-              <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-emerald-500/30 transition-all duration-300 group">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100/90 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
-                  <Building2 size={26} strokeWidth={2.2} />
-                </div>
-                <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
-                  NDIC Deposit Insurance
-                </h4>
-                <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                  Deposits are held in custody by CBN-licensed partner
-                  commercial banks (Wema Bank PLC) and insured by the Nigeria
-                  Deposit Insurance Corporation.
-                </p>
-              </div>
-
-              {/* Card 3: Verified KYC Community */}
-              <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-amber-500/30 transition-all duration-300 group">
-                <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/70 border border-amber-100/90 dark:border-amber-800/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
-                  <ShieldCheck size={26} strokeWidth={2.2} />
-                </div>
-                <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
-                  Verified KYC Community
-                </h4>
-                <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                  Strict BVN/NIN identity screening prevents bad actors,
-                  impersonation, and defaults across all community thrift
-                  circles.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION: FREQUENTLY ASKED QUESTIONS (#faqs) */}
-        <section
-          id="faqs"
-          className="w-full px-6 py-20 md:py-28 bg-slate-50/70 dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-white/10 relative z-10 scroll-mt-24"
-        >
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-14">
-              {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
+            {/* SECTION: FREQUENTLY ASKED QUESTIONS (#faqs) */}
+            <section
+              id="faqs"
+              className="w-full px-6 py-20 md:py-28 bg-slate-50/70 dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-white/10 relative z-10 scroll-mt-24"
+            >
+              <div className="max-w-3xl mx-auto">
+                <div className="text-center mb-14">
+                  {/* <span className="text-xs uppercase font-extrabold tracking-widest text-[#4F39F6] dark:text-[#818CF8] bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-800/40">
                 Got Questions?
               </span> */}
-              <h2
-                className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
-                style={{ fontFamily: "var(--font-family-display)" }}
-              >
-                Frequently Asked Questions
-              </h2>
-              <p className="text-slate-600 dark:text-slate-300 mt-2 text-base">
-                Everything you need to know about PAVE savings, interest yields,
-                and thrift rotations.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <div
-                  key={index}
-                  className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl overflow-hidden shadow-xs"
-                >
-                  <button
-                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-left font-bold text-slate-900 dark:text-white text-base sm:text-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                  <h2
+                    className="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
+                    style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    <span>{faq.question}</span>
-                    <ChevronDown
-                      size={20}
-                      className={`text-slate-500 transition-transform duration-300 shrink-0 ml-4 ${
-                        openFaq === index ? "rotate-180 text-[#4F39F6]" : ""
-                      }`}
-                    />
-                  </button>
-                  <AnimatePresence>
-                    {openFaq === index && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25 }}
-                      >
-                        <div className="px-6 pb-6 text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal border-t border-slate-100 dark:border-slate-800 pt-3">
-                          {faq.answer}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                    Frequently Asked Questions
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-300 mt-2 text-base">
+                    Everything you need to know about PAVE savings, interest
+                    yields, and thrift rotations.
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* HIGH CONVERSION FINAL CTA */}
-        <section className="w-full px-6 py-20 md:py-28 z-10 relative">
-          <div className="max-w-5xl mx-auto relative">
-            {/* Ambient atmospheric glow */}
-            <div className="absolute -inset-3 bg-linear-to-r from-sky-400/15 via-indigo-500/10 to-purple-500/15 dark:from-sky-500/10 dark:via-indigo-600/15 dark:to-violet-600/15 rounded-[3.2rem] blur-2xl -z-10 pointer-events-none" />
+                <div className="space-y-4">
+                  {faqs.map((faq, index) => (
+                    <div
+                      key={index}
+                      className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 rounded-2xl overflow-hidden shadow-xs"
+                    >
+                      <button
+                        onClick={() =>
+                          setOpenFaq(openFaq === index ? null : index)
+                        }
+                        className="w-full px-6 py-5 flex items-center justify-between text-left font-bold text-slate-900 dark:text-white text-base sm:text-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <span>{faq.question}</span>
+                        <ChevronDown
+                          size={20}
+                          className={`text-slate-500 transition-transform duration-300 shrink-0 ml-4 ${
+                            openFaq === index ? "rotate-180 text-[#4F39F6]" : ""
+                          }`}
+                        />
+                      </button>
+                      <AnimatePresence>
+                        {openFaq === index && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                          >
+                            <div className="px-6 pb-6 text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal border-t border-slate-100 dark:border-slate-800 pt-3">
+                              {faq.answer}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
 
-            {/* Main Card: Soft Celestial Ice-Blue to Lavender Gradient (Light) & Atmospheric Cosmic Indigo (Dark) */}
-            <div className="w-full relative rounded-3xl sm:rounded-[2.5rem] md:rounded-[3rem] p-8 sm:p-14 md:p-16 text-center shadow-xl shadow-indigo-950/5 dark:shadow-2xl border border-[#E0E7FF]/90 dark:border-indigo-500/30 overflow-hidden transition-all duration-300 bg-linear-to-br from-[#EEF5FF] via-[#F8FAFF] to-[#F5F3FF] dark:bg-linear-to-br dark:from-[#0E122A] dark:via-[#121430] dark:to-[#181335]">
-              {/* Internal subtle glow accents */}
-              {/* <div
+            {/* HIGH CONVERSION FINAL CTA */}
+            <section className="w-full px-6 py-20 md:py-28 z-10 relative">
+              <div className="max-w-5xl mx-auto relative">
+                {/* Ambient atmospheric glow */}
+                <div className="absolute -inset-3 bg-linear-to-r from-sky-400/15 via-indigo-500/10 to-purple-500/15 dark:from-sky-500/10 dark:via-indigo-600/15 dark:to-violet-600/15 rounded-[3.2rem] blur-2xl -z-10 pointer-events-none" />
+
+                {/* Main Card: Soft Celestial Ice-Blue to Lavender Gradient (Light) & Atmospheric Cosmic Indigo (Dark) */}
+                <div className="w-full relative rounded-3xl sm:rounded-[2.5rem] md:rounded-[3rem] p-8 sm:p-14 md:p-16 text-center shadow-xl shadow-indigo-950/5 dark:shadow-2xl border border-[#E0E7FF]/90 dark:border-indigo-500/30 overflow-hidden transition-all duration-300 bg-linear-to-br from-[#EEF5FF] via-[#F8FAFF] to-[#F5F3FF] dark:bg-linear-to-br dark:from-[#0E122A] dark:via-[#121430] dark:to-[#181335]">
+                  {/* Internal subtle glow accents */}
+                  {/* <div
                 className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-linear-to-br from-[#DCEBFF] to-transparent dark:from-sky-500/15 pointer-events-none blur-2xl"
                 aria-hidden="true"
               />
@@ -1203,59 +1156,59 @@ export default function OnboardingScreen({
                 aria-hidden="true"
               /> */}
 
-              <div className="relative z-10">
-                {/* Community Trust Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-md border border-indigo-200/70 dark:border-white/15 text-[#3730A3] dark:text-indigo-200 text-xs font-semibold mb-6 shadow-xs">
-                  <Sparkles
-                    size={14}
-                    className="text-[#4F39F6] dark:text-indigo-300"
-                  />
-                  <span>Join Over 45,000+ Disciplined Savers Today</span>
-                </div>
+                  <div className="relative z-10">
+                    {/* Community Trust Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-md border border-indigo-200/70 dark:border-white/15 text-[#3730A3] dark:text-indigo-200 text-xs font-semibold mb-6 shadow-xs">
+                      <Sparkles
+                        size={14}
+                        className="text-[#4F39F6] dark:text-indigo-300"
+                      />
+                      <span>Join Over 45,000+ Disciplined Savers Today</span>
+                    </div>
 
-                {/* Heading */}
-                <h2
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-slate-950 dark:text-white mb-4 tracking-tight leading-[1.15]"
-                  style={{ fontFamily: "var(--font-family-display)" }}
-                >
-                  Ready to Start Your Financial Journey?
-                </h2>
+                    {/* Heading */}
+                    <h2
+                      className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold text-slate-950 dark:text-white mb-4 tracking-tight leading-[1.15]"
+                      style={{ fontFamily: "var(--font-family-display)" }}
+                    >
+                      Ready to Start Your Financial Journey?
+                    </h2>
 
-                {/* Description */}
-                <p className="text-slate-600 dark:text-slate-300 max-w-xl mx-auto text-base sm:text-lg mb-8 font-normal leading-relaxed">
-                  Join thousands of Nigerians building wealth with PAVE. Take
-                  control of your money with automated high-yield savings and
-                  disciplined community thrift contributions.
-                </p>
+                    {/* Description */}
+                    <p className="text-slate-600 dark:text-slate-300 max-w-xl mx-auto text-base sm:text-lg mb-8 font-normal leading-relaxed">
+                      Join thousands of Nigerians building wealth with PAVE.
+                      Take control of your money with automated high-yield
+                      savings and disciplined community thrift contributions.
+                    </p>
 
-                {/* Primary Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  {/* Create Pave Account CTA */}
-                  <button
-                    onClick={() => onNavigate("signup")}
-                    className="w-full sm:w-auto bg-[#312E81] hover:bg-[#282568] dark:bg-[#4F39F6] dark:hover:bg-[#432BD8] text-white font-bold py-4 px-10 rounded-full text-sm uppercase tracking-wider transition-all shadow-lg shadow-indigo-950/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center cursor-pointer"
-                  >
-                    <span>Create Pave Account</span>
-                    <ArrowRight size={18} className="ml-2" />
-                  </button>
+                    {/* Primary Action Buttons */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                      {/* Create Pave Account CTA */}
+                      <button
+                        onClick={() => onNavigate("signup")}
+                        className="w-full sm:w-auto bg-[#312E81] hover:bg-[#282568] dark:bg-[#4F39F6] dark:hover:bg-[#432BD8] text-white font-bold py-4 px-10 rounded-full text-sm uppercase tracking-wider transition-all shadow-lg shadow-indigo-950/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center cursor-pointer"
+                      >
+                        <span>Create Pave Account</span>
+                        <ArrowRight size={18} className="ml-2" />
+                      </button>
 
-                  {/* Download Pave App CTA */}
-                  <button
-                    onClick={() => setIsDownloadModalOpen(true)}
-                    className="w-full sm:w-auto bg-white/90 hover:bg-white text-slate-800 border border-indigo-200/80 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/20 font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all cursor-pointer shadow-xs inline-flex items-center justify-center gap-2 active:scale-95 backdrop-blur-md"
-                  >
-                    <Download
-                      size={16}
-                      className="text-[#3730A3] dark:text-slate-300"
-                    />
-                    <span>Download Pave App</span>
-                  </button>
+                      {/* Download Pave App CTA */}
+                      <button
+                        onClick={() => setIsDownloadModalOpen(true)}
+                        className="w-full sm:w-auto bg-white/90 hover:bg-white text-slate-800 border border-indigo-200/80 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/20 font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all cursor-pointer shadow-xs inline-flex items-center justify-center gap-2 active:scale-95 backdrop-blur-md"
+                      >
+                        <Download
+                          size={16}
+                          className="text-[#3730A3] dark:text-slate-300"
+                        />
+                        <span>Download Pave App</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-      </main>
+            </section>
+          </main>
         </>
       )}
 
@@ -1282,7 +1235,11 @@ export default function OnboardingScreen({
                   title="LinkedIn - paceployt ltd"
                   className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-[#0A66C2] dark:hover:bg-[#0A66C2] text-slate-700 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all flex items-center justify-center border border-slate-200/80 dark:border-white/10 shadow-xs hover:scale-105 active:scale-95 group cursor-pointer"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg
+                    className="w-5 h-5 fill-current"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
                   </svg>
                 </a>
@@ -1294,9 +1251,13 @@ export default function OnboardingScreen({
                   rel="noopener noreferrer"
                   aria-label="Instagram: paceployt.ltd"
                   title="Instagram - paceployt.ltd"
-                  className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-gradient-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] text-slate-700 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all flex items-center justify-center border border-slate-200/80 dark:border-white/10 shadow-xs hover:scale-105 active:scale-95 group cursor-pointer"
+                  className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-linear-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] text-slate-700 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all flex items-center justify-center border border-slate-200/80 dark:border-white/10 shadow-xs hover:scale-105 active:scale-95 group cursor-pointer"
                 >
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg
+                    className="w-5 h-5 fill-current"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                   </svg>
                 </a>
@@ -1310,7 +1271,11 @@ export default function OnboardingScreen({
                   title="Twitter / X - @Paceployt_ltd"
                   className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-black dark:hover:bg-black text-slate-700 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all flex items-center justify-center border border-slate-200/80 dark:border-white/10 shadow-xs hover:scale-105 active:scale-95 group cursor-pointer"
                 >
-                  <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg
+                    className="w-4.5 h-4.5 fill-current"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                 </a>

@@ -438,7 +438,6 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                 ) : (
                   <div className="mt-5 p-3.5 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
                     <Sparkles size={16} className="text-[#E11D48] shrink-0" />
-                    <span>Instant STS token generation with direct DISCO receipt dispatch.</span>
                   </div>
                 )}
               </div>

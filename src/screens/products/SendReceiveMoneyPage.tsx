@@ -32,7 +32,8 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
   const [simulatedReceipt, setSimulatedReceipt] = useState(false);
 
   // Bank charges comparison
-  const bankFee = transferAmount > 50000 ? 53.75 : transferAmount > 5000 ? 26.88 : 10.75;
+  const bankFee =
+    transferAmount > 50000 ? 53.75 : transferAmount > 5000 ? 26.88 : 10.75;
   const stampDuty = transferAmount >= 10000 ? 50 : 0;
   const totalBankCost = bankFee + stampDuty;
   const paveCost = 0; // ₦0 peer transfer
@@ -97,9 +98,10 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-              Transfer funds instantly to any Nigerian commercial bank account with 
-              99.9% uptime. Receive direct deposits straight into your personal dedicated 
-              virtual account without awkward transfer delays or surprise stamp duty deductions.
+              Transfer funds instantly to any Nigerian commercial bank account
+              with 99.9% uptime. Receive direct deposits straight into your
+              personal dedicated virtual account without awkward transfer delays
+              or surprise stamp duty deductions.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -120,15 +122,24 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
 
             <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
               <div className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-purple-600 dark:text-purple-400" />
+                <CheckCircle2
+                  size={16}
+                  className="text-purple-600 dark:text-purple-400"
+                />
                 <span>₦0 PAVE-to-PAVE Fee</span>
               </div>
               <div className="flex items-center gap-2">
-                <Landmark size={16} className="text-indigo-600 dark:text-indigo-400" />
+                <Landmark
+                  size={16}
+                  className="text-indigo-600 dark:text-indigo-400"
+                />
                 <span>NIBSS Instant Payment (NIP)</span>
               </div>
               <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400" />
+                <ShieldCheck
+                  size={16}
+                  className="text-emerald-600 dark:text-emerald-400"
+                />
                 <span>Encrypted Virtual Escrow</span>
               </div>
             </div>
@@ -148,8 +159,12 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                 <div className="inline-block px-3 py-1 rounded-full bg-purple-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   Instant POS & P2P Settlement
                 </div>
-                <div className="text-xl font-bold">₦15,000 Transferred in 1.4s</div>
-                <div className="text-xs text-white/90">Zero transfer charges · Instant SMS alert to recipient</div>
+                <div className="text-xl font-bold">
+                  ₦15,000 Transferred in 1.4s
+                </div>
+                <div className="text-xs text-white/90">
+                  Zero transfer charges · Instant SMS alert to recipient
+                </div>
               </div>
             </div>
           </div>
@@ -170,7 +185,8 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
               Test Real-Time NUBAN Verification & Zero-Fee Dispatch
             </h2>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-              Experience how easy it is to verify recipients and send money with zero deductions.
+              Experience how easy it is to verify recipients and send money with
+              zero deductions.
             </p>
           </div>
 
@@ -202,9 +218,6 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                     }`}
                   >
                     <span>To @pave-tag (Instant & Free)</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                      Coming Soon
-                    </span>
                   </button>
                 </div>
               </div>
@@ -222,7 +235,11 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                       className="w-full px-4 py-3 rounded-2xl bg-white dark:bg-[#181B34] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium text-sm focus:outline-hidden focus:border-[#7C3AED]"
                     >
                       {banks.map((b) => (
-                        <option key={b} value={b} className="dark:bg-slate-900 text-slate-900 dark:text-white">
+                        <option
+                          key={b}
+                          value={b}
+                          className="dark:bg-slate-900 text-slate-900 dark:text-white"
+                        >
                           {b}
                         </option>
                       ))}
@@ -255,33 +272,20 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                   {/* Coming Soon Callout */}
                   <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <Clock size={16} className="text-amber-600 dark:text-amber-400" />
+                      <Clock
+                        size={16}
+                        className="text-amber-600 dark:text-amber-400"
+                      />
                       <span className="font-bold text-amber-900 dark:text-amber-200 text-sm">
                         To @pave-tag (Instant & Free) — Coming Soon
                       </span>
                     </div>
                     <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed font-normal">
-                      Direct P2P username transfers without account numbers are currently in final pilot testing. 
-                      You can currently send funds to any Nigerian commercial bank account with zero fees below.
+                      Direct P2P username transfers without account numbers are
+                      currently in final pilot testing. You can currently send
+                      funds to any Nigerian commercial bank account with zero
+                      fees below.
                     </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-                      Recipient PAVE Tag Preview
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        defaultValue="@benjamin_0000"
-                        placeholder="@username"
-                        className="w-full px-4 py-3.5 rounded-2xl bg-white dark:bg-[#181B34] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium text-sm focus:outline-hidden focus:border-[#7C3AED]"
-                      />
-                      <div className="absolute right-3.5 top-3 flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 px-2 py-1 rounded-lg">
-                        <Sparkles size={13} />
-                        <span>Coming Soon</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
@@ -327,33 +331,45 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
 
                 <div className="space-y-3 pb-6 border-b border-slate-200 dark:border-white/10 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Beneficiary:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Beneficiary:
+                    </span>
                     <span className="font-bold text-slate-950 dark:text-white">
                       OLUWANISHOLA ADEOYE
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Destination:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Destination:
+                    </span>
                     <span className="font-bold text-slate-950 dark:text-white">
-                      {transferType === "bank" ? `${selectedBank} · ${accountNumber}` : "@benjamin_0000"}
+                      {transferType === "bank"
+                        ? `${selectedBank} · ${accountNumber}`
+                        : "@benjamin_0000"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Amount Sent:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Amount Sent:
+                    </span>
                     <span className="font-bold text-slate-950 dark:text-white">
                       ₦{transferAmount.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">PAVE Transfer Fee:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      PAVE Transfer Fee:
+                    </span>
                     <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
                       ₦0.00 (Zero Fee)
                     </span>
                   </div>
-                  
+
                   {/* Conventional Bank Fee: NOT crossed out since we are trying to make a difference */}
                   <div className="flex justify-between items-center pt-1 border-t border-slate-200/60 dark:border-white/5">
-                    <span className="text-slate-700 dark:text-slate-300 font-medium">Conventional Bank Fee:</span>
+                    <span className="text-slate-700 dark:text-slate-300 font-medium">
+                      Conventional Bank Fee:
+                    </span>
                     <span className="font-bold text-rose-600 dark:text-rose-400 text-sm">
                       ₦{totalBankCost.toFixed(2)}
                     </span>
@@ -371,19 +387,21 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                 {simulatedReceipt ? (
                   <div className="mt-5 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 animate-in fade-in">
                     <div className="flex items-center gap-2 mb-1">
-                      <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400" />
-                      <strong className="text-sm">Transfer Dispatched Successfully</strong>
+                      <CheckCircle2
+                        size={18}
+                        className="text-emerald-600 dark:text-emerald-400"
+                      />
+                      <strong className="text-sm">
+                        Transfer Dispatched Successfully
+                      </strong>
                     </div>
                     <p className="text-xs">
-                      Session Ref: 0000132609{Math.floor(Math.random() * 899999 + 100000)} · Beneficiary credited in 1.4s.
+                      Session Ref: 0000132609
+                      {Math.floor(Math.random() * 899999 + 100000)} ·
+                      Beneficiary credited in 1.4s.
                     </p>
                   </div>
-                ) : (
-                  <div className="mt-5 p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/50 text-xs text-purple-900 dark:text-purple-200 flex items-center gap-2">
-                    <Sparkles size={16} className="text-[#7C3AED] shrink-0" />
-                    <span>Protected by CBN framework & encrypted 4-digit transaction PIN.</span>
-                  </div>
-                )}
+                ) : null}
               </div>
 
               <div className="mt-6 flex flex-col gap-3">
@@ -421,7 +439,10 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
               Get Your Own Dedicated Wema Bank Account in 60 Seconds
             </h2>
             <p className="text-sm sm:text-base text-purple-100/90 leading-relaxed mb-6 font-normal">
-              When you complete your PAVE signup, a personalized 10-digit Nigerian NUBAN account number is automatically created for you. Anyone can transfer money from GTBank, Zenith, Access, Kuda, or OPay directly into your PAVE wallet.
+              When you complete your PAVE signup, a personalized 10-digit
+              Nigerian NUBAN account number is automatically created for you.
+              Anyone can transfer money from GTBank, Zenith, Access, Kuda, or
+              OPay directly into your PAVE wallet.
             </p>
 
             <button
@@ -434,13 +455,17 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
 
           <div className="lg:col-span-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs text-white/80 font-medium">Wema Bank / PAVE MFB</span>
+              <span className="text-xs text-white/80 font-medium">
+                Wema Bank / PAVE MFB
+              </span>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-400/30 text-emerald-300 text-[10px] font-bold uppercase border border-emerald-400/30">
                 Active & Verified
               </span>
             </div>
 
-            <div className="text-xs text-white/80 mb-1 font-medium">Your Account Number</div>
+            <div className="text-xs text-white/80 mb-1 font-medium">
+              Your Account Number
+            </div>
             <div className="flex items-center justify-between bg-black/25 rounded-xl px-4 py-3 mb-4 border border-white/10">
               <span className="font-mono text-xl sm:text-2xl font-bold tracking-wider text-white">
                 9876543210
@@ -450,16 +475,24 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                 className="p-1.5 hover:bg-white/20 rounded-lg transition-colors cursor-pointer text-white"
                 title="Copy account number"
               >
-                {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
+                {copied ? (
+                  <Check size={18} className="text-emerald-400" />
+                ) : (
+                  <Copy size={18} />
+                )}
               </button>
             </div>
 
             {/* Changed account name to Jona Israel as requested */}
             <div className="text-sm text-white/90">
-              Account Name: <strong className="text-white font-bold">Jona Israel</strong>
+              Account Name:{" "}
+              <strong className="text-white font-bold">Jona Israel</strong>
             </div>
             <div className="text-xs text-purple-200 mt-1">
-              PAVE Tag: <span className="font-mono font-semibold text-white">@benjamin_0000</span>
+              PAVE Tag:{" "}
+              <span className="font-mono font-semibold text-white">
+                @benjamin_0000
+              </span>
             </div>
           </div>
         </div>
