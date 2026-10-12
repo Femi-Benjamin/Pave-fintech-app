@@ -22,7 +22,9 @@ interface PageProps {
 }
 
 export default function AirtimeDataPage({ onOpenApp }: PageProps) {
-  const [network, setNetwork] = useState<"mtn" | "airtel" | "glo" | "9mobile">("mtn");
+  const [network, setNetwork] = useState<"mtn" | "airtel" | "glo" | "9mobile">(
+    "mtn",
+  );
   const [mode, setMode] = useState<"airtime" | "data">("data");
   const [phone, setPhone] = useState("0814 892 4510");
   const [selectedPlanIndex, setSelectedPlanIndex] = useState(2);
@@ -46,7 +48,10 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
     { title: "10 GB", validity: "30 Days", price: 3500, bonus: "+₦105 Back" },
   ];
 
-  const currentPrice = mode === "data" ? (dataPlans[selectedPlanIndex]?.price ?? 3500) : airtimeAmount;
+  const currentPrice =
+    mode === "data"
+      ? (dataPlans[selectedPlanIndex]?.price ?? 3500)
+      : airtimeAmount;
   const currentCashback = Math.round(currentPrice * 0.03);
 
   const handleSimulateRecharge = () => {
@@ -92,9 +97,10 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-              Never get disconnected during critical meetings, zoom calls, or midnight family emergencies. 
-              Top up MTN, Airtel, Glo, and 9mobile in under 5 seconds with zero bank surcharges 
-              and pocket guaranteed 3% instant cashback straight into your PAVE savings vault.
+              Never get disconnected during critical meetings, zoom calls, or
+              midnight family emergencies. Top up MTN, Airtel, Glo, and 9mobile
+              in under 5 seconds with zero bank surcharges and pocket guaranteed
+              3% instant cashback straight into your PAVE savings vault.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -113,7 +119,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
               </button>
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
+            {/* <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className="text-blue-600 dark:text-blue-400" />
                 <span>3% Instant Wallet Cashback</span>
@@ -126,7 +132,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                 <Signal size={16} className="text-emerald-600 dark:text-emerald-400" />
                 <span>All 4 Nigerian Networks</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Photography Asset */}
@@ -143,8 +149,12 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                 <div className="inline-block px-3 py-1 rounded-full bg-blue-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   5G Ultra Bundle Active
                 </div>
-                <div className="text-xl font-bold">10GB 30-Day Monthly Top-Up</div>
-                <div className="text-xs text-white/90">+₦105 Instant Cashback Credited to Vault in 1.4s</div>
+                <div className="text-xl font-bold">
+                  10GB 30-Day Monthly Top-Up
+                </div>
+                <div className="text-xs text-white/90">
+                  +₦105 Instant Cashback Credited to Vault in 1.4s
+                </div>
               </div>
             </div>
           </div>
@@ -152,7 +162,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
       </section>
 
       {/* 2. Interactive Quick Recharge Simulator */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
         <div className="bg-white dark:bg-[#121426] rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-md">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-[#2563EB] dark:text-[#60A5FA]">
@@ -165,7 +175,8 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
               Experience 2-Second Recharge with Guaranteed Cashback
             </h2>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-              Try our instant simulator to see how quick and cost-effective mobile top-ups are on PAVE.
+              Try our instant simulator to see how quick and cost-effective
+              mobile top-ups are on PAVE.
             </p>
           </div>
 
@@ -280,8 +291,12 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                           {dp.validity}
                         </div>
                         <div className="flex items-center justify-between text-xs font-bold">
-                          <span className="text-slate-950 dark:text-white">₦{dp.price.toLocaleString()}</span>
-                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{dp.bonus}</span>
+                          <span className="text-slate-950 dark:text-white">
+                            ₦{dp.price.toLocaleString()}
+                          </span>
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">
+                            {dp.bonus}
+                          </span>
                         </div>
                       </button>
                     ))}
@@ -326,27 +341,43 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
 
                 <div className="space-y-3 pb-6 border-b border-slate-200 dark:border-white/10 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Recipient:</span>
-                    <span className="font-mono font-bold text-slate-950 dark:text-white">{phone}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Carrier:</span>
-                    <span className="font-bold text-slate-950 dark:text-white capitalize">{network} Nigeria</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Product:</span>
-                    <span className="font-bold text-slate-950 dark:text-white">
-                      {mode === "data" ? `${dataPlans[selectedPlanIndex].title} (${dataPlans[selectedPlanIndex].validity})` : `₦${airtimeAmount.toLocaleString()} Airtime`}
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Recipient:
+                    </span>
+                    <span className="font-mono font-bold text-slate-950 dark:text-white">
+                      {phone}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Bank Surcharge:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Carrier:
+                    </span>
+                    <span className="font-bold text-slate-950 dark:text-white capitalize">
+                      {network} Nigeria
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Product:
+                    </span>
+                    <span className="font-bold text-slate-950 dark:text-white">
+                      {mode === "data"
+                        ? `${dataPlans[selectedPlanIndex].title} (${dataPlans[selectedPlanIndex].validity})`
+                        : `₦${airtimeAmount.toLocaleString()} Airtime`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Bank Surcharge:
+                    </span>
                     <span className="font-bold text-emerald-600 dark:text-emerald-400">
                       ₦0.00 (Zero Fee)
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-white/10">
-                    <span className="text-base font-bold text-slate-950 dark:text-white">Amount to Pay:</span>
+                    <span className="text-base font-bold text-slate-950 dark:text-white">
+                      Amount to Pay:
+                    </span>
                     <span className="text-xl font-black text-slate-950 dark:text-white">
                       ₦{currentPrice.toLocaleString()}
                     </span>
@@ -371,11 +402,18 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                 {simulatedSuccess && (
                   <div className="mt-5 p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 animate-in fade-in">
                     <div className="flex items-center gap-2 mb-1">
-                      <CheckCircle2 size={18} className="text-blue-600 dark:text-blue-400" />
-                      <strong className="text-sm">Recharge Delivered in 1.8s!</strong>
+                      <CheckCircle2
+                        size={18}
+                        className="text-blue-600 dark:text-blue-400"
+                      />
+                      <strong className="text-sm">
+                        Recharge Delivered in 1.8s!
+                      </strong>
                     </div>
                     <p className="text-xs">
-                      Reference: PAVE-VTU-{Math.floor(Math.random() * 899999 + 100000)} · Network SMS delivered to {phone}.
+                      Reference: PAVE-VTU-
+                      {Math.floor(Math.random() * 899999 + 100000)} · Network
+                      SMS delivered to {phone}.
                     </p>
                   </div>
                 )}
@@ -416,9 +454,10 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
               How Much Do You Lose to Commercial Banks Every Year?
             </h2>
             <p className="text-sm sm:text-base text-blue-100/90 leading-relaxed mb-6 font-normal">
-              Most Nigerians spend between ₦15,000 and ₦50,000 every month on data and voice minutes. 
-              On standard banking apps, you pay extra convenience charges and earn ₦0 back. 
-              On PAVE, every recharge passively funds your year-end holiday or savings goal.
+              Most Nigerians spend between ₦15,000 and ₦50,000 every month on
+              data and voice minutes. On standard banking apps, you pay extra
+              convenience charges and earn ₦0 back. On PAVE, every recharge
+              passively funds your year-end holiday or savings goal.
             </p>
 
             <button
@@ -431,8 +470,12 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
 
           <div className="lg:col-span-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs text-white/80 font-medium">Your Monthly Telecom Budget</span>
-              <span className="text-base font-extrabold text-white">₦{monthlySpend.toLocaleString()}/mo</span>
+              <span className="text-xs text-white/80 font-medium">
+                Your Monthly Telecom Budget
+              </span>
+              <span className="text-base font-extrabold text-white">
+                ₦{monthlySpend.toLocaleString()}/mo
+              </span>
             </div>
             <input
               type="range"
@@ -446,15 +489,21 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
 
             <div className="space-y-3 text-sm border-t border-white/15 pt-4">
               <div className="flex justify-between">
-                <span className="text-blue-100">Annual Telecommunications Spend:</span>
-                <span className="font-bold">₦{annualSpend.toLocaleString()}</span>
+                <span className="text-blue-100">
+                  Annual Telecommunications Spend:
+                </span>
+                <span className="font-bold">
+                  ₦{annualSpend.toLocaleString()}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-100">Commercial Bank Cashback:</span>
                 <span className="font-mono text-rose-300">₦0.00</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-white/20">
-                <span className="font-bold text-emerald-300">Your Guaranteed PAVE Cashback:</span>
+                <span className="font-bold text-emerald-300">
+                  Your Guaranteed PAVE Cashback:
+                </span>
                 <span className="font-black text-xl text-emerald-300">
                   +₦{annualCashback.toLocaleString()}
                 </span>

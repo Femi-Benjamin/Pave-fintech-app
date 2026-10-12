@@ -4,7 +4,7 @@ import {
   Users,
   Wallet,
   RotateCw,
-  Send,
+  // Send,
   Smartphone,
   Zap,
   TrendingUp,
@@ -24,7 +24,7 @@ export type ProductPageId =
   | "rotating-savings"
   | "personal-savings"
   | "thrift-contributions"
-  | "send-and-receive-money"
+  // | "send-and-receive-money"
   | "airtime-and-data"
   | "utility-bills"
   | "about-us"
@@ -85,8 +85,8 @@ export default function ProductNavbar({
     <header
       className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 border-b ${
         scrolled
-          ? "bg-white/90 dark:bg-[#0A0B14]/90 border-slate-200/80 dark:border-white/10 shadow-sm"
-          : "bg-white/80 dark:bg-[#0A0B14]/80 border-slate-200/40 dark:border-white/5"
+          ? "bg-white/30 dark:bg-[#0A0B14]/30 border-slate-200/80 dark:border-white/10 shadow-sm"
+          : "bg-white/30 dark:bg-[#0A0B14]/30 border-slate-200/40 dark:border-white/5"
       }`}
       style={{
         WebkitBackdropFilter: "blur(20px)",
@@ -118,7 +118,7 @@ export default function ProductNavbar({
                   "rotating-savings",
                   "personal-savings",
                   "thrift-contributions",
-                  "send-and-receive-money",
+                  // "send-and-receive-money",
                   "airtime-and-data",
                   "utility-bills",
                 ].includes(currentPage)
@@ -159,7 +159,8 @@ export default function ProductNavbar({
                         Rotating group savings
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                        Automated Ajo/Esusu circles with guaranteed rotational payouts.
+                        Automated Ajo/Esusu circles with guaranteed rotational
+                        payouts.
                       </p>
                     </div>
                   </button>
@@ -193,7 +194,8 @@ export default function ProductNavbar({
                         Thrift contribution
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                        Traditional daily and weekly cooperative contributions with zero default risk.
+                        Traditional daily and weekly cooperative contributions
+                        with zero default risk.
                       </p>
                     </div>
                   </button>
@@ -205,6 +207,7 @@ export default function ProductNavbar({
                     Wallet
                   </span>
 
+                  {/*
                   <button
                     onClick={() => handleSelectPage("send-and-receive-money")}
                     className="flex items-start gap-3 p-2.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left group cursor-pointer"
@@ -217,10 +220,12 @@ export default function ProductNavbar({
                         Send and receive money
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                        Zero-fee P2P transfers & dedicated Wema Bank virtual accounts.
+                        Zero-fee P2P transfers & dedicated Wema Bank virtual
+                        accounts.
                       </p>
                     </div>
                   </button>
+                  */}
 
                   <button
                     onClick={() => handleSelectPage("airtime-and-data")}
@@ -234,7 +239,8 @@ export default function ProductNavbar({
                         Airtime and data
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                        Instant recharge across MTN, Airtel, Glo, 9mobile with 3% cashback.
+                        Instant recharge across MTN, Airtel, Glo, 9mobile with
+                        3% cashback.
                       </p>
                     </div>
                   </button>
@@ -326,10 +332,11 @@ export default function ProductNavbar({
           {/* Get Started Primary CTA */}
           <button
             onClick={() => onOpenApp("signup")}
-            className="relative group inline-flex items-center justify-center text-sm font-bold text-white px-5 sm:px-6 py-2.5 rounded-full bg-linear-to-r from-[#1E1B4B] via-[#3730A3] to-[#4F39F6] shadow-md shadow-[#3730A3]/25 hover:shadow-lg hover:shadow-[#3730A3]/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+            className="relative group inline-flex items-center justify-center text-sm font-bold text-white px-5 sm:px-6 py-2.5 rounded-full bg-linear-to-r from-[#1E1B4B] via-[#3730A3] to-[#4F39F6] shadow-md shadow-[#3730A3]/25 hover:shadow-md hover:shadow-[#3730A3]/40 hover:-translate-y-0.1 transition-all duration-200 cursor-pointer"
           >
             <span>Get Started</span>
-            <ArrowRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+            {/* <ArrowRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5" /> */}
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-1.5" />
           </button>
 
           {/* Mobile Hamburger Button */}
@@ -363,7 +370,10 @@ export default function ProductNavbar({
                 </>
               ) : (
                 <>
-                  <Moon size={15} className="text-indigo-600 dark:text-indigo-400" />
+                  <Moon
+                    size={15}
+                    className="text-indigo-600 dark:text-indigo-400"
+                  />
                   <span>Dark Mode</span>
                 </>
               )}
@@ -377,7 +387,8 @@ export default function ProductNavbar({
             onClick={() => handleSelectPage("rotating-savings")}
             className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-indigo-200 dark:hover:border-indigo-400/30 hover:text-[#3730A3]"
           >
-            <Users size={18} className="text-[#3730A3]" /> Rotating group savings
+            <Users size={18} className="text-[#3730A3]" /> Rotating group
+            savings
           </button>
           <button
             onClick={() => handleSelectPage("personal-savings")}
@@ -389,18 +400,21 @@ export default function ProductNavbar({
             onClick={() => handleSelectPage("thrift-contributions")}
             className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-amber-200 dark:hover:border-amber-400/30 hover:text-[#D97706]"
           >
-            <RotateCw size={18} className="text-[#D97706]" /> Thrift contribution
+            <RotateCw size={18} className="text-[#D97706]" /> Thrift
+            contribution
           </button>
 
           <div className="pt-2 border-t border-slate-200 dark:border-white/10 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
             Products: Wallet & Payments
           </div>
+          {/*
           <button
             onClick={() => handleSelectPage("send-and-receive-money")}
             className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-purple-200 dark:hover:border-purple-400/30 hover:text-[#7C3AED]"
           >
             <Send size={18} className="text-[#7C3AED]" /> Send and receive money
           </button>
+          */}
           <button
             onClick={() => handleSelectPage("airtime-and-data")}
             className="flex items-center gap-3 rounded-lg border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-white/5 px-3 py-2.5 text-left text-sm font-bold text-slate-900 dark:text-white hover:border-blue-200 dark:hover:border-blue-400/30 hover:text-[#2563EB]"

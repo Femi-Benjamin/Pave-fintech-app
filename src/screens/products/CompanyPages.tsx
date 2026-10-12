@@ -18,10 +18,13 @@ interface PageProps {
   section?: "about" | "story" | "team";
 }
 
-export default function CompanyPages({ onOpenApp, section = "about" }: PageProps) {
+export default function CompanyPages({
+  onOpenApp,
+  section = "about",
+}: PageProps) {
   const leadership = [
     {
-      name: "Jona Israel",
+      name: "Timothy Uche",
       role: "Founder & Chief Executive Officer",
       bio: "Fintech architect passionate about financial inclusion, peer thrift technology, and automated escrow architectures across West Africa.",
       photo: jonaExecPhoto,
@@ -57,14 +60,15 @@ export default function CompanyPages({ onOpenApp, section = "about" }: PageProps
             className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 dark:text-white tracking-tight leading-[1.15]"
             style={{ fontFamily: "var(--font-family-display)" }}
           >
-            Empowering 200 Million Nigerians to Build Generational Wealth
+            Empowering Nigerians to Build Generational Wealth
           </h1>
 
           <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-            PAVE was born to solve a fundamental truth: Africans have always built wealth 
-            together through trust circles, cooperatives, and thrift. We provided the 
-            cryptographic security, automated banking rails, and institutional compliance 
-            to guarantee that nobody ever loses their hard-earned money again.
+            PAVE was born to solve a fundamental truth: Africans have always
+            built wealth together through trust circles, cooperatives, and
+            thrift. We provided the cryptographic security, automated banking
+            rails, and institutional compliance to guarantee that nobody ever
+            loses their hard-earned money again.
           </p>
         </div>
 
@@ -79,7 +83,8 @@ export default function CompanyPages({ onOpenApp, section = "about" }: PageProps
                 CBN Regulatory Alignment
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                Operating through fully licensed Microfinance Banks and payment switches compliant with Central Bank of Nigeria guidelines.
+                Operating through fully licensed Microfinance Banks and payment
+                switches compliant with Central Bank of Nigeria guidelines.
               </p>
             </div>
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-xs font-semibold text-indigo-700 dark:text-indigo-400">
@@ -97,7 +102,8 @@ export default function CompanyPages({ onOpenApp, section = "about" }: PageProps
                 NDIC Insured Custody
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                Every customer deposit is held in insured custody with partner deposit money institutions, protected up to ₦5,000,000 per user.
+                Every customer deposit is held in insured custody with partner
+                deposit money institutions, protected up to ₦5,000,000 per user.
               </p>
             </div>
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
@@ -115,7 +121,9 @@ export default function CompanyPages({ onOpenApp, section = "about" }: PageProps
                 Bank-Grade Encryption
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                256-bit SSL encryption, tokenized cards, biometric authentication, and strict KYC verification prevent unauthorized access.
+                256-bit SSL encryption, tokenized cards, biometric
+                authentication, and strict KYC verification prevent unauthorized
+                access.
               </p>
             </div>
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-400">
@@ -138,7 +146,8 @@ export default function CompanyPages({ onOpenApp, section = "about" }: PageProps
               Our Executive Leadership Team
             </h2>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2 max-w-xl mx-auto">
-              Combining decades of banking regulation, fintech engineering, and grassroots community wealth building.
+              Combining decades of banking regulation, fintech engineering, and
+              grassroots community wealth building.
             </p>
           </div>
 
@@ -197,7 +206,9 @@ export default function CompanyPages({ onOpenApp, section = "about" }: PageProps
             Ready to Build Financial Freedom with PAVE?
           </h3>
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 max-w-xl mx-auto mb-6">
-            Join thousands of Nigerian professionals, merchants, and families participating in trusted digital thrift circles and zero-fee instant banking.
+            Join thousands of Nigerian professionals, merchants, and families
+            participating in trusted digital thrift circles and zero-fee instant
+            banking.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button

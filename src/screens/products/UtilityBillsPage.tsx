@@ -10,7 +10,6 @@ import {
   Copy,
   Check,
   RotateCw,
-  Sparkles,
   HelpCircle,
   Download,
 } from "lucide-react";
@@ -21,7 +20,9 @@ interface PageProps {
 }
 
 export default function UtilityBillsPage({ onOpenApp }: PageProps) {
-  const [billType, setBillType] = useState<"electricity" | "cable">("electricity");
+  const [billType, setBillType] = useState<"electricity" | "cable">(
+    "electricity",
+  );
   const [selectedDisco, setSelectedDisco] = useState("IKEDC");
   const [meterType, setMeterType] = useState<"prepaid" | "postpaid">("prepaid");
   const [meterNumber, setMeterNumber] = useState("01428392011");
@@ -30,7 +31,9 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
   const [simulatedTokenReady, setSimulatedTokenReady] = useState(false);
 
   // Cable TV state
-  const [cableProvider, setCableProvider] = useState<"dstv" | "gotv" | "startimes">("dstv");
+  const [cableProvider, setCableProvider] = useState<
+    "dstv" | "gotv" | "startimes"
+  >("dstv");
   const [smartcard, setSmartcard] = useState("1029384756");
   const [cablePackage, setCablePackage] = useState("DStv Compact (₦15,700/mo)");
 
@@ -92,9 +95,10 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-              Generate 20-digit prepaid electricity tokens instantly on your screen, 
-              renew your DStv and GOtv packages before kickoff, and manage recurring 
-              household utility payments with zero extra convenience charges.
+              Generate 20-digit prepaid electricity tokens instantly on your
+              screen, renew your DStv and GOtv packages before kickoff, and
+              manage recurring household utility payments with zero extra
+              convenience charges.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -113,7 +117,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
               </button>
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
+            {/* <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className="text-rose-600 dark:text-rose-400" />
                 <span>Zero Convenience Fee</span>
@@ -126,7 +130,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                 <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400" />
                 <span>All 11 Discos Supported</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Hero Photography Asset */}
@@ -143,8 +147,12 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                 <div className="inline-block px-3 py-1 rounded-full bg-rose-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   Prepaid Power Active
                 </div>
-                <div className="text-xl font-bold">Token: 4321-8765-9101-1094-7781</div>
-                <div className="text-xs text-white/90">73.5 kWh Units Added · Ikeja Electric Meter Validated</div>
+                <div className="text-xl font-bold">
+                  Token: 4321-8765-9101-1094-7781
+                </div>
+                <div className="text-xs text-white/90">
+                  73.5 kWh Units Added · Ikeja Electric Meter Validated
+                </div>
               </div>
             </div>
           </div>
@@ -152,7 +160,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
       </section>
 
       {/* 2. Interactive STS Bill Payment Engine */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
         <div className="bg-white dark:bg-[#121426] rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-md">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-[#E11D48] dark:text-[#FB7185]">
@@ -165,7 +173,8 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
               Test Instant Power Token & Cable TV Activation
             </h2>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-              Select your electricity distribution company or TV bouquet and simulate real-time token delivery.
+              Select your electricity distribution company or TV bouquet and
+              simulate real-time token delivery.
             </p>
           </div>
 
@@ -277,20 +286,6 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                         </button>
                       ))}
                     </div>
-                    <input
-                      type="range"
-                      min={1000}
-                      max={50000}
-                      step={1000}
-                      value={amount}
-                      onChange={(e) => setAmount(Number(e.target.value))}
-                      className="w-full accent-[#E11D48] cursor-pointer"
-                    />
-                    <div className="flex justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1.5">
-                      <span>₦1,000</span>
-                      <span>₦25,000</span>
-                      <span>₦50,000</span>
-                    </div>
                   </div>
                 </>
               ) : (
@@ -376,31 +371,45 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
 
                 <div className="space-y-3 pb-6 border-b border-slate-200 dark:border-white/10 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Billed Customer:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Billed Customer:
+                    </span>
                     <span className="font-bold text-slate-950 dark:text-white">
-                      {billType === "electricity" ? "MALLAM SANUSI" : "CHIDINMA N."}
+                      {billType === "electricity"
+                        ? "MALLAM SANUSI"
+                        : "CHIDINMA N."}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Provider:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Provider:
+                    </span>
                     <span className="font-bold text-slate-950 dark:text-white">
-                      {billType === "electricity" ? `${selectedDisco} Electricity` : cablePackage.split(" (")[0]}
+                      {billType === "electricity"
+                        ? `${selectedDisco} Electricity`
+                        : cablePackage.split(" (")[0]}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Identifier:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Identifier:
+                    </span>
                     <span className="font-mono font-bold text-slate-950 dark:text-white">
                       {billType === "electricity" ? meterNumber : smartcard}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Service Fee:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Service Fee:
+                    </span>
                     <span className="font-bold text-emerald-600 dark:text-emerald-400">
                       ₦0.00 (Zero Fee)
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-white/10">
-                    <span className="text-base font-bold text-slate-950 dark:text-white">Total Charge:</span>
+                    <span className="text-base font-bold text-slate-950 dark:text-white">
+                      Total Charge:
+                    </span>
                     <span className="text-xl font-black text-slate-950 dark:text-white">
                       ₦{amount.toLocaleString()}
                     </span>
@@ -408,7 +417,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                 </div>
 
                 {/* Simulated Token Display */}
-                {simulatedTokenReady ? (
+                {simulatedTokenReady && (
                   <div className="mt-5 p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 animate-in fade-in">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
@@ -428,16 +437,17 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                         className="p-1.5 hover:bg-emerald-100 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-emerald-800 dark:text-emerald-200"
                         title="Copy Token"
                       >
-                        {copiedToken ? <Check size={18} className="text-emerald-600" /> : <Copy size={18} />}
+                        {copiedToken ? (
+                          <Check size={18} className="text-emerald-600" />
+                        ) : (
+                          <Copy size={18} />
+                        )}
                       </button>
                     </div>
                     <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
-                      Type this 20-digit token into your CIU meter keypad and press Enter. SMS also dispatched.
+                      Type this 20-digit token into your CIU meter keypad and
+                      press Enter. SMS also dispatched.
                     </p>
-                  </div>
-                ) : (
-                  <div className="mt-5 p-3.5 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                    <Sparkles size={16} className="text-[#E11D48] shrink-0" />
                   </div>
                 )}
               </div>

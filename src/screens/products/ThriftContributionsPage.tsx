@@ -92,9 +92,10 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-              We brought Nigeria’s revered cooperative culture into the smartphone era. 
-              Manage group thrift societies, track member ledgers with 100% digital transparency, 
-              and disburse payouts automatically with CBN-licensed bank security.
+              We brought Nigeria’s revered cooperative culture into the
+              smartphone era. Manage group thrift societies, track member
+              ledgers with 100% digital transparency, and disburse payouts
+              automatically with CBN-licensed bank security.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -113,7 +114,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               </button>
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
+            {/* <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className="text-amber-600 dark:text-amber-400" />
                 <span>₦0 First-Day Cut (Free Alajo)</span>
@@ -126,25 +127,29 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
                 <FileSpreadsheet size={16} className="text-indigo-600 dark:text-indigo-400" />
                 <span>Automated Audit Ledger</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Hero Photography Asset */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 aspect-16/10">
+            <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 aspect-16/10 ">
               <img
                 src={thriftHeroImg}
                 alt="Nigerian market entrepreneur saving with digital daily thrift on PAVE"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 text-white">
                 <div className="inline-block px-3 py-1 rounded-full bg-amber-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   Daily Alajo Micro-Vault
                 </div>
-                <div className="text-xl font-bold">₦60,000 Saved This Month</div>
-                <div className="text-xs text-white/90">₦2,000 auto-debited daily at 7:00 AM · Full lump sum ready</div>
+                <div className="text-xl font-bold">
+                  ₦60,000 Saved This Month
+                </div>
+                <div className="text-xs text-white/90">
+                  ₦2,000 auto-debited daily at 7:00 AM · Full lump sum ready
+                </div>
               </div>
             </div>
           </div>
@@ -152,7 +157,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
       </section>
 
       {/* 2. Interactive Daily Alajo Simulator */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
         <div className="bg-white dark:bg-[#121426] rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-md">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-[#D97706] dark:text-[#F59E0B]">
@@ -165,7 +170,8 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               See How Micro Daily Deposits Turn Into Working Capital
             </h2>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-              Save little-by-little each business day and collect your lump sum without fear of traditional cash collector disappearance.
+              Save little-by-little each business day and collect your lump sum
+              without fear of traditional cash collector disappearance.
             </p>
           </div>
 
@@ -234,7 +240,12 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
                       }`}
                     >
                       {i + 1}
-                      {i < activeDays && <Check size={12} className="ml-1 text-amber-700 dark:text-amber-400" />}
+                      {i < activeDays && (
+                        <Check
+                          size={12}
+                          className="ml-1 text-amber-700 dark:text-amber-400"
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -242,7 +253,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
             </div>
 
             {/* Maturity Pot Card (6 cols) */}
-            <div className="lg:col-span-6 bg-gradient-to-br from-amber-950 via-[#B45309] to-[#D97706] text-white rounded-3xl p-6 sm:p-10 shadow-xl flex flex-col justify-between">
+            <div className="lg:col-span-6 bg-linear-to-br from-amber-950 via-[#B45309] to-[#D97706] text-white rounded-3xl p-6 sm:p-10 shadow-xl flex flex-col justify-between">
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
@@ -266,11 +277,15 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
                 <div className="space-y-3 border-t border-white/20 pt-4 text-sm font-medium">
                   <div className="flex justify-between">
                     <span className="text-amber-100">Daily Saved:</span>
-                    <span className="font-bold">₦{dailyAmount.toLocaleString()}/day</span>
+                    <span className="font-bold">
+                      ₦{dailyAmount.toLocaleString()}/day
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-amber-100">PAVE Collection Fee:</span>
-                    <span className="font-bold text-amber-200">₦0.00 (Zero Fee)</span>
+                    <span className="font-bold text-amber-200">
+                      ₦0.00 (Zero Fee)
+                    </span>
                   </div>
                   <div className="flex justify-between text-amber-200/80">
                     <span>Street Alajo Deductions:</span>
@@ -280,7 +295,9 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
 
                 <div className="mt-5 p-3 rounded-2xl bg-black/20 border border-white/10 text-xs text-amber-100 flex items-center gap-2">
                   <BadgePercent size={16} className="text-amber-300 shrink-0" />
-                  <span>You retain 100% of your savings. Zero collector cuts!</span>
+                  <span>
+                    You retain 100% of your savings. Zero collector cuts!
+                  </span>
                 </div>
               </div>
 
@@ -308,7 +325,8 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
             Thrift Cycles Built For Every Association
           </h2>
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-            Whether you run a market association in Balogun or an alumni network, PAVE automates the entire ledger.
+            Whether you run a market association in Balogun or an alumni
+            network, PAVE automates the entire ledger.
           </p>
         </div>
 
@@ -332,7 +350,9 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               </div>
 
               <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-600 dark:text-slate-400">{t.rate}</span>
+                <span className="font-semibold text-slate-600 dark:text-slate-400">
+                  {t.rate}
+                </span>
                 <button
                   onClick={() => onOpenApp("signup")}
                   className="font-bold text-[#D97706] hover:underline cursor-pointer"
@@ -359,24 +379,40 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               Admin Tools That Free You From Physical Paper Ledger Books
             </h2>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
-              No more chasing debtors on the phone, balancing conflicting paper records, or carrying large bags of cash through traffic.
+              No more chasing debtors on the phone, balancing conflicting paper
+              records, or carrying large bags of cash through traffic.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: <FileSpreadsheet className="text-amber-600 dark:text-amber-400" size={24} />,
+                icon: (
+                  <FileSpreadsheet
+                    className="text-amber-600 dark:text-amber-400"
+                    size={24}
+                  />
+                ),
                 title: "1-Click PDF & Excel Reports",
                 desc: "Export verified member contribution audit trails for general meetings and annual reports in one click.",
               },
               {
-                icon: <Users2 className="text-amber-600 dark:text-amber-400" size={24} />,
+                icon: (
+                  <Users2
+                    className="text-amber-600 dark:text-amber-400"
+                    size={24}
+                  />
+                ),
                 title: "Automated Defaulter Safeguards",
                 desc: "System sends automated gentle SMS & WhatsApp reminders 48 hours prior and charges backup cards if due.",
               },
               {
-                icon: <Landmark className="text-amber-600 dark:text-amber-400" size={24} />,
+                icon: (
+                  <Landmark
+                    className="text-amber-600 dark:text-amber-400"
+                    size={24}
+                  />
+                ),
                 title: "Multi-Signature Approvals",
                 desc: "President, Secretary, and Treasurer must each approve rotational lump-sum payouts via biometric auth.",
               },
@@ -431,7 +467,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
 
       {/* 6. Bottom Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="bg-gradient-to-r from-amber-950 via-[#92400E] to-[#D97706] rounded-3xl p-8 sm:p-12 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+        <div className="bg-linear-to-r from-amber-950 via-[#92400E] to-[#D97706] rounded-3xl p-8 sm:p-12 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
           <div className="max-w-xl">
             <h2
               className="text-2xl sm:text-3xl font-extrabold"
@@ -440,7 +476,8 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               Digitize your community thrift society today
             </h2>
             <p className="text-sm sm:text-base text-amber-100/90 mt-2 font-normal">
-              Free your association from manual book errors and cash collection security risks.
+              Free your association from manual book errors and cash collection
+              security risks.
             </p>
           </div>
           <button

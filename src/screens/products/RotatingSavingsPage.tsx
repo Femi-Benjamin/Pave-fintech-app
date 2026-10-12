@@ -63,9 +63,10 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-              Save with friends, family, or verified colleagues without the anxiety of 
-              defaults. Everyone contributes periodically, and each member takes turns 
-              receiving the entire lump-sum pot—guaranteed by PAVE's automated banking protocol.
+              Save with friends, family, or verified colleagues without the
+              anxiety of defaults. Everyone contributes periodically, and each
+              member takes turns receiving the entire lump-sum pot—guaranteed by
+              PAVE's automated banking protocol.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -84,7 +85,7 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
               </button>
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
+            {/* <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400" />
                 <span>CBN Licensed Partners</span>
@@ -97,7 +98,7 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
                 <Lock size={16} className="text-amber-600 dark:text-amber-400" />
                 <span>Default-Free Protocol</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Hero Photography Asset */}
@@ -114,8 +115,12 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
                 <div className="inline-block px-3 py-1 rounded-full bg-indigo-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   Lagos Tech Cooperative Circle
                 </div>
-                <div className="text-xl font-bold">₦500,000 Weekly Lump-Sum Payout</div>
-                <div className="text-xs text-white/90">10 Verified Members · Turn 4 Disbursed Today</div>
+                <div className="text-xl font-bold">
+                  ₦500,000 Weekly Lump-Sum Payout
+                </div>
+                <div className="text-xs text-white/90">
+                  10 Verified Members · Turn 4 Disbursed Today
+                </div>
               </div>
             </div>
           </div>
@@ -123,7 +128,7 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
       </section>
 
       {/* 2. Interactive Payout Calculator */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
         <div className="bg-white dark:bg-[#121426] rounded-3xl shadow-md border border-slate-200 dark:border-slate-800 p-6 sm:p-10">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
@@ -136,7 +141,8 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
               Calculate Your Ajo Circle Payout
             </h2>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-              See exactly how much lump-sum capital you access and how your circle rotates.
+              See exactly how much lump-sum capital you access and how your
+              circle rotates.
             </p>
           </div>
 
@@ -237,7 +243,8 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
                   ₦{totalPot.toLocaleString()}
                 </div>
                 <p className="text-sm text-indigo-100/90 leading-relaxed mb-6 font-normal">
-                  Every round, one member collects this entire pot with zero loan interest or collateral requirements.
+                  Every round, one member collects this entire pot with zero
+                  loan interest or collateral requirements.
                 </p>
 
                 <div className="space-y-3 border-t border-white/20 pt-4 text-sm font-medium">
@@ -247,12 +254,15 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-indigo-200">Turn Cycle</span>
-                    <span className="font-bold capitalize">{frequency} Payout</span>
+                    <span className="font-bold capitalize">
+                      {frequency} Payout
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-indigo-200">Approx. Duration</span>
                     <span className="font-bold">
-                      {Math.round(cycleDurationWeeks)} {frequency === "weekly" ? "weeks" : "months"}
+                      {Math.round(cycleDurationWeeks)}{" "}
+                      {frequency === "weekly" ? "weeks" : "months"}
                     </span>
                   </div>
                 </div>
@@ -279,57 +289,85 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
             Traditional Esusu vs. PAVE Smart Circles
           </h2>
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-            Why thousands of Nigerians trust PAVE over manual cash collectors and unverified WhatsApp groups.
+            Why thousands of Nigerians trust PAVE over manual cash collectors
+            and unverified WhatsApp groups.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-[#121426] rounded-3xl p-6 sm:p-8 border border-red-200 dark:border-red-900/60 shadow-sm">
             <div className="text-red-600 dark:text-red-400 font-bold text-base mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center text-xs font-bold">✕</span>
+              <span className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center text-xs font-bold">
+                ✕
+              </span>
               Informal / Manual Ajo
             </div>
             <ul className="space-y-3.5 text-sm text-slate-700 dark:text-slate-300 font-normal">
               <li className="flex items-start gap-2.5">
                 <span className="text-red-500 font-bold">•</span>
-                <span>Risk of a member collecting Turn 1 and disappearing or refusing to pay subsequent rounds.</span>
+                <span>
+                  Risk of a member collecting Turn 1 and disappearing or
+                  refusing to pay subsequent rounds.
+                </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-red-500 font-bold">•</span>
-                <span>Manual cash collection or constant bank transfer screenshot arguments on WhatsApp.</span>
+                <span>
+                  Manual cash collection or constant bank transfer screenshot
+                  arguments on WhatsApp.
+                </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-red-500 font-bold">•</span>
-                <span>No legal identity verification or credit accountability.</span>
+                <span>
+                  No legal identity verification or credit accountability.
+                </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-red-500 font-bold">•</span>
-                <span>Late payouts because individual members forget their due dates.</span>
+                <span>
+                  Late payouts because individual members forget their due
+                  dates.
+                </span>
               </li>
             </ul>
           </div>
 
           <div className="bg-white dark:bg-[#121426] rounded-3xl p-6 sm:p-8 border border-emerald-300 dark:border-emerald-800 shadow-md ring-1 ring-emerald-500/20">
             <div className="text-emerald-700 dark:text-emerald-400 font-bold text-base mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-xs font-bold">✓</span>
+              <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-xs font-bold">
+                ✓
+              </span>
               PAVE Rotating Savings Circle
             </div>
             <ul className="space-y-3.5 text-sm text-slate-800 dark:text-slate-200 font-normal">
               <li className="flex items-start gap-2.5">
                 <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Automated Wallet & Card Debits:</strong> funds are securely collected directly on the schedule.</span>
+                <span>
+                  <strong>Automated Wallet & Card Debits:</strong> funds are
+                  securely collected directly on the schedule.
+                </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Mandatory KYC Verification:</strong> every member is verified with valid BVN and National NIN.</span>
+                <span>
+                  <strong>Mandatory KYC Verification:</strong> every member is
+                  verified with valid BVN and National NIN.
+                </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Smart Escrow Protocol:</strong> automated backup payment charging prevents defaults.</span>
+                <span>
+                  <strong>Smart Escrow Protocol:</strong> automated backup
+                  payment charging prevents defaults.
+                </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <span className="text-emerald-600 font-bold">✓</span>
-                <span><strong>Guaranteed Payout Date:</strong> your lump sum arrives like clockwork into your verified bank account.</span>
+                <span>
+                  <strong>Guaranteed Payout Date:</strong> your lump sum arrives
+                  like clockwork into your verified bank account.
+                </span>
               </li>
             </ul>
           </div>

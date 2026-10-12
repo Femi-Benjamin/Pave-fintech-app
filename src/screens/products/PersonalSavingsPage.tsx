@@ -51,9 +51,10 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-              Take complete control of your financial destiny with automated vaults. 
-              Save flexibly for daily peace of mind or lock funds away to protect against 
-              impulsive spending—while earning daily interest dividends.
+              Take complete control of your financial destiny with automated
+              vaults. Save flexibly for daily peace of mind or lock funds away
+              to protect against impulsive spending—while earning daily interest
+              dividends.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -72,7 +73,7 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
               </button>
             </div>
 
-            <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
+            {/* <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-6 text-xs text-slate-600 dark:text-slate-300 font-medium">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400" />
                 <span>NDIC Insured Partners</span>
@@ -85,7 +86,7 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
                 <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400" />
                 <span>Zero Maintenance Fees</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Hero Photography Asset */}
@@ -102,8 +103,12 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
                 <div className="inline-block px-3 py-1 rounded-full bg-emerald-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
                   Emergency Vault · 85% Target Reached
                 </div>
-                <div className="text-xl font-bold">₦176,500 Accrued Balance</div>
-                <div className="text-xs text-white/90">+₦2,430 Interest Earned this Month</div>
+                <div className="text-xl font-bold">
+                  ₦176,500 Accrued Balance
+                </div>
+                <div className="text-xs text-white/90">
+                  +₦2,430 Interest Earned this Month
+                </div>
               </div>
             </div>
           </div>
@@ -111,7 +116,7 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
       </section>
 
       {/* 2. Two Distinct Savings Modes */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Flex Vault */}
           <div className="bg-white dark:bg-[#121426] rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-md flex flex-col justify-between">
@@ -128,20 +133,33 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
                 </span>
               </div>
               <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6 font-normal">
-                Save on your own terms with unlimited free withdrawals anytime. Ideal for emergency funds, rent cushions, or liquid cash reserves.
+                Save on your own terms with unlimited free withdrawals anytime.
+                Ideal for emergency funds, rent cushions, or liquid cash
+                reserves.
               </p>
 
               <ul className="space-y-3 text-sm text-slate-800 dark:text-slate-200 font-normal">
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 size={16} className="text-[#3730A3] dark:text-[#818CF8] shrink-0" />
+                  <CheckCircle2
+                    size={16}
+                    className="text-[#3730A3] dark:text-[#818CF8] shrink-0"
+                  />
                   <span>Withdraw 24/7 without penal fees</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 size={16} className="text-[#3730A3] dark:text-[#818CF8] shrink-0" />
-                  <span>Interest credited to your wallet at midnight daily</span>
+                  <CheckCircle2
+                    size={16}
+                    className="text-[#3730A3] dark:text-[#818CF8] shrink-0"
+                  />
+                  <span>
+                    Interest credited to your wallet at midnight daily
+                  </span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 size={16} className="text-[#3730A3] dark:text-[#818CF8] shrink-0" />
+                  <CheckCircle2
+                    size={16}
+                    className="text-[#3730A3] dark:text-[#818CF8] shrink-0"
+                  />
                   <span>Automated weekly or monthly standing orders</span>
                 </li>
               </ul>
@@ -170,20 +188,30 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
                 </span>
               </div>
               <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6 font-normal">
-                Commit funds for 30 to 365 days. Lock away temptation while your money compounds at top-tier institutional interest rates.
+                Commit funds for 30 to 365 days. Lock away temptation while your
+                money compounds at top-tier institutional interest rates.
               </p>
 
               <ul className="space-y-3 text-sm text-slate-800 dark:text-slate-200 font-normal">
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                  <CheckCircle2
+                    size={16}
+                    className="text-emerald-500 shrink-0"
+                  />
                   <span>Highest guaranteed return in the fintech sector</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                  <CheckCircle2
+                    size={16}
+                    className="text-emerald-500 shrink-0"
+                  />
                   <span>Upfront interest payout option available</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                  <CheckCircle2
+                    size={16}
+                    className="text-emerald-500 shrink-0"
+                  />
                   <span>Strict lock prevents impulsive withdrawals</span>
                 </li>
               </ul>
@@ -315,12 +343,20 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
 
                 <div className="space-y-3 border-t border-white/20 pt-4 text-sm font-medium">
                   <div className="flex justify-between">
-                    <span className="text-emerald-100">Total Capital Saved</span>
-                    <span className="font-bold">₦{totalPrincipal.toLocaleString()}</span>
+                    <span className="text-emerald-100">
+                      Total Capital Saved
+                    </span>
+                    <span className="font-bold">
+                      ₦{totalPrincipal.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-emerald-100">PAVE Interest Earned</span>
-                    <span className="font-bold text-emerald-300">+₦{totalInterest.toLocaleString()}</span>
+                    <span className="text-emerald-100">
+                      PAVE Interest Earned
+                    </span>
+                    <span className="font-bold text-emerald-300">
+                      +₦{totalInterest.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-emerald-200/80">
                     <span>Average Bank Interest</span>

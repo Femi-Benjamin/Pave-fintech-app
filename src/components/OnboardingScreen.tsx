@@ -33,7 +33,7 @@ import ProductNavbar, { ProductPageId } from "./ProductNavbar";
 import RotatingSavingsPage from "../screens/products/RotatingSavingsPage";
 import PersonalSavingsPage from "../screens/products/PersonalSavingsPage";
 import ThriftContributionsPage from "../screens/products/ThriftContributionsPage";
-import SendReceiveMoneyPage from "../screens/products/SendReceiveMoneyPage";
+// import SendReceiveMoneyPage from "../screens/products/SendReceiveMoneyPage";
 import AirtimeDataPage from "../screens/products/AirtimeDataPage";
 import UtilityBillsPage from "../screens/products/UtilityBillsPage";
 import CompanyPages from "../screens/products/CompanyPages";
@@ -238,9 +238,11 @@ export default function OnboardingScreen({
       {currentPage === "thrift-contributions" && (
         <ThriftContributionsPage onOpenApp={handleOpenApp} />
       )}
+      {/*
       {currentPage === "send-and-receive-money" && (
         <SendReceiveMoneyPage onOpenApp={handleOpenApp} />
       )}
+      */}
       {currentPage === "airtime-and-data" && (
         <AirtimeDataPage onOpenApp={handleOpenApp} />
       )}
@@ -1397,15 +1399,15 @@ export default function OnboardingScreen({
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-200 dark:border-white/15 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <div className="pt-8 border-t border-slate-200 dark:border-white/15 flex flex-col md:flex-row justify-center items-center text-center gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
             <div>
               © {new Date().getFullYear()} PACEPLOYT LTD (PAVE). ALL RIGHTS
               RESERVED.
             </div>
 
-            <div>
+            {/* <div>
               LICENSED PARTNER BANK INTEGRATION & CBN FRAMEWORK COMPLIANT
-            </div>
+            </div> */}
           </div>
         </div>
       </footer>
