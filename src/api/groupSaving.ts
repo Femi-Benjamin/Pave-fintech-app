@@ -126,6 +126,11 @@ export interface GroupSavingWithdrawalPayload {
   narration: string;
 }
 
+export interface GroupSavingInvitationPayload {
+  email?: string;
+  phoneNumber?: string;
+}
+
 export interface CreateGroupSavingPayload {
   name: string;
   description: string;
@@ -261,13 +266,23 @@ export async function leaveGroupSaving(groupId: string) {
   return ensureGroupSuccess(data, "Unable to leave this AJO group.");
 }
 
-export async function inviteMemberToGroup(groupId: string, email: string) {
+export async function inviteMemberToGroup(
+  groupId: string,
+  payload: GroupSavingInvitationPayload,
+) {
   if (!groupId.trim()) throw new Error("A group ID is required.");
-  if (!email.trim()) throw new Error("An email address is required.");
+  const email = payload.email?.trim();
+  const phoneNumber = payload.phoneNumber?.trim();
+  if (!email && !phoneNumber) {
+    throw new Error("Enter an email address or phone number to invite.");
+  }
   const { data } = await api.post<GroupSavingActionResponse>(
     "/api/v1/group-saving/invite-member",
-    { email: email.trim(), groupSavingId: groupId },
+    {
+      groupSavingId: groupId,
+      ...(email ? { email } : {}),
+      ...(phoneNumber ? { phoneNumber } : {}),
+    },
   );
   return ensureGroupSuccess(data, "Unable to invite this member.");
 }
-

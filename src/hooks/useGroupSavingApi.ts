@@ -16,6 +16,7 @@ import {
 } from "../api/groupSaving";
 import type {
   CreateGroupSavingPayload,
+  GroupSavingInvitationPayload,
   GroupSavingContributionPayload,
   GroupSavingUpdatePayload,
   GroupSavingWithdrawalPayload,
@@ -187,7 +188,12 @@ export function useLeaveGroupSavingMutation() {
 
 export function useInviteMemberToGroupMutation() {
   return useMutation({
-    mutationFn: ({ groupId, email }: { groupId: string; email: string }) =>
-      inviteMemberToGroup(groupId, email),
+    mutationFn: ({
+      groupId,
+      payload,
+    }: {
+      groupId: string;
+      payload: GroupSavingInvitationPayload;
+    }) => inviteMemberToGroup(groupId, payload),
   });
 }

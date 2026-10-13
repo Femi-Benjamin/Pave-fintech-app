@@ -697,6 +697,7 @@ export function GroupSavingDetailScreen({
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [narration, setNarration] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
+  const [invitePhoneNumber, setInvitePhoneNumber] = useState("");
   const [actionMessage, setActionMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -822,10 +823,14 @@ export function GroupSavingDetailScreen({
     try {
       const response = await inviteMutation.mutateAsync({
         groupId,
-        email: inviteEmail,
+        payload: {
+          email: inviteEmail,
+          phoneNumber: invitePhoneNumber,
+        },
       });
       setActionMessage(response.message);
       setInviteEmail("");
+      setInvitePhoneNumber("");
     } catch {
       // The mutation error is rendered beside the invite form.
     }
@@ -1022,10 +1027,21 @@ export function GroupSavingDetailScreen({
                 type="email"
                 value={inviteEmail}
                 onChange={(event) => setInviteEmail(event.target.value)}
-                placeholder="Member email"
-                aria-label="Member email"
+                placeholder="Email address (optional)"
+                aria-label="Member email address"
                 className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
               />
+              <input
+                type="tel"
+                value={invitePhoneNumber}
+                onChange={(event) => setInvitePhoneNumber(event.target.value)}
+                placeholder="Phone number (optional)"
+                aria-label="Member phone number"
+                className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
+              />
+              <p className="mb-3 text-xs text-[#6B7280]">
+                Enter an email address, phone number, or both.
+              </p>
               {inviteMutation.isError && (
                 <p role="alert" className="mb-3 text-sm text-red-600">
                   {getApiErrorMessage(
@@ -1036,7 +1052,9 @@ export function GroupSavingDetailScreen({
               )}
               <PaveBtn
                 onClick={() => void submitInvite()}
-                disabled={busy || !inviteEmail.trim()}
+                disabled={
+                  busy || (!inviteEmail.trim() && !invitePhoneNumber.trim())
+                }
               >
                 {inviteMutation.isPending ? "Sending..." : "Send invitation"}
               </PaveBtn>
