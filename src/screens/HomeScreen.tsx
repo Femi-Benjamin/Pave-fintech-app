@@ -23,13 +23,18 @@ import {
   useSavingsQuery,
   useWalletBalanceQuery,
 } from "../hooks/usePaveApi";
+import { useGroupSavingsQuery } from "../hooks/useGroupSavingApi";
 import type { TransactionRecord } from "../api/transactions";
+import type { Saving } from "../api/savings";
 import { getApiErrorMessage } from "../api/auth";
 
 function homeTransaction(record: TransactionRecord, index: number) {
-  const kind = `${record.transactionType ?? ""} ${record.type ?? ""}`.toLowerCase();
-  const type = kind.includes("credit") || kind.includes("deposit") ? "credit" : "debit";
-  const description = `${record.destination ?? ""} ${record.description ?? ""} ${record.type ?? ""}`.toLowerCase();
+  const kind =
+    `${record.transactionType ?? ""} ${record.type ?? ""}`.toLowerCase();
+  const type =
+    kind.includes("credit") || kind.includes("deposit") ? "credit" : "debit";
+  const description =
+    `${record.destination ?? ""} ${record.description ?? ""} ${record.type ?? ""}`.toLowerCase();
   const category = description.includes("saving")
     ? "savings"
     : description.includes("bill")
@@ -95,16 +100,20 @@ function getWeeklySpending(transactions: TransactionRecord[]) {
 
 export function HomeScreen({
   onNav,
+  onSelectGroup,
   onSelectSaving,
 }: {
   onNav: (s: Screen) => void;
+  onSelectGroup: (groupId: string) => void;
   onSelectSaving: (savingId: string) => void;
 }) {
   const { authUser } = useLocalStore();
   const walletBalanceQuery = useWalletBalanceQuery();
   const savingsQuery = useSavingsQuery();
+  const groupSavingsQuery = useGroupSavingsQuery();
   const transactionsQuery = useAllTransactionsQuery();
   const savings = savingsQuery.data?.data.savings ?? [];
+  const groupSavings = groupSavingsQuery.data?.data ?? [];
   const transactions =
     transactionsQuery.data?.transactions.map(homeTransaction) ?? [];
   const weeklySpending = getWeeklySpending(
@@ -124,17 +133,25 @@ export function HomeScreen({
     void Promise.all([
       walletBalanceQuery.refetch(),
       savingsQuery.refetch(),
+      groupSavingsQuery.refetch(),
       transactionsQuery.refetch(),
     ]);
   };
 
   const quickActions = [
     {
-      icon: <ArrowUpRight size={20} />,
-      label: "Transfer",
-      color: "#3730A3",
-      bg: "#EEF2FF",
-      screen: "transfer",
+      icon: <Plus size={20} />,
+      label: "Fund",
+      color: "#7C3AED",
+      bg: "#F5F3FF",
+      screen: "fund-wallet",
+    },
+    {
+      icon: <Phone size={20} />,
+      label: "Airtime",
+      color: "#7C3AED",
+      bg: "#F5F3FF",
+      screen: "airtime",
     },
     {
       icon: <Zap size={20} />,
@@ -144,18 +161,12 @@ export function HomeScreen({
       screen: "bills",
     },
     {
-      icon: <Phone size={20} />,
-      label: "Airtime",
-      color: "#D97706",
-      bg: "#FFFBEB",
-      screen: "airtime",
-    },
-    {
-      icon: <Plus size={20} />,
-      label: "Fund",
-      color: "#7C3AED",
-      bg: "#F5F3FF",
-      screen: "fund-wallet",
+      icon: <ArrowUpRight size={20} />,
+      label: "Transfer",
+      color: "#3730A3",
+      bg: "#EEF2FF",
+      screen: "transfer",
+      disabled: true,
     },
   ];
 
@@ -185,13 +196,13 @@ export function HomeScreen({
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
-          <button
+          {/* <button
             onClick={handleRefresh}
             title="Refresh finances"
             className="hidden sm:flex w-10 h-10 rounded-full bg-white border border-[#E5E7EB] items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#6B7280] hover:text-[#3730A3] transition-colors"
           >
             <RotateCw size={16} />
-          </button>
+          </button> */}
           <button
             onClick={() => onNav("notifications")}
             className="relative w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB]"
@@ -235,11 +246,15 @@ export function HomeScreen({
             >
               {walletBalanceQuery.isLoading && balVisible ? (
                 <Skeleton dark className="h-10 w-56 rounded-xl" />
-              ) : balVisible
-                ? walletBalance === null
-                  ? "Unavailable"
-                  : fmt(walletBalance)
-                : "₦ ••••••••"}
+              ) : balVisible ? (
+                walletBalance === null ? (
+                  "Unavailable"
+                ) : (
+                  fmt(walletBalance)
+                )
+              ) : (
+                "₦ ••••••••"
+              )}
             </div>
             {walletBalanceQuery.isError && (
               <p role="alert" className="mb-3 text-xs text-white">
@@ -274,10 +289,18 @@ export function HomeScreen({
                 <button
                   key={a.label}
                   onClick={() => onNav(a.screen as Screen)}
-                  className="flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+                  disabled={a.disabled}
+                  aria-disabled={a.disabled || undefined}
+                  className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-colors ${
+                    a.disabled
+                      ? "cursor-not-allowed opacity-50"
+                      : "hover:bg-[#F9FAFB] cursor-pointer"
+                  }`}
                 >
                   <div
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-transform hover:scale-105"
+                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-transform ${
+                      a.disabled ? "" : "hover:scale-105"
+                    }`}
                     style={{ background: a.bg, color: a.color }}
                   >
                     {a.icon}
@@ -290,7 +313,7 @@ export function HomeScreen({
             </div>
           </div>
 
-          {/* My Savings Section (2 columns on tablet/desktop) */}
+          {/* Personal Savings Goals */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-[#F1F3FB]">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -301,7 +324,7 @@ export function HomeScreen({
                   My Savings Goals
                 </h3>
                 <p className="text-xs text-[#6B7280]">
-                  Active discipline targets
+                  Your personal savings progress
                 </p>
               </div>
               <button
@@ -312,12 +335,121 @@ export function HomeScreen({
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {savings.map((s) => (
+              {savings.slice(0, 2).map((saving: Saving) => (
+                <button
+                  key={saving.id}
+                  onClick={() => {
+                    onSelectSaving(saving.id);
+                    onNav("savings-detail");
+                  }}
+                  className="bg-[#F7F8FF] rounded-2xl p-4 border border-[#F1F3FB] hover:border-[#C7D2FE] transition-all text-left cursor-pointer flex flex-col justify-between"
+                >
+                  <div className="flex items-center justify-between mb-3 gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-bold text-[#0D0F1C]">
+                        {saving.name}
+                      </div>
+                      <div className="mt-1 text-xs capitalize text-[#9CA3AF]">
+                        {saving.frequency}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-sm font-bold text-[#0D0F1C]">
+                        {fmt(Number(saving.totalSaved) || 0)}
+                      </div>
+                      <div className="text-xs text-[#9CA3AF]">
+                        of {fmt(Number(saving.targetAmount) || 0)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mb-2 h-2 overflow-hidden rounded-full bg-white">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{
+                        width: `${
+                          Number(saving.targetAmount) > 0
+                            ? pct(
+                                Number(saving.totalSaved),
+                                Number(saving.targetAmount),
+                              )
+                            : 0
+                        }%`,
+                      }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="h-full rounded-full bg-[#059669]"
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-[#9CA3AF]">
+                    <span className="font-semibold text-[#059669]">
+                      {Number(saving.targetAmount) > 0
+                        ? pct(
+                            Number(saving.totalSaved),
+                            Number(saving.targetAmount),
+                          )
+                        : 0}
+                      % saved
+                    </span>
+                    <span>{saving.status ?? ""}</span>
+                  </div>
+                </button>
+              ))}
+              {savingsQuery.isLoading &&
+                [1, 2].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-[#F1F3FB] p-4"
+                  >
+                    <Skeleton className="mb-3 h-4 w-2/3 rounded-md" />
+                    <Skeleton className="mb-4 h-3 w-1/2 rounded-md" />
+                    <Skeleton className="h-2 w-full rounded-full" />
+                  </div>
+                ))}
+              {savingsQuery.isError && (
+                <p role="alert" className="text-sm text-red-600">
+                  {getApiErrorMessage(
+                    savingsQuery.error,
+                    "Unable to load your savings goals.",
+                  )}
+                </p>
+              )}
+              {!savingsQuery.isLoading &&
+                !savingsQuery.isError &&
+                savings.length === 0 && (
+                  <p className="text-sm text-[#6B7280]">
+                    You don't have any savings goals yet.
+                  </p>
+                )}
+            </div>
+          </div>
+
+          {/* My AJO Groups */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-[#F1F3FB]">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3
+                  className="text-lg font-bold text-[#0D0F1C]"
+                  style={{ fontFamily: "var(--font-family-display)" }}
+                >
+                  My AJO Groups
+                </h3>
+                <p className="text-xs text-[#6B7280]">
+                  Group balances and progress
+                </p>
+              </div>
+              <button
+                onClick={() => onNav("group-savings")}
+                className="text-xs text-[#3730A3] font-bold hover:underline cursor-pointer"
+              >
+                View all ({groupSavings.length})
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {groupSavings.slice(0, 2).map((s) => (
                 <button
                   key={s.id}
                   onClick={() => {
-                    onSelectSaving(s.id);
-                    onNav("savings-detail");
+                    onSelectGroup(s.id);
+                    onNav("group-saving-detail");
                   }}
                   className="bg-[#F7F8FF] rounded-2xl p-4 border border-[#F1F3FB] hover:border-[#C7D2FE] transition-all text-left cursor-pointer flex flex-col justify-between"
                 >
@@ -337,7 +469,7 @@ export function HomeScreen({
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-bold text-[#0D0F1C]">
-                        {fmt(Number(s.totalSaved) || 0)}
+                        {fmt(Number(s.currentBalance) || 0)}
                       </div>
                       <div className="text-xs text-[#9CA3AF]">
                         of {fmt(Number(s.targetAmount) || 0)}
@@ -350,7 +482,10 @@ export function HomeScreen({
                       animate={{
                         width: `${
                           Number(s.targetAmount) > 0
-                            ? pct(Number(s.totalSaved), Number(s.targetAmount))
+                            ? pct(
+                                Number(s.currentBalance),
+                                Number(s.targetAmount),
+                              )
                             : 0
                         }%`,
                       }}
@@ -362,7 +497,7 @@ export function HomeScreen({
                   <div className="flex justify-between text-xs text-[#9CA3AF]">
                     <span className="font-semibold text-[#3730A3]">
                       {Number(s.targetAmount) > 0
-                        ? pct(Number(s.totalSaved), Number(s.targetAmount))
+                        ? pct(Number(s.currentBalance), Number(s.targetAmount))
                         : 0}
                       % reached
                     </span>
@@ -370,7 +505,7 @@ export function HomeScreen({
                   </div>
                 </button>
               ))}
-              {savingsQuery.isLoading &&
+              {groupSavingsQuery.isLoading &&
                 [1, 2].map((item) => (
                   <div
                     key={item}
@@ -381,21 +516,21 @@ export function HomeScreen({
                     <Skeleton className="h-2 w-full rounded-full" />
                   </div>
                 ))}
-              {savingsQuery.isError && (
+              {groupSavingsQuery.isError && (
                 <p role="alert" className="text-sm text-red-600">
                   {getApiErrorMessage(
-                    savingsQuery.error,
-                    "Unable to load your savings goals.",
+                    groupSavingsQuery.error,
+                    "Unable to load your AJO groups.",
                   )}
                 </p>
               )}
-              {!savingsQuery.isLoading &&
-                !savingsQuery.isError &&
-                savings.length === 0 && (
-                <p className="text-sm text-[#6B7280]">
-                  You don't have any savings goals yet.
-                </p>
-              )}
+              {!groupSavingsQuery.isLoading &&
+                !groupSavingsQuery.isError &&
+                groupSavings.length === 0 && (
+                  <p className="text-sm text-[#6B7280]">
+                    You don't have any AJO groups yet.
+                  </p>
+                )}
             </div>
           </div>
 
@@ -470,8 +605,10 @@ export function HomeScreen({
               {!transactionsQuery.isLoading &&
                 !transactionsQuery.isError &&
                 transactions.length === 0 && (
-                <p className="text-sm text-[#6B7280]">No recent transactions.</p>
-              )}
+                  <p className="text-sm text-[#6B7280]">
+                    No recent transactions.
+                  </p>
+                )}
             </div>
           </div>
         </div>
@@ -522,7 +659,9 @@ export function HomeScreen({
                     tickLine={false}
                   />
                   <Tooltip
-                    formatter={(value) => `₦${Number(value ?? 0).toLocaleString()}`}
+                    formatter={(value) =>
+                      `₦${Number(value ?? 0).toLocaleString()}`
+                    }
                     contentStyle={{
                       borderRadius: 12,
                       border: "none",

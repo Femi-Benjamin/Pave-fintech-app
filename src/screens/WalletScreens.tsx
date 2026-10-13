@@ -127,24 +127,10 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const actions = [
     {
       icon: <Plus size={20} />,
-      label: "Fund Wallet",
+      label: "Fund",
       screen: "fund-wallet",
       color: "#3730A3",
       bg: "#EEF2FF",
-    },
-    {
-      icon: <Send size={20} />,
-      label: "Transfer",
-      screen: "transfer",
-      color: "#059669",
-      bg: "#ECFDF5",
-    },
-    {
-      icon: <Zap size={20} />,
-      label: "Pay Bills",
-      screen: "bills",
-      color: "#D97706",
-      bg: "#FFFBEB",
     },
     {
       icon: <Phone size={20} />,
@@ -154,18 +140,34 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
       bg: "#F5F3FF",
     },
     {
+      icon: <Send size={20} />,
+      label: "Transfer",
+      screen: "transfer",
+      color: "#059669",
+      bg: "#ECFDF5",
+      disabled: true,
+    },
+    {
+      icon: <Landmark size={20} />,
+      label: "Virtual account",
+      screen: "wallet",
+      color: "#0891B2",
+      bg: "#ECFEFF",
+    },
+    {
+      icon: <Zap size={20} />,
+      label: "Pay Bills",
+      screen: "bills",
+      color: "#D97706",
+      bg: "#FFFBEB",
+    },
+    {
       icon: <QrCode size={20} />,
       label: "QR Pay",
       screen: "wallet",
       color: "#DB2777",
       bg: "#FDF2F8",
-    },
-    {
-      icon: <Landmark size={20} />,
-      label: "Virtual Account",
-      screen: "wallet",
-      color: "#0891B2",
-      bg: "#ECFEFF",
+      disabled: true,
     },
   ];
   return (
@@ -181,14 +183,11 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
         }}
         className="px-6 pt-14 pb-10"
       >
-        <div className="flex items-center justify-between mb-6">
-          <h2
-            className="text-white font-semibold"
-            style={{ fontFamily: "var(--font-family-display)" }}
-          >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="mb-4 text-[22px] font-bold text-white md:text-[28px]">
             My Wallet
           </h2>
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <button
               onClick={handleRefresh}
               title="Refresh wallet"
@@ -196,14 +195,14 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             >
               <RotateCw size={15} />
             </button>
-            {/* <button className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors">
+            <button className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors">
               <MoreHorizontal size={18} />
-            </button> */}
-          </div>
+            </button>
+          </div> */}
         </div>
-        <div className="text-white/70 text-sm mb-1">Available Balance</div>
+        <div className="text-white/70 text-md mb">Available Balance</div>
         <div
-          className="text-white mb-2"
+          className="text-white mb-2 text-md"
           style={{
             fontFamily: "var(--font-family-display)",
             fontWeight: 700,
@@ -249,10 +248,15 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   onNav(a.screen as Screen);
                 }}
                 disabled={
-                  a.label === "Virtual Account" &&
-                  virtualAccountQuery.isFetching
+                  a.disabled ||
+                  (a.label === "Virtual account" &&
+                    virtualAccountQuery.isFetching)
                 }
-                className="flex flex-col items-center gap-2 cursor-pointer"
+                className={`flex flex-col items-center gap-2 ${
+                  a.disabled
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`}
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center"
@@ -261,7 +265,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   {a.icon}
                 </div>
                 <span className="text-xs text-[#374151] font-medium text-center leading-tight">
-                  {a.label === "Virtual Account" &&
+                  {a.label === "Virtual account" &&
                   virtualAccountQuery.isFetching
                     ? "Loading..."
                     : a.label}
@@ -285,7 +289,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               <h3 className="mb-2 text-sm font-semibold text-[#0D0F1C]">
                 Virtual account details
               </h3>
-              <pre className="whitespace-pre-wrap break-words text-xs text-[#374151]">
+              <pre className="whitespace-pre-wrap wrap-break-word text-xs text-[#374151]">
                 {JSON.stringify(virtualAccountQuery.data.data, null, 2)}
               </pre>
             </div>
@@ -378,8 +382,8 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           {transactions.length === 0 &&
             !transactionsQuery.isLoading &&
             !transactionsQuery.isError && (
-            <p className="text-sm text-[#6B7280]">No transactions found.</p>
-          )}
+              <p className="text-sm text-[#6B7280]">No transactions found.</p>
+            )}
           <div className="flex flex-col gap-2">
             {transactions.map((t) => (
               <div

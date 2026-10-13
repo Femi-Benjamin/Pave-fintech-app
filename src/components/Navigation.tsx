@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   MessageCircle,
   User,
+  Target,
   ArrowLeft,
 } from "lucide-react";
 import Logo from "./Logo";
@@ -17,7 +18,8 @@ import { useLocalStore } from "../hooks/useLocalStore";
 export const BOTTOM_NAV = [
   { screen: "home" as Screen, icon: Home, label: "Home" },
   { screen: "wallet" as Screen, icon: Wallet, label: "Wallet" },
-  { screen: "savings" as Screen, icon: PiggyBank, label: "Ajo" },
+  { screen: "savings" as Screen, icon: Target, label: "Savings" },
+  { screen: "group-savings" as Screen, icon: PiggyBank, label: "Ajo" },
   { screen: "marketplace" as Screen, icon: ShoppingBag, label: "Shop" },
   { screen: "profile" as Screen, icon: User, label: "Profile" },
 ];
@@ -55,7 +57,8 @@ export function DesktopSidebar({
   const navItems = [
     { screen: "home" as Screen, icon: Home, label: "Home" },
     { screen: "wallet" as Screen, icon: Wallet, label: "Wallet" },
-    { screen: "savings" as Screen, icon: PiggyBank, label: "Ajo" },
+    { screen: "savings" as Screen, icon: Target, label: "Savings" },
+    { screen: "group-savings" as Screen, icon: PiggyBank, label: "Ajo" },
     {
       screen: "marketplace" as Screen,
       icon: ShoppingBag,
@@ -80,7 +83,10 @@ export function DesktopSidebar({
 
         <nav className="flex flex-col gap-1.5">
           {navItems.map((item) => {
-            const active = screen === item.screen;
+            const active =
+              screen === item.screen ||
+              (item.screen === "savings" &&
+                ["create-saving", "savings-detail"].includes(screen));
             return (
               <button
                 key={item.screen}

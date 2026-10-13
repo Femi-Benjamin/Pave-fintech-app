@@ -4,6 +4,7 @@ import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 export function PaveBtn({
   children,
   onClick,
+  type = "button",
   variant = "primary",
   full = true,
   small = false,
@@ -25,6 +26,7 @@ export function PaveBtn({
   };
   return (
     <button
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className={`${base} ${sz} ${variants[variant]} font-medium`}

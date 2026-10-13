@@ -38,33 +38,16 @@ import type {
   UserTransactionSearchParams,
 } from "../api/transactions";
 import {
-  contributeToGroupSaving,
-  createGroupSaving,
   createSavingContribution,
   createSaving,
-  deleteGroupSaving,
   deleteSaving,
-  getGroupSaving,
-  getGroupSavings,
-  getGroupWithdrawal,
-  getGroupWithdrawals,
-  getMyGroupWithdrawals,
-  inviteMemberToGroup,
-  joinGroupSaving,
-  leaveGroupSaving,
   getSaving,
   getSavings,
-  updateGroupSaving,
   updateSaving,
-  withdrawFromGroupSaving,
   withdrawContribution,
 } from "../api/savings";
 import type {
-  CreateGroupSavingPayload,
   CreateSavingPayload,
-  GroupSavingContributionPayload,
-  GroupSavingUpdatePayload,
-  GroupSavingWithdrawalPayload,
   SavingContributionPayload,
   UpdateSavingPayload,
 } from "../api/savings";
@@ -104,13 +87,6 @@ export const savingsQueryKeys = {
   list: () => [...savingsQueryKeys.all, "list"] as const,
   detail: (savingId: string) =>
     [...savingsQueryKeys.all, "detail", savingId] as const,
-};
-
-export const groupSavingsQueryKeys = {
-  all: ["groupSavings"] as const,
-  list: () => [...groupSavingsQueryKeys.all, "list"] as const,
-  detail: (groupId: string) =>
-    [...groupSavingsQueryKeys.all, "detail", groupId] as const,
 };
 
 export const billQueryKeys = {
@@ -217,49 +193,6 @@ export function useSavingsQuery(enabled = true) {
   });
 }
 
-export function useGroupSavingsQuery(enabled = true) {
-  return useQuery({
-    queryKey: groupSavingsQueryKeys.list(),
-    queryFn: getGroupSavings,
-    enabled,
-  });
-}
-
-export function useGroupSavingQuery(groupId: string, enabled = true) {
-  return useQuery({
-    queryKey: groupSavingsQueryKeys.detail(groupId),
-    queryFn: () => getGroupSaving(groupId),
-    enabled: enabled && Boolean(groupId.trim()),
-  });
-}
-
-export function useMyGroupWithdrawalsQuery(enabled = true) {
-  return useQuery({
-    queryKey: [...groupSavingsQueryKeys.all, "myWithdrawals"],
-    queryFn: getMyGroupWithdrawals,
-    enabled,
-  });
-}
-
-export function useGroupWithdrawalsQuery(groupId: string, enabled = true) {
-  return useQuery({
-    queryKey: [...groupSavingsQueryKeys.detail(groupId), "withdrawals"],
-    queryFn: () => getGroupWithdrawals(groupId),
-    enabled: enabled && Boolean(groupId.trim()),
-  });
-}
-
-export function useGroupWithdrawalQuery(
-  withdrawalId: string,
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: [...groupSavingsQueryKeys.all, "withdrawal", withdrawalId],
-    queryFn: () => getGroupWithdrawal(withdrawalId),
-    enabled: enabled && Boolean(withdrawalId.trim()),
-  });
-}
-
 export function useSavingQuery(savingId: string, enabled = true) {
   return useQuery({
     queryKey: savingsQueryKeys.detail(savingId),
@@ -274,125 +207,6 @@ export function useCreateSavingMutation() {
     mutationFn: (payload: CreateSavingPayload) => createSaving(payload),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: savingsQueryKeys.all }),
-  });
-}
-
-export function useCreateGroupSavingMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: CreateGroupSavingPayload) =>
-      createGroupSaving(payload),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
-  });
-}
-
-export function useUpdateGroupSavingMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      groupId,
-      payload,
-    }: {
-      groupId: string;
-      payload: GroupSavingUpdatePayload;
-    }) => updateGroupSaving(groupId, payload),
-    onSuccess: async (_response, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.list() }),
-        queryClient.invalidateQueries({
-          queryKey: groupSavingsQueryKeys.detail(groupId),
-        }),
-      ]);
-    },
-  });
-}
-
-export function useDeleteGroupSavingMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: deleteGroupSaving,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
-  });
-}
-
-export function useJoinGroupSavingMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: joinGroupSaving,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
-  });
-}
-
-export function useContributeToGroupSavingMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      groupId,
-      payload,
-    }: {
-      groupId: string;
-      payload: GroupSavingContributionPayload;
-    }) => contributeToGroupSaving(groupId, payload),
-    onSuccess: async (_response, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.list() }),
-        queryClient.invalidateQueries({
-          queryKey: groupSavingsQueryKeys.detail(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: transactionQueryKeys.walletBalance,
-        }),
-      ]);
-    },
-  });
-}
-
-export function useWithdrawFromGroupSavingMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      groupId,
-      payload,
-    }: {
-      groupId: string;
-      payload: GroupSavingWithdrawalPayload;
-    }) => withdrawFromGroupSaving(groupId, payload),
-    onSuccess: async (_response, { groupId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.list() }),
-        queryClient.invalidateQueries({
-          queryKey: groupSavingsQueryKeys.detail(groupId),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [...groupSavingsQueryKeys.detail(groupId), "withdrawals"],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [...groupSavingsQueryKeys.all, "myWithdrawals"],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: transactionQueryKeys.walletBalance,
-        }),
-      ]);
-    },
-  });
-}
-
-export function useLeaveGroupSavingMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: leaveGroupSaving,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
-  });
-}
-
-export function useInviteMemberToGroupMutation() {
-  return useMutation({
-    mutationFn: ({ groupId, email }: { groupId: string; email: string }) =>
-      inviteMemberToGroup(groupId, email),
   });
 }
 

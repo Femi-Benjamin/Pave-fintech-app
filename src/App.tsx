@@ -110,14 +110,24 @@ const TransactionsScreen = lazy(() =>
     default: screens.TransactionsScreen,
   })),
 );
-const SavingsScreen = lazy(() =>
-  import("./screens/SavingsScreens").then((screens) => ({
-    default: screens.SavingsScreen,
+const GroupSavingsScreen = lazy(() =>
+  import("./screens/GroupSaving").then((screens) => ({
+    default: screens.GroupSavingsScreen,
   })),
 );
-const CreateSavingsScreen = lazy(() =>
+const CreateGroupSavingScreen = lazy(() =>
+  import("./screens/GroupSaving").then((screens) => ({
+    default: screens.CreateGroupSavingScreen,
+  })),
+);
+const PersonalSavingsScreen = lazy(() =>
   import("./screens/SavingsScreens").then((screens) => ({
-    default: screens.CreateSavingsScreen,
+    default: screens.PersonalSavingsScreen,
+  })),
+);
+const CreateSavingScreen = lazy(() =>
+  import("./screens/SavingsScreens").then((screens) => ({
+    default: screens.CreateSavingScreen,
   })),
 );
 const SavingsDetailScreen = lazy(() =>
@@ -126,7 +136,7 @@ const SavingsDetailScreen = lazy(() =>
   })),
 );
 const GroupSavingDetailScreen = lazy(() =>
-  import("./screens/SavingsScreens").then((screens) => ({
+  import("./screens/GroupSaving").then((screens) => ({
     default: screens.GroupSavingDetailScreen,
   })),
 );
@@ -184,7 +194,9 @@ function MobileApp({
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedSavingId, setSelectedSavingId] = useState("");
+  const [selectedGroupSavingId, setSelectedGroupSavingId] = useState("");
   const [ajoSuccessNotice, setAjoSuccessNotice] = useState("");
+  const [savingsSuccessNotice, setSavingsSuccessNotice] = useState("");
   const [activeChat, setActiveChat] = useState<any>(null);
   const [kycNin, setKycNin] = useState("");
 
@@ -193,6 +205,7 @@ function MobileApp({
       void Promise.all([
         import("./screens/HomeScreen"),
         import("./screens/WalletScreens"),
+        import("./screens/GroupSaving"),
         import("./screens/SavingsScreens"),
         import("./screens/MarketplaceScreens"),
         import("./screens/MessagesScreens"),
@@ -217,6 +230,7 @@ function MobileApp({
     "home",
     "wallet",
     "savings",
+    "group-savings",
     "marketplace",
     "messages",
     "profile",
@@ -274,7 +288,11 @@ function MobileApp({
         return <KYCApprovedScreen onNav={nav} />;
       case "home":
         return (
-          <HomeScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+          <HomeScreen
+            onNav={nav}
+            onSelectGroup={setSelectedGroupSavingId}
+            onSelectSaving={setSelectedSavingId}
+          />
         );
       case "wallet":
         return <WalletScreen onNav={nav} />;
@@ -288,16 +306,32 @@ function MobileApp({
         return <AirtimeScreen onNav={nav} />;
       case "savings":
         return (
-          <SavingsScreen
+          <PersonalSavingsScreen
             onNav={nav}
             onSelectSaving={setSelectedSavingId}
+            successNotice={savingsSuccessNotice}
+            onDismissSuccess={() => setSavingsSuccessNotice("")}
+          />
+        );
+      case "create-saving":
+        return (
+          <CreateSavingScreen
+            onNav={nav}
+            onCreated={(message) => setSavingsSuccessNotice(message)}
+          />
+        );
+      case "group-savings":
+        return (
+          <GroupSavingsScreen
+            onNav={nav}
+            onSelectGroup={setSelectedGroupSavingId}
             successNotice={ajoSuccessNotice}
             onDismissSuccess={dismissAjoSuccessNotice}
           />
         );
-      case "create-savings":
+      case "create-group-saving":
         return (
-          <CreateSavingsScreen
+          <CreateGroupSavingScreen
             onNav={nav}
             onCreated={() =>
               setAjoSuccessNotice("AJO Group Created Successfully")
@@ -315,14 +349,14 @@ function MobileApp({
         return (
           <GroupSavingDetailScreen
             onNav={nav}
-            groupId={selectedSavingId}
+            groupId={selectedGroupSavingId}
           />
         );
-      case "savings-programs":
+      case "join-program":
         return (
-          <SavingsScreen
+          <GroupSavingsScreen
             onNav={nav}
-            onSelectSaving={setSelectedSavingId}
+            onSelectGroup={setSelectedGroupSavingId}
             successNotice={ajoSuccessNotice}
             onDismissSuccess={dismissAjoSuccessNotice}
           />
@@ -354,7 +388,11 @@ function MobileApp({
         return <SettingsScreen onNav={nav} />;
       default:
         return (
-          <HomeScreen onNav={nav} onSelectSaving={setSelectedSavingId} />
+          <HomeScreen
+            onNav={nav}
+            onSelectGroup={setSelectedGroupSavingId}
+            onSelectSaving={setSelectedSavingId}
+          />
         );
     }
   };
@@ -388,7 +426,7 @@ function MobileApp({
           >
             <Suspense
               fallback={
-                ["home", "wallet", "savings", "marketplace", "messages", "profile"].includes(screen)
+                ["home", "wallet", "group-savings", "savings", "create-saving", "savings-detail", "marketplace", "messages", "profile"].includes(screen)
                   ? <CoreScreenSkeleton />
                   : (
                     <div
@@ -413,7 +451,10 @@ function MobileApp({
           >
             <div className="flex max-w-md mx-auto">
               {BOTTOM_NAV.map((item) => {
-                const active = screen === item.screen;
+                const active =
+                  screen === item.screen ||
+                  (item.screen === "savings" &&
+                    ["create-saving", "savings-detail"].includes(screen));
                 return (
                   <button
                     key={item.screen}

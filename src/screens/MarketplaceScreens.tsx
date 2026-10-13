@@ -317,7 +317,6 @@ export function PaymentPlanScreen({
         startDate: startDate.toISOString().slice(0, 10),
         endDate: endDate.toISOString().slice(0, 10),
         targetAmount: Math.round(p.price / 2),
-        amount: installment[freq],
         frequency,
         autoDebit: false,
       });
