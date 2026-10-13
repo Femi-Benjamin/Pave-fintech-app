@@ -229,7 +229,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <Landmark size={14} className="text-white/70" />
           <span className="text-white/70 text-xs">PAVE/Wema: </span>
           <span className="text-white text-xs font-mono font-semibold">
-            Virtual account details load when requested below.
+            Virtual Account number below.
           </span>
         </div>
       </div>
@@ -434,12 +434,12 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     }
   };
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col h-screen">
       <ScreenHeader title="Fund Wallet" onBack={() => onNav("wallet")} />
       {!fundingMutation.isSuccess ? (
         <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-[#374151]">
+            <label className="text-md font-medium text-[#374151]">
               Amount (₦)
             </label>
             <input
@@ -477,7 +477,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               )}
             </p>
           )}
-          <div className="mt-auto pt-2">
+          <div className="mt-auto md:pb-10 pb-22">
             <PaveBtn
               onClick={handleFund}
               disabled={
@@ -1700,7 +1700,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 .map(([key, value]) => (
                   <div key={key} className="min-w-0">
                     <dt className="text-xs text-[#9CA3AF]">{key}</dt>
-                    <dd className="break-words font-medium text-[#0D0F1C]">
+                    <dd className="wrap-break-word font-medium text-[#0D0F1C]">
                       {typeof value === "object"
                         ? JSON.stringify(value)
                         : String(value)}

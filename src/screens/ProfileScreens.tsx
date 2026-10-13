@@ -93,11 +93,12 @@ export function ProfileScreen({
       .join(" ") ||
     profileUser?.fullName?.trim() ||
     "PAVE Member";
-  const profileEmail = profileUser?.email?.trim() || email || "Email not available";
+  const profileEmail =
+    profileUser?.email?.trim() || email || "Email not available";
   const kycStatus = profileUser?.kycStatus?.toLowerCase();
   const isKycVerified = kycStatus
     ? kycStatus === "approved" || kycStatus === "verified"
-    : profileUser?.isKycVerified ?? profileUser?.isVerified ?? false;
+    : (profileUser?.isKycVerified ?? profileUser?.isVerified ?? false);
   const verificationLabel = kycStatus
     ? `KYC ${kycStatus.charAt(0).toUpperCase()}${kycStatus.slice(1)}`
     : isKycVerified
@@ -423,7 +424,7 @@ export function ProfileScreen({
       <AnimatePresence>
         {activePanel && (
           <motion.div
-            className="fixed inset-0 z-[100] flex justify-end bg-slate-950/40 backdrop-blur-sm"
+            className="fixed inset-0 z-`100` flex justify-end bg-slate-950/40 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -580,16 +581,18 @@ export function ProfileScreen({
                         Verification steps
                       </h3>
                       <ul className="mt-4 space-y-3 text-sm text-[#4B5563]">
-                        {["Identity details", "Identity document", "Selfie check"].map(
-                          (step, index) => (
-                            <li key={step} className="flex items-center gap-3">
-                              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-[#3730A3]">
-                                {index + 1}
-                              </span>
-                              {step}
-                            </li>
-                          ),
-                        )}
+                        {[
+                          "Identity details",
+                          "Identity document",
+                          "Selfie check",
+                        ].map((step, index) => (
+                          <li key={step} className="flex items-center gap-3">
+                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-[#3730A3]">
+                              {index + 1}
+                            </span>
+                            {step}
+                          </li>
+                        ))}
                       </ul>
                     </section>
                     <PaveBtn
@@ -598,7 +601,9 @@ export function ProfileScreen({
                         onNav(isKycVerified ? "kyc-approved" : "kyc-welcome");
                       }}
                     >
-                      {isKycVerified ? "View verification" : "Continue verification"}
+                      {isKycVerified
+                        ? "View verification"
+                        : "Continue verification"}
                     </PaveBtn>
                   </div>
                 )}
@@ -875,7 +880,10 @@ export function ProfileScreen({
                       </div>
                     </div>
                     <div className="flex items-start gap-3 rounded-2xl border border-[#E8EAF4] bg-white p-4">
-                      <Mail size={18} className="mt-0.5 shrink-0 text-[#3730A3]" />
+                      <Mail
+                        size={18}
+                        className="mt-0.5 shrink-0 text-[#3730A3]"
+                      />
                       <p className="text-xs leading-relaxed text-[#6B7280]">
                         For account-specific support, use the official support
                         contact provided by PAVE. PAVE will never ask you to

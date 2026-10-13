@@ -567,10 +567,10 @@ export function LoginScreen({
                 }}
                 className="text-2xl sm:text-3xl text-[#0D0F1C]"
               >
-                Welcome back
+                Welcome back 👋
               </h1>
               <p className="text-[#6B7280] text-xs sm:text-sm mt-1">
-                Sign in to your PAVE account to continue 👋
+                Sign in to your PAVE account to continue
               </p>
             </div>
 

@@ -269,9 +269,9 @@ export function HomeScreen({
               <div className="flex items-center gap-2">
                 <Landmark size={16} className="text-white/70" />
                 <span className="text-white/70 text-xs">Virtual Account:</span>
-                <span className="text-white text-xs font-mono font-bold">
-                  View account details in Wallet
-                </span>
+                <p className="text-white text-xs font-mono font-bold">
+                  View details in Wallet
+                </p>
               </div>
               <span className="text-xs text-white/80 bg-white/10 px-3 py-1 rounded-full">
                 Wema Bank • PAVE
