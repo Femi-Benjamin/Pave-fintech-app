@@ -100,10 +100,19 @@ export function isGroupSavingMember(
   }
 
   // 3. Members list check
-  if (Array.isArray(group.members) && group.members.length > 0) {
-    return group.members.some((member) => {
+  const rawMembers =
+    group.members ??
+    (raw.memberIds as any) ??
+    (raw.participants as any) ??
+    (raw.groupMembers as any);
+
+  if (Array.isArray(rawMembers) && rawMembers.length > 0) {
+    return rawMembers.some((member) => {
       if (!member) return false;
-      const rawStatus = String(member.status || "").toLowerCase().trim();
+      const rawStatus =
+        typeof member === "object"
+          ? String((member as any).status || "").toLowerCase().trim()
+          : "";
       if (
         rawStatus &&
         [
@@ -118,15 +127,18 @@ export function isGroupSavingMember(
       ) {
         return false;
       }
-      const memberUserId = extractEntityId(
-        member.userId ??
-          (member as any).user?.id ??
-          (member as any).user?._id ??
-          (member.User as any)?.id ??
-          (member.User as any)?._id ??
-          member.id ??
-          (member as any)._id,
-      );
+      const memberUserId =
+        typeof member === "string" || typeof member === "number"
+          ? String(member).trim()
+          : extractEntityId(
+              (member as any).userId ??
+                (member as any).user ??
+                (member as any).User?.id ??
+                (member as any).User?._id ??
+                (member as any).memberId ??
+                (member as any).id ??
+                (member as any)._id,
+            );
       if (
         normalizedUserId &&
         memberUserId &&
@@ -134,9 +146,12 @@ export function isGroupSavingMember(
       ) {
         return true;
       }
-      if (normalizedEmail) {
+      if (normalizedEmail && typeof member === "object") {
         const memberEmail = String(
-          member.User?.email ?? (member as any).user?.email ?? (member as any).email ?? "",
+          (member as any).User?.email ??
+            (member as any).user?.email ??
+            (member as any).email ??
+            "",
         )
           .toLowerCase()
           .trim();
@@ -256,14 +271,31 @@ export async function createGroupSaving(payload: CreateGroupSavingPayload) {
   return ensureGroupSuccess(data, "Unable to create this AJO group.");
 }
 
-export async function getGroupSavings() {
-  const { data } = await api.get<GroupSavingsListResponse>(
+export function normalizeGroupSavingsList(response: any): GroupSaving[] {
+  if (!response) return [];
+  const list =
+    response.data?.groupSavings ??
+    response.data?.groups ??
+    response.data?.savings ??
+    response.groupSavings ??
+    response.groups ??
+    response.savings ??
+    response.data ??
+    response;
+  return Array.isArray(list) ? list : [];
+}
+
+export async function getGroupSavings(): Promise<GroupSavingsListResponse> {
+  const { data } = await api.get<any>(
     "/api/v1/group-saving/get-all-groups",
   );
-  if (!data.success) {
-    throw new Error("Unable to load your AJO groups.");
+  if (!data?.success && data?.status !== true && data?.status !== "success") {
+    throw new Error(data?.message || "Unable to load your AJO groups.");
   }
-  return data;
+  return {
+    success: true,
+    data: normalizeGroupSavingsList(data),
+  };
 }
 
 function ensureGroupSuccess<T extends { success: boolean; message?: string }>(

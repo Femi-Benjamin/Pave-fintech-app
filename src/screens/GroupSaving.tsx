@@ -300,24 +300,6 @@ export function GroupSavingsScreen({
                 You are not a member of any AJO groups yet. Create a group or
                 enter an invitation code to join one.
               </p>
-              {joinGroupMutation.isSuccess &&
-                joinGroupMutation.data.alreadyMember && (
-                  <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-                    <p className="font-semibold">Backend sync note:</p>
-                    <p className="mt-0.5">
-                      The server confirmed your membership, but the group list
-                      endpoint (GET /api/v1/group-saving/get-all-groups) did not
-                      return your joined group in the list.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => void savingsQuery.refetch()}
-                      className="mt-2 font-semibold text-amber-900 underline cursor-pointer"
-                    >
-                      Refresh group list
-                    </button>
-                  </div>
-                )}
             </div>
           )}
         {savingsQuery.isLoading &&

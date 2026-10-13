@@ -13,6 +13,7 @@ import {
   isGroupSavingMember,
   extractEntityId,
   isAlreadyMemberMessage,
+  normalizeGroupSavingsList,
   type GroupSaving,
   type GroupSavingMember,
 } from "../src/api/groupSaving";
@@ -361,4 +362,80 @@ test("extractEntityId: safely handles primitive and object IDs", () => {
   assert.equal(extractEntityId(null), "");
   assert.equal(extractEntityId(undefined), "");
   assert.equal(extractEntityId({}), "");
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. EXTENDED MEMBER SHAPES & LIST NORMALIZATION TESTS
+// ─────────────────────────────────────────────────────────────────────────────
+test("isGroupSavingMember: recognizes member when members array contains primitive string/numeric IDs", () => {
+  const groupWithStrings: any = {
+    userId: "owner-100",
+    members: ["member-200", "member-300"],
+  };
+  assert.equal(isGroupSavingMember(groupWithStrings, "member-200"), true);
+  assert.equal(isGroupSavingMember(groupWithStrings, "member-999"), false);
+
+  const groupWithNums: any = {
+    userId: "owner-100",
+    members: [200, 300],
+  };
+  assert.equal(isGroupSavingMember(groupWithNums, "200"), true);
+});
+
+test("isGroupSavingMember: recognizes member when member.user is a string ID", () => {
+  const group: any = {
+    userId: "owner-100",
+    members: [{ user: "user-str-id-400", role: "member" }],
+  };
+  assert.equal(isGroupSavingMember(group, "user-str-id-400"), true);
+});
+
+test("isGroupSavingMember: recognizes member when member.memberId is used", () => {
+  const group: any = {
+    userId: "owner-100",
+    members: [{ memberId: "member-id-500", role: "member" }],
+  };
+  assert.equal(isGroupSavingMember(group, "member-id-500"), true);
+});
+
+test("isGroupSavingMember: recognizes member when memberIds or participants aliases are used", () => {
+  const groupMemberIds: any = {
+    userId: "owner-100",
+    memberIds: ["user-600"],
+  };
+  assert.equal(isGroupSavingMember(groupMemberIds, "user-600"), true);
+
+  const groupParticipants: any = {
+    userId: "owner-100",
+    participants: [{ userId: "user-700", status: "active" }],
+  };
+  assert.equal(isGroupSavingMember(groupParticipants, "user-700"), true);
+});
+
+test("normalizeGroupSavingsList: unwraps various API response wrapper envelopes", () => {
+  const sampleGroup = { id: "g1", name: "Savings 1", userId: "u1" };
+
+  // Direct array: { data: [ ... ] }
+  assert.deepEqual(normalizeGroupSavingsList({ data: [sampleGroup] }), [sampleGroup]);
+
+  // Nested: { data: { groupSavings: [ ... ] } }
+  assert.deepEqual(
+    normalizeGroupSavingsList({ data: { groupSavings: [sampleGroup] } }),
+    [sampleGroup],
+  );
+
+  // Nested: { data: { groups: [ ... ] } }
+  assert.deepEqual(
+    normalizeGroupSavingsList({ data: { groups: [sampleGroup] } }),
+    [sampleGroup],
+  );
+
+  // Direct: { groups: [ ... ] }
+  assert.deepEqual(normalizeGroupSavingsList({ groups: [sampleGroup] }), [sampleGroup]);
+
+  // Empty / null cases
+  assert.deepEqual(normalizeGroupSavingsList(null), []);
+  assert.deepEqual(normalizeGroupSavingsList(undefined), []);
+  assert.deepEqual(normalizeGroupSavingsList({}), []);
+  assert.deepEqual(normalizeGroupSavingsList({ data: null }), []);
 });
