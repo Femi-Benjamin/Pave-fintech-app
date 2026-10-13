@@ -200,6 +200,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("pave_token");
     localStorage.removeItem(AUTH_USER_KEY);
     localStorage.removeItem("pave_finger_user_id");
+    void queryClient.cancelQueries();
     queryClient.clear();
     setStore((prev) => ({ ...prev, authUser: null }));
   }, [queryClient]);

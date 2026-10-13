@@ -311,6 +311,16 @@ export interface JoinGroupSavingResult {
   data?: GroupSaving | GroupSavingDetail | GroupSavingContribution;
 }
 
+export function isAlreadyMemberMessage(msg?: string): boolean {
+  if (!msg || typeof msg !== "string") return false;
+  const lower = msg.toLowerCase().trim();
+  return (
+    lower.includes("already a member") ||
+    lower.includes("already member") ||
+    lower.includes("already joined")
+  );
+}
+
 export async function joinGroupSaving(
   inviteCode: string,
 ): Promise<JoinGroupSavingResult> {
@@ -325,7 +335,7 @@ export async function joinGroupSaving(
 
     if (!data.success) {
       const msg = data.message || "Unable to join this AJO group.";
-      if (msg.toLowerCase().includes("already a member")) {
+      if (isAlreadyMemberMessage(msg)) {
         return {
           success: true,
           message: msg,
@@ -336,9 +346,7 @@ export async function joinGroupSaving(
       throw new Error(msg);
     }
 
-    const isAlready = Boolean(
-      data.message?.toLowerCase().includes("already a member"),
-    );
+    const isAlready = isAlreadyMemberMessage(data.message);
     return {
       success: true,
       message: data.message || "Successfully joined AJO group.",
@@ -351,7 +359,7 @@ export async function joinGroupSaving(
         | { message?: string; error?: string; data?: any }
         | undefined;
       const message = responseData?.message || responseData?.error;
-      if (message && message.toLowerCase().includes("already a member")) {
+      if (message && isAlreadyMemberMessage(message)) {
         return {
           success: true,
           message,
