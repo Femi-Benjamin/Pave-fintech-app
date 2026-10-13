@@ -1,7 +1,7 @@
 // D.Seek
 import axios from "axios";
 
-const defaultBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:9860";
+const defaultBase = import.meta.env.VITE_API_BASE_URL || "https://pave-snowy.vercel.app";
 const apiBase = defaultBase.endsWith("/api/v1") ? defaultBase : `${defaultBase}/api/v1`;
 
 export const apiClient = axios.create({

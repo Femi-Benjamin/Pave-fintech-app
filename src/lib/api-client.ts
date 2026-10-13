@@ -3,7 +3,7 @@ import axios from "axios";
 const rawBaseUrl =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  "http://localhost:9860";
+  "https://pave-snowy.vercel.app";
 const baseURL = rawBaseUrl.replace(/\/api\/v1$/, "");
 
 export const api = axios.create({

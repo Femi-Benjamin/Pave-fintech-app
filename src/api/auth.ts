@@ -282,3 +282,96 @@ export interface AuthUser {
   isVerified?: boolean;
   [key: string]: unknown;
 }
+
+export function extractUserIdFromToken(token?: string | null): string | null {
+  if (!token || typeof token !== "string") return null;
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = base64.length % 4;
+    const padded = pad ? base64 + "=".repeat(4 - pad) : base64;
+    const jsonPayload = decodeURIComponent(
+      atob(padded)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    const parsed = JSON.parse(jsonPayload);
+    const id =
+      parsed?.id ??
+      parsed?._id ??
+      parsed?.userId ??
+      parsed?.user_id ??
+      parsed?.sub;
+    return id ? String(id).trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function extractEmailFromToken(token?: string | null): string | null {
+  if (!token || typeof token !== "string") return null;
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = base64.length % 4;
+    const padded = pad ? base64 + "=".repeat(4 - pad) : base64;
+    const jsonPayload = decodeURIComponent(
+      atob(padded)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    const parsed = JSON.parse(jsonPayload);
+    return parsed?.email ? String(parsed.email).trim().toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getAuthenticatedUserId(
+  authUser?: AuthUser | null,
+  token?: string | null,
+): string {
+  if (authUser) {
+    const directId =
+      authUser.id ??
+      authUser._id ??
+      (authUser as any).userId ??
+      (authUser as any).user_id ??
+      (authUser as any).sub;
+    if (directId) return String(directId).trim();
+  }
+
+  const storedToken =
+    token ||
+    (typeof localStorage !== "undefined"
+      ? localStorage.getItem("pave_token")
+      : null);
+  const tokenUserId = extractUserIdFromToken(storedToken);
+  if (tokenUserId) return tokenUserId;
+
+  return "";
+}
+
+export function getAuthenticatedUserEmail(
+  authUser?: AuthUser | null,
+  token?: string | null,
+): string {
+  if (authUser?.email && typeof authUser.email === "string") {
+    return authUser.email.trim().toLowerCase();
+  }
+  const storedToken =
+    token ||
+    (typeof localStorage !== "undefined"
+      ? localStorage.getItem("pave_token")
+      : null);
+  const tokenEmail = extractEmailFromToken(storedToken);
+  if (tokenEmail) return tokenEmail;
+
+  return "";
+}

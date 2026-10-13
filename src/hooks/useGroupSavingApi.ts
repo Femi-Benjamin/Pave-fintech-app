@@ -122,8 +122,12 @@ export function useJoinGroupSavingMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: joinGroupSaving,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
+        queryClient.refetchQueries({ queryKey: groupSavingsQueryKeys.list() }),
+      ]);
+    },
   });
 }
 

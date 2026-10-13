@@ -15,7 +15,13 @@ import {
 import Logo from "../components/Logo";
 import { PaveBtn, Input } from "../components/UI";
 import { Screen } from "../pave-data";
-import { completeRegistration, getAuthErrorMessage, login } from "../api/auth";
+import {
+  AuthUser,
+  completeRegistration,
+  extractUserIdFromToken,
+  getAuthErrorMessage,
+  login,
+} from "../api/auth";
 import { useLocalStore } from "../hooks/useLocalStore";
 import {
   useForgotPasswordMutation,
@@ -479,17 +485,33 @@ export function LoginScreen({
     response: Awaited<ReturnType<typeof login>>,
     fallbackUserId?: string,
   ) => {
-    const user = response.user ?? {
-      id: fallbackUserId,
-      email: email.trim(),
-      firstName: "",
-      lastName: "",
-    };
-    const userId = user.id ?? user._id ?? fallbackUserId;
+    const token = response.token!;
+    localStorage.setItem("pave_token", token);
+    const tokenUserId = extractUserIdFromToken(token);
 
-    localStorage.setItem("pave_token", response.token!);
+    const rawUser =
+      response.user ??
+      (response as any).data?.user ??
+      (response as any).data ??
+      {};
+    const userId =
+      rawUser.id ??
+      rawUser._id ??
+      (rawUser as any).userId ??
+      (rawUser as any).sub ??
+      fallbackUserId ??
+      tokenUserId;
+
+    const user: AuthUser = {
+      ...rawUser,
+      id: userId ? String(userId).trim() : undefined,
+      email: rawUser.email ?? email.trim(),
+      firstName: rawUser.firstName ?? "",
+      lastName: rawUser.lastName ?? "",
+    };
+
     if (userId && localStorage.getItem("pave_biometric_enabled") === "true") {
-      localStorage.setItem("pave_finger_user_id", userId);
+      localStorage.setItem("pave_finger_user_id", String(userId));
     }
     setAuthUser(user);
     onNav("kyc-welcome");
@@ -532,6 +554,8 @@ export function LoginScreen({
     });
   };
 
+
+
   return (
     <div
       className="flex-1 w-full h-dvh max-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
@@ -545,18 +569,19 @@ export function LoginScreen({
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            <div className="flex items-center justify-center mb-4 sm:mb-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="md:hidden">
                 <Logo size="sm" />
               </div>
-              {/* {onBackToWebsite && (
+              {onBackToWebsite && (
                 <button
+                  type="button"
                   onClick={onBackToWebsite}
                   className="flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline ml-auto"
                 >
                   <ArrowLeft size={16} /> Back to Website
                 </button>
-              )} */}
+              )}
             </div>
 
             <div className="mb-4 sm:mb-6">
@@ -597,7 +622,10 @@ export function LoginScreen({
                 Forgot password?
               </button>
               {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
+                >
                   {error}
                 </div>
               )}
@@ -640,13 +668,7 @@ export function LoginScreen({
                   </button>
                 </>
               )}
-              <div className="relative flex items-center gap-3 my-1">
-                <div className="flex-1 h-px bg-[#E5E7EB]" />
-                <span className="text-[11px] text-[#9CA3AF] uppercase font-bold tracking-wider">
-                  or
-                </span>
-                <div className="flex-1 h-px bg-[#E5E7EB]" />
-              </div>
+
               <button
                 onClick={() => onNav("accept-invitation")}
                 className="w-full py-3 rounded-xl border-2 border-[#E5E7EB] flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#374151] cursor-pointer hover:bg-[#F1F3FB] transition-colors"
@@ -678,6 +700,7 @@ export function RegisterScreen({
   onNav: (s: Screen) => void;
   onBackToWebsite?: () => void;
 }) {
+  const { setAuthUser } = useLocalStore();
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     firstName: "",
@@ -698,6 +721,8 @@ export function RegisterScreen({
     { label: "One uppercase letter", met: /[A-Z]/.test(form.password) },
     { label: "One number", met: /\d/.test(form.password) },
   ];
+
+
 
   const doNext = async () => {
     if (
@@ -735,7 +760,7 @@ export function RegisterScreen({
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
-          "We could not create your account. Please try again.",
+          "Unable to complete registration. Please check your connection or details.",
       );
     }
   };
@@ -763,14 +788,15 @@ export function RegisterScreen({
               <div className="md:hidden items-center justify-center flex-1 flex">
                 <Logo size="sm" />
               </div>
-              {/* {onBackToWebsite && (
+              {onBackToWebsite && (
                 <button
+                  type="button"
                   onClick={onBackToWebsite}
                   className="text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
                 >
                   Back to Website
                 </button>
-              )} */}
+              )}
             </div>
 
             <h1
@@ -864,6 +890,7 @@ export function RegisterScreen({
                     ))}
                   </motion.div>
                 )}
+
               <div className="mt-5">
                 <PaveBtn
                   onClick={doNext}

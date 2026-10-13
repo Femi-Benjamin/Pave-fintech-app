@@ -33,7 +33,11 @@ import type {
   GroupSavingFrequency,
   GroupSavingUpdatePayload,
 } from "../api/groupSaving";
-import { isGroupSavingMember } from "../api/groupSaving";
+import { extractEntityId, isGroupSavingMember } from "../api/groupSaving";
+import {
+  getAuthenticatedUserEmail,
+  getAuthenticatedUserId,
+} from "../api/auth";
 import { Skeleton } from "../components/Skeleton";
 
 function amount(value: number | string) {
@@ -76,11 +80,12 @@ export function GroupSavingsScreen({
   onDismissSuccess?: () => void;
 }) {
   const { authUser } = useLocalStore();
-  const currentUserId = String(authUser?.id ?? authUser?._id ?? "");
+  const currentUserId = getAuthenticatedUserId(authUser);
+  const userEmail = getAuthenticatedUserEmail(authUser);
   const savingsQuery = useGroupSavingsQuery();
   const joinGroupMutation = useJoinGroupSavingMutation();
   const savings = (savingsQuery.data?.data ?? []).filter((group) =>
-    isGroupSavingMember(group, currentUserId),
+    isGroupSavingMember(group, currentUserId, userEmail),
   );
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
@@ -238,12 +243,32 @@ export function GroupSavingsScreen({
               </p>
             )}
             {joinGroupMutation.isSuccess && (
-              <p role="status" className="mb-3 text-sm text-green-700">
-                {joinGroupMutation.data.message}
-              </p>
+              <div
+                role="status"
+                className={`mb-3 rounded-xl p-3 text-sm font-medium ${
+                  joinGroupMutation.data.alreadyMember
+                    ? "border border-amber-200 bg-amber-50 text-amber-800"
+                    : "border border-emerald-200 bg-emerald-50 text-emerald-800"
+                }`}
+              >
+                <p>{joinGroupMutation.data.message}</p>
+                {joinGroupMutation.data.alreadyMember && (
+                  <p className="mt-1 text-xs text-amber-700">
+                    Your AJO group list has been refreshed.
+                  </p>
+                )}
+              </div>
             )}
             <PaveBtn
-              onClick={() => joinGroupMutation.mutate(inviteCode)}
+              onClick={() => {
+                const code = inviteCode.trim();
+                if (!code) return;
+                joinGroupMutation.mutate(code, {
+                  onSuccess: () => {
+                    setInviteCode("");
+                  },
+                });
+              }}
               disabled={joinGroupMutation.isPending || !inviteCode.trim()}
             >
               {joinGroupMutation.isPending ? "Joining..." : "Join AJO Group"}
@@ -270,10 +295,30 @@ export function GroupSavingsScreen({
         {!savingsQuery.isLoading &&
           !savingsQuery.isError &&
           savings.length === 0 && (
-            <p className="rounded-2xl bg-white p-5 text-sm text-[#6B7280]">
-              You are not a member of any AJO groups yet. Create a group or
-              enter an invitation code to join one.
-            </p>
+            <div className="rounded-2xl bg-white p-5 text-sm text-[#6B7280]">
+              <p>
+                You are not a member of any AJO groups yet. Create a group or
+                enter an invitation code to join one.
+              </p>
+              {joinGroupMutation.isSuccess &&
+                joinGroupMutation.data.alreadyMember && (
+                  <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                    <p className="font-semibold">Backend sync note:</p>
+                    <p className="mt-0.5">
+                      The server confirmed your membership, but the group list
+                      endpoint (GET /api/v1/group-saving/get-all-groups) did not
+                      return your joined group in the list.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void savingsQuery.refetch()}
+                      className="mt-2 font-semibold text-amber-900 underline cursor-pointer"
+                    >
+                      Refresh group list
+                    </button>
+                  </div>
+                )}
+            </div>
           )}
         {savingsQuery.isLoading &&
           [1, 2].map((item) => (
@@ -717,9 +762,10 @@ export function GroupSavingDetailScreen({
   const groupQuery = useGroupSavingQuery(groupId);
   const group = groupQuery.data?.data;
   const { authUser } = useLocalStore();
-  const currentUserId = String(authUser?.id ?? authUser?._id ?? "");
+  const currentUserId = getAuthenticatedUserId(authUser);
+  const userEmail = getAuthenticatedUserEmail(authUser);
   const canAccessGroup = Boolean(
-    group && isGroupSavingMember(group, currentUserId),
+    group && isGroupSavingMember(group, currentUserId, userEmail),
   );
   const groupWithdrawalsQuery = useGroupWithdrawalsQuery(
     groupId,
@@ -761,16 +807,55 @@ export function GroupSavingDetailScreen({
     status: "active",
     image: "",
   });
-  const currentMembership = group?.members?.find(
-    (member) => currentUserId && member.userId === currentUserId,
+  const currentMembership = group?.members?.find((member) => {
+    if (!member) return false;
+    const memberUserId = extractEntityId(
+      member.userId ??
+        (member as any).user?.id ??
+        (member as any).user?._id ??
+        (member.User as any)?.id ??
+        (member.User as any)?._id ??
+        member.id ??
+        (member as any)._id,
+    );
+    if (currentUserId && memberUserId && memberUserId === currentUserId) {
+      return true;
+    }
+    if (userEmail) {
+      const memberEmail = String(
+        member.User?.email ??
+          (member as any).user?.email ??
+          (member as any).email ??
+          "",
+      )
+        .toLowerCase()
+        .trim();
+      if (memberEmail && memberEmail === userEmail) {
+        return true;
+      }
+    }
+    return false;
+  });
+  const groupOwnerId = extractEntityId(
+    group?.userId ??
+      (group as any)?.creatorId ??
+      (group as any)?.createdBy ??
+      (group as any)?.adminId ??
+      (group as any)?.ownerId,
   );
-  const membershipRole = currentMembership?.role.toLowerCase();
+  const membershipRole = currentMembership?.role
+    ? String(currentMembership.role).toLowerCase().trim()
+    : "";
   const isGroupOwner = Boolean(
     currentUserId &&
-      (group?.userId === currentUserId || membershipRole === "owner"),
+      (groupOwnerId === currentUserId || membershipRole === "owner"),
   );
   const isGroupAdmin =
-    isGroupOwner || Boolean(currentUserId && membershipRole === "admin");
+    isGroupOwner ||
+    Boolean(
+      currentUserId &&
+        (membershipRole === "admin" || (group as any)?.isAdmin),
+    );
   const busy =
     contributeMutation.isPending ||
     withdrawMutation.isPending ||

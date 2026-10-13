@@ -1,3 +1,4 @@
+import axios from "axios";
 import { api } from "../lib/api-client";
 
 export type GroupSavingFrequency =
@@ -31,6 +32,9 @@ export interface GroupSaving {
   updatedAt?: string;
   deletedAt?: string | null;
   members?: GroupSavingMember[];
+  isMember?: boolean;
+  userRole?: string;
+  role?: string;
 }
 
 export interface GroupSavingsListResponse {
@@ -49,22 +53,102 @@ export interface GroupSavingMember {
   User?: { firstName?: string; lastName?: string; email?: string };
 }
 
-export function isGroupSavingMember(
-  group: Pick<GroupSaving, "userId" | "members">,
-  userId: string,
-) {
-  if (!userId) return false;
-  if (group.userId === userId) return true;
+export function extractEntityId(val: unknown): string {
+  if (!val) return "";
+  if (typeof val === "string" || typeof val === "number") return String(val).trim();
+  if (typeof val === "object") {
+    const obj = val as Record<string, unknown>;
+    const id = obj.id ?? obj._id ?? obj.userId ?? obj.user_id;
+    if (id) return String(id).trim();
+  }
+  return "";
+}
 
-  return Boolean(
-    group.members?.some(
-      (member) =>
-        member.userId === userId &&
-        ["active", "accepted", "approved", "joined"].includes(
-          member.status.toLowerCase(),
-        ),
-    ),
+export function isGroupSavingMember(
+  group: Pick<GroupSaving, "userId" | "members"> | null | undefined,
+  userId: string,
+  userEmail?: string,
+): boolean {
+  if (!group || (!userId && !userEmail)) return false;
+  const normalizedUserId = userId ? String(userId).trim() : "";
+  const normalizedEmail = userEmail ? String(userEmail).trim().toLowerCase() : "";
+
+  // 1. Group Owner / Admin Check
+  const ownerId = extractEntityId(
+    group.userId ??
+      (group as any).creatorId ??
+      (group as any).createdBy ??
+      (group as any).adminId ??
+      (group as any).ownerId,
   );
+  if (normalizedUserId && ownerId && ownerId === normalizedUserId) {
+    return true;
+  }
+
+  // 2. Direct membership indicators on the group record
+  const raw = group as Record<string, unknown>;
+  if (raw.isMember === true || raw.hasJoined === true || raw.isJoined === true) {
+    return true;
+  }
+  const userRole = String(
+    raw.userRole || raw.role || raw.membershipRole || "",
+  )
+    .toLowerCase()
+    .trim();
+  if (["member", "admin", "owner", "active", "joined"].includes(userRole)) {
+    return true;
+  }
+
+  // 3. Members list check
+  if (Array.isArray(group.members) && group.members.length > 0) {
+    return group.members.some((member) => {
+      if (!member) return false;
+      const rawStatus = String(member.status || "").toLowerCase().trim();
+      if (
+        rawStatus &&
+        [
+          "pending",
+          "rejected",
+          "declined",
+          "removed",
+          "inactive",
+          "left",
+          "cancelled",
+        ].includes(rawStatus)
+      ) {
+        return false;
+      }
+      const memberUserId = extractEntityId(
+        member.userId ??
+          (member as any).user?.id ??
+          (member as any).user?._id ??
+          (member.User as any)?.id ??
+          (member.User as any)?._id ??
+          member.id ??
+          (member as any)._id,
+      );
+      if (
+        normalizedUserId &&
+        memberUserId &&
+        memberUserId === normalizedUserId
+      ) {
+        return true;
+      }
+      if (normalizedEmail) {
+        const memberEmail = String(
+          member.User?.email ?? (member as any).user?.email ?? (member as any).email ?? "",
+        )
+          .toLowerCase()
+          .trim();
+        if (memberEmail && memberEmail === normalizedEmail) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
+  return false;
 }
 
 export interface GroupSavingDetail extends GroupSaving {
@@ -220,13 +304,64 @@ export async function deleteGroupSaving(groupId: string) {
   return ensureGroupSuccess(data, "Unable to delete this AJO group.");
 }
 
-export async function joinGroupSaving(inviteCode: string) {
-  if (!inviteCode.trim()) throw new Error("An invitation code is required.");
-  const { data } = await api.post<GroupSavingActionResponse>(
-    "/api/v1/group-saving/join-group-saving",
-    { inviteCode: inviteCode.trim() },
-  );
-  return ensureGroupSuccess(data, "Unable to join this AJO group.");
+export interface JoinGroupSavingResult {
+  success: boolean;
+  message: string;
+  alreadyMember?: boolean;
+  data?: GroupSaving | GroupSavingDetail | GroupSavingContribution;
+}
+
+export async function joinGroupSaving(
+  inviteCode: string,
+): Promise<JoinGroupSavingResult> {
+  const code = inviteCode.trim();
+  if (!code) throw new Error("An invitation code is required.");
+
+  try {
+    const { data } = await api.post<GroupSavingActionResponse>(
+      "/api/v1/group-saving/join-group-saving",
+      { inviteCode: code },
+    );
+
+    if (!data.success) {
+      const msg = data.message || "Unable to join this AJO group.";
+      if (msg.toLowerCase().includes("already a member")) {
+        return {
+          success: true,
+          message: msg,
+          alreadyMember: true,
+          data: data.data,
+        };
+      }
+      throw new Error(msg);
+    }
+
+    const isAlready = Boolean(
+      data.message?.toLowerCase().includes("already a member"),
+    );
+    return {
+      success: true,
+      message: data.message || "Successfully joined AJO group.",
+      alreadyMember: isAlready,
+      data: data.data,
+    };
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data as
+        | { message?: string; error?: string; data?: any }
+        | undefined;
+      const message = responseData?.message || responseData?.error;
+      if (message && message.toLowerCase().includes("already a member")) {
+        return {
+          success: true,
+          message,
+          alreadyMember: true,
+          data: responseData?.data,
+        };
+      }
+    }
+    throw error;
+  }
 }
 
 export async function contributeToGroupSaving(

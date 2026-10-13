@@ -5,6 +5,8 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { extractUserIdFromToken } from "../api/auth";
 import {
   Transaction,
   Product,
@@ -81,11 +83,14 @@ const DEFAULT_STORE: LocalStoreData = {
 };
 
 function getInitialStore(): LocalStoreData {
+  let initialAuthUser: AuthUser | null = null;
+  let partialStore: Partial<LocalStoreData> = {};
+
   try {
     const item = localStorage.getItem(STORAGE_KEY);
     if (item) {
       const parsed = JSON.parse(item);
-      return {
+      partialStore = {
         walletBalance:
           typeof parsed.walletBalance === "number"
             ? parsed.walletBalance
@@ -102,34 +107,56 @@ function getInitialStore(): LocalStoreData {
         chatMessages: Array.isArray(parsed.chatMessages)
           ? parsed.chatMessages
           : DEFAULT_STORE.chatMessages,
-        authUser:
-          parsed.authUser && typeof parsed.authUser === "object"
-            ? parsed.authUser
-            : null,
       };
+      if (parsed.authUser && typeof parsed.authUser === "object") {
+        initialAuthUser = parsed.authUser;
+      }
     }
   } catch (e) {
     console.error("Error reading localStorage:", e);
   }
 
-  try {
-    const savedUser = localStorage.getItem(AUTH_USER_KEY);
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      if (parsedUser && typeof parsedUser === "object") {
-        return { ...DEFAULT_STORE, authUser: parsedUser };
+  if (!initialAuthUser) {
+    try {
+      const savedUser = localStorage.getItem(AUTH_USER_KEY);
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        if (parsedUser && typeof parsedUser === "object") {
+          initialAuthUser = parsedUser;
+        }
       }
+    } catch (e) {
+      console.error("Error reading saved user:", e);
     }
-  } catch (e) {
-    console.error("Error reading saved user:", e);
   }
 
-  return DEFAULT_STORE;
+  // Backfill authoritative user ID from JWT token if available
+  const token =
+    typeof localStorage !== "undefined"
+      ? localStorage.getItem("pave_token")
+      : null;
+  const tokenUserId = extractUserIdFromToken(token);
+  if (tokenUserId) {
+    if (initialAuthUser) {
+      if (!initialAuthUser.id && !initialAuthUser._id) {
+        initialAuthUser = { ...initialAuthUser, id: tokenUserId };
+      }
+    } else {
+      initialAuthUser = { id: tokenUserId };
+    }
+  }
+
+  return {
+    ...DEFAULT_STORE,
+    ...partialStore,
+    authUser: initialAuthUser,
+  };
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [store, setStore] = useState<LocalStoreData>(getInitialStore);
 
   // Sync with localStorage
@@ -146,14 +173,36 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, [store]);
 
   const setAuthUser = useCallback((user: AuthUser | null) => {
-    setStore((prev) => ({ ...prev, authUser: user }));
+    if (user) {
+      const token =
+        typeof localStorage !== "undefined"
+          ? localStorage.getItem("pave_token")
+          : null;
+      const tokenUserId = extractUserIdFromToken(token);
+      const directId =
+        user.id ??
+        user._id ??
+        (user as any).userId ??
+        (user as any).user_id ??
+        (user as any).sub ??
+        tokenUserId;
+      const normalizedUser: AuthUser = {
+        ...user,
+        ...(directId ? { id: String(directId).trim() } : {}),
+      };
+      setStore((prev) => ({ ...prev, authUser: normalizedUser }));
+      return;
+    }
+    setStore((prev) => ({ ...prev, authUser: null }));
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem("pave_token");
     localStorage.removeItem(AUTH_USER_KEY);
+    localStorage.removeItem("pave_finger_user_id");
+    queryClient.clear();
     setStore((prev) => ({ ...prev, authUser: null }));
-  }, []);
+  }, [queryClient]);
 
   const fundWallet = useCallback((amount: number, method: string) => {
     if (amount <= 0) return false;

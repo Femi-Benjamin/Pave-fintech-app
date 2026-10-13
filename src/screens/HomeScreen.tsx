@@ -27,7 +27,11 @@ import { useGroupSavingsQuery } from "../hooks/useGroupSavingApi";
 import type { TransactionRecord } from "../api/transactions";
 import type { Saving } from "../api/savings";
 import { isGroupSavingMember } from "../api/groupSaving";
-import { getApiErrorMessage } from "../api/auth";
+import {
+  getApiErrorMessage,
+  getAuthenticatedUserEmail,
+  getAuthenticatedUserId,
+} from "../api/auth";
 
 function homeTransaction(record: TransactionRecord, index: number) {
   const kind =
@@ -109,14 +113,15 @@ export function HomeScreen({
   onSelectSaving: (savingId: string) => void;
 }) {
   const { authUser } = useLocalStore();
-  const currentUserId = String(authUser?.id ?? authUser?._id ?? "");
+  const currentUserId = getAuthenticatedUserId(authUser);
+  const userEmail = getAuthenticatedUserEmail(authUser);
   const walletBalanceQuery = useWalletBalanceQuery();
   const savingsQuery = useSavingsQuery();
   const groupSavingsQuery = useGroupSavingsQuery();
   const transactionsQuery = useAllTransactionsQuery();
   const savings = savingsQuery.data?.data.savings ?? [];
   const groupSavings = (groupSavingsQuery.data?.data ?? []).filter((group) =>
-    isGroupSavingMember(group, currentUserId),
+    isGroupSavingMember(group, currentUserId, userEmail),
   );
   const transactions =
     transactionsQuery.data?.transactions.map(homeTransaction) ?? [];
