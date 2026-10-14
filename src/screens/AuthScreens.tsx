@@ -569,19 +569,8 @@ export function LoginScreen({
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <div className="md:hidden">
-                <Logo size="sm" />
-              </div>
-              {onBackToWebsite && (
-                <button
-                  type="button"
-                  onClick={onBackToWebsite}
-                  className="flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline ml-auto"
-                >
-                  <ArrowLeft size={16} /> Back to Website
-                </button>
-              )}
+            <div className="md:hidden flex items-center justify-center w-full mb-4 sm:mb-6">
+              <Logo size="sm" />
             </div>
 
             <div className="mb-4 sm:mb-6">
@@ -779,24 +768,20 @@ export function RegisterScreen({
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <button
-                onClick={() => onNav("login")}
-                className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
-              >
-                <ArrowLeft size={16} />
-              </button>
-              <div className="md:hidden items-center justify-center flex-1 flex">
-                <Logo size="sm" />
-              </div>
-              {onBackToWebsite && (
+              {onBackToWebsite ? (
                 <button
                   type="button"
                   onClick={onBackToWebsite}
-                  className="text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
+                  className="flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
                 >
-                  Back to Website
+                  <ArrowLeft size={16} /> Website
                 </button>
+              ) : (
+                <div />
               )}
+              <div className="md:hidden">
+                <Logo size="sm" />
+              </div>
             </div>
 
             <h1

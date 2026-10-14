@@ -59,6 +59,7 @@ export interface DedicationVirtualAccount {
 
 export interface DedicationVirtualAccountResponse {
   status: string;
+  message?: string;
   data: DedicationVirtualAccount;
 }
 

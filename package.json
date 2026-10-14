@@ -7,7 +7,7 @@
     "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "lint": "tsc --noEmit",
-    "test": "tsx tests/ajo-membership.test.ts",
+    "test": "tsx tests/ajo-membership.test.ts && tsx tests/contribution-and-wallet.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { motion } from "motion/react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   MoreHorizontal,
   Plus,
@@ -12,6 +12,8 @@ import {
   ArrowUpRight,
   Check,
   CheckCircle,
+  CheckCircle2,
+  X,
   Search,
   ChevronRight,
   MessageSquare,
@@ -106,6 +108,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const virtualAccountQuery = useDedicationVirtualAccountQuery(true);
   const [showVirtualAccount, setShowVirtualAccount] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState(false);
+  const [accountNotification, setAccountNotification] = useState<string | null>(null);
   const walletBalanceQuery = useWalletBalanceQuery();
   const transactionsQuery = useAllTransactionsQuery();
   const transactions =
@@ -114,31 +117,106 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     ? Number(walletBalanceQuery.data.balance)
     : null;
 
+  // Retrieve cached virtual account from localStorage if previously discovered
+  const savedAccountNum =
+    typeof window !== "undefined"
+      ? localStorage.getItem("pave_virtual_account_number") || ""
+      : "";
+  const savedBankName =
+    typeof window !== "undefined"
+      ? localStorage.getItem("pave_virtual_bank_name") || "Wema Bank"
+      : "Wema Bank";
+
   const rawVAccount =
     virtualAccountQuery.data?.data ||
     (virtualAccountQuery.data as any)?.virtualAccount ||
     (virtualAccountQuery.data as any);
+
+  // Parse backend responses where account details are delivered in message strings
+  // e.g. "You already had an account: 9817600139, Wema Bank"
+  const potentialMessages = [
+    typeof virtualAccountQuery.data?.message === "string"
+      ? virtualAccountQuery.data.message
+      : "",
+    typeof (virtualAccountQuery.data as any)?.msg === "string"
+      ? (virtualAccountQuery.data as any).msg
+      : "",
+    typeof rawVAccount === "string" ? rawVAccount : "",
+    typeof (virtualAccountQuery.error as any)?.response?.data?.message === "string"
+      ? (virtualAccountQuery.error as any).response.data.message
+      : "",
+    typeof (virtualAccountQuery.error as any)?.message === "string"
+      ? (virtualAccountQuery.error as any).message
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  let parsedNumFromMsg = "";
+  let parsedBankFromMsg = "";
+  if (potentialMessages) {
+    const numMatch = potentialMessages.match(/\b\d{10}\b/);
+    if (numMatch) {
+      parsedNumFromMsg = numMatch[0];
+    }
+    if (/wema/i.test(potentialMessages)) {
+      parsedBankFromMsg = "Wema Bank";
+    } else {
+      const bankMatch = potentialMessages.match(/,\s*([A-Za-z0-9\s]+(?:Bank)?)/i);
+      if (bankMatch && bankMatch[1] && bankMatch[1].trim().length < 30) {
+        parsedBankFromMsg = bankMatch[1].trim();
+      }
+    }
+  }
+
   const extractedAccountNumber =
-    rawVAccount?.accountNumber ||
-    rawVAccount?.account_number ||
-    rawVAccount?.accountNo ||
-    rawVAccount?.virtualAccountNumber ||
+    (typeof rawVAccount === "object" && rawVAccount !== null
+      ? rawVAccount.accountNumber ||
+        rawVAccount.account_number ||
+        rawVAccount.accountNo ||
+        rawVAccount.virtualAccountNumber
+      : "") ||
+    parsedNumFromMsg ||
+    savedAccountNum ||
     "";
+
   const extractedBankName =
-    rawVAccount?.bankName || rawVAccount?.bank_name || "Wema Bank";
+    (typeof rawVAccount === "object" && rawVAccount !== null
+      ? rawVAccount.bankName || rawVAccount.bank_name
+      : "") ||
+    parsedBankFromMsg ||
+    savedBankName ||
+    "Wema Bank";
+
   const extractedAccountName =
-    rawVAccount?.accountName ||
-    rawVAccount?.account_name ||
+    (typeof rawVAccount === "object" && rawVAccount !== null
+      ? rawVAccount.accountName || rawVAccount.account_name
+      : "") ||
     authUser?.fullName ||
     [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") ||
     "PAVE Customer";
 
+  // Cache to localStorage once discovered
+  useEffect(() => {
+    if (extractedAccountNumber && typeof window !== "undefined") {
+      localStorage.setItem("pave_virtual_account_number", extractedAccountNumber);
+      if (extractedBankName) {
+        localStorage.setItem("pave_virtual_bank_name", extractedBankName);
+      }
+    }
+  }, [extractedAccountNumber, extractedBankName]);
+
   const handleCopyAccountNumber = (accNum: string) => {
     if (!accNum) return;
-    navigator.clipboard.writeText(accNum).then(() => {
-      setCopiedAccount(true);
-      window.setTimeout(() => setCopiedAccount(false), 2500);
-    }).catch(() => {});
+    navigator.clipboard
+      .writeText(accNum)
+      .then(() => {
+        setCopiedAccount(true);
+        setAccountNotification(`Account number ${accNum} copied to clipboard!`);
+        window.setTimeout(() => setCopiedAccount(false), 2500);
+        window.setTimeout(() => setAccountNotification(null), 3500);
+      })
+      .catch(() => {});
   };
 
   const handleRefresh = () => {
@@ -207,8 +285,32 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="flex-1 overflow-y-auto"
+      className="flex-1 overflow-y-auto relative"
     >
+      {/* Toast Notification for User */}
+      <AnimatePresence>
+        {accountNotification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className="fixed top-5 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[92%] bg-[#0891B2] text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-white/20"
+          >
+            <CheckCircle2 size={18} className="shrink-0 text-[#CFFAFE]" />
+            <p className="text-xs font-medium flex-1 leading-snug">
+              {accountNotification}
+            </p>
+            <button
+              type="button"
+              onClick={() => setAccountNotification(null)}
+              className="text-white/80 hover:text-white cursor-pointer p-1"
+            >
+              <X size={15} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div
         style={{
           background: "linear-gradient(145deg, #059669 0%, #047857 100%)",
@@ -248,9 +350,11 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
         <div className="flex items-center justify-between flex-wrap gap-2 bg-white/10 rounded-xl px-4 py-2.5 w-full sm:w-fit">
           <div className="flex items-center gap-2">
             <Landmark size={14} className="text-white/70" />
-            <span className="text-white/70 text-xs">Wema Bank / PAVE: </span>
+            <span className="text-white/70 text-xs">
+              {extractedBankName} / PAVE:{" "}
+            </span>
             <span className="text-white text-xs font-mono font-semibold">
-              {virtualAccountQuery.isLoading
+              {virtualAccountQuery.isLoading && !extractedAccountNumber
                 ? "Loading account..."
                 : extractedAccountNumber || "Tap 'Virtual account' to view"}
             </span>
@@ -276,10 +380,43 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 key={a.label}
                 onClick={() => {
                   if (a.label.toLowerCase().includes("virtual")) {
-                    setShowVirtualAccount((prev) => !prev);
-                    if (!extractedAccountNumber) {
-                      void virtualAccountQuery.refetch();
-                    }
+                    setShowVirtualAccount(true);
+                    void virtualAccountQuery
+                      .refetch()
+                      .then((res) => {
+                        const resMsg = [
+                          typeof res.data?.message === "string" ? res.data.message : "",
+                          typeof (res.data as any)?.msg === "string" ? (res.data as any).msg : "",
+                          typeof res.data?.data === "string" ? res.data.data : "",
+                        ].filter(Boolean).join(" ");
+                        const m = resMsg.match(/\b\d{10}\b/);
+                        const accNum =
+                          (typeof res.data?.data === "object" && res.data?.data !== null
+                            ? (res.data?.data as any).accountNumber || (res.data?.data as any).account_number
+                            : null) ||
+                          (m ? m[0] : extractedAccountNumber);
+
+                        if (accNum) {
+                          localStorage.setItem("pave_virtual_account_number", accNum);
+                          setAccountNotification(
+                            `Virtual account active: ${accNum} (${extractedBankName}). Account number updated.`,
+                          );
+                          window.setTimeout(() => setAccountNotification(null), 4500);
+                        } else {
+                          setAccountNotification(
+                            `Virtual account details refreshed.`,
+                          );
+                          window.setTimeout(() => setAccountNotification(null), 3000);
+                        }
+                      })
+                      .catch(() => {
+                        if (extractedAccountNumber) {
+                          setAccountNotification(
+                            `Virtual account active: ${extractedAccountNumber} (${extractedBankName}).`,
+                          );
+                          window.setTimeout(() => setAccountNotification(null), 4000);
+                        }
+                      });
                     return;
                   }
                   onNav(a.screen as Screen);

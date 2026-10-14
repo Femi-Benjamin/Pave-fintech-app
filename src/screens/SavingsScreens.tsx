@@ -14,6 +14,7 @@ import {
   useCreateSavingMutation,
   useCreateSavingContributionMutation,
   useDeleteSavingMutation,
+  useSavingContributionsQuery,
   useSavingQuery,
   useSavingsQuery,
   useUpdateSavingMutation,
@@ -542,6 +543,7 @@ export function SavingsDetailScreen({
   savingId: string;
 }) {
   const savingQuery = useSavingQuery(savingId);
+  const contributionsQuery = useSavingContributionsQuery(savingId, Boolean(savingId));
   const walletBalanceQuery = useWalletBalanceQuery();
   const createContributionMutation = useCreateSavingContributionMutation();
   const withdrawMutation = useWithdrawContributionMutation();
@@ -1002,18 +1004,34 @@ export function SavingsDetailScreen({
           </div>
         </div>
         <section>
-          <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
-            Contribution History
-          </h3>
-          {(saving.contributions ?? []).length === 0 ? (
-            <p className="rounded-xl bg-white p-4 text-sm text-[#6B7280]">
-              No contributions recorded for this goal yet.
-            </p>
-          ) : (
-            saving.contributions?.map((contribution) => (
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-[#0D0F1C]">
+              Contribution History
+            </h3>
+            {contributionsQuery.isFetching && (
+              <span className="text-[11px] text-[#3730A3] flex items-center gap-1">
+                <Loader size={12} className="animate-spin" /> Updating...
+              </span>
+            )}
+          </div>
+          {(() => {
+            const displayedContributions =
+              contributionsQuery.data && contributionsQuery.data.length > 0
+                ? contributionsQuery.data
+                : (saving.contributions ?? []);
+
+            if (displayedContributions.length === 0) {
+              return (
+                <p className="rounded-xl bg-white p-4 text-sm text-[#6B7280]">
+                  No contributions recorded for this goal yet.
+                </p>
+              );
+            }
+
+            return displayedContributions.map((contribution) => (
               <div
-                key={contribution.id}
-                className="flex items-center justify-between gap-3 border-b border-[#F1F3FB] py-3"
+                key={contribution.id || contribution.reference || Math.random().toString()}
+                className="flex items-center justify-between gap-3 border-b border-[#F1F3FB] py-3 bg-white px-3 rounded-lg mb-1.5"
               >
                 <div>
                   <div className="text-sm font-medium text-[#0D0F1C]">
@@ -1022,15 +1040,15 @@ export function SavingsDetailScreen({
                   <div className="text-xs text-[#9CA3AF]">
                     {contribution.paidAt
                       ? new Date(contribution.paidAt).toLocaleDateString()
-                      : (contribution.status ?? "")}
+                      : (contribution.status ?? "Completed")}
                   </div>
                 </div>
                 <div className="text-sm font-semibold text-[#059669]">
-                  {fmt(amount(contribution.amount))}
+                  +{fmt(amount(contribution.amount))}
                 </div>
               </div>
-            ))
-          )}
+            ));
+          })()}
         </section>
       </div>
     </div>

@@ -43,6 +43,8 @@ import {
   deleteSaving,
   getSaving,
   getSavings,
+  getSavingContributions,
+  getContribution,
   updateSaving,
   withdrawContribution,
 } from "../api/savings";
@@ -87,6 +89,10 @@ export const savingsQueryKeys = {
   list: () => [...savingsQueryKeys.all, "list"] as const,
   detail: (savingId: string) =>
     [...savingsQueryKeys.all, "detail", savingId] as const,
+  contributions: (savingId: string) =>
+    [...savingsQueryKeys.all, "contributions", savingId] as const,
+  contributionDetail: (contributionId: string) =>
+    [...savingsQueryKeys.all, "contribution", contributionId] as const,
 };
 
 export const billQueryKeys = {
@@ -257,6 +263,9 @@ export function useWithdrawContributionMutation() {
           queryKey: savingsQueryKeys.detail(savingId),
         }),
         queryClient.invalidateQueries({
+          queryKey: savingsQueryKeys.contributions(savingId),
+        }),
+        queryClient.invalidateQueries({
           queryKey: transactionQueryKeys.walletBalance,
         }),
       ]);
@@ -281,10 +290,39 @@ export function useCreateSavingContributionMutation() {
           queryKey: savingsQueryKeys.detail(savingId),
         }),
         queryClient.invalidateQueries({
+          queryKey: savingsQueryKeys.contributions(savingId),
+        }),
+        queryClient.invalidateQueries({
           queryKey: transactionQueryKeys.walletBalance,
         }),
       ]);
     },
+  });
+}
+
+export function useSavingContributionsQuery(
+  savingId?: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: savingId
+      ? savingsQueryKeys.contributions(savingId)
+      : ([...savingsQueryKeys.all, "contributions", "none"] as const),
+    queryFn: () => getSavingContributions(savingId!),
+    enabled: Boolean(savingId && enabled),
+  });
+}
+
+export function useContributionQuery(
+  contributionId?: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: contributionId
+      ? savingsQueryKeys.contributionDetail(contributionId)
+      : ([...savingsQueryKeys.all, "contribution", "none"] as const),
+    queryFn: () => getContribution(contributionId!),
+    enabled: Boolean(contributionId && enabled),
   });
 }
 

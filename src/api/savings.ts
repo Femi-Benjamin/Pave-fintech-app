@@ -185,3 +185,66 @@ export async function createSavingContribution(
   );
   return ensureSuccess(data);
 }
+
+export async function getSavingContributions(savingId: string): Promise<SavingContribution[]> {
+  if (!savingId.trim()) {
+    throw new Error("A saving ID is required.");
+  }
+
+  try {
+    const { data } = await api.get<any>(
+      `/api/v1/contribution/savings/${encodeURIComponent(savingId)}/contributions`,
+    );
+
+    if (Array.isArray(data)) {
+      return data;
+    }
+    if (data?.data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    if (data?.data?.contributions && Array.isArray(data.data.contributions)) {
+      return data.data.contributions;
+    }
+    if (data?.contributions && Array.isArray(data.contributions)) {
+      return data.contributions;
+    }
+    return [];
+  } catch (err: any) {
+    // If backend uses saving basePath fallback
+    if (err?.response?.status === 404) {
+      try {
+        const { data } = await api.get<any>(
+          `${savingBasePath}/savings/${encodeURIComponent(savingId)}/contributions`,
+        );
+        if (Array.isArray(data)) return data;
+        if (data?.data && Array.isArray(data.data)) return data.data;
+      } catch {
+        // Fall back to empty array
+      }
+    }
+    throw err;
+  }
+}
+
+export async function getContribution(contributionId: string): Promise<SavingContributionResponse> {
+  if (!contributionId.trim()) {
+    throw new Error("A contribution ID is required.");
+  }
+
+  try {
+    const { data } = await api.get<any>(
+      `/api/v1/contribution/contributions/${encodeURIComponent(contributionId)}`,
+    );
+    const item = data?.data?.contribution ?? data?.data ?? data?.contribution ?? data;
+    return item as SavingContributionResponse;
+  } catch (err: any) {
+    if (err?.response?.status === 404) {
+      const { data } = await api.get<any>(
+        `/api/v1/contribution/${encodeURIComponent(contributionId)}`,
+      );
+      const item = data?.data?.contribution ?? data?.data ?? data?.contribution ?? data;
+      return item as SavingContributionResponse;
+    }
+    throw err;
+  }
+}
