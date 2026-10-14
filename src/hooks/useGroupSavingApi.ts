@@ -113,7 +113,7 @@ export function useUpdateGroupSavingMutation() {
     }) => updateGroupSaving(groupId, payload),
     onSuccess: async (_response, { groupId }) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
         queryClient.invalidateQueries({
           queryKey: groupSavingsQueryKeys.detail(groupId),
         }),
@@ -164,7 +164,7 @@ export function useContributeToGroupSavingMutation() {
     }) => contributeToGroupSaving(groupId, payload),
     onSuccess: async (_response, { groupId }) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
         queryClient.invalidateQueries({
           queryKey: groupSavingsQueryKeys.detail(groupId),
         }),
@@ -186,7 +186,7 @@ export function useWithdrawFromGroupSavingMutation() {
     }) => withdrawFromGroupSaving(groupId, payload),
     onSuccess: async (_response, { groupId }) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
         queryClient.invalidateQueries({
           queryKey: groupSavingsQueryKeys.detail(groupId),
         }),
