@@ -7,6 +7,7 @@ import { Screen } from "./pave-data";
 import { StoreProvider } from "./hooks/useLocalStore";
 import { NetworkStatusToast } from "./components/NetworkStatus";
 import { CoreScreenSkeleton } from "./components/Skeleton";
+import { PaveLoadingState } from "./components/PaveLoadingState";
 
 const SplashScreen = lazy(() =>
   import("./screens/AuthScreens").then((screens) => ({
@@ -226,19 +227,22 @@ function MobileApp({
     }
   }, [initialScreen, targetAuth]);
 
-  const mainScreens: Screen[] = [
-    "home",
-    "wallet",
-    "savings",
-    "group-savings",
-    "marketplace",
-    "messages",
-    "profile",
-    "notifications",
-    "transactions",
-    "settings",
+  const authOrIntroScreens: Screen[] = [
+    "splash",
+    "onboarding",
+    "login",
+    "register",
+    "forgot-password",
+    "accept-invitation",
+    "kyc-welcome",
+    "kyc-nin",
+    "kyc-id-type",
+    "kyc-id-upload",
+    "kyc-selfie",
+    "kyc-pending",
+    "kyc-approved",
   ];
-  const showNav = mainScreens.includes(screen);
+  const showNav = !authOrIntroScreens.includes(screen);
   const isFixedIntroScreen =
     screen === "onboarding" || screen === "login" || screen === "register";
 
@@ -426,16 +430,10 @@ function MobileApp({
           >
             <Suspense
               fallback={
-                ["home", "wallet", "group-savings", "savings", "create-saving", "savings-detail", "marketplace", "messages", "profile"].includes(screen)
-                  ? <CoreScreenSkeleton />
-                  : (
-                    <div
-                      className="flex flex-1 items-center justify-center text-sm text-[#6B7280]"
-                      role="status"
-                    >
-                      Loading...
-                    </div>
-                  )
+                <PaveLoadingState
+                  title="Loading PAVE..."
+                  subtitle="Securely preparing your experience"
+                />
               }
             >
               {renderScreen()}
@@ -454,7 +452,13 @@ function MobileApp({
                 const active =
                   screen === item.screen ||
                   (item.screen === "savings" &&
-                    ["create-saving", "savings-detail"].includes(screen));
+                    ["create-saving", "savings-detail"].includes(screen)) ||
+                  (item.screen === "group-savings" &&
+                    ["create-group-saving", "group-saving-detail"].includes(screen)) ||
+                  (item.screen === "wallet" &&
+                    ["fund-wallet", "transfer", "bills", "airtime", "transactions"].includes(screen)) ||
+                  (item.screen === "marketplace" &&
+                    ["product-detail", "cart", "checkout", "payment-plan"].includes(screen));
                 return (
                   <button
                     key={item.screen}

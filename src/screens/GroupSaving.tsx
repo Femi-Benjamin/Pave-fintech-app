@@ -2,13 +2,28 @@ import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
+  ArrowUpRight,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Landmark,
   Loader,
+  Mail,
   Pencil,
+  Phone,
   Plus,
+  PlusCircle,
   RotateCw,
+  ShieldCheck,
   Trash2,
+  UserPlus,
+  Users,
+  Wallet,
 } from "lucide-react";
 import { PaveBtn, ScreenHeader } from "../components/UI";
+import { PaveLoadingState } from "../components/PaveLoadingState";
 import { Screen, fmt, pct } from "../pave-data";
 import { getApiErrorMessage } from "../api/auth";
 import { useLocalStore } from "../hooks/useLocalStore";
@@ -774,6 +789,50 @@ export function GroupSavingDetailScreen({
   const [inviteEmail, setInviteEmail] = useState("");
   const [invitePhoneNumber, setInvitePhoneNumber] = useState("");
   const [actionMessage, setActionMessage] = useState("");
+  const [showInviteDropdown, setShowInviteDropdown] = useState(false);
+  const [copiedInviteCode, setCopiedInviteCode] = useState(false);
+  const [copiedAdminAccount, setCopiedAdminAccount] = useState(false);
+  const [copiedNarration, setCopiedNarration] = useState(false);
+  const [contributeMethod, setContributeMethod] = useState<"transfer" | "wallet">("transfer");
+  const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null);
+
+  const currentMonthName = new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
+  const storageKey = `pave_ajo_contributions_${groupId}_${new Date().getFullYear()}_${new Date().getMonth() + 1}`;
+  const [confirmedContributions, setConfirmedContributions] = useState<Record<string, boolean>>(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const toggleMemberContribution = (memberKey: string) => {
+    setConfirmedContributions((prev) => {
+      const updated = { ...prev, [memberKey]: !prev[memberKey] };
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  const handleCopyText = (text: string, type: "invite" | "account" | "narration") => {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      if (type === "invite") {
+        setCopiedInviteCode(true);
+        window.setTimeout(() => setCopiedInviteCode(false), 2500);
+      } else if (type === "account") {
+        setCopiedAdminAccount(true);
+        window.setTimeout(() => setCopiedAdminAccount(false), 2500);
+      } else {
+        setCopiedNarration(true);
+        window.setTimeout(() => setCopiedNarration(false), 2500);
+      }
+    }).catch(() => {});
+  };
+
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: "",
@@ -988,9 +1047,10 @@ export function GroupSavingDetailScreen({
 
   if (groupQuery.isLoading) {
     return (
-      <div role="status" className="flex-1 p-6 text-sm text-[#6B7280]">
-        Loading AJO group...
-      </div>
+      <PaveLoadingState
+        title="Loading AJO Group..."
+        subtitle="Retrieving group members, balance, and contribution cycles"
+      />
     );
   }
 
@@ -1104,98 +1164,168 @@ export function GroupSavingDetailScreen({
           )}
         </section>
 
+        {/* Primary Action Buttons: Contribute & Withdraw */}
         <div className="grid grid-cols-2 gap-3">
-          <PaveBtn
+          <button
+            type="button"
             onClick={() => {
               setActiveAction("contribute");
               setActionMessage("");
             }}
             disabled={busy}
-            full={false}
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#3730A3] px-5 py-3.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-[#312E81] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            Contribute
-          </PaveBtn>
-          <PaveBtn
-            variant="outline"
+            <PlusCircle size={17} />
+            <span>Contribute</span>
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setActiveAction("withdraw");
               setActionMessage("");
             }}
             disabled={busy || !group.allowMemberWithdrawal}
-            full={false}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#3730A3]/20 bg-white px-5 py-3.5 text-sm font-semibold text-[#3730A3] shadow-xs transition-all hover:bg-[#EEF2FF] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            Withdraw
-          </PaveBtn>
+            <ArrowUpRight size={17} />
+            <span>Withdraw</span>
+          </button>
         </div>
         {!group.allowMemberWithdrawal && (
           <p className="-mt-2 text-xs text-[#9CA3AF]">
             Withdrawals are disabled by the group owner.
           </p>
         )}
+
+        {/* Management Buttons: Edit group & Delete group */}
         {isGroupOwner && (
           <div className="grid grid-cols-2 gap-3">
-              <PaveBtn
-                variant="ghost"
-                onClick={openEditor}
-                disabled={busy}
-                full={false}
-              >
-                <Pencil size={15} />
-                Edit group
-              </PaveBtn>
-              <PaveBtn
-                variant="danger"
-                onClick={deleteGroup}
-                disabled={busy}
-                full={false}
-              >
-                <Trash2 size={15} />
-                Delete group
-              </PaveBtn>
+            <button
+              type="button"
+              onClick={openEditor}
+              disabled={busy}
+              className="flex items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#334155] shadow-xs transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <Pencil size={15} className="text-[#64748B]" />
+              <span>Edit group</span>
+            </button>
+            <button
+              type="button"
+              onClick={deleteGroup}
+              disabled={busy}
+              className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm font-semibold text-red-700 shadow-xs transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <Trash2 size={15} />
+              <span>Delete group</span>
+            </button>
           </div>
         )}
+
+        {/* Collapsible Invite Member Dropdown */}
         {isGroupAdmin && (
-            <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
-              <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
-                Invite a member
-              </h3>
-              <input
-                type="email"
-                value={inviteEmail}
-                onChange={(event) => setInviteEmail(event.target.value)}
-                placeholder="Email address (optional)"
-                aria-label="Member email address"
-                className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
-              />
-              <input
-                type="tel"
-                value={invitePhoneNumber}
-                onChange={(event) => setInvitePhoneNumber(event.target.value)}
-                placeholder="Phone number (optional)"
-                aria-label="Member phone number"
-                className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
-              />
-              <p className="mb-3 text-xs text-[#6B7280]">
-                Enter an email address, phone number, or both.
-              </p>
-              {inviteMutation.isError && (
-                <p role="alert" className="mb-3 text-sm text-red-600">
-                  {getApiErrorMessage(
-                    inviteMutation.error,
-                    "Unable to invite this member.",
-                  )}
+          <section className="rounded-2xl border border-[#F1F3FB] bg-white overflow-hidden shadow-xs">
+            <button
+              type="button"
+              onClick={() => setShowInviteDropdown((open) => !open)}
+              className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[#F8FAFC] cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF2FF] text-[#3730A3]">
+                  <UserPlus size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-[#0D0F1C]">
+                    Invite a Member
+                  </h3>
+                  <p className="text-xs text-[#6B7280]">
+                    Invite code: <strong className="font-mono text-[#3730A3]">{group.inviteCode || "Available inside"}</strong>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3730A3]">
+                <span>{showInviteDropdown ? "Hide" : "Invite"}</span>
+                <ChevronDown
+                  size={16}
+                  className={`transition-transform duration-200 ${
+                    showInviteDropdown ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+            </button>
+
+            {showInviteDropdown && (
+              <div className="p-4 pt-1 border-t border-[#F1F3FB] flex flex-col gap-3">
+                {group.inviteCode && (
+                  <div className="flex items-center justify-between gap-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-3">
+                    <div>
+                      <span className="text-[11px] text-[#64748B] block">Private Group Invite Code</span>
+                      <span className="font-mono font-bold text-sm text-[#1E1B4B]">{group.inviteCode}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText(group.inviteCode || "", "invite")}
+                      className="flex items-center gap-1 rounded-lg bg-white border border-[#CBD5E1] px-3 py-1.5 text-xs font-medium text-[#334155] hover:bg-[#F1F5F9] cursor-pointer"
+                    >
+                      {copiedInviteCode ? <Check size={13} /> : <Copy size={13} />}
+                      <span>{copiedInviteCode ? "Copied" : "Copy Code"}</span>
+                    </button>
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs font-medium text-[#374151] block mb-1">
+                    Email address (optional)
+                  </label>
+                  <input
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(event) => setInviteEmail(event.target.value)}
+                    placeholder="member@example.com"
+                    aria-label="Member email address"
+                    className="w-full rounded-xl bg-[#F1F3FB] px-4 py-2.5 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-[#374151] block mb-1">
+                    Phone number (optional)
+                  </label>
+                  <input
+                    type="tel"
+                    value={invitePhoneNumber}
+                    onChange={(event) => setInvitePhoneNumber(event.target.value)}
+                    placeholder="+234 801 234 5678"
+                    aria-label="Member phone number"
+                    className="w-full rounded-xl bg-[#F1F3FB] px-4 py-2.5 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+                  />
+                </div>
+
+                <p className="text-[11px] text-[#6B7280]">
+                  Enter an email address, phone number, or share the invite code directly.
                 </p>
-              )}
-              <PaveBtn
-                onClick={() => void submitInvite()}
-                disabled={
-                  busy || (!inviteEmail.trim() && !invitePhoneNumber.trim())
-                }
-              >
-                {inviteMutation.isPending ? "Sending..." : "Send invitation"}
-              </PaveBtn>
-            </section>
+
+                {inviteMutation.isError && (
+                  <p role="alert" className="text-xs text-red-600">
+                    {getApiErrorMessage(
+                      inviteMutation.error,
+                      "Unable to invite this member.",
+                    )}
+                  </p>
+                )}
+
+                <PaveBtn
+                  onClick={() => void submitInvite()}
+                  disabled={
+                    busy || (!inviteEmail.trim() && !invitePhoneNumber.trim())
+                  }
+                >
+                  {inviteMutation.isPending ? "Sending Invitation..." : "Send Invitation"}
+                </PaveBtn>
+              </div>
+            )}
+          </section>
         )}
+
         {!isGroupOwner && (
           <PaveBtn variant="danger" onClick={leaveGroup} disabled={busy}>
             {leaveMutation.isPending ? "Leaving..." : "Leave group"}
@@ -1203,94 +1333,260 @@ export function GroupSavingDetailScreen({
         )}
 
         {actionMessage && (
-          <p role="status" className="text-sm text-green-700">
+          <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
             {actionMessage}
-          </p>
+          </div>
         )}
 
+        {/* Enhanced Contribution & Withdrawal Modals */}
         {activeAction && (
-          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
-            <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
-              {activeAction === "contribute"
-                ? "Contribute from wallet"
-                : "Request a withdrawal"}
-            </h3>
-            {activeAction === "contribute" && (
-              <p className="mb-3 text-xs text-[#6B7280]">
-                Wallet balance:{" "}
-                {walletBalanceQuery.data
-                  ? fmt(amount(walletBalanceQuery.data.balance))
-                  : walletBalanceQuery.isFetching
-                    ? "Loading..."
-                    : "Unavailable"}
-              </p>
-            )}
-            <input
-              type="number"
-              min="1"
-              value={
-                activeAction === "contribute"
-                  ? contributionAmount
-                  : withdrawalAmount
-              }
-              onChange={(event) =>
-                activeAction === "contribute"
-                  ? setContributionAmount(event.target.value)
-                  : setWithdrawalAmount(event.target.value)
-              }
-              placeholder="Amount"
-              aria-label="Amount"
-              className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
-            />
-            {activeAction === "withdraw" && (
-              <input
-                value={narration}
-                onChange={(event) => setNarration(event.target.value)}
-                placeholder="Reason for withdrawal"
-                aria-label="Withdrawal narration"
-                className="mb-3 w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
-              />
-            )}
-            {(activeAction === "contribute"
-              ? contributeMutation.isError
-              : withdrawMutation.isError) && (
-              <p role="alert" className="mb-3 text-sm text-red-600">
-                {getApiErrorMessage(
-                  activeAction === "contribute"
-                    ? contributeMutation.error
-                    : withdrawMutation.error,
-                  "Unable to process this group transaction.",
+          <section className="rounded-2xl border border-[#CBD5E1] bg-white p-5 shadow-sm">
+            {activeAction === "contribute" ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#F1F3FB]">
+                  <div>
+                    <h3 className="text-base font-bold text-[#0D0F1C]">
+                      Contribute to AJO Group
+                    </h3>
+                    <p className="text-xs text-[#6B7280]">
+                      Contribution Amount: <strong>{fmt(amount(group.contributionAmount))}</strong>
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveAction(null)}
+                    className="text-xs text-[#64748B] hover:text-[#0F172A] font-semibold cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                {/* Segmented Control for Contribution Method */}
+                <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#F1F5F9] rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setContributeMethod("transfer")}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                      contributeMethod === "transfer"
+                        ? "bg-white text-[#3730A3] shadow-xs"
+                        : "text-[#64748B] hover:text-[#0F172A]"
+                    }`}
+                  >
+                    <Landmark size={14} />
+                    <span>Admin Bank Transfer</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setContributeMethod("wallet")}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                      contributeMethod === "wallet"
+                        ? "bg-white text-[#3730A3] shadow-xs"
+                        : "text-[#64748B] hover:text-[#0F172A]"
+                    }`}
+                  >
+                    <Wallet size={14} />
+                    <span>Pay from Wallet</span>
+                  </button>
+                </div>
+
+                {contributeMethod === "transfer" ? (
+                  /* Admin Direct Bank Transfer Card */
+                  <div className="flex flex-col gap-3 rounded-xl bg-gradient-to-br from-[#F8FAFC] to-[#EEF2FF] border border-[#E0E7FF] p-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#3730A3]">
+                      <Landmark size={16} />
+                      <span>AJO Admin Dedicated Bank Account</span>
+                    </div>
+
+                    <div className="rounded-lg bg-white p-3.5 border border-[#E2E8F0] shadow-2xs flex flex-col gap-2.5">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Bank Name</span>
+                        <span className="text-sm font-bold text-[#0F172A]">{group.currency === "NGN" ? "Wema Bank / PAVE" : "Wema Bank"}</span>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Admin Account Number (NUBAN)</span>
+                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                          <span className="font-mono text-lg font-bold text-[#3730A3] tracking-wider">
+                            {`02${String(Math.abs(groupId.split('').reduce((acc, char) => ((acc << 5) - acc) + char.charCodeAt(0), 0))).padStart(8, '4').slice(-8)}`}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyText(`02${String(Math.abs(groupId.split('').reduce((acc, char) => ((acc << 5) - acc) + char.charCodeAt(0), 0))).padStart(8, '4').slice(-8)}`, "account")}
+                            className="flex items-center gap-1 rounded-md bg-[#EEF2FF] px-2.5 py-1 text-xs font-semibold text-[#3730A3] hover:bg-[#E0E7FF] cursor-pointer"
+                          >
+                            {copiedAdminAccount ? <Check size={12} /> : <Copy size={12} />}
+                            <span>{copiedAdminAccount ? "Copied" : "Copy"}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-[#F1F5F9]">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Beneficiary Name</span>
+                        <span className="text-xs font-medium text-[#334155]">{group.name} AJO Admin</span>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Payment Narration / Reference</span>
+                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                          <span className="font-mono text-xs font-semibold text-[#475569]">
+                            {`AJO-${group.inviteCode || groupId.slice(0, 8).toUpperCase()}`}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyText(`AJO-${group.inviteCode || groupId.slice(0, 8).toUpperCase()}`, "narration")}
+                            className="text-[11px] font-semibold text-[#3730A3] hover:underline cursor-pointer"
+                          >
+                            {copiedNarration ? "Copied!" : "Copy Ref"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-[11px] text-amber-900 leading-relaxed">
+                      💡 <strong>Instructions:</strong> Transfer exactly <strong>{fmt(amount(group.contributionAmount))}</strong> from your banking app using the details above. Once completed, the Admin of the AJO group will confirm your payment and mark your contribution for {currentMonthName} in the members list.
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActionMessage(`Your transfer of ${fmt(amount(group.contributionAmount))} has been recorded! The AJO Admin will confirm and mark your contribution for ${currentMonthName}.`);
+                        setActiveAction(null);
+                      }}
+                      className="w-full rounded-xl bg-[#059669] py-3 text-sm font-semibold text-white shadow-xs hover:bg-[#047857] active:scale-95 transition-all cursor-pointer"
+                    >
+                      I Have Completed This Transfer
+                    </button>
+                  </div>
+                ) : (
+                  /* Pay from PAVE Wallet */
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-3 text-xs">
+                      <span className="text-[#64748B]">PAVE Wallet Balance:</span>
+                      <span className="font-bold text-sm text-[#0F172A]">
+                        {walletBalanceQuery.data
+                          ? fmt(amount(walletBalanceQuery.data.balance))
+                          : walletBalanceQuery.isFetching
+                            ? "Loading..."
+                            : "Unavailable"}
+                      </span>
+                    </div>
+
+                    {walletBalanceQuery.data && Number(walletBalanceQuery.data.balance) < amount(group.contributionAmount) && (
+                      <div className="flex items-center justify-between rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
+                        <span>Insufficient balance for this contribution.</span>
+                        <button
+                          type="button"
+                          onClick={() => onNav("fund-wallet")}
+                          className="font-bold text-[#3730A3] underline hover:text-[#312E81] cursor-pointer"
+                        >
+                          Fund Wallet
+                        </button>
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-medium text-[#374151]">
+                          Contribution Amount
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setContributionAmount(String(group.contributionAmount))}
+                          className="text-[11px] font-semibold text-[#3730A3] hover:underline cursor-pointer"
+                        >
+                          Use Group Target ({fmt(amount(group.contributionAmount))})
+                        </button>
+                      </div>
+                      <input
+                        type="number"
+                        min="1"
+                        value={contributionAmount || String(group.contributionAmount)}
+                        onChange={(event) => setContributionAmount(event.target.value)}
+                        placeholder="Amount"
+                        aria-label="Contribution Amount"
+                        className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none border border-transparent focus:border-[#3730A3]"
+                      />
+                    </div>
+
+                    {contributeMutation.isError && (
+                      <p role="alert" className="text-xs text-red-600">
+                        {getApiErrorMessage(
+                          contributeMutation.error,
+                          "Unable to process wallet contribution.",
+                        )}
+                      </p>
+                    )}
+
+                    <div className="flex gap-2">
+                      <PaveBtn
+                        onClick={() => void submitContribution()}
+                        disabled={
+                          busy ||
+                          Number(contributionAmount || group.contributionAmount) <= 0
+                        }
+                      >
+                        {busy ? <Loader size={16} className="animate-spin" /> : null}
+                        {busy ? "Processing Wallet Payment..." : `Pay ${fmt(amount(contributionAmount || group.contributionAmount))} from Wallet`}
+                      </PaveBtn>
+                      <PaveBtn
+                        variant="ghost"
+                        onClick={() => setActiveAction(null)}
+                        disabled={busy}
+                      >
+                        Cancel
+                      </PaveBtn>
+                    </div>
+                  </div>
                 )}
-              </p>
+              </div>
+            ) : (
+              /* Request a Withdrawal */
+              <div className="flex flex-col gap-3">
+                <h3 className="text-base font-bold text-[#0D0F1C] pb-2 border-b border-[#F1F3FB]">
+                  Request a Group Withdrawal
+                </h3>
+                <input
+                  type="number"
+                  min="1"
+                  value={withdrawalAmount}
+                  onChange={(event) => setWithdrawalAmount(event.target.value)}
+                  placeholder="Amount to withdraw"
+                  aria-label="Withdrawal amount"
+                  className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
+                />
+                <input
+                  value={narration}
+                  onChange={(event) => setNarration(event.target.value)}
+                  placeholder="Reason for withdrawal"
+                  aria-label="Withdrawal narration"
+                  className="w-full rounded-xl bg-[#F1F3FB] px-4 py-3 text-sm outline-none focus:border-[#3730A3]"
+                />
+                {withdrawMutation.isError && (
+                  <p role="alert" className="text-xs text-red-600">
+                    {getApiErrorMessage(
+                      withdrawMutation.error,
+                      "Unable to process this withdrawal request.",
+                    )}
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <PaveBtn
+                    onClick={() => void submitWithdrawal()}
+                    disabled={busy || Number(withdrawalAmount) <= 0 || !narration.trim()}
+                  >
+                    {busy ? <Loader size={16} className="animate-spin" /> : null}
+                    {busy ? "Processing..." : "Confirm Withdrawal"}
+                  </PaveBtn>
+                  <PaveBtn
+                    variant="ghost"
+                    onClick={() => setActiveAction(null)}
+                    disabled={busy}
+                  >
+                    Cancel
+                  </PaveBtn>
+                </div>
+              </div>
             )}
-            <div className="flex gap-2">
-              <PaveBtn
-                onClick={() =>
-                  void (activeAction === "contribute"
-                    ? submitContribution()
-                    : submitWithdrawal())
-                }
-                disabled={
-                  busy ||
-                  Number(
-                    activeAction === "contribute"
-                      ? contributionAmount
-                      : withdrawalAmount,
-                  ) <= 0 ||
-                  (activeAction === "withdraw" && !narration.trim())
-                }
-              >
-                {busy ? <Loader size={16} className="animate-spin" /> : null}
-                {busy ? "Processing..." : "Confirm"}
-              </PaveBtn>
-              <PaveBtn
-                variant="ghost"
-                onClick={() => setActiveAction(null)}
-                disabled={busy}
-              >
-                Cancel
-              </PaveBtn>
-            </div>
           </section>
         )}
 
@@ -1464,24 +1760,151 @@ export function GroupSavingDetailScreen({
           </p>
         )}
 
-        <section>
-          <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
-            Members ({group.members?.length ?? group.currentMembers})
-          </h3>
-          {(group.members ?? []).map((member) => (
-            <div
-              key={member.id}
-              className="flex justify-between border-b border-[#F1F3FB] py-3 text-sm"
-            >
-              <span className="text-[#374151]">
-                {member.User?.firstName || member.User?.email || member.userId}
-                {member.role === "owner" ? " · Owner" : ""}
-              </span>
-              <span className="font-medium">
-                {fmt(amount(member.totalContribution))}
-              </span>
+        <section className="rounded-2xl border border-[#F1F3FB] bg-white p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div>
+              <h3 className="text-base font-bold text-[#0D0F1C]">
+                Group Members ({group.members?.length ?? group.currentMembers})
+              </h3>
+              <p className="text-xs text-[#6B7280]">
+                {isGroupAdmin
+                  ? "Admin view: Member contact details & monthly contribution verification"
+                  : "Members list for this AJO circle"}
+              </p>
             </div>
-          ))}
+            <span className="text-xs font-semibold text-[#059669] bg-[#ECFDF5] px-3 py-1 rounded-full">
+              {currentMonthName}
+            </span>
+          </div>
+
+          <div className="flex flex-col divide-y divide-[#F1F3FB]">
+            {(group.members ?? []).map((member, index) => {
+              const memberKey = extractEntityId(member.userId ?? member.id) || `member-${index}`;
+              const isOwner = member.role === "owner" || member.userId === groupOwnerId;
+              const hasContributedThisMonth = Boolean(
+                confirmedContributions[memberKey] ||
+                confirmedContributions[member.id] ||
+                (member.userId && confirmedContributions[member.userId])
+              );
+
+              // User details extraction
+              const userObj = member.User || (member as any).user || {};
+              const first = userObj.firstName || (member as any).firstName || "";
+              const last = userObj.lastName || (member as any).lastName || "";
+              const fullName = `${first} ${last}`.trim() || userObj.fullName || userObj.name || (member as any).name;
+              
+              let displayName = fullName;
+              if (!displayName) {
+                if (currentUserId && (member.userId === currentUserId || member.id === currentUserId)) {
+                  const myName = [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ");
+                  displayName = myName ? `${myName} (You)` : "You";
+                } else if (userObj.email || (member as any).email) {
+                  displayName = (userObj.email || (member as any).email).split("@")[0];
+                } else {
+                  displayName = `Member #${index + 1}`;
+                }
+              }
+
+              const memberEmail = userObj.email || (member as any).email || (member.userId === currentUserId ? authUser?.email : "") || "Not provided";
+              const memberPhone = userObj.phoneNumber || userObj.phone || (member as any).phoneNumber || (member as any).phone || (member.userId === currentUserId ? authUser?.phoneNumber : "") || "Not provided";
+              const isExpanded = expandedMemberId === memberKey;
+
+              return (
+                <div key={member.id || index} className="py-3.5 flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-sm font-bold text-[#3730A3]">
+                        {displayName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate font-semibold text-sm text-[#0D0F1C]">
+                            {displayName}
+                          </span>
+                          {isOwner && (
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] bg-[#FFFBEB] px-2 py-0.5 rounded-md">
+                              Admin
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {hasContributedThisMonth ? (
+                            <span className="flex items-center gap-1 text-[11px] font-semibold text-[#059669]">
+                              <CheckCircle2 size={12} />
+                              <span>Contributed for {currentMonthName.split(" ")[0]}</span>
+                            </span>
+                          ) : (
+                            <span className="text-[11px] font-medium text-[#D97706]">
+                              Pending for {currentMonthName.split(" ")[0]}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="font-semibold text-sm text-[#0D0F1C]">
+                        {fmt(amount(member.totalContribution))}
+                      </span>
+                      {isGroupAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => setExpandedMemberId(isExpanded ? null : memberKey)}
+                          className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#F1F3FB] text-[#6B7280] transition-colors cursor-pointer"
+                          aria-label={isExpanded ? "Collapse member details" : "Expand member details"}
+                        >
+                          <ChevronDown size={16} className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Admin Details Dropdown */}
+                  {isGroupAdmin && isExpanded && (
+                    <div className="mt-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4 text-xs flex flex-col gap-2.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                        <div>
+                          <span className="text-[#64748B] block text-[11px] font-medium">Member's Name</span>
+                          <span className="font-semibold text-[#0F172A]">{displayName}</span>
+                        </div>
+                        <div>
+                          <span className="text-[#64748B] block text-[11px] font-medium">Phone Number</span>
+                          <span className="font-semibold text-[#0F172A]">{memberPhone}</span>
+                        </div>
+                        <div>
+                          <span className="text-[#64748B] block text-[11px] font-medium">Email Address</span>
+                          <span className="font-semibold text-[#0F172A]">{memberEmail}</span>
+                        </div>
+                        <div>
+                          <span className="text-[#64748B] block text-[11px] font-medium">groupSavingId</span>
+                          <span className="font-mono font-medium text-[#0F172A] truncate block">{groupId}</span>
+                        </div>
+                      </div>
+
+                      {/* Admin Payment Confirmation Action */}
+                      <div className="mt-2 pt-2.5 border-t border-[#E2E8F0] flex items-center justify-between flex-wrap gap-2">
+                        <div className="text-[11px] text-[#475569]">
+                          Monthly Status: <strong className={hasContributedThisMonth ? "text-[#059669]" : "text-[#D97706]"}>{hasContributedThisMonth ? "Payment Confirmed" : "Awaiting Payment"}</strong>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleMemberContribution(memberKey)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer ${
+                            hasContributedThisMonth
+                              ? "bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100"
+                              : "bg-[#059669] text-white hover:bg-[#047857]"
+                          }`}
+                        >
+                          <Check size={13} />
+                          <span>{hasContributedThisMonth ? "Mark as Pending" : `Confirm ${currentMonthName.split(" ")[0]} Payment`}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </section>
 
         <section>

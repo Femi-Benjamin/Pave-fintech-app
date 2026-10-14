@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { ArrowLeft, Loader, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Loader, Pencil, Plus, PlusCircle, Trash2 } from "lucide-react";
 import { PaveBtn, ScreenHeader } from "../components/UI";
+import { PaveLoadingState } from "../components/PaveLoadingState";
 import { Screen, fmt, pct } from "../pave-data";
 import { getApiErrorMessage } from "../api/auth";
 import type {
@@ -649,9 +650,10 @@ export function SavingsDetailScreen({
   }
   if (savingQuery.isLoading) {
     return (
-      <div role="status" className="flex-1 p-6 text-sm text-[#6B7280]">
-        Loading savings details...
-      </div>
+      <PaveLoadingState
+        title="Loading Savings Goal..."
+        subtitle="Retrieving your target balance and contribution progress"
+      />
     );
   }
   if (savingQuery.isError || !saving) {
@@ -726,48 +728,54 @@ export function SavingsDetailScreen({
         </div>
       </div>
       <div className="px-6 -mt-4 pb-8 flex flex-col gap-4">
+        {/* Primary Action Buttons: Add Funds & Withdraw */}
         <div className="grid grid-cols-2 gap-3">
-          <PaveBtn
+          <button
+            type="button"
             onClick={() => {
               setActiveAction("contribute");
               setActionMessage("");
             }}
             disabled={busy}
-            full={false}
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#3730A3] px-5 py-3.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-[#312E81] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            Add Funds
-          </PaveBtn>
-          <PaveBtn
-            variant="outline"
+            <PlusCircle size={17} />
+            <span>Add Funds</span>
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setActiveAction("withdraw");
               setActionMessage("");
             }}
             disabled={busy}
-            full={false}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#3730A3]/20 bg-white px-5 py-3.5 text-sm font-semibold text-[#3730A3] shadow-xs transition-all hover:bg-[#EEF2FF] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            Withdraw
-          </PaveBtn>
+            <ArrowUpRight size={17} />
+            <span>Withdraw</span>
+          </button>
         </div>
+
+        {/* Management Buttons: Edit Goal & Delete Goal */}
         <div className="grid grid-cols-2 gap-3">
-          <PaveBtn
-            variant="ghost"
+          <button
+            type="button"
             onClick={openEditor}
             disabled={busy}
-            full={false}
+            className="flex items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#334155] shadow-xs transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            <Pencil size={15} />
-            Edit Goal
-          </PaveBtn>
-          <PaveBtn
-            variant="danger"
+            <Pencil size={15} className="text-[#64748B]" />
+            <span>Edit Goal</span>
+          </button>
+          <button
+            type="button"
             onClick={handleDelete}
             disabled={busy}
-            full={false}
+            className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm font-semibold text-red-700 shadow-xs transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <Trash2 size={15} />
-            Delete Goal
-          </PaveBtn>
+            <span>Delete Goal</span>
+          </button>
         </div>
         {actionMessage && (
           <p role="status" className="text-sm text-green-700">

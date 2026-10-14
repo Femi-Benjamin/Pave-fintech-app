@@ -86,7 +86,15 @@ export function DesktopSidebar({
             const active =
               screen === item.screen ||
               (item.screen === "savings" &&
-                ["create-saving", "savings-detail"].includes(screen));
+                ["create-saving", "savings-detail"].includes(screen)) ||
+              (item.screen === "group-savings" &&
+                ["create-group-saving", "group-saving-detail"].includes(screen)) ||
+              (item.screen === "wallet" &&
+                ["fund-wallet", "transfer", "bills", "airtime", "transactions"].includes(screen)) ||
+              (item.screen === "marketplace" &&
+                ["product-detail", "cart", "checkout", "payment-plan"].includes(screen)) ||
+              (item.screen === "messages" && ["chat"].includes(screen)) ||
+              (item.screen === "profile" && ["settings"].includes(screen));
             return (
               <button
                 key={item.screen}

@@ -20,6 +20,7 @@ import {
   Loader,
   BarChart2,
   RotateCw,
+  Copy,
 } from "lucide-react";
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
 import { Screen, Transaction, fmt } from "../pave-data";
@@ -101,7 +102,10 @@ function toWalletTransaction(
 }
 
 export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const virtualAccountQuery = useDedicationVirtualAccountQuery(false);
+  const { authUser } = useLocalStore();
+  const virtualAccountQuery = useDedicationVirtualAccountQuery(true);
+  const [showVirtualAccount, setShowVirtualAccount] = useState(false);
+  const [copiedAccount, setCopiedAccount] = useState(false);
   const walletBalanceQuery = useWalletBalanceQuery();
   const transactionsQuery = useAllTransactionsQuery();
   const transactions =
@@ -110,10 +114,38 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     ? Number(walletBalanceQuery.data.balance)
     : null;
 
+  const rawVAccount =
+    virtualAccountQuery.data?.data ||
+    (virtualAccountQuery.data as any)?.virtualAccount ||
+    (virtualAccountQuery.data as any);
+  const extractedAccountNumber =
+    rawVAccount?.accountNumber ||
+    rawVAccount?.account_number ||
+    rawVAccount?.accountNo ||
+    rawVAccount?.virtualAccountNumber ||
+    "";
+  const extractedBankName =
+    rawVAccount?.bankName || rawVAccount?.bank_name || "Wema Bank";
+  const extractedAccountName =
+    rawVAccount?.accountName ||
+    rawVAccount?.account_name ||
+    authUser?.fullName ||
+    [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") ||
+    "PAVE Customer";
+
+  const handleCopyAccountNumber = (accNum: string) => {
+    if (!accNum) return;
+    navigator.clipboard.writeText(accNum).then(() => {
+      setCopiedAccount(true);
+      window.setTimeout(() => setCopiedAccount(false), 2500);
+    }).catch(() => {});
+  };
+
   const handleRefresh = () => {
     void Promise.all([
       walletBalanceQuery.refetch(),
       transactionsQuery.refetch(),
+      virtualAccountQuery.refetch(),
     ]);
   };
 
@@ -187,18 +219,6 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <h2 className="mb-4 text-[22px] font-bold text-white md:text-[28px]">
             My Wallet
           </h2>
-          {/* <div className="flex items-center gap-2">
-            <button
-              onClick={handleRefresh}
-              title="Refresh wallet"
-              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors"
-            >
-              <RotateCw size={15} />
-            </button>
-            <button className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer text-white transition-colors">
-              <MoreHorizontal size={18} />
-            </button>
-          </div> */}
         </div>
         <div className="text-white/70 text-md mb">Available Balance</div>
         <div
@@ -225,12 +245,26 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             )}
           </p>
         )}
-        <div className="flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2.5 w-fit">
-          <Landmark size={14} className="text-white/70" />
-          <span className="text-white/70 text-xs">PAVE/Wema: </span>
-          <span className="text-white text-xs font-mono font-semibold">
-            Virtual Account number below.
-          </span>
+        <div className="flex items-center justify-between flex-wrap gap-2 bg-white/10 rounded-xl px-4 py-2.5 w-full sm:w-fit">
+          <div className="flex items-center gap-2">
+            <Landmark size={14} className="text-white/70" />
+            <span className="text-white/70 text-xs">Wema Bank / PAVE: </span>
+            <span className="text-white text-xs font-mono font-semibold">
+              {virtualAccountQuery.isLoading
+                ? "Loading account..."
+                : extractedAccountNumber || "Tap 'Virtual account' to view"}
+            </span>
+          </div>
+          {extractedAccountNumber ? (
+            <button
+              type="button"
+              onClick={() => handleCopyAccountNumber(extractedAccountNumber)}
+              className="text-[11px] text-white bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              {copiedAccount ? <Check size={12} /> : <Copy size={12} />}
+              {copiedAccount ? "Copied" : "Copy"}
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -241,15 +275,18 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               <button
                 key={a.label}
                 onClick={() => {
-                  if (a.label === "Virtual Account") {
-                    void virtualAccountQuery.refetch();
+                  if (a.label.toLowerCase().includes("virtual")) {
+                    setShowVirtualAccount((prev) => !prev);
+                    if (!extractedAccountNumber) {
+                      void virtualAccountQuery.refetch();
+                    }
                     return;
                   }
                   onNav(a.screen as Screen);
                 }}
                 disabled={
                   a.disabled ||
-                  (a.label === "Virtual account" &&
+                  (a.label.toLowerCase().includes("virtual") &&
                     virtualAccountQuery.isFetching)
                 }
                 className={`flex flex-col items-center gap-2 ${
@@ -265,7 +302,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   {a.icon}
                 </div>
                 <span className="text-xs text-[#374151] font-medium text-center leading-tight">
-                  {a.label === "Virtual account" &&
+                  {a.label.toLowerCase().includes("virtual") &&
                   virtualAccountQuery.isFetching
                     ? "Loading..."
                     : a.label}
@@ -281,17 +318,96 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               )}
             </p>
           )}
-          {virtualAccountQuery.isSuccess && (
+
+          {/* Dedicated Virtual Account Details Card */}
+          {(showVirtualAccount || virtualAccountQuery.isSuccess) && (
             <div
               role="status"
-              className="mt-4 rounded-xl border border-[#A5F3FC] bg-[#ECFEFF] p-4"
+              className="mt-5 rounded-2xl border border-[#A5F3FC] bg-gradient-to-br from-[#ECFEFF] via-[#F0FDFA] to-[#EFF6FF] p-5 shadow-xs"
             >
-              <h3 className="mb-2 text-sm font-semibold text-[#0D0F1C]">
-                Virtual account details
-              </h3>
-              <pre className="whitespace-pre-wrap wrap-break-word text-xs text-[#374151]">
-                {JSON.stringify(virtualAccountQuery.data.data, null, 2)}
-              </pre>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0891B2] text-white shadow-xs">
+                    <Landmark size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#0E7490]">
+                      Dedicated Virtual Account
+                    </h3>
+                    <p className="text-xs text-[#155E75]">
+                      Instant funding via Nigerian bank transfer
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowVirtualAccount(false)}
+                  className="text-[#0E7490] hover:text-[#155E75] text-xs font-semibold cursor-pointer"
+                >
+                  Hide
+                </button>
+              </div>
+
+              {virtualAccountQuery.isLoading && (
+                <div className="flex items-center gap-2 py-4 text-xs text-[#0E7490]">
+                  <Loader size={16} className="animate-spin" />
+                  <span>Retrieving your dedicated account number...</span>
+                </div>
+              )}
+
+              {extractedAccountNumber ? (
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-xl bg-white p-4 border border-[#CFFAFE] shadow-xs">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-1">
+                      Bank Name
+                    </div>
+                    <div className="text-sm font-bold text-[#0F172A] mb-3">
+                      {extractedBankName}
+                    </div>
+
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-1">
+                      Account Number (NUBAN)
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-mono text-2xl font-bold tracking-wider text-[#0891B2]">
+                        {extractedAccountNumber}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyAccountNumber(extractedAccountNumber)}
+                        className="flex items-center gap-1.5 rounded-lg bg-[#0891B2] px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#0E7490] active:scale-95 cursor-pointer transition-all"
+                      >
+                        {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
+                        <span>{copiedAccount ? "Copied!" : "Copy Number"}</span>
+                      </button>
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-[#F1F5F9]">
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-0.5">
+                        Account Name / Beneficiary
+                      </div>
+                      <div className="text-xs font-semibold text-[#334155]">
+                        {extractedAccountName}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-[#475569] leading-relaxed">
+                    ⚡ Transfer from any Nigerian banking app (GTBank, Zenith, Access, Kuda, OPay, PalmPay, etc.) directly into this 10-digit account number to fund your PAVE wallet instantly.
+                  </p>
+                </div>
+              ) : !virtualAccountQuery.isLoading && (
+                <div className="rounded-xl bg-white/80 p-4 text-xs text-[#475569]">
+                  <p className="mb-2">Your dedicated virtual account is being provisioned with Wema Bank.</p>
+                  <button
+                    type="button"
+                    onClick={() => void virtualAccountQuery.refetch()}
+                    className="font-semibold text-[#0891B2] hover:underline cursor-pointer"
+                  >
+                    Refresh Account Details
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
