@@ -14,6 +14,7 @@ import {
   extractEntityId,
   isAlreadyMemberMessage,
   normalizeGroupSavingsList,
+  mergeGroupSavings,
   type GroupSaving,
   type GroupSavingMember,
 } from "../src/api/groupSaving";
@@ -438,4 +439,156 @@ test("normalizeGroupSavingsList: unwraps various API response wrapper envelopes"
   assert.deepEqual(normalizeGroupSavingsList(undefined), []);
   assert.deepEqual(normalizeGroupSavingsList({}), []);
   assert.deepEqual(normalizeGroupSavingsList({ data: null }), []);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. MERGE GROUP SAVINGS & POSTMAN DOCUMENTED ENDPOINT TESTS
+// ─────────────────────────────────────────────────────────────────────────────
+test("mergeGroupSavings: combines owner-created groups and joined groups without losing records", () => {
+  const createdGroup: any = {
+    id: "grp-created-1",
+    userId: "user-current",
+    name: "My Created Group",
+    members: [{ userId: "user-current", role: "owner" }],
+  };
+
+  const joinedGroup: any = {
+    id: "grp-joined-2",
+    userId: "user-other",
+    name: "Sea Work",
+    inviteCode: "60DBA48C",
+    members: [
+      { userId: "user-other", role: "owner" },
+      { userId: "user-current", role: "member", status: "active" },
+    ],
+  };
+
+  const merged = mergeGroupSavings([createdGroup], [joinedGroup]);
+  assert.equal(merged.length, 2);
+  assert.equal(merged.some((g) => g.id === "grp-created-1"), true);
+  assert.equal(merged.some((g) => g.id === "grp-joined-2"), true);
+});
+
+test("mergeGroupSavings: deduplicates overlapping groups and preserves richer member information", () => {
+  const basicGroup: any = {
+    id: "grp-overlap",
+    name: "Thrift 500k",
+    userId: "user-owner",
+    members: [],
+  };
+
+  const richGroup: any = {
+    id: "grp-overlap",
+    name: "Thrift 500k",
+    userId: "user-owner",
+    isMember: true,
+    userRole: "member",
+    members: [
+      {
+        id: "mem-1",
+        userId: "user-member",
+        role: "member",
+        status: "active",
+        user: { firstName: "Josef", lastName: "Ade", email: "josef@example.com" },
+      },
+    ],
+  };
+
+  const merged = mergeGroupSavings([basicGroup], [richGroup]);
+  assert.equal(merged.length, 1);
+  assert.equal(merged[0].members?.length, 1);
+  assert.equal(merged[0].isMember, true);
+  assert.equal(merged[0].userRole, "member");
+});
+
+test("isGroupSavingMember: correctly authorizes user from Postman documented get-group-saving response sample", () => {
+  // Sample directly from Postman documentation: GET /api/v1/group-saving/get-group-saving
+  const postmanSample: any = {
+    id: "99fc5799-3cdb-4646-800c-ae6bce108563",
+    userId: "d6193336-dbcf-45f5-9bcd-a5f1b0a20d45",
+    name: "500k thrift",
+    description: "Serve any purpose",
+    image: "",
+    targetAmount: "500000.00",
+    contributionAmount: "50000.00",
+    currentBalance: "0.00",
+    currency: "NGN",
+    frequency: "monthly",
+    maxMembers: 10,
+    currentMembers: 2,
+    startDate: "2026-10-10T00:00:00.000Z",
+    endDate: "2027-08-10T00:00:00.000Z",
+    inviteCode: "4C8B5FCF",
+    visibility: "private",
+    allowMemberWithdrawal: false,
+    approvalRequired: true,
+    status: "active",
+    createdAt: "2026-10-10T10:19:59.266Z",
+    updatedAt: "2026-10-12T15:34:58.642Z",
+    deletedAt: null,
+    members: [
+      {
+        id: "b023db16-d43e-434e-b30f-fee497af06d3",
+        groupSavingId: "99fc5799-3cdb-4646-800c-ae6bce108563",
+        userId: "2427048f-d404-4508-accf-158bde8a826b",
+        role: "member",
+        totalContribution: "0.00",
+        joinedAt: "2026-10-12T15:34:58.525Z",
+        status: "active",
+        createdAt: "2026-10-12T15:34:58.525Z",
+        updatedAt: "2026-10-12T15:34:58.525Z",
+        deletedAt: null,
+        user: {
+          firstName: "John",
+          lastName: "Doe",
+          email: "kayo@yopmail.com",
+          phoneNumber: "0812345678",
+          image: null,
+        },
+      },
+      {
+        id: "b94a27c7-4c40-4436-8b7f-97bc0f6d94be",
+        groupSavingId: "99fc5799-3cdb-4646-800c-ae6bce108563",
+        userId: "d6193336-dbcf-45f5-9bcd-a5f1b0a20d45",
+        role: "owner",
+        totalContribution: "0.00",
+        joinedAt: "2026-10-10T10:19:59.360Z",
+        status: "active",
+        createdAt: "2026-10-10T10:19:59.360Z",
+        updatedAt: "2026-10-10T10:19:59.360Z",
+        deletedAt: null,
+        user: {
+          firstName: "Timothy",
+          lastName: "Uche",
+          email: "uchetimothy2015@gmail.com",
+          phoneNumber: "+2348148042760",
+          image: null,
+        },
+      },
+    ],
+  };
+
+  // 1. Group creator (Timothy Uche) has access as owner
+  assert.equal(
+    isGroupSavingMember(postmanSample, "d6193336-dbcf-45f5-9bcd-a5f1b0a20d45"),
+    true,
+  );
+
+  // 2. Joined member (John Doe) has access by userId
+  assert.equal(
+    isGroupSavingMember(postmanSample, "2427048f-d404-4508-accf-158bde8a826b"),
+    true,
+  );
+
+  // 3. Joined member has access by email
+  assert.equal(
+    isGroupSavingMember(postmanSample, "", "kayo@yopmail.com"),
+    true,
+  );
+
+  // 4. Unrelated stranger has NO access
+  assert.equal(
+    isGroupSavingMember(postmanSample, "stranger-user-id", "stranger@yopmail.com"),
+    false,
+  );
 });

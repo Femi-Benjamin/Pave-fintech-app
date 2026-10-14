@@ -3,14 +3,17 @@ import {
   contributeToGroupSaving,
   createGroupSaving,
   deleteGroupSaving,
+  getCombinedGroupSavings,
   getGroupSaving,
   getGroupSavings,
   getGroupWithdrawal,
   getGroupWithdrawals,
+  getJoinedGroupSavings,
   getMyGroupWithdrawals,
   inviteMemberToGroup,
   joinGroupSaving,
   leaveGroupSaving,
+  mergeGroupSavings,
   updateGroupSaving,
   withdrawFromGroupSaving,
 } from "../api/groupSaving";
@@ -25,6 +28,8 @@ import type {
 export const groupSavingsQueryKeys = {
   all: ["groupSavings"] as const,
   list: () => [...groupSavingsQueryKeys.all, "list"] as const,
+  joined: () => [...groupSavingsQueryKeys.all, "joined"] as const,
+  combined: () => [...groupSavingsQueryKeys.all, "combined"] as const,
   detail: (groupId: string) =>
     [...groupSavingsQueryKeys.all, "detail", groupId] as const,
   myWithdrawals: () =>
@@ -37,8 +42,16 @@ export const groupSavingsQueryKeys = {
 
 export function useGroupSavingsQuery(enabled = true) {
   return useQuery({
-    queryKey: groupSavingsQueryKeys.list(),
-    queryFn: getGroupSavings,
+    queryKey: groupSavingsQueryKeys.combined(),
+    queryFn: getCombinedGroupSavings,
+    enabled,
+  });
+}
+
+export function useJoinedGroupSavingsQuery(enabled = true) {
+  return useQuery({
+    queryKey: groupSavingsQueryKeys.joined(),
+    queryFn: getJoinedGroupSavings,
     enabled,
   });
 }
@@ -125,7 +138,15 @@ export function useJoinGroupSavingMutation() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: groupSavingsQueryKeys.all }),
-        queryClient.refetchQueries({ queryKey: groupSavingsQueryKeys.list() }),
+        queryClient.refetchQueries({
+          queryKey: groupSavingsQueryKeys.combined(),
+        }),
+        queryClient.refetchQueries({
+          queryKey: groupSavingsQueryKeys.joined(),
+        }),
+        queryClient.refetchQueries({
+          queryKey: groupSavingsQueryKeys.list(),
+        }),
       ]);
     },
   });

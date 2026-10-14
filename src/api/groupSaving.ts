@@ -282,7 +282,12 @@ export function normalizeGroupSavingsList(response: any): GroupSaving[] {
     response.savings ??
     response.data ??
     response;
-  return Array.isArray(list) ? list : [];
+
+  if (Array.isArray(list)) return list;
+  if (list && typeof list === "object" && (list.id || list._id || list.name)) {
+    return [list as GroupSaving];
+  }
+  return [];
 }
 
 export async function getGroupSavings(): Promise<GroupSavingsListResponse> {
@@ -295,6 +300,81 @@ export async function getGroupSavings(): Promise<GroupSavingsListResponse> {
   return {
     success: true,
     data: normalizeGroupSavingsList(data),
+  };
+}
+
+export async function getJoinedGroupSavings(): Promise<GroupSavingsListResponse> {
+  const { data } = await api.get<any>(
+    "/api/v1/group-saving/get-group-saving",
+  );
+  if (!data?.success && data?.status !== true && data?.status !== "success") {
+    throw new Error(data?.message || "Unable to load joined AJO groups.");
+  }
+  return {
+    success: true,
+    data: normalizeGroupSavingsList(data),
+  };
+}
+
+export function mergeGroupSavings(
+  primaryList: GroupSaving[] = [],
+  supplementaryList: GroupSaving[] = [],
+): GroupSaving[] {
+  const map = new Map<string, GroupSaving>();
+
+  for (const group of primaryList) {
+    const id = extractEntityId(group.id ?? (group as any)._id);
+    if (id) {
+      map.set(id, group);
+    }
+  }
+
+  for (const group of supplementaryList) {
+    const id = extractEntityId(group.id ?? (group as any)._id);
+    if (!id) continue;
+    const existing = map.get(id);
+    if (!existing) {
+      map.set(id, group);
+    } else {
+      const existingMembers = Array.isArray(existing.members) ? existing.members : [];
+      const newMembers = Array.isArray(group.members) ? group.members : [];
+      const mergedMembers =
+        newMembers.length > existingMembers.length ? newMembers : existingMembers;
+      map.set(id, {
+        ...existing,
+        ...group,
+        members: mergedMembers,
+        isMember: Boolean(existing.isMember || group.isMember),
+        userRole:
+          existing.userRole ||
+          group.userRole ||
+          (existing as any).role ||
+          (group as any).role,
+      });
+    }
+  }
+
+  return Array.from(map.values());
+}
+
+export async function getCombinedGroupSavings(): Promise<GroupSavingsListResponse> {
+  const [allRes, joinedRes] = await Promise.allSettled([
+    getGroupSavings(),
+    getJoinedGroupSavings(),
+  ]);
+
+  const allGroups = allRes.status === "fulfilled" ? allRes.value.data : [];
+  const joinedGroups = joinedRes.status === "fulfilled" ? joinedRes.value.data : [];
+
+  if (allRes.status === "rejected" && joinedRes.status === "rejected") {
+    const error = allRes.reason || joinedRes.reason;
+    throw new Error(error?.message || "Unable to load your AJO groups.");
+  }
+
+  const merged = mergeGroupSavings(allGroups, joinedGroups);
+  return {
+    success: true,
+    data: merged,
   };
 }
 
