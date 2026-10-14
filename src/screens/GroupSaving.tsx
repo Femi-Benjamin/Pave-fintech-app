@@ -33,6 +33,7 @@ import type {
   GroupSavingFrequency,
   GroupSavingUpdatePayload,
 } from "../api/groupSaving";
+import { isGroupSavingMember } from "../api/groupSaving";
 import { Skeleton } from "../components/Skeleton";
 
 function amount(value: number | string) {
@@ -75,9 +76,12 @@ export function GroupSavingsScreen({
   onDismissSuccess?: () => void;
 }) {
   const { authUser } = useLocalStore();
+  const currentUserId = String(authUser?.id ?? authUser?._id ?? "");
   const savingsQuery = useGroupSavingsQuery();
   const joinGroupMutation = useJoinGroupSavingMutation();
-  const savings = savingsQuery.data?.data ?? [];
+  const savings = (savingsQuery.data?.data ?? []).filter((group) =>
+    isGroupSavingMember(group, currentUserId),
+  );
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
   useEffect(() => {
@@ -714,11 +718,17 @@ export function GroupSavingDetailScreen({
   const group = groupQuery.data?.data;
   const { authUser } = useLocalStore();
   const currentUserId = String(authUser?.id ?? authUser?._id ?? "");
-  const groupWithdrawalsQuery = useGroupWithdrawalsQuery(groupId);
+  const canAccessGroup = Boolean(
+    group && isGroupSavingMember(group, currentUserId),
+  );
+  const groupWithdrawalsQuery = useGroupWithdrawalsQuery(
+    groupId,
+    canAccessGroup,
+  );
   const myWithdrawalsQuery = useMyGroupWithdrawalsQuery();
   const withdrawalDetailQuery = useGroupWithdrawalQuery(
     selectedWithdrawalId,
-    Boolean(selectedWithdrawalId),
+    canAccessGroup && Boolean(selectedWithdrawalId),
   );
   const walletBalanceQuery = useWalletBalanceQuery();
   const contributeMutation = useContributeToGroupSavingMutation();
@@ -932,6 +942,20 @@ export function GroupSavingDetailScreen({
             Back to My AJO
           </PaveBtn>
         </div>
+      </div>
+    );
+  }
+
+  if (!canAccessGroup) {
+    return (
+      <div className="flex-1 p-6">
+        <p role="alert" className="mb-4 text-sm text-red-600">
+          This AJO group is private. You can view it after joining with an
+          invitation code from its admin.
+        </p>
+        <PaveBtn variant="ghost" onClick={() => onNav("group-savings")}>
+          Back to My AJO
+        </PaveBtn>
       </div>
     );
   }

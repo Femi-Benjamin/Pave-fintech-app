@@ -30,6 +30,7 @@ export interface GroupSaving {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
+  members?: GroupSavingMember[];
 }
 
 export interface GroupSavingsListResponse {
@@ -46,6 +47,24 @@ export interface GroupSavingMember {
   joinedAt: string;
   status: string;
   User?: { firstName?: string; lastName?: string; email?: string };
+}
+
+export function isGroupSavingMember(
+  group: Pick<GroupSaving, "userId" | "members">,
+  userId: string,
+) {
+  if (!userId) return false;
+  if (group.userId === userId) return true;
+
+  return Boolean(
+    group.members?.some(
+      (member) =>
+        member.userId === userId &&
+        ["active", "accepted", "approved", "joined"].includes(
+          member.status.toLowerCase(),
+        ),
+    ),
+  );
 }
 
 export interface GroupSavingDetail extends GroupSaving {

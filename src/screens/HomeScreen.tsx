@@ -26,6 +26,7 @@ import {
 import { useGroupSavingsQuery } from "../hooks/useGroupSavingApi";
 import type { TransactionRecord } from "../api/transactions";
 import type { Saving } from "../api/savings";
+import { isGroupSavingMember } from "../api/groupSaving";
 import { getApiErrorMessage } from "../api/auth";
 
 function homeTransaction(record: TransactionRecord, index: number) {
@@ -108,12 +109,15 @@ export function HomeScreen({
   onSelectSaving: (savingId: string) => void;
 }) {
   const { authUser } = useLocalStore();
+  const currentUserId = String(authUser?.id ?? authUser?._id ?? "");
   const walletBalanceQuery = useWalletBalanceQuery();
   const savingsQuery = useSavingsQuery();
   const groupSavingsQuery = useGroupSavingsQuery();
   const transactionsQuery = useAllTransactionsQuery();
   const savings = savingsQuery.data?.data.savings ?? [];
-  const groupSavings = groupSavingsQuery.data?.data ?? [];
+  const groupSavings = (groupSavingsQuery.data?.data ?? []).filter((group) =>
+    isGroupSavingMember(group, currentUserId),
+  );
   const transactions =
     transactionsQuery.data?.transactions.map(homeTransaction) ?? [];
   const weeklySpending = getWeeklySpending(
@@ -451,7 +455,7 @@ export function HomeScreen({
                     onSelectGroup(s.id);
                     onNav("group-saving-detail");
                   }}
-                  className="bg-[#F7F8FF] rounded-2xl p-4 border border-[#F1F3FB] hover:border-[#C7D2FE] transition-all text-left cursor-pointer flex flex-col justify-between"
+                  className="bg-[#F7F8FF] rounded-2xl p-4 border border-[#F1F3FB] transition-all text-left flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -528,7 +532,8 @@ export function HomeScreen({
                 !groupSavingsQuery.isError &&
                 groupSavings.length === 0 && (
                   <p className="text-sm text-[#6B7280]">
-                    You don't have any AJO groups yet.
+                    You haven't joined any AJO groups yet. Join with an
+                    invitation code to see your groups here.
                   </p>
                 )}
             </div>
