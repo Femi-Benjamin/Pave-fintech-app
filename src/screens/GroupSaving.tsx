@@ -11,6 +11,7 @@ import {
 import { PaveBtn, ScreenHeader } from "../components/UI";
 import { Screen, fmt, pct } from "../pave-data";
 import { getApiErrorMessage } from "../api/auth";
+import { useLocalStore } from "../hooks/useLocalStore";
 import {
   useContributeToGroupSavingMutation,
   useCreateGroupSavingMutation,
@@ -73,6 +74,7 @@ export function GroupSavingsScreen({
   successNotice?: string;
   onDismissSuccess?: () => void;
 }) {
+  const { authUser } = useLocalStore();
   const savingsQuery = useGroupSavingsQuery();
   const joinGroupMutation = useJoinGroupSavingMutation();
   const savings = savingsQuery.data?.data ?? [];
@@ -101,18 +103,13 @@ export function GroupSavingsScreen({
         }}
         className="px-6 pt-14 pb-8"
       >
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="mb-4 text-[22px] font-bold text-white md:text-[28px]">
+        <div className="mb-5">
+          <h2 className="text-[22px] font-bold text-white md:text-[28px]">
             My AJO
           </h2>
-          <button
-            type="button"
-            onClick={() => setShowJoinForm((visible) => !visible)}
-            aria-expanded={showJoinForm}
-            className="rounded-xl border border-white/30 bg-white/15 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/25"
-          >
-            {showJoinForm ? "Close invite" : "Join with invite code"}
-          </button>
+          <p className="mt-1 text-sm text-white/75">
+            Create a group or join one with a private invitation code.
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
@@ -169,19 +166,56 @@ export function GroupSavingsScreen({
             )}
           </div>
         )}
-        <button
-          onClick={() => onNav("create-group-saving")}
-          className="flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-[#C7D2FE] bg-[#EEF2FF] hover:bg-[#E0E7FF] transition-colors cursor-pointer"
-        >
-          <div className="w-10 h-10 rounded-full bg-[#3730A3] flex items-center justify-center">
-            <Plus size={20} className="text-white" />
-          </div>
-          <span className="text-[#3730A3] font-medium text-sm">
-            Create New AJO Group
-          </span>
-        </button>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => onNav("create-group-saving")}
+            className="flex min-h-20 items-center gap-3 rounded-2xl border border-[#E0E7FF] bg-[#EEF2FF] p-4 text-left transition-colors hover:bg-[#E0E7FF]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3730A3]">
+              <Plus size={20} className="text-white" />
+            </div>
+            <span>
+              <span className="block text-sm font-semibold text-[#3730A3]">
+                Create AJO
+              </span>
+              <span className="mt-1 block text-xs text-[#6B7280]">
+                Start a group and invite members
+              </span>
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowJoinForm((visible) => !visible)}
+            aria-expanded={showJoinForm}
+            aria-controls="ajo-invite-code-form"
+            className="flex min-h-20 items-center gap-3 rounded-2xl border border-[#FDE68A] bg-[#FFFBEB] p-4 text-left transition-colors hover:bg-[#FEF3C7]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#D97706] text-white">
+              <ArrowLeft size={19} className="rotate-180" />
+            </div>
+            <span>
+              <span className="block text-sm font-semibold text-[#92400E]">
+                {showJoinForm ? "Close Join AJO" : "Join AJO"}
+              </span>
+              <span className="mt-1 block text-xs text-[#6B7280]">
+                Enter the invitation code you received
+              </span>
+            </span>
+          </button>
+        </div>
         {showJoinForm && (
-          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+          <section
+            id="ajo-invite-code-form"
+            className="rounded-2xl border border-[#F1F3FB] bg-white p-4"
+          >
+            <h3 className="mb-1 text-sm font-semibold text-[#0D0F1C]">
+              Join a specific AJO
+            </h3>
+            <p className="mb-3 text-xs text-[#6B7280]">
+              AJO groups are private. You can only join with an invitation code
+              from a group admin.
+            </p>
             <label className="mb-2 block text-sm font-medium text-[#374151]">
               Group invite code
               <input
@@ -233,7 +267,8 @@ export function GroupSavingsScreen({
           !savingsQuery.isError &&
           savings.length === 0 && (
             <p className="rounded-2xl bg-white p-5 text-sm text-[#6B7280]">
-              You don't have any AJO groups yet. Create one to get started.
+              You are not a member of any AJO groups yet. Create a group or
+              enter an invitation code to join one.
             </p>
           )}
         {savingsQuery.isLoading &&
@@ -677,6 +712,8 @@ export function GroupSavingDetailScreen({
   const [selectedWithdrawalId, setSelectedWithdrawalId] = useState("");
   const groupQuery = useGroupSavingQuery(groupId);
   const group = groupQuery.data?.data;
+  const { authUser } = useLocalStore();
+  const currentUserId = String(authUser?.id ?? authUser?._id ?? "");
   const groupWithdrawalsQuery = useGroupWithdrawalsQuery(groupId);
   const myWithdrawalsQuery = useMyGroupWithdrawalsQuery();
   const withdrawalDetailQuery = useGroupWithdrawalQuery(
@@ -714,9 +751,16 @@ export function GroupSavingDetailScreen({
     status: "active",
     image: "",
   });
-  const owner = Boolean(
-    group?.members?.some((member) => member.role === "owner"),
+  const currentMembership = group?.members?.find(
+    (member) => currentUserId && member.userId === currentUserId,
   );
+  const membershipRole = currentMembership?.role.toLowerCase();
+  const isGroupOwner = Boolean(
+    currentUserId &&
+      (group?.userId === currentUserId || membershipRole === "owner"),
+  );
+  const isGroupAdmin =
+    isGroupOwner || Boolean(currentUserId && membershipRole === "admin");
   const busy =
     contributeMutation.isPending ||
     withdrawMutation.isPending ||
@@ -997,9 +1041,8 @@ export function GroupSavingDetailScreen({
             Withdrawals are disabled by the group owner.
           </p>
         )}
-        {owner && (
-          <>
-            <div className="grid grid-cols-2 gap-3">
+        {isGroupOwner && (
+          <div className="grid grid-cols-2 gap-3">
               <PaveBtn
                 variant="ghost"
                 onClick={openEditor}
@@ -1018,7 +1061,9 @@ export function GroupSavingDetailScreen({
                 <Trash2 size={15} />
                 Delete group
               </PaveBtn>
-            </div>
+          </div>
+        )}
+        {isGroupAdmin && (
             <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
               <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
                 Invite a member
@@ -1059,9 +1104,8 @@ export function GroupSavingDetailScreen({
                 {inviteMutation.isPending ? "Sending..." : "Send invitation"}
               </PaveBtn>
             </section>
-          </>
         )}
-        {!owner && (
+        {!isGroupOwner && (
           <PaveBtn variant="danger" onClick={leaveGroup} disabled={busy}>
             {leaveMutation.isPending ? "Leaving..." : "Leave group"}
           </PaveBtn>
