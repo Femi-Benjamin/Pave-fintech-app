@@ -42,12 +42,7 @@ export function MarketplaceScreen({
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex-1 overflow-y-auto"
-    >
+    <div className="flex-1 overflow-y-auto">
       <div
         style={{
           background: "linear-gradient(145deg, #7C3AED 0%, #6D28D9 100%)",
@@ -164,7 +159,7 @@ export function MarketplaceScreen({
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 

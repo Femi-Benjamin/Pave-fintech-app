@@ -29,12 +29,7 @@ export function MessagesScreen({
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex-1 flex flex-col overflow-y-auto"
-    >
+    <div className="flex-1 flex flex-col overflow-y-auto">
       <div className="px-6 pt-14 pb-4 bg-white border-b border-[#F1F3FB]">
         <div className="flex items-center justify-between mb-4">
           <h2
@@ -108,7 +103,7 @@ export function MessagesScreen({
           </button>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 

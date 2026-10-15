@@ -23,6 +23,7 @@ import { Screen } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { ProfileScreenSkeleton } from "../components/Skeleton";
 import { getApiErrorMessage } from "../api/auth";
+import { getToken, isTokenValid } from "../lib/authStorage";
 import {
   useDeleteUserAccountMutation,
   useProfileQuery,
@@ -57,12 +58,12 @@ export function ProfileScreen({
   const email = authUser?.email?.trim() || "";
   const profileQuery = useProfileQuery(
     email,
-    Boolean(localStorage.getItem("pave_token")),
+    Boolean(getToken() && isTokenValid(getToken())),
   );
   const updateProfileMutation = useUpdateProfileMutation(email);
   const accountDetailsQuery = useUserAccountDetailsQuery(false);
   const savingsQuery = useSavingsQuery(
-    Boolean(localStorage.getItem("pave_token")),
+    Boolean(getToken() && isTokenValid(getToken())),
   );
   const [activePanel, setActivePanel] = useState<ProfilePanel | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
@@ -219,12 +220,7 @@ export function ProfileScreen({
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex-1 overflow-y-auto"
-    >
+    <div className="flex-1 overflow-y-auto">
       <div
         style={{
           background: "linear-gradient(145deg, #1E1B4B 0%, #3730A3 100%)",
@@ -968,7 +964,7 @@ export function ProfileScreen({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
 

@@ -4,9 +4,22 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { extractUserIdFromToken } from "../api/auth";
+import {
+  getToken,
+  clearToken,
+  getStoredAuthUser,
+  setStoredAuthUser,
+  isTokenValid,
+  getTokenExpiry,
+  recordActivity,
+  isInactiveTimeout,
+  subscribeToAuthLogout,
+  INACTIVITY_TIMEOUT_MS,
+} from "../lib/authStorage";
 import {
   Transaction,
   Product,
@@ -42,6 +55,8 @@ export interface LocalStoreData {
 }
 
 export interface StoreContextType extends LocalStoreData {
+  isAuthLoading: boolean;
+  isAuthenticated: boolean;
   fundWallet: (amount: number, method: string) => boolean;
   transferMoney: (
     amount: number,
@@ -71,7 +86,6 @@ export interface StoreContextType extends LocalStoreData {
 }
 
 const STORAGE_KEY = "pave_wallet_store_v2";
-const AUTH_USER_KEY = "pave_auth_user";
 
 const DEFAULT_STORE: LocalStoreData = {
   walletBalance: 247500,
@@ -83,7 +97,6 @@ const DEFAULT_STORE: LocalStoreData = {
 };
 
 function getInitialStore(): LocalStoreData {
-  let initialAuthUser: AuthUser | null = null;
   let partialStore: Partial<LocalStoreData> = {};
 
   try {
@@ -108,42 +121,28 @@ function getInitialStore(): LocalStoreData {
           ? parsed.chatMessages
           : DEFAULT_STORE.chatMessages,
       };
-      if (parsed.authUser && typeof parsed.authUser === "object") {
-        initialAuthUser = parsed.authUser;
-      }
     }
   } catch (e) {
-    console.error("Error reading localStorage:", e);
+    console.error("Error reading storage:", e);
   }
 
-  if (!initialAuthUser) {
-    try {
-      const savedUser = localStorage.getItem(AUTH_USER_KEY);
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser);
-        if (parsedUser && typeof parsedUser === "object") {
-          initialAuthUser = parsedUser;
+  // Strictly validate token from sessionStorage before restoring user
+  let initialAuthUser: AuthUser | null = null;
+  const token = getToken();
+  if (token && isTokenValid(token) && !isInactiveTimeout()) {
+    initialAuthUser = getStoredAuthUser();
+    const tokenUserId = extractUserIdFromToken(token);
+    if (tokenUserId) {
+      if (initialAuthUser) {
+        if (!initialAuthUser.id && !initialAuthUser._id) {
+          initialAuthUser = { ...initialAuthUser, id: tokenUserId };
         }
+      } else {
+        initialAuthUser = { id: tokenUserId };
       }
-    } catch (e) {
-      console.error("Error reading saved user:", e);
     }
-  }
-
-  // Backfill authoritative user ID from JWT token if available
-  const token =
-    typeof localStorage !== "undefined"
-      ? localStorage.getItem("pave_token")
-      : null;
-  const tokenUserId = extractUserIdFromToken(token);
-  if (tokenUserId) {
-    if (initialAuthUser) {
-      if (!initialAuthUser.id && !initialAuthUser._id) {
-        initialAuthUser = { ...initialAuthUser, id: tokenUserId };
-      }
-    } else {
-      initialAuthUser = { id: tokenUserId };
-    }
+  } else {
+    clearToken();
   }
 
   return {
@@ -158,26 +157,131 @@ const StoreContext = createContext<StoreContextType | null>(null);
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [store, setStore] = useState<LocalStoreData>(getInitialStore);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const tokenExpiryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const inactivityCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
-  // Sync with localStorage
+  // Sync wallet & mockup data with localStorage (excluding auth credentials)
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-      localStorage.setItem(
-        AUTH_USER_KEY,
-        JSON.stringify(store.authUser ?? null),
-      );
+      const { authUser, ...persistable } = store;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     } catch (e) {
       console.error("Error writing to localStorage:", e);
     }
   }, [store]);
 
+  const logout = useCallback(() => {
+    if (tokenExpiryTimerRef.current) {
+      clearTimeout(tokenExpiryTimerRef.current);
+      tokenExpiryTimerRef.current = null;
+    }
+    clearToken();
+    void queryClient.cancelQueries();
+    queryClient.clear();
+    setStore((prev) => ({ ...prev, authUser: null }));
+  }, [queryClient]);
+
+  // Initial Auth Validation & Expiry Timer setup
+  useEffect(() => {
+    const token = getToken();
+
+    if (!token || !isTokenValid(token) || isInactiveTimeout()) {
+      logout();
+      setIsAuthLoading(false);
+      return;
+    }
+
+    // Restore active session user
+    const existingUser = getStoredAuthUser();
+    const tokenUserId = extractUserIdFromToken(token);
+    let resolvedUser = existingUser;
+    if (tokenUserId) {
+      resolvedUser = resolvedUser
+        ? { ...resolvedUser, id: resolvedUser.id || tokenUserId }
+        : { id: tokenUserId };
+    }
+
+    if (resolvedUser) {
+      setStore((prev) => ({ ...prev, authUser: resolvedUser }));
+    }
+
+    // Set token expiry timer
+    const expiryTimestamp = getTokenExpiry(token);
+    if (expiryTimestamp) {
+      const timeRemaining = expiryTimestamp - Date.now();
+      if (timeRemaining <= 0) {
+        logout();
+      } else {
+        tokenExpiryTimerRef.current = setTimeout(() => {
+          logout();
+        }, timeRemaining);
+      }
+    }
+
+    setIsAuthLoading(false);
+
+    return () => {
+      if (tokenExpiryTimerRef.current) {
+        clearTimeout(tokenExpiryTimerRef.current);
+      }
+    };
+  }, [logout]);
+
+  // 15-Minute Inactivity Tracker
+  useEffect(() => {
+    if (!store.authUser) return;
+
+    recordActivity();
+
+    const handleUserActivity = () => {
+      recordActivity();
+    };
+
+    const events = [
+      "mousemove",
+      "keydown",
+      "click",
+      "scroll",
+      "touchstart",
+    ] as const;
+    events.forEach((evt) => {
+      window.addEventListener(evt, handleUserActivity, { passive: true });
+    });
+
+    // Check inactivity every 15 seconds
+    inactivityCheckTimerRef.current = setInterval(() => {
+      if (isInactiveTimeout()) {
+        logout();
+      }
+    }, 15000);
+
+    return () => {
+      events.forEach((evt) => {
+        window.removeEventListener(evt, handleUserActivity);
+      });
+      if (inactivityCheckTimerRef.current) {
+        clearInterval(inactivityCheckTimerRef.current);
+        inactivityCheckTimerRef.current = null;
+      }
+    };
+  }, [store.authUser, logout]);
+
+  // Global listener for API 401/403 or Token Expired events
+  useEffect(() => {
+    const unsubscribe = subscribeToAuthLogout(() => {
+      logout();
+    });
+    return unsubscribe;
+  }, [logout]);
+
   const setAuthUser = useCallback((user: AuthUser | null) => {
     if (user) {
-      const token =
-        typeof localStorage !== "undefined"
-          ? localStorage.getItem("pave_token")
-          : null;
+      const token = getToken();
       const tokenUserId = extractUserIdFromToken(token);
       const directId =
         user.id ??
@@ -190,20 +294,27 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         ...user,
         ...(directId ? { id: String(directId).trim() } : {}),
       };
+      setStoredAuthUser(normalizedUser);
       setStore((prev) => ({ ...prev, authUser: normalizedUser }));
+
+      // Setup expiry timer on user set
+      if (tokenExpiryTimerRef.current) {
+        clearTimeout(tokenExpiryTimerRef.current);
+      }
+      const expiryTimestamp = getTokenExpiry(token);
+      if (expiryTimestamp) {
+        const timeRemaining = expiryTimestamp - Date.now();
+        if (timeRemaining > 0) {
+          tokenExpiryTimerRef.current = setTimeout(() => {
+            logout();
+          }, timeRemaining);
+        }
+      }
       return;
     }
+    clearToken();
     setStore((prev) => ({ ...prev, authUser: null }));
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem("pave_token");
-    localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem("pave_finger_user_id");
-    void queryClient.cancelQueries();
-    queryClient.clear();
-    setStore((prev) => ({ ...prev, authUser: null }));
-  }, [queryClient]);
+  }, [logout]);
 
   const fundWallet = useCallback((amount: number, method: string) => {
     if (amount <= 0) return false;
@@ -361,14 +472,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetStore = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem("pave_token");
+    clearToken();
     setStore(DEFAULT_STORE);
   }, []);
 
+  const isAuthenticated = Boolean(
+    store.authUser && getToken() && isTokenValid(getToken()),
+  );
+
   const value: StoreContextType = {
     ...store,
+    isAuthLoading,
+    isAuthenticated,
     fundWallet,
     transferMoney,
     payBill,

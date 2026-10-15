@@ -111,26 +111,102 @@ export async function postTransferWebhook(payload: TransferWebhookPayload) {
   return data;
 }
 
+/**
+ * The backend replies with e.g.
+ *   403 {"status":false,"message":"You already had an account: 9817600139, Wema Bank"}
+ * Parse that into a normal virtual-account response.
+ * Requires BOTH "already" wording AND a 10-digit NUBAN, so unrelated errors
+ * that happen to contain a 10-digit number are not mistaken for an account.
+ */
+function parseExistingAccountMessage(
+  msg: unknown,
+): DedicationVirtualAccountResponse | null {
+  if (typeof msg !== "string" || !msg) return null;
+
+  const lower = msg.toLowerCase();
+  const mentionsExisting =
+    lower.includes("already had an account") ||
+    lower.includes("already exists") ||
+    lower.includes("account already");
+  const numMatch = msg.match(/\b\d{10}\b/);
+
+  if (!mentionsExisting || !numMatch) return null;
+
+  let bankName = "Wema Bank";
+  if (!/wema/i.test(msg)) {
+    const afterNumber = msg.slice((numMatch.index ?? 0) + numMatch[0].length);
+    const bankMatch = afterNumber.match(/^\s*,\s*([A-Za-z0-9 &.\-]+)/);
+    const candidate = bankMatch?.[1]?.trim().replace(/\.$/, "");
+    if (candidate && candidate.length < 30) {
+      bankName = candidate;
+    }
+  }
+
+  return {
+    status: "true",
+    message: msg,
+    data: {
+      accountNumber: numMatch[0],
+      bankName,
+      accountName: "PAVE Customer",
+    },
+  };
+}
+
 export async function getDedicationVirtualAccount() {
-  const { data } = await api.get<DedicationVirtualAccountResponse>(
-    `${transactionBasePath}/getDedicationVirtualAccount`,
-  );
-  return data;
+  try {
+    const { data } = await api.get<DedicationVirtualAccountResponse>(
+      `${transactionBasePath}/getDedicationVirtualAccount`,
+    );
+
+    // Success response that carries account info only inside the message
+    if (!data?.data?.accountNumber) {
+      const parsed = parseExistingAccountMessage(data?.message);
+      if (parsed) return parsed;
+    }
+
+    return data;
+  } catch (error: any) {
+    const responseData = error?.response?.data;
+    const msg =
+      responseData?.message ||
+      responseData?.msg ||
+      (typeof responseData === "string" ? responseData : "") ||
+      error?.message ||
+      "";
+
+    const parsed = parseExistingAccountMessage(msg);
+    if (parsed) return parsed;
+
+    throw error;
+  }
 }
 
 export async function getAllTransactions() {
-  const { data } = await api.get<TransactionsResponse>(
-    `${transactionBasePath}/getAllTransactions`,
-  );
+  try {
+    const { data } = await api.get<TransactionsResponse>(
+      `${transactionBasePath}/getAllTransactions`,
+    );
 
-  if (!data.status) {
-    throw new Error(data.message || "Unable to load transactions.");
-  }
-  if (!Array.isArray(data.transactions)) {
-    throw new Error("The transactions response is invalid.");
-  }
+    if (!data.status) {
+      throw new Error(data.message || "Unable to load transactions.");
+    }
+    if (!Array.isArray(data.transactions)) {
+      throw new Error("The transactions response is invalid.");
+    }
 
-  return data;
+    return data;
+  } catch (error: any) {
+    // Backend returns 404 when the user has no transactions yet
+    if (error?.response?.status === 404) {
+      return {
+        status: true,
+        message: error?.response?.data?.message || "No transactions yet.",
+        transactions: [],
+      } as TransactionsResponse;
+    }
+    throw error;
+  }
 }
 
 export async function getTransactionById(transactionId: string) {

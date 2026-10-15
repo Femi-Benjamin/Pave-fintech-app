@@ -3,8 +3,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import OnboardingLandingScreen from "./components/OnboardingScreen";
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen } from "./pave-data";
-import { StoreProvider } from "./hooks/useLocalStore";
+import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
 import { NetworkStatusToast } from "./components/NetworkStatus";
+import { getToken, isTokenValid, subscribeToAuthLogout } from "./lib/authStorage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 import {
   SplashScreen,
@@ -75,6 +77,14 @@ function MobileApp({
   const [savingsSuccessNotice, setSavingsSuccessNotice] = useState("");
   const [activeChat, setActiveChat] = useState<any>(null);
   const [kycNin, setKycNin] = useState("");
+  const { isAuthenticated, isAuthLoading } = useLocalStore();
+
+  useEffect(() => {
+    const unsub = subscribeToAuthLogout(() => {
+      setScreen("login");
+    });
+    return unsub;
+  }, []);
 
   useEffect(() => {
     if (targetAuth === "login") {
@@ -277,10 +287,15 @@ function MobileApp({
         className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : isFixedIntroScreen ? "h-dvh max-h-dvh overflow-hidden" : "h-screen max-h-screen overflow-y-auto"} relative`}
       >
         <div
-          key={screen}
           className={`flex-1 flex flex-col ${!showNav ? "min-h-full" : ""}`}
         >
-          {renderScreen()}
+          {authOrIntroScreens.includes(screen) ? (
+            renderScreen()
+          ) : (
+            <ProtectedRoute onNav={nav} currentScreen={screen}>
+              {renderScreen()}
+            </ProtectedRoute>
+          )}
         </div>
 
         {/* Mobile Bottom Navigation (sticky/fixed to viewport bottom on mobile < lg) */}
@@ -352,8 +367,7 @@ export default function App() {
         },
       }),
   );
-  const hasSession =
-    typeof window !== "undefined" && !!localStorage.getItem("pave_token");
+  const hasSession = Boolean(getToken() && isTokenValid(getToken()));
   const [view, setView] = useState<"onboarding" | "app">(
     hasSession ? "app" : "onboarding",
   );

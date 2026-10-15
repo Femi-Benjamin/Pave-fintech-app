@@ -28,6 +28,7 @@ import {
   useLoginWithFingerMutation,
   useResetPasswordMutation,
 } from "../hooks/usePaveApi";
+import { getToken, setToken, isTokenValid } from "../lib/authStorage";
 
 export function SplashScreen({ onNext }: { onNext: () => void }) {
   useEffect(() => {
@@ -478,15 +479,23 @@ export function LoginScreen({
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
   const [fingerError, setFingerError] = useState("");
-  const fingerUserId = localStorage.getItem("pave_finger_user_id");
+  const fingerUserId = typeof window !== "undefined" ? localStorage.getItem("pave_finger_user_id") : null;
   const fingerLoginMutation = useLoginWithFingerMutation();
+
+  // Redirect to dashboard only if user is authenticated with a valid token
+  useEffect(() => {
+    const token = getToken();
+    if (token && isTokenValid(token) && authUser) {
+      onNav("home");
+    }
+  }, [authUser, onNav]);
 
   const finishLogin = (
     response: Awaited<ReturnType<typeof login>>,
     fallbackUserId?: string,
   ) => {
     const token = response.token!;
-    localStorage.setItem("pave_token", token);
+    setToken(token);
     const tokenUserId = extractUserIdFromToken(token);
 
     const rawUser =
@@ -510,7 +519,7 @@ export function LoginScreen({
       lastName: rawUser.lastName ?? "",
     };
 
-    if (userId && localStorage.getItem("pave_biometric_enabled") === "true") {
+    if (userId && typeof window !== "undefined" && localStorage.getItem("pave_biometric_enabled") === "true") {
       localStorage.setItem("pave_finger_user_id", String(userId));
     }
     setAuthUser(user);
@@ -767,7 +776,9 @@ export function RegisterScreen({
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            <div className="flex items-center justify-between mb-3 sm:mb-4">
+            {/* On mobile: Pave logo on the left, Website button on the right */}
+            {/* On mobile: ArrowLeft Website on the left, Pave logo on the right */}
+            <div className="flex md:hidden items-center justify-between mb-3 sm:mb-4">
               {onBackToWebsite ? (
                 <button
                   type="button"
@@ -779,20 +790,30 @@ export function RegisterScreen({
               ) : (
                 <div />
               )}
-              <div className="md:hidden">
-                <Logo size="sm" />
-              </div>
+              <Logo size="sm" />
             </div>
 
-            <h1
-              style={{
-                fontFamily: "var(--font-family-display)",
-                fontWeight: 700,
-              }}
-              className="text-2xl sm:text-3xl text-[#0D0F1C]"
-            >
-              Create Account
-            </h1>
+            {/* Heading row: on large screens, Create Account on the left, Website button on the right */}
+            <div className="flex items-center justify-between gap-4">
+              <h1
+                style={{
+                  fontFamily: "var(--font-family-display)",
+                  fontWeight: 700,
+                }}
+                className="text-2xl sm:text-3xl text-[#0D0F1C]"
+              >
+                Create Account
+              </h1>
+              {onBackToWebsite && (
+                <button
+                  type="button"
+                  onClick={onBackToWebsite}
+                  className="hidden md:flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline shrink-0"
+                >
+                  <ArrowLeft size={16} /> Website
+                </button>
+              )}
+            </div>
             <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-3 sm:mb-4">
               Fill in your personal details and create a secure password.
             </p>

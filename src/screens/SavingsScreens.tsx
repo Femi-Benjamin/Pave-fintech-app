@@ -81,12 +81,7 @@ export function PersonalSavingsScreen({
   ).length;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex-1 overflow-y-auto"
-    >
+    <div className="flex-1 overflow-y-auto">
       <div
         style={{
           background: "linear-gradient(145deg, #3730A3 0%, #1E1B4B 100%)",
@@ -249,7 +244,7 @@ export function PersonalSavingsScreen({
         })}
         <div className="h-6" />
       </div>
-    </motion.div>
+    </div>
   );
 }
 

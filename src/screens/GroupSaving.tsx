@@ -115,12 +115,7 @@ export function GroupSavingsScreen({
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex-1 overflow-y-auto"
-    >
+    <div className="flex-1 overflow-y-auto">
       <div
         style={{
           background: "linear-gradient(145deg, #D97706 0%, #B45309 100%)",
@@ -385,7 +380,7 @@ export function GroupSavingsScreen({
         })}
         <div className="h-6" />
       </div>
-    </motion.div>
+    </div>
   );
 }
 

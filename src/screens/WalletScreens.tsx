@@ -109,6 +109,8 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [showVirtualAccount, setShowVirtualAccount] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState(false);
   const [accountNotification, setAccountNotification] = useState<string | null>(null);
+  const [liveAccountNumber, setLiveAccountNumber] = useState("");
+  const [liveBankName, setLiveBankName] = useState("");
   const walletBalanceQuery = useWalletBalanceQuery();
   const transactionsQuery = useAllTransactionsQuery();
   const transactions =
@@ -170,6 +172,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
   }
 
   const extractedAccountNumber =
+    liveAccountNumber ||
     (typeof rawVAccount === "object" && rawVAccount !== null
       ? rawVAccount.accountNumber ||
         rawVAccount.account_number ||
@@ -181,6 +184,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     "";
 
   const extractedBankName =
+    liveBankName ||
     (typeof rawVAccount === "object" && rawVAccount !== null
       ? rawVAccount.bankName || rawVAccount.bank_name
       : "") ||
@@ -195,6 +199,19 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     authUser?.fullName ||
     [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") ||
     "PAVE Customer";
+
+  // When backend indicates user already has an account, treat that as success, not an error
+  const isAccountAlreadyExists =
+    potentialMessages.toLowerCase().includes("already had an account") ||
+    potentialMessages.toLowerCase().includes("already exists") ||
+    potentialMessages.toLowerCase().includes("account already") ||
+    potentialMessages.toLowerCase().includes("already");
+
+  const shouldShowVirtualAccountError =
+    virtualAccountQuery.isError &&
+    !isAccountAlreadyExists &&
+    !extractedAccountNumber &&
+    !potentialMessages.toLowerCase().includes("already");
 
   // Cache to localStorage once discovered
   useEffect(() => {
@@ -281,12 +298,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     },
   ];
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex-1 overflow-y-auto relative"
-    >
+    <div className="flex-1 overflow-y-auto relative">
       {/* Toast Notification for User */}
       <AnimatePresence>
         {accountNotification && (
@@ -347,14 +359,14 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             )}
           </p>
         )}
-        <div className="flex items-center justify-between flex-wrap gap-2 bg-white/10 rounded-xl px-4 py-2.5 w-full sm:w-fit">
-          <div className="flex items-center gap-2">
-            <Landmark size={14} className="text-white/70" />
-            <span className="text-white/70 text-xs">
+        <div className="flex items-center justify-between gap-2 bg-white/10 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 w-full">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+            <Landmark size={14} className="text-white/70 shrink-0" />
+            <span className="text-white/70 text-[11px] sm:text-xs shrink-0">
               {extractedBankName} / PAVE:{" "}
             </span>
-            <span className="text-white text-xs font-mono font-semibold">
-              {virtualAccountQuery.isLoading && !extractedAccountNumber
+            <span className="text-white text-[11px] sm:text-xs font-mono font-semibold truncate">
+              {virtualAccountQuery.isFetching && !extractedAccountNumber
                 ? "Loading account..."
                 : extractedAccountNumber || "Tap 'Virtual account' to view"}
             </span>
@@ -363,7 +375,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             <button
               type="button"
               onClick={() => handleCopyAccountNumber(extractedAccountNumber)}
-              className="text-[11px] text-white bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
+              className="shrink-0 text-[11px] text-white bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
             >
               {copiedAccount ? <Check size={12} /> : <Copy size={12} />}
               {copiedAccount ? "Copied" : "Copy"}
@@ -396,23 +408,43 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                             : null) ||
                           (m ? m[0] : extractedAccountNumber);
 
+                        let bName = extractedBankName;
+                        if (/wema/i.test(resMsg)) {
+                          bName = "Wema Bank";
+                        } else if (
+                          typeof res.data?.data === "object" &&
+                          res.data?.data !== null &&
+                          (res.data?.data as any).bankName
+                        ) {
+                          bName = (res.data?.data as any).bankName;
+                        }
+
                         if (accNum) {
+                          setLiveAccountNumber(accNum);
+                          setLiveBankName(bName);
                           localStorage.setItem("pave_virtual_account_number", accNum);
+                          localStorage.setItem("pave_virtual_bank_name", bName);
                           setAccountNotification(
-                            `Virtual account active: ${accNum} (${extractedBankName}). Account number updated.`,
+                            `Virtual account active: ${accNum} (${bName})`,
                           );
-                          window.setTimeout(() => setAccountNotification(null), 4500);
+                          window.setTimeout(() => setAccountNotification(null), 4000);
                         } else {
-                          setAccountNotification(
-                            `Virtual account details refreshed.`,
-                          );
+                          setAccountNotification("Virtual account active");
                           window.setTimeout(() => setAccountNotification(null), 3000);
                         }
                       })
-                      .catch(() => {
-                        if (extractedAccountNumber) {
+                      .catch((err) => {
+                        const errMsg = [
+                          typeof err?.response?.data?.message === "string" ? err.response.data.message : "",
+                          typeof err?.message === "string" ? err.message : "",
+                        ].filter(Boolean).join(" ");
+                        const numMatch = errMsg.match(/\b\d{10}\b/);
+                        const accNum = numMatch ? numMatch[0] : extractedAccountNumber;
+                        if (accNum) {
+                          setLiveAccountNumber(accNum);
+                          localStorage.setItem("pave_virtual_account_number", accNum);
                           setAccountNotification(
-                            `Virtual account active: ${extractedAccountNumber} (${extractedBankName}).`,
+                            `Virtual account active: ${accNum} (${extractedBankName})`,
                           );
                           window.setTimeout(() => setAccountNotification(null), 4000);
                         }
@@ -447,7 +479,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </button>
             ))}
           </div>
-          {virtualAccountQuery.isError && (
+          {shouldShowVirtualAccountError && (
             <p role="alert" className="mt-4 text-sm text-red-600">
               {getApiErrorMessage(
                 virtualAccountQuery.error,
@@ -457,7 +489,10 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           )}
 
           {/* Dedicated Virtual Account Details Card */}
-          {(showVirtualAccount || virtualAccountQuery.isSuccess) && (
+          {(showVirtualAccount ||
+            virtualAccountQuery.isSuccess ||
+            isAccountAlreadyExists ||
+            Boolean(extractedAccountNumber)) && (
             <div
               role="status"
               className="mt-5 rounded-2xl border border-[#A5F3FC] bg-gradient-to-br from-[#ECFEFF] via-[#F0FDFA] to-[#EFF6FF] p-5 shadow-xs"
@@ -505,14 +540,14 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     <div className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-1">
                       Account Number (NUBAN)
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="font-mono text-2xl font-bold tracking-wider text-[#0891B2]">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <span className="font-mono text-lg sm:text-2xl font-bold tracking-wider text-[#0891B2] select-all">
                         {extractedAccountNumber}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleCopyAccountNumber(extractedAccountNumber)}
-                        className="flex items-center gap-1.5 rounded-lg bg-[#0891B2] px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#0E7490] active:scale-95 cursor-pointer transition-all"
+                        className="shrink-0 flex items-center justify-center gap-1.5 rounded-lg bg-[#0891B2] px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#0E7490] active:scale-95 cursor-pointer transition-all whitespace-nowrap"
                       >
                         {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
                         <span>{copiedAccount ? "Copied!" : "Copy Number"}</span>
@@ -671,7 +706,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

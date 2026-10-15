@@ -1,5 +1,6 @@
 import axios from "axios";
 import { api } from "../lib/api-client";
+import { getToken } from "../lib/authStorage";
 
 export interface StartRegisterPayload {
   email?: string;
@@ -347,11 +348,7 @@ export function getAuthenticatedUserId(
     if (directId) return String(directId).trim();
   }
 
-  const storedToken =
-    token ||
-    (typeof localStorage !== "undefined"
-      ? localStorage.getItem("pave_token")
-      : null);
+  const storedToken = token || getToken();
   const tokenUserId = extractUserIdFromToken(storedToken);
   if (tokenUserId) return tokenUserId;
 
@@ -365,11 +362,7 @@ export function getAuthenticatedUserEmail(
   if (authUser?.email && typeof authUser.email === "string") {
     return authUser.email.trim().toLowerCase();
   }
-  const storedToken =
-    token ||
-    (typeof localStorage !== "undefined"
-      ? localStorage.getItem("pave_token")
-      : null);
+  const storedToken = token || getToken();
   const tokenEmail = extractEmailFromToken(storedToken);
   if (tokenEmail) return tokenEmail;
 
