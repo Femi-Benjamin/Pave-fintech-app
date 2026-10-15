@@ -41,7 +41,11 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     const status = error?.response?.status;
-    if (status === 401 || status === 403) {
+    // Only 401 means "not authenticated". 403 means "not allowed" (this backend
+    // even uses 403 for "You already had an account..."), so it must NEVER end
+    // the session. The getToken() check avoids repeat logouts from parallel
+    // requests that fail after the session is already cleared.
+    if (status === 401 && getToken()) {
       triggerAuthLogout("unauthorized");
     }
     return Promise.reject(error);
