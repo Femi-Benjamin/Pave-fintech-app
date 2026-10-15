@@ -489,10 +489,8 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           )}
 
           {/* Dedicated Virtual Account Details Card */}
-          {(showVirtualAccount ||
-            virtualAccountQuery.isSuccess ||
-            isAccountAlreadyExists ||
-            Boolean(extractedAccountNumber)) && (
+          {/* Shown only after tapping "Virtual account"; the Hide button closes it. */}
+          {showVirtualAccount && (
             <div
               role="status"
               className="mt-5 rounded-2xl border border-[#A5F3FC] bg-gradient-to-br from-[#ECFEFF] via-[#F0FDFA] to-[#EFF6FF] p-5 shadow-xs"
