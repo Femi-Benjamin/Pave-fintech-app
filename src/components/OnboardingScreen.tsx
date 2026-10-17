@@ -106,9 +106,9 @@ export default function OnboardingScreen({
 
   const faqs = [
     {
-      question: "Is my money safe with PAVE?",
+      question: "Is my money safe with PAVEPADI?",
       answer:
-        "Absolutely. PAVE uses AES 256-bit bank-grade encryption and partners with NDIC-insured financial institutions regulated by the Central Bank of Nigeria. Your funds are held securely with deposit protection up to ₦5,000,000.",
+        "Absolutely. PAVEPADI uses AES 256-bit bank-grade encryption and partners with NDIC-insured financial institutions regulated by the Central Bank of Nigeria. Your funds are held securely with deposit protection up to ₦5,000,000.",
     },
     {
       question: "What is KYC and why is it required?",
@@ -128,12 +128,12 @@ export default function OnboardingScreen({
     {
       question: "What happens if a circle member misses a contribution?",
       answer:
-        "PAVE implements automated wallet debits, mandatory KYC tiering, and escrow safeguards to prevent default. If an account has insufficient funds, automated backup cards are charged and penalty fees apply, protecting all participants.",
+        "PAVEPADI implements automated wallet debits, mandatory KYC tiering, and escrow safeguards to prevent default. If an account has insufficient funds, automated backup cards are charged and penalty fees apply, protecting all participants.",
     },
     {
       question: "What payment methods do you accept?",
       answer:
-        "You can fund your PAVE wallet instantly via Nigerian debit/credit cards (Mastercard, Visa, Verve), instant bank transfers via your dedicated virtual account (Wema Bank), or USSD.",
+        "You can fund your PAVEPADI wallet instantly via Nigerian debit/credit cards (Mastercard, Visa, Verve), instant bank transfers via your dedicated virtual account (Wema Bank), or USSD.",
     },
   ];
 
@@ -350,7 +350,7 @@ export default function OnboardingScreen({
                           <div className="flex items-center gap-2.5">
                             <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
                             <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                              PAVE Vault Balance
+                              PAVEPADI Vault Balance
                             </span>
                           </div>
                           <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 text-white border border-white/10">
@@ -493,7 +493,7 @@ export default function OnboardingScreen({
               </div>
             </section>
 
-            {/* WHO PAVE IS FOR */}
+            {/* WHO PAVEPADI IS FOR */}
             <section
               className="relative py-16 sm:py-20 md:py-24 overflow-hidden"
               aria-labelledby="audience-heading"
@@ -513,7 +513,7 @@ export default function OnboardingScreen({
                   </h2>
                   <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                     Build personal savings at your own pace or grow together
-                    through Ajo, Esusu and Adashe. PAVE helps turn good
+                    through Ajo, Esusu and Adashe. PAVEPADI helps turn good
                     intentions into steady progress.
                   </p>
                 </div>
@@ -696,7 +696,7 @@ export default function OnboardingScreen({
                   </h2>
                   <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
                     Whether it's building a 6-month emergency buffer, saving for
-                    a tech gadget, or planning your dream holiday, PAVE helps
+                    a tech gadget, or planning your dream holiday, PAVEPADI helps
                     you reach your financial milestones faster with automated
                     recurring transfers.
                   </p>
@@ -859,7 +859,7 @@ export default function OnboardingScreen({
                   </h2>
                   <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
                     Generations of Nigerians have built capital through communal
-                    rotational thrift. PAVE removes the default risk, manual
+                    rotational thrift. PAVEPADI removes the default risk, manual
                     record-keeping, and awkward follow-ups by automating debits
                     and programmatic escrow payouts.
                   </p>
@@ -905,11 +905,11 @@ export default function OnboardingScreen({
                     className="text-4xl md:text-5xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mt-3 tracking-tight"
                     style={{ fontFamily: "var(--font-family-display)" }}
                   >
-                    Why Savers Earn Significantly More on PAVE
+                    Why Savers Earn Significantly More on PAVEPADI
                   </h2>
                   <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
                     Traditional commercial banks offer meager returns that fail
-                    to outpace inflation. PAVE redistributes institutional money
+                    to outpace inflation. PAVEPADI redistributes institutional money
                     market yields directly to your wallet.
                   </p>
                 </div>
@@ -955,14 +955,14 @@ export default function OnboardingScreen({
                     </div>
                   </div>
 
-                  {/* PAVE Card */}
+                  {/* PAVEPADI Card */}
                   <div className="bg-linear-to-br from-[#1E1B4B] via-[#2B217A] to-[#4F39F6] text-white p-8 rounded-3xl border-2 border-indigo-400/50 shadow-2xl flex flex-col justify-between relative overflow-hidden">
                     <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
                       Up to 4x Better
                     </div>
                     <div>
                       <div className="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-2">
-                        PAVE Smart Yield Engine
+                        PAVEPADI Smart Yield Engine
                       </div>
                       <div
                         className="text-4xl font-extrabold text-white mb-4"
@@ -1020,7 +1020,7 @@ export default function OnboardingScreen({
                     Your Financial Security is Non-Negotiable
                   </h2>
                   <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
-                    PAVE employs the highest cryptographic standards and
+                    PAVEPADI employs the highest cryptographic standards and
                     partners with regulated financial institutions so you can
                     build wealth with total confidence.
                   </p>
@@ -1089,7 +1089,7 @@ export default function OnboardingScreen({
                     Frequently Asked Questions
                   </h2>
                   <p className="text-slate-600 dark:text-slate-300 mt-2 text-base">
-                    Everything you need to know about PAVE savings, interest
+                    Everything you need to know about PAVEPADI savings, interest
                     yields, and thrift rotations.
                   </p>
                 </div>
@@ -1172,7 +1172,7 @@ export default function OnboardingScreen({
 
                     {/* Description */}
                     <p className="text-slate-600 dark:text-slate-300 max-w-xl mx-auto text-base sm:text-lg mb-8 font-normal leading-relaxed">
-                      Join thousands of Nigerians building wealth with PAVE.
+                      Join thousands of Nigerians building wealth with PAVEPADI.
                       Take control of your money with automated high-yield
                       savings and disciplined community thrift contributions.
                     </p>
@@ -1328,7 +1328,7 @@ export default function OnboardingScreen({
                     href="#about"
                     className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
                   >
-                    About PAVE
+                    About PAVEPADI
                   </a>
                 </li>
                 <li>
@@ -1401,7 +1401,7 @@ export default function OnboardingScreen({
 
           <div className="pt-8 border-t border-slate-200 dark:border-white/15 flex flex-col md:flex-row justify-center items-center text-center gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
             <div>
-              © {new Date().getFullYear()} PACEPLOYT LTD (PAVE). ALL RIGHTS
+              © {new Date().getFullYear()} PACEPLOYT LTD (PAVEPADI). ALL RIGHTS
               RESERVED.
             </div>
 
@@ -1412,7 +1412,7 @@ export default function OnboardingScreen({
         </div>
       </footer>
 
-      {/* DOWNLOAD PAVE APP MODAL */}
+      {/* DOWNLOAD PAVEPADI APP MODAL */}
       <AnimatePresence>
         {isDownloadModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">

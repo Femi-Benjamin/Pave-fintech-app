@@ -57,7 +57,7 @@ export function MarketplaceScreen({
             fontSize: 22,
           }}
         >
-          PAVE Marketplace
+          PAVEPADI Marketplace
         </h2>
         <p className="text-white/70 text-sm mb-4">
           Save now, own it later. Pay 50% to secure.

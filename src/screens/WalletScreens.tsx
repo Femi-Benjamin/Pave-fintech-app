@@ -198,7 +198,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
       : "") ||
     authUser?.fullName ||
     [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ") ||
-    "PAVE Customer";
+    "PAVEPADI Customer";
 
   // When backend indicates user already has an account, treat that as success, not an error
   const isAccountAlreadyExists =
@@ -363,7 +363,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
             <Landmark size={14} className="text-white/70 shrink-0" />
             <span className="text-white/70 text-[11px] sm:text-xs shrink-0">
-              {extractedBankName} / PAVE:{" "}
+              {extractedBankName} / PAVEPADI:{" "}
             </span>
             <span className="text-white text-[11px] sm:text-xs font-mono font-semibold truncate">
               {virtualAccountQuery.isFetching && !extractedAccountNumber
@@ -563,7 +563,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   </div>
 
                   <p className="text-[11px] text-[#475569] leading-relaxed">
-                    ⚡ Transfer from any Nigerian banking app (GTBank, Zenith, Access, Kuda, OPay, PalmPay, etc.) directly into this 10-digit account number to fund your PAVE wallet instantly.
+                    ⚡ Transfer from any Nigerian banking app (GTBank, Zenith, Access, Kuda, OPay, PalmPay, etc.) directly into this 10-digit account number to fund your PAVEPADI wallet instantly.
                   </p>
                 </div>
               ) : !virtualAccountQuery.isLoading && (

@@ -282,6 +282,7 @@ export function KYCIDUploadScreen({
   const backInputRef = useRef<HTMLInputElement>(null);
   const billInputRef = useRef<HTMLInputElement>(null);
   const [billUploadError, setBillUploadError] = useState("");
+  const [billUploadSuccess, setBillUploadSuccess] = useState("");
   const [verifyError, setVerifyError] = useState("");
   const uploadNinImageMutation = useUploadNinImageMutation();
   const verifyNinMutation = useVerifyNinMutation();
@@ -290,10 +291,12 @@ export function KYCIDUploadScreen({
     if (!file) return;
 
     setBillUploadError("");
+    setBillUploadSuccess("");
     setBillFileName("");
     uploadNinImageMutation.mutate(file, {
       onSuccess: () => {
         setBillFileName(file.name);
+        setBillUploadSuccess("NIN document image uploaded successfully.");
       },
       onError: (error) => {
         setBillUploadError(
@@ -304,11 +307,11 @@ export function KYCIDUploadScreen({
   };
 
   const doVerifyNin = () => {
-    if (!frontFile || !backFile || nin.length !== 11) return;
+    if (!frontFile || nin.length !== 11) return;
 
     setVerifyError("");
     verifyNinMutation.mutate(
-      { nin, ninFrontId: frontFile, ninBackId: backFile },
+      { nin, ninFrontId: frontFile, ninBackId: backFile || null },
       {
         onSuccess: () => onNav("kyc-selfie"),
         onError: (error) =>
@@ -436,6 +439,11 @@ export function KYCIDUploadScreen({
               Uploading NIN image...
             </p>
           )}
+          {billUploadSuccess && (
+            <p className="mt-2 text-xs text-green-700" role="status">
+              {billUploadSuccess}
+            </p>
+          )}
           {billUploadError && (
             <p role="alert" className="mt-2 text-sm text-red-600">
               {billUploadError}
@@ -463,7 +471,6 @@ export function KYCIDUploadScreen({
           disabled={
             nin.length !== 11 ||
             !frontFile ||
-            !backFile ||
             verifyNinMutation.isPending
           }
         >
@@ -622,7 +629,7 @@ export function KYCApprovedScreen({ onNav }: { onNav: (s: Screen) => void }) {
   return (
     <KYCContainer
       title="Account Verified! 🎉"
-      subtitle="You now have full access to all PAVE features"
+      subtitle="You now have full access to all PAVEPADI features"
       step={5}
     >
       <div className="flex flex-col items-center justify-center text-center py-4">
@@ -660,7 +667,7 @@ export function KYCApprovedScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
       <div className="pt-4 border-t border-[#F1F3FB]">
         <PaveBtn onClick={() => onNav("home")} variant="green">
-          Start Using PAVE Dashboard
+          Start Using PAVEPADI Dashboard
         </PaveBtn>
       </div>
     </KYCContainer>

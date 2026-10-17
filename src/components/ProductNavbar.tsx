@@ -274,7 +274,7 @@ export default function ProductNavbar({
                         onClick={() => handleSelectPage("about-us")}
                         className="text-left py-1 hover:text-[#3730A3] dark:hover:text-[#818CF8] transition-colors cursor-pointer"
                       >
-                        About PAVE
+                        About PAVEPADI
                       </button>
                       <button
                         onClick={() => handleSelectPage("our-story")}
@@ -432,7 +432,7 @@ export default function ProductNavbar({
               onClick={() => handleSelectPage("about-us")}
               className="text-left text-sm font-medium text-slate-600 dark:text-slate-300 py-1"
             >
-              About PAVE
+              About PAVEPADI
             </button>
             <button
               onClick={() => handleSelectPage("our-story")}

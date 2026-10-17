@@ -94,7 +94,7 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
             <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 aspect-16/10">
               <img
                 src={personalHeroImg}
-                alt="Young professional monitoring personal savings progress on PAVE app"
+                alt="Young professional monitoring personal savings progress on PAVEPADI app"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
@@ -352,7 +352,7 @@ export default function PersonalSavingsPage({ onOpenApp }: PageProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-emerald-100">
-                      PAVE Interest Earned
+                      PAVEPADI Interest Earned
                     </span>
                     <span className="font-bold text-emerald-300">
                       +₦{totalInterest.toLocaleString()}

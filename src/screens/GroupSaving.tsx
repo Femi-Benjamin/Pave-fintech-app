@@ -1395,7 +1395,7 @@ export function GroupSavingDetailScreen({
                     <div className="rounded-lg bg-white p-3.5 border border-[#E2E8F0] shadow-2xs flex flex-col gap-2.5">
                       <div>
                         <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Bank Name</span>
-                        <span className="text-sm font-bold text-[#0F172A]">{group.currency === "NGN" ? "Wema Bank / PAVE" : "Wema Bank"}</span>
+                        <span className="text-sm font-bold text-[#0F172A]">{group.currency === "NGN" ? "Wema Bank / PAVEPADI" : "Wema Bank"}</span>
                       </div>
 
                       <div>
@@ -1453,10 +1453,10 @@ export function GroupSavingDetailScreen({
                     </button>
                   </div>
                 ) : (
-                  /* Pay from PAVE Wallet */
+                  /* Pay from PAVEPADI Wallet */
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-3 text-xs">
-                      <span className="text-[#64748B]">PAVE Wallet Balance:</span>
+                      <span className="text-[#64748B]">PAVEPADI Wallet Balance:</span>
                       <span className="font-bold text-sm text-[#0F172A]">
                         {walletBalanceQuery.data
                           ? fmt(amount(walletBalanceQuery.data.balance))

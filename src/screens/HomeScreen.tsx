@@ -278,7 +278,7 @@ export function HomeScreen({
                 </p>
               </div>
               <span className="text-xs text-white/80 bg-white/10 px-3 py-1 rounded-full">
-                Wema Bank • PAVE
+                Wema Bank • PAVEPADI
               </span>
             </div>
           </div>

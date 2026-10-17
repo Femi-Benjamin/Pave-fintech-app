@@ -40,7 +40,7 @@ export function DesktopSidebar({
       .filter(Boolean)
       .join(" ") ||
     authUser?.fullName?.trim() ||
-    "PAVE Member";
+    "PAVEPADI Member";
   const memberStatus = authUser?.isKycVerified
     ? "KYC Verified"
     : authUser?.kycStatus
@@ -115,7 +115,12 @@ export function DesktopSidebar({
 
       <div className="pt-6 border-t border-[#F1F3FB] flex flex-col gap-3">
         <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#F7F8FF] border border-[#F1F3FB]">
-          <Avatar name={fullName} size={38} color="#6366F1" />
+          <Avatar
+            name={fullName}
+            size={38}
+            color="#6366F1"
+            src={(authUser as any)?.image || (authUser as any)?.face || (authUser as any)?.profileImage}
+          />
           <div className="flex-1 overflow-hidden">
             <div className="text-xs font-bold text-[#0D0F1C] truncate">
               {fullName}

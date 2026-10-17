@@ -148,59 +148,109 @@ export async function verifySecurityAnswer(
 
 export interface VerifyMfaTokenPayload {
   token: string;
+  userId?: string;
 }
 
 export async function verifyMfaToken(payload: VerifyMfaTokenPayload) {
-  const { data } = await api.post("/api/v1/mfa/verify", payload);
+  if (!payload.token || !payload.token.trim()) {
+    throw new Error("A valid MFA token is required.");
+  }
+
+  const userId =
+    (payload.userId && payload.userId.trim()) || getAuthenticatedUserId();
+
+  if (userId) {
+    const { data } = await api.post("/api/v1/auth/verifyMfaToken", {
+      userId,
+      token: payload.token.trim(),
+    });
+    return data;
+  }
+
+  // Fallback to the dedicated TOTP endpoint
+  const { data } = await api.post("/api/v1/mfa/verify", {
+    token: payload.token.trim(),
+  });
   return data;
 }
 
 export async function uploadUserImage(file: File) {
+  if (!file) {
+    throw new Error("Please select an image file to upload.");
+  }
+  const allowed = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+  if (!allowed.includes(file.type)) {
+    throw new Error("Only JPEG, PNG, and WebP image formats are supported.");
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Profile image size must not exceed 5MB.");
+  }
+
   const formData = new FormData();
   formData.append("face", file);
-  const { data } = await api.post(
-    "/api/v1/auth/uploadImage",
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } },
-  );
+  const { data } = await api.post("/api/v1/auth/uploadImage", formData);
   return data;
 }
 
 export async function uploadNinImage(file: File) {
+  if (!file) {
+    throw new Error("Please select a document image to upload.");
+  }
+  const allowed = [
+    "image/jpeg",
+    "image/png",
+    "image/jpg",
+    "image/webp",
+    "application/pdf",
+  ];
+  if (!allowed.includes(file.type)) {
+    throw new Error("Only JPEG, PNG, WebP, or PDF files are supported.");
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Document file size must not exceed 5MB.");
+  }
+
   const formData = new FormData();
   formData.append("nepaBill", file);
-  const { data } = await api.post(
-    "/api/v1/auth/uploadBillImage",
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } },
-  );
+  const { data } = await api.post("/api/v1/auth/uploadBillImage", formData);
   return data;
 }
 
 export interface VerifyNinPayload {
   nin: string;
   ninFrontId: File;
-  ninBackId: File;
+  ninBackId?: File | null;
 }
 
 export async function verifyNin(payload: VerifyNinPayload) {
+  const cleanNin = payload.nin?.trim() ?? "";
+  if (!cleanNin || cleanNin.length !== 11 || !/^\d{11}$/.test(cleanNin)) {
+    throw new Error("A valid 11-digit NIN is required.");
+  }
+  if (!payload.ninFrontId) {
+    throw new Error("Front ID photo is required for NIN verification.");
+  }
+
   const formData = new FormData();
-  formData.append("nin", payload.nin);
+  formData.append("nin", cleanNin);
   formData.append("ninFrontId", payload.ninFrontId);
-  formData.append("ninBackId", payload.ninBackId);
-  const { data } = await api.post(
-    "/api/v1/auth/validateNIN",
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } },
-  );
+  if (payload.ninBackId) {
+    formData.append("ninBackId", payload.ninBackId);
+  }
+
+  const { data } = await api.post("/api/v1/auth/validateNIN", formData);
   return data;
 }
 
 export async function loginWithFinger(userId: string): Promise<LoginResponse> {
+  if (!userId || !userId.trim()) {
+    throw new Error("A valid User ID is required for fingerprint sign in.");
+  }
+
   const { data } = await api.post<LoginResponse>(
     "/api/v1/auth/loginWithFinger",
     null,
-    { params: { userId } },
+    { params: { userId: userId.trim() } },
   );
 
   if (!data.token) {

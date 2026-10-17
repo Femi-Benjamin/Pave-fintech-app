@@ -1,0 +1,20 @@
+{
+  "short_name": "PAVEPADI",
+  "name": "PAVEPADI Digital Wallet",
+  "icons": [
+    {
+      "src": "/pave-logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/pave-logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F7F8FF",
+  "theme_color": "#3730A3",
+  "display": "standalone"
+}

@@ -122,13 +122,29 @@ export function ScreenHeader({ title, onBack, right }: any) {
   );
 }
 
-export function Avatar({ name, size = 40, color = "#3730A3" }: any) {
+export function Avatar({ name, size = 40, color = "#3730A3", src }: any) {
+  const [hasError, setHasError] = useState(false);
   const initials = name
-    .split(" ")
-    .map((w: string) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+    ? name
+        .split(" ")
+        .map((w: string) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "P";
+
+  if (src && !hasError) {
+    return (
+      <img
+        src={src}
+        alt={name || "Avatar"}
+        onError={() => setHasError(true)}
+        className="shrink-0 rounded-full object-cover"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
   return (
     <div
       className="shrink-0 rounded-full flex items-center justify-center text-white font-semibold text-sm"

@@ -64,7 +64,7 @@ export default function CompanyPages({
           </h1>
 
           <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-            PAVE was born to solve a fundamental truth: Africans have always
+            PAVEPADI was born to solve a fundamental truth: Africans have always
             built wealth together through trust circles, cooperatives, and
             thrift. We provided the cryptographic security, automated banking
             rails, and institutional compliance to guarantee that nobody ever
@@ -137,7 +137,7 @@ export default function CompanyPages({
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-              The People Behind PAVE
+              The People Behind PAVEPADI
             </span>
             <h2
               className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-950 dark:text-white mt-1.5"
@@ -190,7 +190,7 @@ export default function CompanyPages({
                   <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <CheckCircle2 size={13} /> Verified Leader
                   </span>
-                  <span>PAVE Executive Board</span>
+                  <span>PAVEPADI Executive Board</span>
                 </div>
               </div>
             ))}
@@ -203,7 +203,7 @@ export default function CompanyPages({
             className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white mb-3"
             style={{ fontFamily: "var(--font-family-display)" }}
           >
-            Ready to Build Financial Freedom with PAVE?
+            Ready to Build Financial Freedom with PAVEPADI?
           </h3>
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 max-w-xl mx-auto mb-6">
             Join thousands of Nigerian professionals, merchants, and families

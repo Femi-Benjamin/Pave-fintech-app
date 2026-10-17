@@ -17,13 +17,16 @@ import {
   ShieldCheck,
   LogOut,
   Loader,
+  Settings,
+  AlertTriangle,
+  Fingerprint,
 } from "lucide-react";
 import { Avatar, Badge, Input, PaveBtn, ScreenHeader } from "../components/UI";
 import { Screen } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { ProfileScreenSkeleton } from "../components/Skeleton";
-import { getApiErrorMessage } from "../api/auth";
-import { getToken, isTokenValid } from "../lib/authStorage";
+import { getApiErrorMessage, extractUserIdFromToken } from "../api/auth";
+import { getToken, setToken, isTokenValid } from "../lib/authStorage";
 import {
   useDeleteUserAccountMutation,
   useProfileQuery,
@@ -54,8 +57,15 @@ export function ProfileScreen({
 }) {
   const { products, authUser, setAuthUser, logout } = useLocalStore();
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const uploadImageMutation = useUploadUserImageMutation();
   const email = authUser?.email?.trim() || "";
+  const uploadImageMutation = useUploadUserImageMutation(email);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(() => {
+    return typeof window !== "undefined" && email
+      ? localStorage.getItem(`pave_avatar_${email}`) || null
+      : null;
+  });
+  const [avatarUploadError, setAvatarUploadError] = useState("");
+  const [avatarUploadSuccess, setAvatarUploadSuccess] = useState("");
   const profileQuery = useProfileQuery(
     email,
     Boolean(getToken() && isTokenValid(getToken())),
@@ -93,7 +103,7 @@ export function ProfileScreen({
       .filter(Boolean)
       .join(" ") ||
     profileUser?.fullName?.trim() ||
-    "PAVE Member";
+    "PAVEPADI Member";
   const profileEmail =
     profileUser?.email?.trim() || email || "Email not available";
   const kycStatus = profileUser?.kycStatus?.toLowerCase();
@@ -171,12 +181,12 @@ export function ProfileScreen({
     bank: "View account details for transfers",
     notifications: "Choose which reminders you receive",
     security: "Manage sign-in protections",
-    help: "Answers and guidance for using PAVE",
-    terms: "Important information about PAVE services",
+    help: "Answers and guidance for using PAVEPADI",
+    terms: "Important information about PAVEPADI services",
   };
   const helpTopics = [
     {
-      question: "How do I fund my PAVE wallet?",
+      question: "How do I fund my PAVEPADI wallet?",
       answer:
         "Open Wallet and choose Fund Wallet to see the funding methods available to your account.",
     },
@@ -193,14 +203,14 @@ export function ProfileScreen({
     {
       question: "Where can I get help with my account?",
       answer:
-        "For account-specific help, contact PAVE through the official support channel provided with your account. Never share your password or verification codes.",
+        "For account-specific help, contact PAVEPADI through the official support channel provided with your account. Never share your password or verification codes.",
     },
   ];
   const legalTopics = [
     {
       title: "Using your account",
       description:
-        "Keep your account details accurate and protect your sign-in credentials. PAVE features are available according to your account status and the terms shown for each service.",
+        "Keep your account details accurate and protect your sign-in credentials. PAVEPADI features are available according to your account status and the terms shown for each service.",
     },
     {
       title: "Savings and thrift",
@@ -210,7 +220,7 @@ export function ProfileScreen({
     {
       title: "Your information",
       description:
-        "PAVE uses account and verification information to provide wallet, savings, security, and support features. Share only information requested through official in-app flows.",
+        "PAVEPADI uses account and verification information to provide wallet, savings, security, and support features. Share only information requested through official in-app flows.",
     },
     {
       title: "Security and privacy",
@@ -228,15 +238,84 @@ export function ProfileScreen({
         className="px-6 pt-14 pb-8 flex flex-col items-center"
       >
         <div className="relative mb-4">
-          <Avatar name={fullName} size={80} color="#6366F1" />
+          <Avatar
+            name={fullName}
+            size={80}
+            color="#6366F1"
+            src={
+              avatarPreview ||
+              (profileUser as any)?.image ||
+              (profileUser as any)?.face ||
+              (profileUser as any)?.profileImage ||
+              (authUser as any)?.image ||
+              (authUser as any)?.face
+            }
+          />
           <input
             ref={imageInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/jpg,image/webp"
             className="hidden"
             onChange={(event) => {
+              setAvatarUploadError("");
+              setAvatarUploadSuccess("");
               const file = event.currentTarget.files?.[0];
-              if (file) uploadImageMutation.mutate(file);
+              if (!file) return;
+
+              const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/jpg",
+                "image/webp",
+              ];
+              if (!allowedTypes.includes(file.type)) {
+                setAvatarUploadError(
+                  "Only JPEG, PNG, and WebP image formats are supported.",
+                );
+                event.currentTarget.value = "";
+                return;
+              }
+              if (file.size > 5 * 1024 * 1024) {
+                setAvatarUploadError(
+                  "Profile image size must not exceed 5MB.",
+                );
+                event.currentTarget.value = "";
+                return;
+              }
+
+              const previewUrl = URL.createObjectURL(file);
+              setAvatarPreview(previewUrl);
+
+              uploadImageMutation.mutate(file, {
+                onSuccess: (data: any) => {
+                  const savedImg =
+                    data?.user?.image ||
+                    data?.user?.face ||
+                    data?.data?.image ||
+                    data?.data?.face ||
+                    data?.imageUrl ||
+                    previewUrl;
+                  if (email && savedImg) {
+                    localStorage.setItem(`pave_avatar_${email}`, savedImg);
+                  }
+                  if (authUser) {
+                    setAuthUser({
+                      ...authUser,
+                      image: savedImg,
+                      face: savedImg,
+                    });
+                  }
+                  setAvatarUploadSuccess("Profile photo updated successfully!");
+                },
+                onError: (err) => {
+                  setAvatarUploadError(
+                    getApiErrorMessage(
+                      err,
+                      "Unable to upload your profile image.",
+                    ),
+                  );
+                },
+              });
               event.currentTarget.value = "";
             }}
           />
@@ -255,17 +334,14 @@ export function ProfileScreen({
             Uploading profile image...
           </p>
         )}
-        {uploadImageMutation.isSuccess && (
-          <p className="text-white/80 text-xs mb-2" role="status">
-            Profile image uploaded.
+        {avatarUploadSuccess && (
+          <p className="text-emerald-300 text-xs mb-2" role="status">
+            {avatarUploadSuccess}
           </p>
         )}
-        {uploadImageMutation.isError && (
+        {avatarUploadError && (
           <p className="text-red-200 text-xs mb-2" role="alert">
-            {getApiErrorMessage(
-              uploadImageMutation.error,
-              "Unable to upload your profile image.",
-            )}
+            {avatarUploadError}
           </p>
         )}
         <h2
@@ -362,6 +438,13 @@ export function ProfileScreen({
             panel: "security" as const,
           },
           {
+            icon: <Settings size={18} />,
+            label: "Settings",
+            color: "#4F46E5",
+            bg: "#EEF2FF",
+            panel: "settings-nav" as const,
+          },
+          {
             icon: <HelpCircle size={18} />,
             label: "Help & Support",
             color: "#374151",
@@ -379,10 +462,12 @@ export function ProfileScreen({
           <button
             key={item.label}
             onClick={() => {
-              if (item.panel === "personal") {
+              if ((item.panel as string) === "settings-nav") {
+                onNav("settings");
+              } else if (item.panel === "personal") {
                 openProfileEditor();
               } else {
-                setActivePanel(item.panel);
+                setActivePanel(item.panel as ProfilePanel);
                 setOpenHelpTopic(null);
                 setOpenLegalTopic(null);
                 if (item.panel === "bank") void accountDetailsQuery.refetch();
@@ -568,7 +653,7 @@ export function ProfileScreen({
                       </div>
                       <p className="mt-4 text-sm leading-relaxed text-[#6B7280]">
                         Identity verification helps protect your account and
-                        unlocks access to PAVE services that require verified
+                        unlocks access to PAVEPADI services that require verified
                         details.
                       </p>
                     </section>
@@ -615,7 +700,7 @@ export function ProfileScreen({
                       </div>
                       <div>
                         <h3 className="font-bold text-[#0D0F1C]">
-                          PAVE account
+                          PAVEPADI account
                         </h3>
                         <p className="text-xs text-[#6B7280]">
                           Account details for transfers
@@ -833,7 +918,7 @@ export function ProfileScreen({
                         <div>
                           <h3 className="font-bold">How can we help?</h3>
                           <p className="mt-1 text-xs text-white/75">
-                            Find quick answers about using PAVE.
+                            Find quick answers about using PAVEPADI.
                           </p>
                         </div>
                       </div>
@@ -882,7 +967,7 @@ export function ProfileScreen({
                       />
                       <p className="text-xs leading-relaxed text-[#6B7280]">
                         For account-specific support, use the official support
-                        contact provided by PAVE. PAVE will never ask you to
+                        contact provided by PAVEPADI. PAVEPADI will never ask you to
                         share your password or one-time codes.
                       </p>
                     </div>
@@ -899,7 +984,7 @@ export function ProfileScreen({
                         <div>
                           <h3 className="font-bold">Terms & Privacy</h3>
                           <p className="mt-1 text-xs text-white/75">
-                            Key information for using PAVE.
+                            Key information for using PAVEPADI.
                           </p>
                         </div>
                       </div>
@@ -952,7 +1037,7 @@ export function ProfileScreen({
                         Need more detail?
                       </h3>
                       <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
-                        Refer to the official PAVE terms and privacy notice
+                        Refer to the official PAVEPADI terms and privacy notice
                         provided for your account and the relevant financial
                         service.
                       </p>
@@ -985,13 +1070,16 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [mfaOpen, setMfaOpen] = useState(false);
   const [securityMessage, setSecurityMessage] = useState("");
   const [mfaMessage, setMfaMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const mfaMutation = useVerifyMfaTokenMutation();
   const securityAnswerMutation = useVerifySecurityAnswerMutation();
   const deleteAccountMutation = useDeleteUserAccountMutation();
   const [deleteAccountError, setDeleteAccountError] = useState("");
+  const { setAuthUser } = useLocalStore();
   const userId =
     (typeof authUser?.id === "string" && authUser.id) ||
     (typeof authUser?._id === "string" && authUser._id) ||
+    extractUserIdFromToken(getToken()) ||
     "";
 
   const toggleBiometric = () => {
@@ -1007,26 +1095,72 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   };
 
   const verifyAnswer = () => {
+    if (!securityAnswer.trim()) return;
     setSecurityMessage("");
     securityAnswerMutation.mutate(
       { userId, answer: securityAnswer.trim() },
       {
-        onSuccess: () => setSecurityMessage("Security answer verified."),
+        onSuccess: (res: any) => {
+          setSecurityMessage(
+            res?.message || "Security question & answer verified successfully.",
+          );
+          if (res?.token) {
+            setToken(res.token);
+          }
+          if (res?.user) {
+            setAuthUser(res.user);
+          }
+        },
       },
     );
   };
 
   const verifyMfa = () => {
+    if (!mfaToken.trim()) return;
     setMfaMessage("");
     mfaMutation.mutate(
-      { token: mfaToken.trim() },
+      { token: mfaToken.trim(), userId },
       {
-        onSuccess: () => {
+        onSuccess: (res: any) => {
           setMfaToken("");
-          setMfaMessage("MFA token verified.");
+          setMfaMessage(
+            res?.message || "MFA TOTP token verified successfully.",
+          );
+          if (res?.token) {
+            setToken(res.token);
+          }
+          if (res?.user) {
+            setAuthUser(res.user);
+          }
         },
       },
     );
+  };
+
+  const confirmDeleteAccount = () => {
+    const email = authUser?.email?.trim();
+    if (!email) {
+      setDeleteAccountError(
+        "Your account email is unavailable. Sign in again before deleting your account.",
+      );
+      setShowDeleteModal(false);
+      return;
+    }
+
+    setDeleteAccountError("");
+    deleteAccountMutation.mutate(email, {
+      onSuccess: () => {
+        setShowDeleteModal(false);
+        logout();
+        onNav("login");
+      },
+      onError: (error) => {
+        setShowDeleteModal(false);
+        setDeleteAccountError(
+          getApiErrorMessage(error, "Unable to update account delete status."),
+        );
+      },
+    });
   };
 
   const deleteAccount = () => {
@@ -1037,25 +1171,8 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
       );
       return;
     }
-    if (
-      !window.confirm(
-        "Delete your account? This will change your account's delete status.",
-      )
-    ) {
-      return;
-    }
-
     setDeleteAccountError("");
-    deleteAccountMutation.mutate(email, {
-      onSuccess: () => {
-        logout();
-        onNav("login");
-      },
-      onError: (error) =>
-        setDeleteAccountError(
-          getApiErrorMessage(error, "Unable to update account delete status."),
-        ),
-    });
+    setShowDeleteModal(true);
   };
 
   return (
@@ -1273,9 +1390,47 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </PaveBtn>
         </section>
         <div className="bg-[#F1F3FB] rounded-xl p-3 text-center text-xs text-[#9CA3AF]">
-          PAVE v2.0.1 · Member ID: PAV-20240614
+          PAVEPADI v2.0.1 · Member ID: PAV-20240614
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-red-100">
+            <div className="flex items-center gap-3 text-red-600 mb-3">
+              <AlertTriangle size={24} />
+              <h3 className="text-lg font-bold">Delete PAVEPADI Account</h3>
+            </div>
+            <p className="text-sm text-[#4B5563] leading-relaxed mb-4">
+              Are you sure you want to delete your account? This action will toggle your account status to deleted/blocked, disable your dedicated virtual account, and sign you out permanently.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteAccountMutation.isPending}
+                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteAccount}
+                disabled={deleteAccountMutation.isPending}
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {deleteAccountMutation.isPending ? (
+                  <>
+                    <Loader size={16} className="animate-spin" /> Deleting...
+                  </>
+                ) : (
+                  "Yes, Delete Account"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

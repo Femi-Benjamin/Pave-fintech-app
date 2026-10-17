@@ -28,15 +28,15 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
   const faqs = [
     {
       q: "What happens if a member fails or refuses to pay their turn?",
-      a: "PAVE eliminates informal default risk. Before joining any circle, all members undergo mandatory Tier-2 BVN/NIN identity verification and link a debit card with automated fallback authorization. If a debit fails, PAVE's escrow backup reserve ensures payouts occur on time while penalizing the defaulter's credit rating.",
+      a: "PAVEPADI eliminates informal default risk. Before joining any circle, all members undergo mandatory Tier-2 BVN/NIN identity verification and link a debit card with automated fallback authorization. If a debit fails, PAVEPADI's escrow backup reserve ensures payouts occur on time while penalizing the defaulter's credit rating.",
     },
     {
       q: "How is the payout collection order determined?",
-      a: "When creating a circle, the group admin can either configure a pre-agreed custom rotation schedule or enable PAVE's transparent cryptographic randomizer which assigns rotation turns fairly before the first deposit cycle begins.",
+      a: "When creating a circle, the group admin can either configure a pre-agreed custom rotation schedule or enable PAVEPADI's transparent cryptographic randomizer which assigns rotation turns fairly before the first deposit cycle begins.",
     },
     {
       q: "Are there any hidden fees or interest charges?",
-      a: "None. PAVE Ajo circles have 0% interest. You receive 100% of the pooled lump-sum with zero processing deductions.",
+      a: "None. PAVEPADI Ajo circles have 0% interest. You receive 100% of the pooled lump-sum with zero processing deductions.",
     },
     {
       q: "Can I create a private circle just for my family or coworkers?",
@@ -66,7 +66,7 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
               Save with friends, family, or verified colleagues without the
               anxiety of defaults. Everyone contributes periodically, and each
               member takes turns receiving the entire lump-sum pot—guaranteed by
-              PAVE's automated banking protocol.
+              PAVEPADI's automated banking protocol.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -279,17 +279,17 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
         </div>
       </section>
 
-      {/* 3. Why PAVE Rotating Savings beats informal paper Ajo */}
+      {/* 3. Why PAVEPADI Rotating Savings beats informal paper Ajo */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2
             className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white"
             style={{ fontFamily: "var(--font-family-display)" }}
           >
-            Traditional Esusu vs. PAVE Smart Circles
+            Traditional Esusu vs. PAVEPADI Smart Circles
           </h2>
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
-            Why thousands of Nigerians trust PAVE over manual cash collectors
+            Why thousands of Nigerians trust PAVEPADI over manual cash collectors
             and unverified WhatsApp groups.
           </p>
         </div>
@@ -338,7 +338,7 @@ export default function RotatingSavingsPage({ onOpenApp }: PageProps) {
               <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-xs font-bold">
                 ✓
               </span>
-              PAVE Rotating Savings Circle
+              PAVEPADI Rotating Savings Circle
             </div>
             <ul className="space-y-3.5 text-sm text-slate-800 dark:text-slate-200 font-normal">
               <li className="flex items-start gap-2.5">

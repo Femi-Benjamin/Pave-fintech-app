@@ -63,16 +63,16 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
       a: "Instantly on your screen within 2 to 4 seconds of payment confirmation. We also send a free instant SMS containing the token and save it permanently in your transaction history.",
     },
     {
-      q: "Does PAVE charge extra convenience fees on power or TV bills?",
-      a: "₦0.00! Unlike many platforms and agents that slap on ₦100 to ₦200 convenience charges, PAVE bill payments carry zero extra service charges.",
+      q: "Does PAVEPADI charge extra convenience fees on power or TV bills?",
+      a: "₦0.00! Unlike many platforms and agents that slap on ₦100 to ₦200 convenience charges, PAVEPADI bill payments carry zero extra service charges.",
     },
     {
       q: "What happens if my token says 'Reject' or 'Error' on the meter?",
-      a: "Ensure your keypad has power and battery. If the meter is still unkeyed, PAVE customer support operates a 24/7 dedicated escalation channel directly integrated with DISCO technical backends to resolve Key Change Tokens (KCT).",
+      a: "Ensure your keypad has power and battery. If the meter is still unkeyed, PAVEPADI customer support operates a 24/7 dedicated escalation channel directly integrated with DISCO technical backends to resolve Key Change Tokens (KCT).",
     },
     {
       q: "Can I set automated monthly renewal for my DStv or GOtv package?",
-      a: "Yes! You can enable Auto-Renew to charge your PAVE wallet 24 hours before expiration so your family never misses live matches or favorite telenovelas.",
+      a: "Yes! You can enable Auto-Renew to charge your PAVEPADI wallet 24 hours before expiration so your family never misses live matches or favorite telenovelas.",
     },
   ];
 
@@ -138,7 +138,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
             <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 aspect-16/10">
               <img
                 src={billsHeroImg}
-                alt="Nigerian family living room enjoying illuminated home and TV after instant PAVE token recharge"
+                alt="Nigerian family living room enjoying illuminated home and TV after instant PAVEPADI token recharge"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />

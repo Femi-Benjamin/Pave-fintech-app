@@ -28,7 +28,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
   const [activeDays, setActiveDays] = useState(30);
 
   const totalAccumulated = dailyAmount * activeDays;
-  const standardCommissionFee = 0; // PAVE charges ₦0 vs traditional 1-day collector cut
+  const standardCommissionFee = 0; // PAVEPADI charges ₦0 vs traditional 1-day collector cut
 
   const tiers = [
     {
@@ -60,12 +60,12 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
       a: "In Rotating Savings, members pool funds together and one member collects the full lump-sum each cycle on a rotational basis. In Daily Thrift (Alajo), you save your own money daily (e.g., ₦1,000/day) and collect your full lump-sum (₦30,000) at month-end.",
     },
     {
-      q: "Do traditional thrift collectors take a cut, and how does PAVE differ?",
-      a: "Yes, traditional street 'Alajo' collectors traditionally pocket the first day's contribution (e.g. 1/30th or ₦1,000) as their management fee. PAVE charges zero collection commission, so you collect 100% of your hard-earned money.",
+      q: "Do traditional thrift collectors take a cut, and how does PAVEPADI differ?",
+      a: "Yes, traditional street 'Alajo' collectors traditionally pocket the first day's contribution (e.g. 1/30th or ₦1,000) as their management fee. PAVEPADI charges zero collection commission, so you collect 100% of your hard-earned money.",
     },
     {
-      q: "Can cooperative associations manage their members on PAVE?",
-      a: "Yes! Society presidents and treasurers can create a registered Cooperative Society on PAVE, invite members, set contribution rules, and generate audit-ready financial statements.",
+      q: "Can cooperative associations manage their members on PAVEPADI?",
+      a: "Yes! Society presidents and treasurers can create a registered Cooperative Society on PAVEPADI, invite members, set contribution rules, and generate audit-ready financial statements.",
     },
     {
       q: "Are the funds safe from theft or market fire disasters?",
@@ -135,7 +135,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
             <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 aspect-16/10 ">
               <img
                 src={thriftHeroImg}
-                alt="Nigerian market entrepreneur saving with digital daily thrift on PAVE"
+                alt="Nigerian market entrepreneur saving with digital daily thrift on PAVEPADI"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
@@ -282,7 +282,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-amber-100">PAVE Collection Fee:</span>
+                    <span className="text-amber-100">PAVEPADI Collection Fee:</span>
                     <span className="font-bold text-amber-200">
                       ₦0.00 (Zero Fee)
                     </span>
@@ -326,7 +326,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
           </h2>
           <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
             Whether you run a market association in Balogun or an alumni
-            network, PAVE automates the entire ledger.
+            network, PAVEPADI automates the entire ledger.
           </p>
         </div>
 

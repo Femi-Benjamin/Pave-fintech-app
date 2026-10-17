@@ -62,8 +62,8 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
 
   const faqs = [
     {
-      q: "Are transfers between PAVE users really free?",
-      a: "Yes! 100% free. Any transfer between PAVE wallet users using their phone number or @pave-tag settles instantly with zero network or processing fees.",
+      q: "Are transfers between PAVEPADI users really free?",
+      a: "Yes! 100% free. Any transfer between PAVEPADI wallet users using their phone number or @pave-tag settles instantly with zero network or processing fees.",
     },
     {
       q: "How fast do transfers to other commercial banks arrive?",
@@ -71,7 +71,7 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
     },
     {
       q: "How does my dedicated virtual account work?",
-      a: "As soon as you register and verify your BVN/NIN on PAVE, a dedicated 10-digit NUBAN virtual account is automatically provisioned for you with our licensed partner bank (Wema Bank). You can receive money from any banking app or USSD in Nigeria directly into your PAVE wallet.",
+      a: "As soon as you register and verify your BVN/NIN on PAVEPADI, a dedicated 10-digit NUBAN virtual account is automatically provisioned for you with our licensed partner bank (Wema Bank). You can receive money from any banking app or USSD in Nigeria directly into your PAVEPADI wallet.",
     },
     {
       q: "Is there a daily transfer limit?",
@@ -126,7 +126,7 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                   size={16}
                   className="text-purple-600 dark:text-purple-400"
                 />
-                <span>₦0 PAVE-to-PAVE Fee</span>
+                <span>₦0 PAVEPADI-to-PAVEPADI Fee</span>
               </div>
               <div className="flex items-center gap-2">
                 <Landmark
@@ -150,7 +150,7 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
             <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 aspect-16/10">
               <img
                 src={sendReceiveHeroImg}
-                alt="Seamless Nigerian retail cafe payment using PAVE instant transfer"
+                alt="Seamless Nigerian retail cafe payment using PAVEPADI instant transfer"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
@@ -358,7 +358,7 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600 dark:text-slate-300 font-medium">
-                      PAVE Transfer Fee:
+                      PAVEPADI Transfer Fee:
                     </span>
                     <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
                       ₦0.00 (Zero Fee)
@@ -376,9 +376,9 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
                   </div>
                 </div>
 
-                {/* Clear PAVE value proposition callout */}
+                {/* Clear PAVEPADI value proposition callout */}
                 <div className="mt-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                  <span>PAVE Direct Savings:</span>
+                  <span>PAVEPADI Direct Savings:</span>
                   <span className="font-bold text-sm text-emerald-700 dark:text-emerald-300">
                     ₦{totalBankCost.toFixed(2)} saved per transfer
                   </span>
@@ -439,10 +439,10 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
               Get Your Own Dedicated Wema Bank Account in 60 Seconds
             </h2>
             <p className="text-sm sm:text-base text-purple-100/90 leading-relaxed mb-6 font-normal">
-              When you complete your PAVE signup, a personalized 10-digit
+              When you complete your PAVEPADI signup, a personalized 10-digit
               Nigerian NUBAN account number is automatically created for you.
               Anyone can transfer money from GTBank, Zenith, Access, Kuda, or
-              OPay directly into your PAVE wallet.
+              OPay directly into your PAVEPADI wallet.
             </p>
 
             <button
@@ -456,7 +456,7 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
           <div className="lg:col-span-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs text-white/80 font-medium">
-                Wema Bank / PAVE MFB
+                Wema Bank / PAVEPADI MFB
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-400/30 text-emerald-300 text-[10px] font-bold uppercase border border-emerald-400/30">
                 Active & Verified
@@ -489,7 +489,7 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
               <strong className="text-white font-bold">Jona Israel</strong>
             </div>
             <div className="text-xs text-purple-200 mt-1">
-              PAVE Tag:{" "}
+              PAVEPADI Tag:{" "}
               <span className="font-mono font-semibold text-white">
                 @benjamin_0000
               </span>

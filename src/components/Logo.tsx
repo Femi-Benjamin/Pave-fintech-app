@@ -68,7 +68,7 @@ export default function Logo({
       >
         <img
           src="/pave-logo.png"
-          alt="PAVE"
+          alt="PAVEPADI"
           className="w-full h-full object-contain select-none"
         />
       </div>
@@ -77,7 +77,7 @@ export default function Logo({
           className={`${textClasses[size]} tracking-tight ${textColorClass}`}
           style={{ fontFamily: "var(--font-family-display)" }}
         >
-          PAVE
+          PAVEPADI
         </span>
       )}
     </div>

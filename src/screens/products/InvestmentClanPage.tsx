@@ -128,7 +128,7 @@ export default function InvestmentClanPage({ onOpenApp }: PageProps) {
               onClick={() => onOpenApp("signup")}
               className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-lg hover:opacity-95 transition-all cursor-pointer"
             >
-              <span>Create PAVE Account Today</span>
+              <span>Create PAVEPADI Account Today</span>
               <ArrowRight size={16} />
             </button>
             <button

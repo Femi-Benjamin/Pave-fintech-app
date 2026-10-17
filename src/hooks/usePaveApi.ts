@@ -326,8 +326,17 @@ export function useContributionQuery(
   });
 }
 
-export function useUploadUserImageMutation() {
-  return useMutation({ mutationFn: uploadUserImage });
+export function useUploadUserImageMutation(email?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: uploadUserImage,
+    onSuccess: () => {
+      if (email) {
+        void queryClient.invalidateQueries({ queryKey: ["profile", email] });
+      }
+      void queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+  });
 }
 
 export function useUploadNinImageMutation() {

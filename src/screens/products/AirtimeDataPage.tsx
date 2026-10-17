@@ -62,15 +62,15 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
   const faqs = [
     {
       q: "How does the 3% cashback work?",
-      a: "Every time you purchase airtime or mobile data through PAVE, 3% of the total purchase value is instantly credited into your digital savings vault. There are no limits or coupon codes required.",
+      a: "Every time you purchase airtime or mobile data through PAVEPADI, 3% of the total purchase value is instantly credited into your digital savings vault. There are no limits or coupon codes required.",
     },
     {
-      q: "Does PAVE charge extra convenience or SMS fees?",
-      a: "Never. Unlike traditional commercial banks that charge ₦6.98 or ₦10 per airtime top-up session, PAVE is 100% free with zero hidden bank surcharges.",
+      q: "Does PAVEPADI charge extra convenience or SMS fees?",
+      a: "Never. Unlike traditional commercial banks that charge ₦6.98 or ₦10 per airtime top-up session, PAVEPADI is 100% free with zero hidden bank surcharges.",
     },
     {
       q: "Can I schedule automated data renewals before my plan expires?",
-      a: "Yes! You can toggle Auto-Renew on any data bundle. PAVE will verify your balance and renew your bundle 2 hours before expiration, ensuring you never experience midnight outages.",
+      a: "Yes! You can toggle Auto-Renew on any data bundle. PAVEPADI will verify your balance and renew your bundle 2 hours before expiration, ensuring you never experience midnight outages.",
     },
     {
       q: "Can businesses recharge corporate team lines in bulk?",
@@ -100,7 +100,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
               Never get disconnected during critical meetings, zoom calls, or
               midnight family emergencies. Top up MTN, Airtel, Glo, and 9mobile
               in under 5 seconds with zero bank surcharges and pocket guaranteed
-              3% instant cashback straight into your PAVE savings vault.
+              3% instant cashback straight into your PAVEPADI savings vault.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -140,7 +140,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
             <div className="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 aspect-16/10">
               <img
                 src={airtimeHeroImg}
-                alt="Young Nigerian woman in creative workspace recharging high speed mobile data on PAVE"
+                alt="Young Nigerian woman in creative workspace recharging high speed mobile data on PAVEPADI"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
@@ -176,7 +176,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
             </h2>
             <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 mt-2">
               Try our instant simulator to see how quick and cost-effective
-              mobile top-ups are on PAVE.
+              mobile top-ups are on PAVEPADI.
             </p>
           </div>
 
@@ -411,7 +411,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                       </strong>
                     </div>
                     <p className="text-xs">
-                      Reference: PAVE-VTU-
+                      Reference: PAVEPADI-VTU-
                       {Math.floor(Math.random() * 899999 + 100000)} · Network
                       SMS delivered to {phone}.
                     </p>
@@ -456,7 +456,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
             <p className="text-sm sm:text-base text-blue-100/90 leading-relaxed mb-6 font-normal">
               Most Nigerians spend between ₦15,000 and ₦50,000 every month on
               data and voice minutes. On standard banking apps, you pay extra
-              convenience charges and earn ₦0 back. On PAVE, every recharge
+              convenience charges and earn ₦0 back. On PAVEPADI, every recharge
               passively funds your year-end holiday or savings goal.
             </p>
 
@@ -502,7 +502,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-white/20">
                 <span className="font-bold text-emerald-300">
-                  Your Guaranteed PAVE Cashback:
+                  Your Guaranteed PAVEPADI Cashback:
                 </span>
                 <span className="font-black text-xl text-emerald-300">
                   +₦{annualCashback.toLocaleString()}

@@ -11,6 +11,7 @@ import {
   Circle,
   Hash,
   Loader,
+  Fingerprint,
 } from "lucide-react";
 import Logo from "../components/Logo";
 import { PaveBtn, Input } from "../components/UI";
@@ -551,11 +552,21 @@ export function LoginScreen({
     loginMutation.mutate({ email: email.trim(), password: pass });
   };
 
-  const doFingerLogin = () => {
-    if (!fingerUserId) return;
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [manualFingerId, setManualFingerId] = useState("");
+
+  const doFingerLogin = (idToUse?: string) => {
+    const targetUserId = (idToUse || fingerUserId || manualFingerId).trim();
+    if (!targetUserId) {
+      setFingerError("Please enter your User ID for biometric verification.");
+      return;
+    }
     setFingerError("");
-    fingerLoginMutation.mutate(fingerUserId, {
-      onSuccess: (response) => finishLogin(response, fingerUserId),
+    fingerLoginMutation.mutate(targetUserId, {
+      onSuccess: (response) => {
+        setShowBiometricModal(false);
+        finishLogin(response, targetUserId);
+      },
       onError: (err) =>
         setFingerError(
           getAuthErrorMessage(err, "Unable to sign in with fingerprint."),
@@ -572,7 +583,7 @@ export function LoginScreen({
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
         <AuthBrandPanel
-          title="Welcome Back to PAVE"
+          title="Welcome Back to PAVEPADI"
           subtitle="Access your virtual account, savings circles, and installment orders seamlessly."
         />
 
@@ -593,7 +604,7 @@ export function LoginScreen({
                 Welcome back 👋
               </h1>
               <p className="text-[#6B7280] text-xs sm:text-sm mt-1">
-                Sign in to your PAVE account to continue
+                Sign in to your PAVEPADI account to continue
               </p>
             </div>
 
@@ -639,33 +650,35 @@ export function LoginScreen({
                   )}
                 </PaveBtn>
               </div>
-              {fingerUserId && (
-                <>
-                  {fingerError && (
-                    <div
-                      role="alert"
-                      className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
-                    >
-                      {fingerError}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={doFingerLogin}
-                    disabled={fingerLoginMutation.isPending}
-                    className="w-full py-3 rounded-xl border-2 border-[#E5E7EB] flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#374151] cursor-pointer hover:bg-[#F1F3FB] transition-colors disabled:opacity-50"
-                  >
-                    {fingerLoginMutation.isPending ? (
-                      <>
-                        <Loader size={16} className="animate-spin" />
-                        Verifying...
-                      </>
-                    ) : (
-                      "Sign In with Fingerprint"
-                    )}
-                  </button>
-                </>
+              {fingerError && (
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
+                >
+                  {fingerError}
+                </div>
               )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (fingerUserId) {
+                    doFingerLogin(fingerUserId);
+                  } else {
+                    setShowBiometricModal(true);
+                  }
+                }}
+                disabled={fingerLoginMutation.isPending}
+                className="w-full py-3 rounded-xl border-2 border-[#E5E7EB] flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#374151] cursor-pointer hover:bg-[#F1F3FB] transition-colors disabled:opacity-50"
+              >
+                <Fingerprint size={16} className="text-[#3730A3]" />
+                {fingerLoginMutation.isPending ? (
+                  <>
+                    <Loader size={16} className="animate-spin" /> Verifying...
+                  </>
+                ) : (
+                  "Sign In with Fingerprint"
+                )}
+              </button>
 
               <button
                 onClick={() => onNav("accept-invitation")}
@@ -687,6 +700,58 @@ export function LoginScreen({
           </div>
         </div>
       </div>
+
+      {showBiometricModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-indigo-100">
+            <div className="flex items-center gap-3 text-[#3730A3] mb-3">
+              <Fingerprint size={28} />
+              <h3 className="text-lg font-bold text-[#0D0F1C]">
+                Biometric & Fingerprint Login
+              </h3>
+            </div>
+            <p className="text-xs text-[#6B7280] leading-relaxed mb-4">
+              Authenticate using your saved device identity or enter your PAVEPADI User ID below to verify your account with fingerprint biometrics.
+            </p>
+            <Input
+              label="PAVEPADI User ID"
+              placeholder="e.g. 0d8d4d31-80f7-4a74-bea2-1c6247d5a9bb"
+              value={manualFingerId}
+              onChange={setManualFingerId}
+              icon={<Hash size={16} />}
+            />
+            {fingerError && (
+              <p className="mt-2 text-xs text-red-600" role="alert">
+                {fingerError}
+              </p>
+            )}
+            <div className="flex gap-3 justify-end mt-4">
+              <button
+                type="button"
+                onClick={() => setShowBiometricModal(false)}
+                disabled={fingerLoginMutation.isPending}
+                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => doFingerLogin(manualFingerId)}
+                disabled={!manualFingerId.trim() || fingerLoginMutation.isPending}
+                className="px-4 py-2 text-sm font-semibold text-white bg-[#3730A3] hover:bg-[#2E2880] rounded-xl flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {fingerLoginMutation.isPending ? (
+                  <>
+                    <Loader size={16} className="animate-spin" /> Verifying...
+                  </>
+                ) : (
+                  "Authenticate"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1180,7 +1245,7 @@ export function AcceptInvitationScreen({
               className="text-lg sm:text-xl font-bold text-[#0D0F1C]"
               style={{ fontFamily: "var(--font-family-display)" }}
             >
-              Join PAVE
+              Join PAVEPADI
             </h2>
           </div>
           <Logo size="sm" />
@@ -1207,7 +1272,7 @@ export function AcceptInvitationScreen({
               </p>
               <Input
                 label="Invitation Code"
-                placeholder="e.g. PAVE-2024-XK91"
+                placeholder="e.g. PAVEPADI-2024-XK91"
                 value={code}
                 onChange={setCode}
                 icon={<Hash size={16} />}

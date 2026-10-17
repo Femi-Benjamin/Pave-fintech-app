@@ -148,7 +148,7 @@ function parseExistingAccountMessage(
     data: {
       accountNumber: numMatch[0],
       bankName,
-      accountName: "PAVE Customer",
+      accountName: "PAVEPADI Customer",
     },
   };
 }

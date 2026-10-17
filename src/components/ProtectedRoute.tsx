@@ -29,7 +29,7 @@ export function ProtectedRoute({
     return (
       <PaveLoadingState
         title="Checking session..."
-        subtitle="Securing your PAVE account"
+        subtitle="Securing your PAVEPADI account"
       />
     );
   }

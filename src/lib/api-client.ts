@@ -43,6 +43,10 @@ api.interceptors.request.use((config) => {
     delete config.headers.Authorization;
   }
 
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   return config;
 });
 
