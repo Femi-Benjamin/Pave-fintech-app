@@ -1002,6 +1002,8 @@ export function ForgotPasswordScreen({
 }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [sentMessage, setSentMessage] = useState("");
+  const [successNotice, setSuccessNotice] = useState("");
   const [email, setEmail] = useState("");
   const [resetToken, setResetToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -1017,9 +1019,14 @@ export function ForgotPasswordScreen({
     }
 
     setError("");
+    setSentMessage("");
 
     try {
-      await forgotPasswordMutation.mutateAsync(email.trim());
+      const res: any = await forgotPasswordMutation.mutateAsync(email.trim());
+      setSentMessage(
+        res?.message ||
+          "Password reset token sent to your email or sms or whatsapp",
+      );
       setSent(true);
     } catch (err: any) {
       setError(
@@ -1048,16 +1055,21 @@ export function ForgotPasswordScreen({
     setError("");
 
     try {
-      await resetPasswordMutation.mutateAsync({
+      const res: any = await resetPasswordMutation.mutateAsync({
         token: resetToken.trim(),
         password: newPassword,
       });
-      setSent(false);
-      setEmail("");
-      setResetToken("");
-      setNewPassword("");
-      setConfirmPassword("");
-      onNav("login");
+      setSuccessNotice(
+        res?.message || "Password reset successful! Redirecting to sign in...",
+      );
+      setTimeout(() => {
+        setSent(false);
+        setEmail("");
+        setResetToken("");
+        setNewPassword("");
+        setConfirmPassword("");
+        onNav("login");
+      }, 1200);
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
@@ -1158,10 +1170,23 @@ export function ForgotPasswordScreen({
                   Check Your Email
                 </h2>
                 <p className="text-[#6B7280] text-xs sm:text-sm">
-                  We sent a reset token to{" "}
-                  <strong>{email || "your email"}</strong>.
+                  {sentMessage || (
+                    <>
+                      We sent a reset token to{" "}
+                      <strong>{email || "your email"}</strong>.
+                    </>
+                  )}
                 </p>
               </div>
+
+              {successNotice && (
+                <div
+                  role="status"
+                  className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 font-medium text-center"
+                >
+                  {successNotice}
+                </div>
+              )}
 
               <Input
                 label="Reset Token"
@@ -1190,7 +1215,7 @@ export function ForgotPasswordScreen({
               <div className="mt-2 flex flex-col gap-2 w-full">
                 <PaveBtn
                   onClick={handleResetPassword}
-                  disabled={resetPasswordMutation.isPending}
+                  disabled={resetPasswordMutation.isPending || Boolean(successNotice)}
                 >
                   {resetPasswordMutation.isPending ? (
                     <>
