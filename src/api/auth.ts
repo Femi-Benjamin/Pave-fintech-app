@@ -188,13 +188,24 @@ export async function uploadUserImage(file: File) {
 
   const formData = new FormData();
   formData.append("face", file);
-  const { data } = await api.post("/api/v1/auth/uploadImage", formData);
-  return data;
+
+  // The live backend router registers PUT /api/v1/auth/uploadImage (Postman doc notes POST).
+  // We send PUT and gracefully fall back to POST if an environment requires POST.
+  try {
+    const { data } = await api.put("/api/v1/auth/uploadImage", formData);
+    return data;
+  } catch (error: any) {
+    if (error?.response?.status === 404 || error?.response?.status === 405) {
+      const { data } = await api.post("/api/v1/auth/uploadImage", formData);
+      return data;
+    }
+    throw error;
+  }
 }
 
 /**
  * Nepa Bill Image uploading (Proof of Address / Utility Bill)
- * POST /api/v1/auth/uploadBillImage
+ * POST / PUT /api/v1/auth/uploadBillImage
  * Documented in Postman as "Nepa Bill Image uploading" with multipart field "nepaBill".
  */
 export async function uploadBillImage(file: File) {
@@ -217,8 +228,18 @@ export async function uploadBillImage(file: File) {
 
   const formData = new FormData();
   formData.append("nepaBill", file);
-  const { data } = await api.post("/api/v1/auth/uploadBillImage", formData);
-  return data;
+
+  // The live backend router registers PUT /api/v1/auth/uploadBillImage.
+  try {
+    const { data } = await api.put("/api/v1/auth/uploadBillImage", formData);
+    return data;
+  } catch (error: any) {
+    if (error?.response?.status === 404 || error?.response?.status === 405) {
+      const { data } = await api.post("/api/v1/auth/uploadBillImage", formData);
+      return data;
+    }
+    throw error;
+  }
 }
 
 export const uploadNepaBillImage = uploadBillImage;

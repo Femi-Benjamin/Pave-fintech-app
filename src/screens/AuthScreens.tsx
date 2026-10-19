@@ -612,8 +612,7 @@ export function LoginScreen({
                 <PaveBtn onClick={doLogin} disabled={loginMutation.isPending}>
                   {loginMutation.isPending ? (
                     <>
-                      <Loader size={16} className="animate-spin" /> Signing
-                      in...
+                      <Loader size={16} className="animate-spin" /> Signing you in...
                     </>
                   ) : (
                     "Sign In"

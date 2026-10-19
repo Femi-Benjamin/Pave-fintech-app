@@ -1285,10 +1285,10 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         )}
         <section className="rounded-xl border border-red-200 bg-white p-4">
           <h3 className="mb-1 text-sm font-semibold text-red-700">
-            Delete account
+            Deactivate account
           </h3>
           <p className="mb-3 text-xs text-[#6B7280]">
-            The documented endpoint toggles your account's delete status.
+            Submitting this request deactivates and blocks your PAVEPADI account on the server, halting active sessions and wallet access.
           </p>
           {deleteAccountError && (
             <p role="alert" className="mb-3 text-sm text-red-600">
@@ -1306,7 +1306,7 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 Updating account...
               </>
             ) : (
-              "Delete Account"
+              "Deactivate Account"
             )}
           </PaveBtn>
         </section>
@@ -1320,10 +1320,10 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-red-100">
             <div className="flex items-center gap-3 text-red-600 mb-3">
               <AlertTriangle size={24} />
-              <h3 className="text-lg font-bold">Delete PAVEPADI Account</h3>
+              <h3 className="text-lg font-bold">Deactivate PAVEPADI Account</h3>
             </div>
             <p className="text-sm text-[#4B5563] leading-relaxed mb-4">
-              Are you sure you want to delete your account? This action will toggle your account status to deleted/blocked, disable your dedicated virtual account, and sign you out permanently.
+              Are you sure you want to deactivate your account? This action toggles your account status to blocked on the server, halts active sessions, and signs you out. Once deactivated, logging in is disabled until unblocked by support.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -1342,10 +1342,10 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               >
                 {deleteAccountMutation.isPending ? (
                   <>
-                    <Loader size={16} className="animate-spin" /> Deleting...
+                    <Loader size={16} className="animate-spin" /> Deactivating...
                   </>
                 ) : (
-                  "Yes, Delete Account"
+                  "Yes, Deactivate Account"
                 )}
               </button>
             </div>
