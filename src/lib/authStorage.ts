@@ -171,7 +171,6 @@ export function clearToken(): void {
   try {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem("pave_finger_user_id");
   } catch {}
 }
 

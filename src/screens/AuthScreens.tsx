@@ -11,7 +11,6 @@ import {
   Circle,
   Hash,
   Loader,
-  Fingerprint,
 } from "lucide-react";
 import Logo from "../components/Logo";
 import { PaveBtn, Input } from "../components/UI";
@@ -26,7 +25,6 @@ import {
 import { useLocalStore } from "../hooks/useLocalStore";
 import {
   useForgotPasswordMutation,
-  useLoginWithFingerMutation,
   useResetPasswordMutation,
 } from "../hooks/usePaveApi";
 import { getToken, setToken, isTokenValid } from "../lib/authStorage";
@@ -479,9 +477,6 @@ export function LoginScreen({
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
-  const [fingerError, setFingerError] = useState("");
-  const fingerUserId = typeof window !== "undefined" ? localStorage.getItem("pave_finger_user_id") : null;
-  const fingerLoginMutation = useLoginWithFingerMutation();
 
   // Redirect to dashboard only if user is authenticated with a valid token
   useEffect(() => {
@@ -520,9 +515,6 @@ export function LoginScreen({
       lastName: rawUser.lastName ?? "",
     };
 
-    if (userId && typeof window !== "undefined" && localStorage.getItem("pave_biometric_enabled") === "true") {
-      localStorage.setItem("pave_finger_user_id", String(userId));
-    }
     setAuthUser(user);
     onNav("kyc-welcome");
   };
@@ -550,28 +542,6 @@ export function LoginScreen({
 
     setError("");
     loginMutation.mutate({ email: email.trim(), password: pass });
-  };
-
-  const [showBiometricModal, setShowBiometricModal] = useState(false);
-  const [manualFingerId, setManualFingerId] = useState("");
-
-  const doFingerLogin = (idToUse?: string) => {
-    const targetUserId = (idToUse || fingerUserId || manualFingerId).trim();
-    if (!targetUserId) {
-      setFingerError("Please enter your User ID for biometric verification.");
-      return;
-    }
-    setFingerError("");
-    fingerLoginMutation.mutate(targetUserId, {
-      onSuccess: (response) => {
-        setShowBiometricModal(false);
-        finishLogin(response, targetUserId);
-      },
-      onError: (err) =>
-        setFingerError(
-          getAuthErrorMessage(err, "Unable to sign in with fingerprint."),
-        ),
-    });
   };
 
 
@@ -650,35 +620,6 @@ export function LoginScreen({
                   )}
                 </PaveBtn>
               </div>
-              {fingerError && (
-                <div
-                  role="alert"
-                  className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
-                >
-                  {fingerError}
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  if (fingerUserId) {
-                    doFingerLogin(fingerUserId);
-                  } else {
-                    setShowBiometricModal(true);
-                  }
-                }}
-                disabled={fingerLoginMutation.isPending}
-                className="w-full py-3 rounded-xl border-2 border-[#E5E7EB] flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#374151] cursor-pointer hover:bg-[#F1F3FB] transition-colors disabled:opacity-50"
-              >
-                <Fingerprint size={16} className="text-[#3730A3]" />
-                {fingerLoginMutation.isPending ? (
-                  <>
-                    <Loader size={16} className="animate-spin" /> Verifying...
-                  </>
-                ) : (
-                  "Sign In with Fingerprint"
-                )}
-              </button>
 
               <button
                 onClick={() => onNav("accept-invitation")}
@@ -700,58 +641,6 @@ export function LoginScreen({
           </div>
         </div>
       </div>
-
-      {showBiometricModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-indigo-100">
-            <div className="flex items-center gap-3 text-[#3730A3] mb-3">
-              <Fingerprint size={28} />
-              <h3 className="text-lg font-bold text-[#0D0F1C]">
-                Biometric & Fingerprint Login
-              </h3>
-            </div>
-            <p className="text-xs text-[#6B7280] leading-relaxed mb-4">
-              Authenticate using your saved device identity or enter your PAVEPADI User ID below to verify your account with fingerprint biometrics.
-            </p>
-            <Input
-              label="PAVEPADI User ID"
-              placeholder="e.g. 0d8d4d31-80f7-4a74-bea2-1c6247d5a9bb"
-              value={manualFingerId}
-              onChange={setManualFingerId}
-              icon={<Hash size={16} />}
-            />
-            {fingerError && (
-              <p className="mt-2 text-xs text-red-600" role="alert">
-                {fingerError}
-              </p>
-            )}
-            <div className="flex gap-3 justify-end mt-4">
-              <button
-                type="button"
-                onClick={() => setShowBiometricModal(false)}
-                disabled={fingerLoginMutation.isPending}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => doFingerLogin(manualFingerId)}
-                disabled={!manualFingerId.trim() || fingerLoginMutation.isPending}
-                className="px-4 py-2 text-sm font-semibold text-white bg-[#3730A3] hover:bg-[#2E2880] rounded-xl flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {fingerLoginMutation.isPending ? (
-                  <>
-                    <Loader size={16} className="animate-spin" /> Verifying...
-                  </>
-                ) : (
-                  "Authenticate"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

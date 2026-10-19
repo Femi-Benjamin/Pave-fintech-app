@@ -14,6 +14,7 @@ import { PaveBtn, Input, Badge, Avatar } from "../components/UI";
 import { Screen } from "../pave-data";
 import { getApiErrorMessage } from "../api/auth";
 import {
+  useUploadBillImageMutation,
   useUploadNinImageMutation,
   useVerifyNinMutation,
 } from "../hooks/usePaveApi";
@@ -284,7 +285,7 @@ export function KYCIDUploadScreen({
   const [billUploadError, setBillUploadError] = useState("");
   const [billUploadSuccess, setBillUploadSuccess] = useState("");
   const [verifyError, setVerifyError] = useState("");
-  const uploadNinImageMutation = useUploadNinImageMutation();
+  const uploadBillImageMutation = useUploadBillImageMutation();
   const verifyNinMutation = useVerifyNinMutation();
 
   const uploadBillImage = (file?: File) => {
@@ -293,14 +294,19 @@ export function KYCIDUploadScreen({
     setBillUploadError("");
     setBillUploadSuccess("");
     setBillFileName("");
-    uploadNinImageMutation.mutate(file, {
+    uploadBillImageMutation.mutate(file, {
       onSuccess: () => {
         setBillFileName(file.name);
-        setBillUploadSuccess("NIN document image uploaded successfully.");
+        setBillUploadSuccess(
+          "Proof of address (NEPA bill) uploaded successfully.",
+        );
       },
       onError: (error) => {
         setBillUploadError(
-          getApiErrorMessage(error, "Unable to upload the NIN image."),
+          getApiErrorMessage(
+            error,
+            "Unable to upload the utility bill document.",
+          ),
         );
       },
     });
@@ -415,28 +421,29 @@ export function KYCIDUploadScreen({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-[#0D0F1C]">
-                Supporting bill image (optional)
+                Proof of address: NEPA / Utility bill (optional)
               </p>
               <p className="text-xs text-[#6B7280]">
-                {billFileName || "The upload endpoint expects a nepaBill image."}
+                {billFileName ||
+                  "Upload a recent utility or NEPA electricity bill as proof of residence."}
               </p>
             </div>
             <button
               type="button"
               onClick={() => billInputRef.current?.click()}
-              disabled={uploadNinImageMutation.isPending}
+              disabled={uploadBillImageMutation.isPending}
               className="rounded-lg border border-[#D1D5DB] px-3 py-2 text-sm font-medium text-[#3730A3] disabled:opacity-50"
             >
-              {uploadNinImageMutation.isPending
+              {uploadBillImageMutation.isPending
                 ? "Uploading..."
                 : billFileName
-                  ? "Replace image"
-                  : "Upload image"}
+                  ? "Replace bill"
+                  : "Upload bill"}
             </button>
           </div>
-          {uploadNinImageMutation.isPending && (
+          {uploadBillImageMutation.isPending && (
             <p className="mt-2 text-xs text-[#6B7280]" role="status">
-              Uploading NIN image...
+              Uploading utility bill document...
             </p>
           )}
           {billUploadSuccess && (

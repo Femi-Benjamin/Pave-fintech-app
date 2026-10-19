@@ -1179,16 +1179,16 @@ export default function OnboardingScreen({
 
                     {/* Primary Action Buttons */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                      {/* Create Pave Account CTA */}
+                      {/* Create PAVEPADI Account CTA */}
                       <button
                         onClick={() => onNavigate("signup")}
                         className="w-full sm:w-auto bg-[#312E81] hover:bg-[#282568] dark:bg-[#4F39F6] dark:hover:bg-[#432BD8] text-white font-bold py-4 px-10 rounded-full text-sm uppercase tracking-wider transition-all shadow-lg shadow-indigo-950/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 inline-flex items-center justify-center cursor-pointer"
                       >
-                        <span>Create Pave Account</span>
+                        <span>Create PAVEPADI Account</span>
                         <ArrowRight size={18} className="ml-2" />
                       </button>
 
-                      {/* Download Pave App CTA */}
+                      {/* Download PAVEPADI App CTA */}
                       <button
                         onClick={() => setIsDownloadModalOpen(true)}
                         className="w-full sm:w-auto bg-white/90 hover:bg-white text-slate-800 border border-indigo-200/80 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/20 font-bold py-4 px-8 rounded-full uppercase tracking-wider text-sm transition-all cursor-pointer shadow-xs inline-flex items-center justify-center gap-2 active:scale-95 backdrop-blur-md"
@@ -1197,7 +1197,7 @@ export default function OnboardingScreen({
                           size={16}
                           className="text-[#3730A3] dark:text-slate-300"
                         />
-                        <span>Download Pave App</span>
+                        <span>Download PAVEPADI App</span>
                       </button>
                     </div>
                   </div>
@@ -1455,7 +1455,7 @@ export default function OnboardingScreen({
                   className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight"
                   style={{ fontFamily: "var(--font-family-display)" }}
                 >
-                  Download Pave App
+                  Download PAVEPADI App
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                   Automate high-yield savings and manage your Ajo thrift pools

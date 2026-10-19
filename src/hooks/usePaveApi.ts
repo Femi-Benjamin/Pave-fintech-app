@@ -8,9 +8,9 @@ import {
   getProfile,
   getUserAccountDetails,
   deleteUserAccount,
-  loginWithFinger,
   resetPassword,
   updateProfile,
+  uploadBillImage,
   uploadNinImage,
   uploadUserImage,
   verifyMfaToken,
@@ -339,6 +339,10 @@ export function useUploadUserImageMutation(email?: string) {
   });
 }
 
+export function useUploadBillImageMutation() {
+  return useMutation({ mutationFn: uploadBillImage });
+}
+
 export function useUploadNinImageMutation() {
   return useMutation({ mutationFn: uploadNinImage });
 }
@@ -364,10 +368,6 @@ export function useResetPasswordMutation() {
   return useMutation({
     mutationFn: (payload: ResetPasswordPayload) => resetPassword(payload),
   });
-}
-
-export function useLoginWithFingerMutation() {
-  return useMutation({ mutationFn: loginWithFinger });
 }
 
 export function useVerifyNinMutation() {

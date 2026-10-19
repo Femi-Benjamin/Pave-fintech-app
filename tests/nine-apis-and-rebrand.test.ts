@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
+import * as authModule from "../src/api/auth";
 import {
   uploadUserImage,
+  uploadBillImage,
   uploadNinImage,
   verifySecurityAnswer,
   verifyMfaToken,
   forgotPassword,
   resetPassword,
   deleteUserAccount,
-  loginWithFinger,
   verifyNin,
   extractUserIdFromToken,
   getAuthenticatedUserId,
@@ -39,22 +40,22 @@ test("API 1: User Image Upload validates file format and size", async () => {
   );
 });
 
-test("API 2: NIN Image Upload validates document format and size", async () => {
+test("API 2: Nepa / Utility Bill Image Upload validates document format and size", async () => {
   await assert.rejects(
-    () => uploadNinImage(null as any),
-    /Please select a document image to upload/i,
+    () => uploadBillImage(null as any),
+    /Please select a utility bill document image to upload/i,
   );
 
   const exeFile = new File(["binary"], "file.exe", { type: "application/x-msdownload" });
   await assert.rejects(
-    () => uploadNinImage(exeFile),
+    () => uploadBillImage(exeFile),
     /Only JPEG, PNG, WebP, or PDF files are supported/i,
   );
 
   const largeBlob = new Uint8Array(6 * 1024 * 1024);
   const oversizedFile = new File([largeBlob], "huge.pdf", { type: "application/pdf" });
   await assert.rejects(
-    () => uploadNinImage(oversizedFile),
+    () => uploadBillImage(oversizedFile),
     /Document file size must not exceed 5MB/i,
   );
 });
@@ -87,15 +88,18 @@ test("API 7: Reset Password export and contract", () => {
   assert.equal(typeof resetPassword, "function");
 });
 
-test("API 8: Login with Fingerprint validates user ID presence", async () => {
-  await assert.rejects(
-    () => loginWithFinger(""),
-    /A valid User ID is required/i,
-  );
-  await assert.rejects(
-    () => loginWithFinger("   "),
-    /A valid User ID is required/i,
-  );
+test("API 8: Fingerprint authentication removed from client authentication surface", () => {
+  // Confirm that fingerprint login is completely removed from the web client
+  assert.equal((authModule as any).loginWithFinger, undefined);
+
+  // Confirm that UI components do not expose fingerprint login
+  const authScreens = fs.readFileSync("src/screens/AuthScreens.tsx", "utf8");
+  assert.ok(!authScreens.includes("useLoginWithFingerMutation"));
+  assert.ok(!authScreens.includes("Sign In with Fingerprint"));
+
+  const profileScreens = fs.readFileSync("src/screens/ProfileScreens.tsx", "utf8");
+  assert.ok(!profileScreens.includes("pave_finger_user_id"));
+  assert.ok(!profileScreens.includes("Biometric login"));
 });
 
 test("API 9: Verify NIN validates 11-digit NIN and required front ID", async () => {

@@ -86,8 +86,8 @@ export function getAuthErrorMessage(error: unknown, fallback: string) {
     if (status === 401) return "The email or password is incorrect.";
     if (status === 403) return "This account is not allowed to sign in.";
     if (status === 404) return "The login endpoint is unavailable on the configured backend.";
-    if (status && status >= 500) return "The Pave server is unavailable. Please try again later.";
-    if (!error.response) return "Unable to reach the Pave server. Check your connection.";
+    if (status && status >= 500) return "The PAVEPADI server is unavailable. Please try again later.";
+    if (!error.response) return "Unable to reach the PAVEPADI server. Check your connection.";
   }
 
   if (error instanceof Error && error.message) return error.message;
@@ -102,12 +102,12 @@ export function getApiErrorMessage(error: unknown, fallback: string) {
     const message = responseData?.message || responseData?.error;
 
     if (message) return message;
-    if (!error.response) return "Unable to reach the Pave server. Check your connection.";
+    if (!error.response) return "Unable to reach the PAVEPADI server. Check your connection.";
     if (error.response.status === 401) {
       return "Your session may have expired. Please sign in again.";
     }
     if (error.response.status >= 500) {
-      return "The Pave server is unavailable. Please try again later.";
+      return "The PAVEPADI server is unavailable. Please try again later.";
     }
     return fallback;
   }
@@ -192,9 +192,14 @@ export async function uploadUserImage(file: File) {
   return data;
 }
 
-export async function uploadNinImage(file: File) {
+/**
+ * Nepa Bill Image uploading (Proof of Address / Utility Bill)
+ * POST /api/v1/auth/uploadBillImage
+ * Documented in Postman as "Nepa Bill Image uploading" with multipart field "nepaBill".
+ */
+export async function uploadBillImage(file: File) {
   if (!file) {
-    throw new Error("Please select a document image to upload.");
+    throw new Error("Please select a utility bill document image to upload.");
   }
   const allowed = [
     "image/jpeg",
@@ -216,12 +221,33 @@ export async function uploadNinImage(file: File) {
   return data;
 }
 
+export const uploadNepaBillImage = uploadBillImage;
+
+/**
+ * Backward compatibility helper for uploadNinImage.
+ * Note: In the Postman collection, "NIN Image uploading" maps directly to
+ * POST /api/v1/auth/validateNIN with fields nin, ninFrontId, and optional ninBackId.
+ * For proof-of-address documents, use uploadBillImage instead.
+ */
+export async function uploadNinImage(file: File) {
+  return uploadBillImage(file);
+}
+
 export interface VerifyNinPayload {
   nin: string;
   ninFrontId: File;
   ninBackId?: File | null;
 }
 
+/**
+ * NIN Image uploading and identity verification
+ * POST /api/v1/auth/validateNIN
+ * Documented in Postman as "NIN Image uploading" and "Verify NIN".
+ * Expects multipart/form-data with fields:
+ * - nin (11-digit string)
+ * - ninFrontId (File, front of NIN document or live face)
+ * - ninBackId (File, optional back of document)
+ */
 export async function verifyNin(payload: VerifyNinPayload) {
   const cleanNin = payload.nin?.trim() ?? "";
   if (!cleanNin || cleanNin.length !== 11 || !/^\d{11}$/.test(cleanNin)) {
@@ -239,26 +265,6 @@ export async function verifyNin(payload: VerifyNinPayload) {
   }
 
   const { data } = await api.post("/api/v1/auth/validateNIN", formData);
-  return data;
-}
-
-export async function loginWithFinger(userId: string): Promise<LoginResponse> {
-  if (!userId || !userId.trim()) {
-    throw new Error("A valid User ID is required for fingerprint sign in.");
-  }
-
-  const { data } = await api.post<LoginResponse>(
-    "/api/v1/auth/loginWithFinger",
-    null,
-    { params: { userId: userId.trim() } },
-  );
-
-  if (!data.token) {
-    throw new Error(
-      "The fingerprint login response did not include an authentication token.",
-    );
-  }
-
   return data;
 }
 

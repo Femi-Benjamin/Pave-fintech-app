@@ -19,7 +19,6 @@ import {
   Loader,
   Settings,
   AlertTriangle,
-  Fingerprint,
 } from "lucide-react";
 import { Avatar, Badge, Input, PaveBtn, ScreenHeader } from "../components/UI";
 import { Screen } from "../pave-data";
@@ -78,9 +77,6 @@ export function ProfileScreen({
   const [activePanel, setActivePanel] = useState<ProfilePanel | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     () => localStorage.getItem("pave_notifications_enabled") !== "false",
-  );
-  const [biometricEnabled, setBiometricEnabled] = useState(
-    () => localStorage.getItem("pave_biometric_enabled") === "true",
   );
   const [savingsRemindersEnabled, setSavingsRemindersEnabled] = useState(
     () => localStorage.getItem("pave_savings_reminders_enabled") !== "false",
@@ -824,56 +820,6 @@ export function ProfileScreen({
 
                 {activePanel === "security" && (
                   <div className="space-y-4">
-                    <section className="flex items-center justify-between gap-4 rounded-2xl border border-[#E8EAF4] bg-white p-5">
-                      <div>
-                        <h3 className="text-sm font-semibold text-[#0D0F1C]">
-                          Biometric login
-                        </h3>
-                        <p className="mt-1 text-xs text-[#6B7280]">
-                          Use fingerprint or Face ID when supported.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={biometricEnabled}
-                        aria-label="Biometric login"
-                        onClick={() => {
-                          const next = !biometricEnabled;
-                          setBiometricEnabled(next);
-                          if (!next) {
-                            localStorage.removeItem("pave_biometric_enabled");
-                            localStorage.removeItem("pave_finger_user_id");
-                          } else {
-                            localStorage.setItem(
-                              "pave_biometric_enabled",
-                              "true",
-                            );
-                            const currentUserId =
-                              (typeof profileUser?.id === "string" &&
-                                profileUser.id) ||
-                              (typeof profileUser?._id === "string" &&
-                                profileUser._id) ||
-                              "";
-                            if (currentUserId) {
-                              localStorage.setItem(
-                                "pave_finger_user_id",
-                                currentUserId,
-                              );
-                            }
-                          }
-                        }}
-                        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${
-                          biometricEnabled ? "bg-emerald-600" : "bg-slate-300"
-                        }`}
-                      >
-                        <span
-                          className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-                            biometricEnabled ? "translate-x-5" : "translate-x-0"
-                          }`}
-                        />
-                      </button>
-                    </section>
                     <section className="rounded-2xl border border-[#E8EAF4] bg-white p-5">
                       <div className="flex items-start gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700">
@@ -1058,9 +1004,6 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [notifications, setNotifications] = useState(
     () => localStorage.getItem("pave_notifications_enabled") !== "false",
   );
-  const [biometric, setBiometric] = useState(
-    () => localStorage.getItem("pave_biometric_enabled") === "true",
-  );
   const [savingsReminder, setSavingsReminder] = useState(
     () => localStorage.getItem("pave_savings_reminders_enabled") !== "false",
   );
@@ -1081,18 +1024,6 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     (typeof authUser?._id === "string" && authUser._id) ||
     extractUserIdFromToken(getToken()) ||
     "";
-
-  const toggleBiometric = () => {
-    const next = !biometric;
-    setBiometric(next);
-    if (next) {
-      localStorage.setItem("pave_biometric_enabled", "true");
-      if (userId) localStorage.setItem("pave_finger_user_id", userId);
-    } else {
-      localStorage.removeItem("pave_biometric_enabled");
-      localStorage.removeItem("pave_finger_user_id");
-    }
-  };
 
   const verifyAnswer = () => {
     if (!securityAnswer.trim()) return;
@@ -1187,12 +1118,6 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             set: setNotifications,
           },
           {
-            label: "Biometric Login",
-            desc: "Use fingerprint or Face ID to login",
-            val: biometric,
-            set: setBiometric,
-          },
-          {
             label: "Savings Reminders",
             desc: "Get notified when deposits are due",
             val: savingsReminder,
@@ -1211,18 +1136,14 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </div>
             <button
               onClick={() => {
-                if (s.label === "Biometric Login") {
-                  toggleBiometric();
-                } else {
-                  const next = !s.val;
-                  s.set(next);
-                  localStorage.setItem(
-                    s.label === "Push Notifications"
-                      ? "pave_notifications_enabled"
-                      : "pave_savings_reminders_enabled",
-                    String(next),
-                  );
-                }
+                const next = !s.val;
+                s.set(next);
+                localStorage.setItem(
+                  s.label === "Push Notifications"
+                    ? "pave_notifications_enabled"
+                    : "pave_savings_reminders_enabled",
+                  String(next),
+                );
               }}
               aria-pressed={s.val}
               className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 ${s.val ? "bg-emerald-600" : "bg-slate-300"}`}
