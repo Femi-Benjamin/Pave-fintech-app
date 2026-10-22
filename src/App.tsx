@@ -48,6 +48,7 @@ import {
   MarketplaceScreen,
   ProductDetailScreen,
   PaymentPlanScreen,
+  PurchaseDetailScreen,
 } from "./screens/MarketplaceScreens";
 import {
   MessagesScreen,
@@ -71,6 +72,7 @@ function MobileApp({
 }) {
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedPurchaseId, setSelectedPurchaseId] = useState("");
   const [selectedSavingId, setSelectedSavingId] = useState("");
   const [selectedGroupSavingId, setSelectedGroupSavingId] = useState("");
   const [ajoSuccessNotice, setAjoSuccessNotice] = useState("");
@@ -237,12 +239,32 @@ function MobileApp({
           <MarketplaceScreen
             onNav={nav}
             setSelectedProduct={setSelectedProduct}
+            setSelectedPurchaseId={setSelectedPurchaseId}
           />
         );
       case "product-detail":
-        return <ProductDetailScreen onNav={nav} product={selectedProduct} />;
+        return (
+          <ProductDetailScreen
+            onNav={nav}
+            product={selectedProduct}
+            setSelectedProduct={setSelectedProduct}
+          />
+        );
       case "payment-plan":
-        return <PaymentPlanScreen onNav={nav} product={selectedProduct} />;
+        return (
+          <PaymentPlanScreen
+            onNav={nav}
+            product={selectedProduct}
+            setSelectedPurchaseId={setSelectedPurchaseId}
+          />
+        );
+      case "purchase-detail":
+        return (
+          <PurchaseDetailScreen
+            onNav={nav}
+            purchaseId={selectedPurchaseId}
+          />
+        );
       case "messages":
         return <MessagesScreen onNav={nav} setActiveChat={setActiveChat} />;
       case "chat":
@@ -315,7 +337,7 @@ function MobileApp({
                   (item.screen === "wallet" &&
                     ["fund-wallet", "transfer", "bills", "airtime", "transactions"].includes(screen)) ||
                   (item.screen === "marketplace" &&
-                    ["product-detail", "cart", "checkout", "payment-plan"].includes(screen));
+                    ["product-detail", "cart", "checkout", "payment-plan", "purchase-detail"].includes(screen));
                 return (
                   <button
                     key={item.screen}

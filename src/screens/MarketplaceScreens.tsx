@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "motion/react";
 import {
   Search,
@@ -10,6 +10,14 @@ import {
   Truck,
   AlertCircle,
   RotateCw,
+  CheckCircle2,
+  Wallet,
+  Clock,
+  ShieldCheck,
+  CreditCard,
+  Plus,
+  Minus,
+  Sparkles,
 } from "lucide-react";
 import {
   Badge,
@@ -17,191 +25,591 @@ import {
   ScreenHeader,
   ImageWithFallback,
 } from "../components/UI";
-import { Screen, fmt, pct, MOCK_PRODUCTS } from "../pave-data";
-import { useLocalStore } from "../hooks/useLocalStore";
-import { useCreateSavingMutation } from "../hooks/usePaveApi";
-import { getApiErrorMessage } from "../api/auth";
-import type { SavingFrequency } from "../api/savings";
+import { Screen, fmt, pct } from "../pave-data";
+import {
+  useProductsQuery,
+  useProductQuery,
+  useCategoriesQuery,
+  useCategoryQuery,
+  usePurchasesQuery,
+  usePurchaseQuery,
+  useCreatePurchaseMutation,
+  useContinueInstallmentMutation,
+} from "../hooks/useMarketApi";
+import { useWalletBalanceQuery } from "../hooks/usePaveApi";
+import { getApiErrorMessage, getAuthenticatedUserId } from "../api/auth";
+import type { ProductItem, PurchaseItem } from "../api/market";
 
+/**
+ * Robust currency formatter for numbers and string values
+ */
+export function formatMoney(val: number | string | null | undefined): string {
+  const num = typeof val === "number" ? val : parseFloat(String(val || 0));
+  if (Number.isNaN(num)) return "₦0";
+  return `₦${num.toLocaleString("en-NG", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+/**
+ * 1. Marketplace Screen:
+ * Displays live categories (GET /api/v1/category/getAllCategory)
+ * and live marketplace products (GET /api/v1/product/get-all-products),
+ * along with a dedicated "My Purchases & Plans" tab.
+ */
 export function MarketplaceScreen({
   onNav,
   setSelectedProduct,
+  setSelectedPurchaseId,
 }: {
   onNav: (s: Screen) => void;
-  setSelectedProduct: (p: any) => void;
+  setSelectedProduct: (p: ProductItem) => void;
+  setSelectedPurchaseId?: (id: string) => void;
 }) {
-  const { products } = useLocalStore();
+  const [tab, setTab] = useState<"products" | "purchases">("products");
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+  const [selectedCategoryName, setSelectedCategoryName] = useState("All");
 
-  const categories = ["All", "Electronics", "Fashion", "Home", "Kitchen"];
-  const filtered = products.filter(
-    (p) =>
-      (category === "All" || p.category === category) &&
-      p.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const {
+    data: products = [],
+    isLoading: isProductsLoading,
+    isError: isProductsError,
+    error: productsError,
+    refetch: refetchProducts,
+  } = useProductsQuery();
+
+  const {
+    data: rawCategories = [],
+    isError: isCategoriesError,
+  } = useCategoriesQuery();
+
+  const {
+    data: purchases = [],
+    isLoading: isPurchasesLoading,
+    isError: isPurchasesError,
+    error: purchasesError,
+    refetch: refetchPurchases,
+  } = usePurchasesQuery();
+
+  // Deduplicate categories from both the dedicated endpoint and the products list
+  const categoryNames = useMemo(() => {
+    const list = new Set<string>(["All"]);
+    if (Array.isArray(rawCategories) && rawCategories.length > 0) {
+      rawCategories.forEach((c) => {
+        if (c?.categoryName) list.add(c.categoryName.trim());
+      });
+    }
+    // Also include any categories dynamically present on products
+    products.forEach((p) => {
+      if (p.category?.categoryName) {
+        list.add(p.category.categoryName.trim());
+      }
+    });
+    return Array.from(list);
+  }, [rawCategories, products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const pCat = p.category?.categoryName || "";
+      const matchesCategory =
+        selectedCategoryName === "All" ||
+        pCat.toLowerCase() === selectedCategoryName.toLowerCase();
+      const matchesSearch =
+        p.productName.toLowerCase().includes(search.toLowerCase()) ||
+        (p.description &&
+          p.description.toLowerCase().includes(search.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, selectedCategoryName, search]);
+
+  const activePurchasesCount = useMemo(() => {
+    return purchases.filter((p) => p.purchaseStatus === "in-progress").length;
+  }, [purchases]);
 
   return (
     <div className="flex-1 overflow-y-auto">
+      {/* Hero Header */}
       <div
         style={{
           background: "linear-gradient(145deg, #7C3AED 0%, #6D28D9 100%)",
         }}
-        className="px-6 pt-14 pb-8"
+        className="px-6 pt-12 pb-6"
       >
-        <h2
-          className="text-white mb-2"
-          style={{
-            fontFamily: "var(--font-family-display)",
-            fontWeight: 700,
-            fontSize: 22,
-          }}
-        >
-          PAVEPADI Marketplace
-        </h2>
-        <p className="text-white/70 text-sm mb-4">
-          Save now, own it later. Pay 50% to secure.
+        <div className="flex items-center justify-between mb-2">
+          <h2
+            className="text-white"
+            style={{
+              fontFamily: "var(--font-family-display)",
+              fontWeight: 700,
+              fontSize: 22,
+            }}
+          >
+            PAVEPADI Market
+          </h2>
+          <span className="text-xs bg-white/20 text-white px-2.5 py-1 rounded-full font-medium">
+            Save-to-Own
+          </span>
+        </div>
+        <p className="text-white/80 text-sm mb-4">
+          Save now, own it later. Secure with 50% down payment.
         </p>
-        <div className="bg-white/15 rounded-xl px-4 py-3 flex items-center gap-2 backdrop-blur-sm border border-white/20">
-          <Search size={16} className="text-white/60" />
-          <input
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-white placeholder-white/50 text-sm outline-none"
-          />
+
+        {/* Tab switch */}
+        <div className="flex bg-black/20 p-1 rounded-xl mb-4">
+          <button
+            onClick={() => setTab("products")}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              tab === "products"
+                ? "bg-white text-[#7C3AED] shadow-sm"
+                : "text-white/80 hover:text-white"
+            }`}
+          >
+            Browse Products ({products.length})
+          </button>
+          <button
+            onClick={() => setTab("purchases")}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              tab === "purchases"
+                ? "bg-white text-[#7C3AED] shadow-sm"
+                : "text-white/80 hover:text-white"
+            }`}
+          >
+            <span>My Purchases</span>
+            {activePurchasesCount > 0 && (
+              <span className="bg-[#EF4444] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                {activePurchasesCount}
+              </span>
+            )}
+          </button>
         </div>
-      </div>
-      <div className="px-4 -mt-4">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${category === c ? "bg-[#7C3AED] text-white" : "bg-white text-[#374151] border border-[#E5E7EB]"}`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="px-4 pt-4 pb-6">
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center py-12 gap-3">
-            <ShoppingBag size={40} className="text-[#E5E7EB]" />
-            <p className="text-[#9CA3AF] text-sm">No products found</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {filtered.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => {
-                  setSelectedProduct(p);
-                  onNav("product-detail");
-                }}
-                className="bg-white rounded-2xl overflow-hidden border border-[#F1F3FB] shadow-sm text-left cursor-pointer"
-              >
-                <div className="relative aspect-4/3 overflow-hidden bg-[#F1F3FB]">
-                  <ImageWithFallback
-                    src={p.image}
-                    alt={p.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {!p.inStock && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold bg-black/70 px-2 py-1 rounded">
-                        Out of Stock
-                      </span>
-                    </div>
-                  )}
-                  {p.paid > 0 && (
-                    <div className="absolute top-2 left-2">
-                      <Badge color="indigo">Paying</Badge>
-                    </div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <div className="text-xs text-[#9CA3AF] mb-1">
-                    {p.category}
-                  </div>
-                  <div className="text-sm font-semibold text-[#0D0F1C] leading-tight mb-2 line-clamp-2">
-                    {p.name}
-                  </div>
-                  <div
-                    className="font-bold text-[#0D0F1C]"
-                    style={{
-                      fontFamily: "var(--font-family-display)",
-                      fontSize: 15,
-                    }}
-                  >
-                    {fmt(p.price)}
-                  </div>
-                  <div className="text-xs text-[#7C3AED]">
-                    Start from {fmt(p.price / 2)}
-                  </div>
-                  {p.paid > 0 && (
-                    <div className="mt-2">
-                      <div className="h-1.5 bg-[#F1F3FB] rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-[#7C3AED]"
-                          style={{ width: `${pct(p.paid, p.price)}%` }}
-                        />
-                      </div>
-                      <div className="text-xs text-[#9CA3AF] mt-1">
-                        {pct(p.paid, p.price)}% paid
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))}
+
+        {tab === "products" && (
+          <div className="bg-white/15 rounded-xl px-4 py-2.5 flex items-center gap-2 backdrop-blur-sm border border-white/20">
+            <Search size={16} className="text-white/70" />
+            <input
+              placeholder="Search products or brands..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-transparent text-white placeholder-white/60 text-sm outline-none"
+            />
           </div>
         )}
       </div>
+
+      {tab === "products" ? (
+        <>
+          {/* Category Chips */}
+          <div className="px-4 -mt-3">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {categoryNames.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setSelectedCategoryName(c)}
+                  className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer shadow-xs ${
+                    selectedCategoryName === c
+                      ? "bg-[#7C3AED] text-white ring-2 ring-[#7C3AED]/30"
+                      : "bg-white text-[#374151] border border-[#E5E7EB] hover:bg-gray-50"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Products Content Area */}
+          <div className="px-4 pt-4 pb-8">
+            {isProductsLoading ? (
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-2xl p-3 border border-[#F1F3FB] animate-pulse flex flex-col gap-2"
+                  >
+                    <div className="aspect-4/3 bg-gray-200 rounded-xl" />
+                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : isProductsError ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                <AlertCircle size={40} className="text-[#DC2626] mb-3" />
+                <h3 className="font-bold text-gray-800 text-base mb-1">
+                  Unable to load marketplace products
+                </h3>
+                <p className="text-xs text-gray-500 mb-4 max-w-xs">
+                  {getApiErrorMessage(
+                    productsError,
+                    "Could not connect to the marketplace catalog.",
+                  )}
+                </p>
+                <button
+                  onClick={() => void refetchProducts()}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#7C3AED] text-white text-xs font-semibold rounded-xl shadow-sm hover:bg-[#6D28D9] cursor-pointer"
+                >
+                  <RotateCw size={14} />
+                  <span>Try Again</span>
+                </button>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="flex flex-col items-center py-16 gap-3 text-center">
+                <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center text-[#7C3AED]">
+                  <ShoppingBag size={28} />
+                </div>
+                <h4 className="font-semibold text-gray-800">
+                  No products found
+                </h4>
+                <p className="text-xs text-gray-500 max-w-xs">
+                  {search
+                    ? `No products match "${search}". Try a different keyword.`
+                    : "No products are currently available in this category."}
+                </p>
+                {search && (
+                  <button
+                    onClick={() => setSearch("")}
+                    className="text-xs text-[#7C3AED] font-semibold underline mt-1 cursor-pointer"
+                  >
+                    Clear search filter
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {filteredProducts.map((p) => {
+                  const priceNum =
+                    typeof p.price === "number"
+                      ? p.price
+                      : parseFloat(String(p.price || 0));
+                  const isAvailable =
+                    p.status === "available" && p.quantity > 0;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setSelectedProduct(p);
+                        onNav("product-detail");
+                      }}
+                      className="bg-white rounded-2xl overflow-hidden border border-[#F1F3FB] shadow-xs hover:shadow-md transition-all text-left flex flex-col cursor-pointer group"
+                    >
+                      <div className="relative aspect-4/3 overflow-hidden bg-[#F8F9FE]">
+                        <ImageWithFallback
+                          src={
+                            p.productImage ||
+                            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60"
+                          }
+                          alt={p.productName}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {!isAvailable && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
+                            <span className="text-white text-[11px] font-semibold bg-red-600/90 px-2 py-0.5 rounded-full">
+                              Out of Stock
+                            </span>
+                          </div>
+                        )}
+                        {p.productRating > 0 && (
+                          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                            <Star
+                              size={10}
+                              className="text-amber-400 fill-amber-400"
+                            />
+                            <span>{p.productRating}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="p-3 flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="text-[11px] text-[#7C3AED] font-medium mb-0.5">
+                            {p.category?.categoryName || "Marketplace"}
+                          </div>
+                          <h4 className="text-xs font-semibold text-[#0D0F1C] leading-snug line-clamp-2 mb-1">
+                            {p.productName}
+                          </h4>
+                        </div>
+
+                        <div className="pt-2 border-t border-gray-100">
+                          <div
+                            className="font-bold text-[#0D0F1C]"
+                            style={{
+                              fontFamily: "var(--font-family-display)",
+                              fontSize: 14,
+                            }}
+                          >
+                            {formatMoney(priceNum)}
+                          </div>
+                          <div className="text-[11px] text-[#059669] font-medium">
+                            Pay {formatMoney(priceNum * 0.5)} now
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        /* My Purchases & Installments Tab */
+        <div className="px-4 py-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-gray-900 text-sm">
+              Your Layaway & Purchases
+            </h3>
+            <button
+              onClick={() => void refetchPurchases()}
+              className="text-xs text-[#7C3AED] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <RotateCw size={12} />
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          {isPurchasesLoading ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-4 border border-[#F1F3FB] animate-pulse h-28"
+                />
+              ))}
+            </div>
+          ) : isPurchasesError ? (
+            <div className="bg-red-50 text-red-700 p-4 rounded-xl text-xs flex flex-col gap-2">
+              <p className="font-semibold">Unable to load your purchases</p>
+              <p>
+                {getApiErrorMessage(
+                  purchasesError,
+                  "Could not retrieve purchase history.",
+                )}
+              </p>
+              <button
+                onClick={() => void refetchPurchases()}
+                className="self-start text-[#7C3AED] font-semibold underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : purchases.length === 0 ? (
+            <div className="bg-white rounded-2xl p-8 border border-[#F1F3FB] text-center flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-[#7C3AED]">
+                <Package size={24} />
+              </div>
+              <h4 className="font-semibold text-gray-800 text-sm">
+                No purchases yet
+              </h4>
+              <p className="text-xs text-gray-500 max-w-xs">
+                You haven't initiated any product purchases or installment plans
+                yet. Browse our catalog to get started.
+              </p>
+              <button
+                onClick={() => setTab("products")}
+                className="mt-2 px-4 py-2 bg-[#7C3AED] text-white text-xs font-semibold rounded-xl cursor-pointer"
+              >
+                Browse Marketplace
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {purchases.map((purchase) => {
+                const isCompleted = purchase.purchaseStatus === "completed";
+                const totalPaidNum = parseFloat(
+                  String(purchase.totalAmountPaid || 0),
+                );
+                const totalPriceNum = parseFloat(
+                  String(purchase.totalPrice || 0),
+                );
+                const percentNum =
+                  totalPriceNum > 0
+                    ? Math.min(
+                        100,
+                        Math.round((totalPaidNum / totalPriceNum) * 100),
+                      )
+                    : 0;
+
+                return (
+                  <div
+                    key={purchase.id}
+                    className="bg-white rounded-2xl p-4 border border-[#F1F3FB] shadow-xs flex flex-col gap-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="text-[11px] text-gray-400">
+                          Ref: #{purchase.id.slice(0, 8)}
+                        </div>
+                        <h4 className="text-sm font-semibold text-gray-900 leading-tight">
+                          {purchase.product?.productName || "Product Purchase"}
+                        </h4>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          Qty: {purchase.quantity} • Total:{" "}
+                          {formatMoney(purchase.totalPrice)}
+                        </div>
+                      </div>
+                      <Badge color={isCompleted ? "green" : "indigo"}>
+                        {purchase.purchaseStatus}
+                      </Badge>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div>
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Paid: {formatMoney(purchase.totalAmountPaid)}</span>
+                        <span>{percentNum}%</span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            isCompleted ? "bg-[#059669]" : "bg-[#7C3AED]"
+                          }`}
+                          style={{ width: `${percentNum}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                      <div>
+                        <div className="text-[11px] text-gray-400">
+                          Outstanding Balance
+                        </div>
+                        <div className="text-xs font-bold text-gray-900">
+                          {formatMoney(purchase.totalAmountDue)}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (setSelectedPurchaseId) {
+                            setSelectedPurchaseId(purchase.id);
+                          }
+                          onNav("purchase-detail");
+                        }}
+                        className="px-3 py-1.5 bg-[#7C3AED] text-white text-xs font-semibold rounded-lg hover:bg-[#6D28D9] cursor-pointer"
+                      >
+                        {isCompleted ? "View Details" : "Manage & Pay"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
+/**
+ * 2. Product Detail Screen:
+ * Retrieves a single product via GET /api/v1/product/get-product/:productId
+ * and displays full specifications, stock status, and save-to-own plan breakdown.
+ */
 export function ProductDetailScreen({
   onNav,
   product,
+  setSelectedProduct,
 }: {
   onNav: (s: Screen) => void;
-  product: any;
+  product?: ProductItem | any;
+  setSelectedProduct?: (p: any) => void;
 }) {
-  const { products } = useLocalStore();
-  const p = product || products[0] || MOCK_PRODUCTS[0];
-  const isPaying = p.paid > 0;
+  const productId = product?.id || "";
+
+  const {
+    data: liveProduct,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useProductQuery(productId);
+
+  const activeProduct = liveProduct || product;
+
+  // Fetch live category details if categoryId is available (GET /api/v1/category/getCategoryById/:categoryId)
+  const categoryId = activeProduct?.categoryId;
+  const { data: categoryData } = useCategoryQuery(categoryId);
+
+  if (isLoading && !activeProduct) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
+        <RotateCw size={32} className="text-[#7C3AED] animate-spin mb-3" />
+        <p className="text-sm text-gray-500">Loading product details...</p>
+      </div>
+    );
+  }
+
+  if (isError && !activeProduct) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+        <AlertCircle size={40} className="text-red-500 mb-3" />
+        <h3 className="font-bold text-gray-800 text-base mb-1">
+          Product Not Found
+        </h3>
+        <p className="text-xs text-gray-500 mb-4 max-w-xs">
+          {getApiErrorMessage(error, "Unable to retrieve this product.")}
+        </p>
+        <div className="flex gap-2">
+          <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>
+            Back to Marketplace
+          </PaveBtn>
+          <PaveBtn onClick={() => void refetch()}>Try Again</PaveBtn>
+        </div>
+      </div>
+    );
+  }
+
+  const p = activeProduct;
+  const priceNum =
+    typeof p.price === "number" ? p.price : parseFloat(String(p.price || 0));
+  const isAvailable = p.status === "available" && p.quantity > 0;
+  const categoryName =
+    categoryData?.categoryName ||
+    p.category?.categoryName ||
+    p.category ||
+    "Marketplace";
+
   return (
     <div className="flex-1 overflow-y-auto">
+      {/* Top Banner & Images */}
       <div className="relative">
         <ImageWithFallback
-          src={p.image}
-          alt={p.name}
+          src={
+            p.productImage ||
+            p.image ||
+            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80"
+          }
+          alt={p.productName || p.name}
           className="w-full aspect-4/3 object-cover"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
+
         <button
           onClick={() => onNav("marketplace")}
-          className="absolute top-12 left-4 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-md cursor-pointer"
+          className="absolute top-12 left-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center shadow-md cursor-pointer text-gray-700 hover:bg-white"
         >
           <ArrowLeft size={18} />
         </button>
-        <button className="absolute top-12 right-4 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-md cursor-pointer">
-          <Heart size={18} className="text-[#DC2626]" />
-        </button>
       </div>
+
+      {/* Main Body */}
       <div className="px-5 py-5 flex flex-col gap-5">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <Badge color="indigo">{p.category}</Badge>
-            <div className="flex items-center gap-1">
+            <Badge color="indigo">{categoryName}</Badge>
+            <div className="flex items-center gap-1.5">
               <Star size={14} className="text-[#F59E0B] fill-[#F59E0B]" />
-              <span className="text-sm font-medium">{p.rating}</span>
-              <span className="text-xs text-[#9CA3AF]">({p.reviews})</span>
+              <span className="text-sm font-semibold text-gray-800">
+                {p.productRating || p.rating || 5}
+              </span>
+              <span className="text-xs text-[#9CA3AF]">
+                ({p.reviews || 12} reviews)
+              </span>
             </div>
           </div>
+
           <h2
             style={{
               fontFamily: "var(--font-family-display)",
@@ -209,66 +617,80 @@ export function ProductDetailScreen({
               fontSize: 20,
               lineHeight: 1.3,
             }}
+            className="text-gray-900"
           >
-            {p.name}
+            {p.productName || p.name}
           </h2>
-          <p className="text-[#6B7280] text-sm mt-2">{p.description}</p>
-        </div>
 
-        <div className="bg-[#F5F3FF] rounded-2xl p-5 border border-[#DDD6FE]">
-          <div className="flex items-center gap-2 mb-3">
-            <Package size={16} className="text-[#7C3AED]" />
-            <span className="text-sm font-semibold text-[#7C3AED]">
-              Save-to-Own Plan
+          <div className="flex items-center gap-2 mt-2">
+            <span
+              className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                isAvailable
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {isAvailable ? `${p.quantity} units available` : "Out of stock"}
             </span>
           </div>
-          <div className="flex flex-col gap-2">
-            {[
-              ["Full Price", fmt(p.price)],
-              ["50% to Secure (Pay Now)", fmt(p.price / 2)],
-              ["Balance (on Delivery)", fmt(p.price / 2)],
-            ].map(([k, v]) => (
-              <div key={k} className="flex justify-between text-sm">
-                <span className="text-[#6B7280]">{k}</span>
-                <span className="font-semibold text-[#0D0F1C]">{v}</span>
-              </div>
-            ))}
-          </div>
-          {isPaying && (
-            <div className="mt-3 pt-3 border-t border-[#DDD6FE]">
-              <div className="flex justify-between text-sm mb-1.5">
-                <span className="text-[#7C3AED] font-medium">Already Paid</span>
-                <span className="font-bold text-[#7C3AED]">{fmt(p.paid)}</span>
-              </div>
-              <div className="h-2 bg-[#DDD6FE] rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-[#7C3AED]"
-                  style={{ width: `${pct(p.paid, p.price)}%` }}
-                />
-              </div>
-              <div className="text-xs text-[#9CA3AF] mt-1">
-                {pct(p.paid, p.price)}% of full price paid
-              </div>
-            </div>
-          )}
+
+          <p className="text-[#4B5563] text-sm mt-3 leading-relaxed">
+            {p.description || "High-quality item available for layaway plan."}
+          </p>
         </div>
 
-        {isPaying ? (
-          <>
-            <div className="bg-[#ECFDF5] rounded-xl p-4 flex gap-3">
-              <Truck size={16} className="text-[#059669] shrink-0 mt-0.5" />
-              <div className="text-sm text-[#065F46]">
-                You've reached 50%! Your order will ship soon. Continue paying
-                the balance.
-              </div>
+        {/* Save-to-Own Plan Breakdown */}
+        <div className="bg-[#F5F3FF] rounded-2xl p-5 border border-[#DDD6FE]">
+          <div className="flex items-center gap-2 mb-3">
+            <Package size={18} className="text-[#7C3AED]" />
+            <span className="text-sm font-bold text-[#7C3AED]">
+              Save-to-Own Installment Plan
+            </span>
+          </div>
+          <div className="flex flex-col gap-2.5">
+            <div className="flex justify-between text-sm">
+              <span className="text-[#6B7280]">Full Price</span>
+              <span className="font-bold text-[#0D0F1C]">
+                {formatMoney(priceNum)}
+              </span>
             </div>
-            <PaveBtn variant="green">Continue Paying Balance</PaveBtn>
-          </>
-        ) : (
-          <PaveBtn onClick={() => onNav("payment-plan")}>
-            Start Saving — {fmt(p.price / 2)} to Secure
+            <div className="flex justify-between text-sm">
+              <span className="text-[#6B7280]">50% to Secure (Down Payment)</span>
+              <span className="font-bold text-[#7C3AED]">
+                {formatMoney(priceNum * 0.5)}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-[#6B7280]">Balance on Delivery</span>
+              <span className="font-medium text-[#0D0F1C]">
+                {formatMoney(priceNum * 0.5)}
+              </span>
+            </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-[#DDD6FE] text-xs text-[#6D28D9] flex items-center gap-1.5">
+            <Sparkles size={14} className="shrink-0" />
+            <span>Pay 50% now or enter a custom down payment to start!</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        {isAvailable ? (
+          <PaveBtn
+            onClick={() => {
+              if (setSelectedProduct) {
+                setSelectedProduct(p);
+              }
+              onNav("payment-plan");
+            }}
+          >
+            Start Installment Plan — From {formatMoney(priceNum * 0.5)}
           </PaveBtn>
+        ) : (
+          <div className="bg-gray-100 rounded-xl p-4 text-center text-xs text-gray-500 font-medium">
+            This item is currently out of stock. Please check back later.
+          </div>
         )}
+
         <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>
           Back to Marketplace
         </PaveBtn>
@@ -277,165 +699,700 @@ export function ProductDetailScreen({
   );
 }
 
+/**
+ * 3. Payment Plan Screen:
+ * Handles purchase initiation via POST /api/v1/product/create-purchase/:productId
+ * Allows quantity selection and down payment amount validation against live wallet balance.
+ */
 export function PaymentPlanScreen({
   onNav,
   product,
+  setSelectedPurchaseId,
 }: {
   onNav: (s: Screen) => void;
-  product?: any;
+  product?: ProductItem | any;
+  setSelectedPurchaseId?: (id: string) => void;
 }) {
-  const { products } = useLocalStore();
-  const p = product || products[0] || MOCK_PRODUCTS[0];
-  const [freq, setFreq] = useState<"Daily" | "Weekly" | "Monthly">("Weekly");
-  const [successMessage, setSuccessMessage] = useState("");
-  const createSavingMutation = useCreateSavingMutation();
-  const freqs: Array<typeof freq> = ["Daily", "Weekly", "Monthly"];
-  const frequencyByPlan: Record<typeof freq, SavingFrequency> = {
-    Daily: "daily",
-    Weekly: "weekly",
-    Monthly: "monthly",
-  };
-  const installment = {
-    Daily: Math.ceil(p.price / 2 / 90),
-    Weekly: Math.ceil(p.price / 2 / 13),
-    Monthly: Math.ceil(p.price / 2 / 3),
-  };
+  const p = product;
+  const productId = p?.id || "";
+  const unitPrice =
+    typeof p?.price === "number"
+      ? p.price
+      : parseFloat(String(p?.price || 0));
 
-  const handleStartPlan = async () => {
-    const startDate = new Date();
-    const endDate = new Date(startDate.getTime() + 90 * 86400000);
-    const frequency = frequencyByPlan[freq];
+  const [quantity, setQuantity] = useState<number>(1);
+  const [downPaymentType, setDownPaymentType] = useState<"50" | "100" | "custom">("50");
+  const [customAmount, setCustomAmount] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const [createdPurchase, setCreatedPurchase] = useState<PurchaseItem | null>(null);
+
+  const { data: walletData } = useWalletBalanceQuery();
+  const walletBalance = parseFloat(String(walletData?.walletBalance ?? walletData?.balance ?? 0));
+
+  const createPurchaseMutation = useCreatePurchaseMutation();
+
+  const totalPrice = unitPrice * quantity;
+  const default50Percent = Math.round(totalPrice * 0.5);
+
+  const amountToPay = useMemo(() => {
+    if (downPaymentType === "50") return default50Percent;
+    if (downPaymentType === "100") return totalPrice;
+    const parsed = parseFloat(customAmount);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }, [downPaymentType, default50Percent, totalPrice, customAmount]);
+
+  const hasSufficientBalance = walletBalance >= amountToPay;
+
+  const handleStartPurchase = async () => {
+    setErrorMsg("");
+
+    if (!productId) {
+      setErrorMsg("Missing product identification. Please go back and select a product.");
+      return;
+    }
+    if (quantity <= 0 || !Number.isInteger(quantity)) {
+      setErrorMsg("Please enter a valid quantity of 1 or more.");
+      return;
+    }
+    if (p?.quantity && quantity > p.quantity) {
+      setErrorMsg(`Only ${p.quantity} units are available in stock.`);
+      return;
+    }
+    if (amountToPay <= 0) {
+      setErrorMsg("Payment amount must be greater than zero.");
+      return;
+    }
+    if (amountToPay > totalPrice) {
+      setErrorMsg(`Payment amount cannot exceed total order price (${formatMoney(totalPrice)}).`);
+      return;
+    }
+    if (!hasSufficientBalance) {
+      setErrorMsg(`Insufficient wallet balance (${formatMoney(walletBalance)}). Please fund your wallet first.`);
+      return;
+    }
+
     try {
-      const response = await createSavingMutation.mutateAsync({
-        name: `Product: ${p.name}`,
-        description: `Savings goal for ${p.name}`,
-        startDate: startDate.toISOString().slice(0, 10),
-        endDate: endDate.toISOString().slice(0, 10),
-        targetAmount: Math.round(p.price / 2),
-        frequency,
-        autoDebit: false,
+      const response = await createPurchaseMutation.mutateAsync({
+        productId,
+        payload: {
+          quantity,
+          amountToPay,
+        },
       });
-      setSuccessMessage(response.message);
-    } catch {
-      // The mutation error is rendered with the form.
+
+      if (response.data) {
+        setCreatedPurchase(response.data);
+        if (setSelectedPurchaseId) {
+          setSelectedPurchaseId(response.data.id);
+        }
+      }
+    } catch (err) {
+      setErrorMsg(getApiErrorMessage(err, "Unable to initiate product purchase."));
     }
   };
+
+  if (!p) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+        <AlertCircle size={40} className="text-gray-400 mb-2" />
+        <p className="text-sm text-gray-600 mb-4">No product selected.</p>
+        <PaveBtn onClick={() => onNav("marketplace")}>Go to Marketplace</PaveBtn>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col overflow-y-auto">
       <ScreenHeader
-        title="Payment Plan"
+        title="Initiate Purchase"
         onBack={() => onNav("product-detail")}
       />
-      {!successMessage ? (
-        <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
-          <div className="flex items-center gap-4 bg-[#F5F3FF] rounded-2xl p-4">
+
+      {!createdPurchase ? (
+        <div className="flex-1 px-6 pt-4 pb-8 flex flex-col gap-5">
+          {/* Product Header Card */}
+          <div className="flex items-center gap-4 bg-[#F5F3FF] rounded-2xl p-4 border border-[#DDD6FE]">
             <ImageWithFallback
-              src={p.image}
-              alt={p.name}
-              className="w-16 h-16 rounded-xl object-cover"
+              src={
+                p.productImage ||
+                p.image ||
+                "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&auto=format&fit=crop&q=80"
+              }
+              alt={p.productName || p.name}
+              className="w-16 h-16 rounded-xl object-cover shrink-0"
             />
-            <div>
-              <div className="font-semibold text-sm text-[#0D0F1C]">
-                {p.name}
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-sm text-[#0D0F1C] truncate">
+                {p.productName || p.name}
               </div>
-              <div className="text-[#7C3AED] font-semibold">{fmt(p.price)}</div>
-              <div className="text-xs text-[#9CA3AF]">
-                Pay {fmt(p.price / 2)} now to secure
+              <div className="text-[#7C3AED] font-bold text-sm">
+                {formatMoney(unitPrice)} <span className="text-xs font-normal text-gray-500">/ unit</span>
+              </div>
+              <div className="text-xs text-green-700">
+                In Stock ({p.quantity || 1} available)
               </div>
             </div>
           </div>
-          <div>
-            <label className="text-sm font-medium text-[#374151] block mb-2">
-              Payment Frequency
+
+          {/* Quantity Selector */}
+          <div className="bg-white rounded-2xl border border-[#F1F3FB] p-4">
+            <label className="text-xs font-semibold text-gray-700 block mb-2">
+              Select Quantity
             </label>
-            <div className="flex gap-2">
-              {freqs.map((f) => (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Quantity</span>
+              <div className="flex items-center gap-3">
                 <button
-                  key={f}
-                  onClick={() => setFreq(f)}
-                  className={`flex-1 py-3 rounded-xl text-sm font-medium border-2 transition-all cursor-pointer ${freq === f ? "border-[#7C3AED] bg-[#F5F3FF] text-[#7C3AED]" : "border-[#E5E7EB] text-[#374151]"}`}
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1 || createPurchaseMutation.isPending}
+                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 disabled:opacity-30 cursor-pointer"
                 >
-                  {f}
+                  <Minus size={14} />
                 </button>
-              ))}
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#F1F3FB] p-5 flex flex-col gap-3">
-            <div className="text-sm font-semibold text-[#0D0F1C] mb-1">
-              Installment Breakdown
-            </div>
-            {[
-              ["Total to Save (50%)", fmt(p.price / 2)],
-              ["Installment Amount", fmt(installment[freq])],
-              ["Frequency", freq],
-              [
-                "Estimated Completion",
-                freq === "Daily"
-                  ? "~3 months"
-                  : freq === "Weekly"
-                    ? "~3 months"
-                    : "~3 months",
-              ],
-              ["Balance on Delivery", fmt(p.price / 2)],
-            ].map(([k, v]) => (
-              <div key={k} className="flex justify-between text-sm">
-                <span className="text-[#9CA3AF]">{k}</span>
-                <span className="font-medium">{v}</span>
+                <span className="font-bold text-base min-w-[24px] text-center">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setQuantity((q) =>
+                      p?.quantity ? Math.min(p.quantity, q + 1) : q + 1,
+                    )
+                  }
+                  disabled={
+                    (p?.quantity ? quantity >= p.quantity : false) ||
+                    createPurchaseMutation.isPending
+                  }
+                  className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 disabled:opacity-30 cursor-pointer"
+                >
+                  <Plus size={14} />
+                </button>
               </div>
-            ))}
+            </div>
           </div>
-          <div className="bg-[#FFFBEB] rounded-xl p-4 flex gap-3">
-            <AlertCircle size={16} className="text-[#D97706] shrink-0 mt-0.5" />
-            <p className="text-xs text-[#92400E]">
-              Once you reach 50% of the full price, your product will be
-              delivered. You continue paying the balance afterward.
-            </p>
+
+          {/* Payment Plan Options */}
+          <div>
+            <label className="text-xs font-semibold text-gray-700 block mb-2">
+              Down Payment Option
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setDownPaymentType("50")}
+                className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                  downPaymentType === "50"
+                    ? "border-[#7C3AED] bg-[#F5F3FF] text-[#7C3AED] font-bold"
+                    : "border-gray-200 text-gray-600"
+                }`}
+              >
+                <div className="text-xs font-semibold">50% Down</div>
+                <div className="text-[11px] mt-0.5">{formatMoney(default50Percent)}</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDownPaymentType("100")}
+                className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                  downPaymentType === "100"
+                    ? "border-[#7C3AED] bg-[#F5F3FF] text-[#7C3AED] font-bold"
+                    : "border-gray-200 text-gray-600"
+                }`}
+              >
+                <div className="text-xs font-semibold">Full (100%)</div>
+                <div className="text-[11px] mt-0.5">{formatMoney(totalPrice)}</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setDownPaymentType("custom");
+                  if (!customAmount) setCustomAmount(String(default50Percent));
+                }}
+                className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                  downPaymentType === "custom"
+                    ? "border-[#7C3AED] bg-[#F5F3FF] text-[#7C3AED] font-bold"
+                    : "border-gray-200 text-gray-600"
+                }`}
+              >
+                <div className="text-xs font-semibold">Custom</div>
+                <div className="text-[11px] mt-0.5">Any amount</div>
+              </button>
+            </div>
+
+            {downPaymentType === "custom" && (
+              <div className="mt-3">
+                <label className="text-xs text-gray-500 block mb-1">
+                  Enter Custom Down Payment Amount (₦)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max={totalPrice}
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  placeholder={`e.g. ${default50Percent}`}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm outline-none focus:border-[#7C3AED]"
+                />
+              </div>
+            )}
           </div>
-          {createSavingMutation.isError && (
-            <p role="alert" className="text-sm text-red-600">
-              {getApiErrorMessage(
-                createSavingMutation.error,
-                "Unable to create this savings goal.",
-              )}
-            </p>
-          )}
-          <PaveBtn
-            onClick={() => void handleStartPlan()}
-            variant="gold"
-            disabled={createSavingMutation.isPending}
+
+          {/* Installment Breakdown Summary */}
+          <div className="bg-white rounded-2xl border border-[#F1F3FB] p-5 flex flex-col gap-2.5">
+            <div className="text-xs font-bold text-gray-900 mb-1">
+              Order Breakdown
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Unit Price</span>
+              <span className="font-medium text-gray-900">{formatMoney(unitPrice)}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Quantity</span>
+              <span className="font-medium text-gray-900">{quantity}</span>
+            </div>
+            <div className="flex justify-between text-xs border-t border-gray-100 pt-2 font-semibold">
+              <span className="text-gray-700">Total Order Price</span>
+              <span className="text-gray-900">{formatMoney(totalPrice)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-[#7C3AED] font-bold">
+              <span>Amount Due Now</span>
+              <span>{formatMoney(amountToPay)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Remaining Balance</span>
+              <span>{formatMoney(Math.max(0, totalPrice - amountToPay))}</span>
+            </div>
+          </div>
+
+          {/* Wallet Balance Status */}
+          <div
+            className={`p-4 rounded-xl flex items-center justify-between text-xs ${
+              hasSufficientBalance
+                ? "bg-green-50 text-green-800 border border-green-200"
+                : "bg-red-50 text-red-800 border border-red-200"
+            }`}
           >
-            {createSavingMutation.isPending
-              ? "Creating savings goal..."
-              : "Start Saving Plan"}
+            <div className="flex items-center gap-2">
+              <Wallet size={16} />
+              <div>
+                <div className="font-semibold">Wallet Balance</div>
+                <div>{formatMoney(walletBalance)}</div>
+              </div>
+            </div>
+            {!hasSufficientBalance && (
+              <button
+                type="button"
+                onClick={() => onNav("fund-wallet")}
+                className="underline font-bold text-red-900 cursor-pointer"
+              >
+                Fund Wallet
+              </button>
+            )}
+          </div>
+
+          {/* Error Message */}
+          {(errorMsg || createPurchaseMutation.isError) && (
+            <div
+              role="alert"
+              className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2"
+            >
+              <AlertCircle size={16} className="shrink-0 mt-0.5" />
+              <span>
+                {errorMsg ||
+                  getApiErrorMessage(
+                    createPurchaseMutation.error,
+                    "Unable to create purchase.",
+                  )}
+              </span>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <PaveBtn
+            onClick={() => void handleStartPurchase()}
+            disabled={
+              createPurchaseMutation.isPending ||
+              !hasSufficientBalance ||
+              amountToPay <= 0
+            }
+          >
+            {createPurchaseMutation.isPending
+              ? "Processing purchase..."
+              : `Confirm & Pay ${formatMoney(amountToPay)}`}
           </PaveBtn>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6">
+        /* Purchase Confirmation Success State */
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center gap-5">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring" }}
-            className="text-5xl"
+            className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600"
           >
-            🛍️
+            <CheckCircle2 size={36} />
           </motion.div>
+
           <div>
             <h2
               style={{
                 fontFamily: "var(--font-family-display)",
                 fontWeight: 700,
-                fontSize: 24,
+                fontSize: 22,
               }}
+              className="text-gray-900"
             >
-              Plan Activated!
+              Purchase Initiated!
             </h2>
-            <p className="text-[#6B7280] text-sm mt-2">
-              {successMessage}
+            <p className="text-gray-500 text-xs mt-1 max-w-xs mx-auto">
+              Your layaway purchase has been registered. You can complete payments anytime.
             </p>
           </div>
-          <PaveBtn onClick={() => onNav("savings")}>View in My Savings</PaveBtn>
+
+          <div className="w-full bg-white rounded-2xl border border-gray-100 p-4 text-left flex flex-col gap-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-gray-500">Purchase ID</span>
+              <span className="font-mono text-gray-800">
+                #{createdPurchase.id.slice(0, 8)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Status</span>
+              <Badge
+                color={
+                  createdPurchase.purchaseStatus === "completed"
+                    ? "green"
+                    : "indigo"
+                }
+              >
+                {createdPurchase.purchaseStatus}
+              </Badge>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Total Price</span>
+              <span className="font-bold">
+                {formatMoney(createdPurchase.totalPrice)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Amount Paid</span>
+              <span className="font-bold text-green-700">
+                {formatMoney(createdPurchase.totalAmountPaid)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Balance Due</span>
+              <span className="font-bold text-[#7C3AED]">
+                {formatMoney(createdPurchase.totalAmountDue)}
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full flex flex-col gap-2.5">
+            <PaveBtn
+              onClick={() => {
+                if (setSelectedPurchaseId) {
+                  setSelectedPurchaseId(createdPurchase.id);
+                }
+                onNav("purchase-detail");
+              }}
+            >
+              View Purchase & Installments
+            </PaveBtn>
+            <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>
+              Back to Marketplace
+            </PaveBtn>
+          </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * 4. Purchase Detail & Installment Management Screen:
+ * Retrieves purchase via GET /api/v1/product/get-purchase/:purchaseId
+ * Enforces client authorization check (purchase belongs to current user).
+ * Allows continuing installment payments via PUT /api/v1/product/continue-installment-purchased/:purchaseId
+ */
+export function PurchaseDetailScreen({
+  onNav,
+  purchaseId,
+}: {
+  onNav: (s: Screen) => void;
+  purchaseId: string;
+}) {
+  const [payAmount, setPayAmount] = useState<string>("");
+  const [successNotice, setSuccessNotice] = useState<string>("");
+  const [errorNotice, setErrorNotice] = useState<string>("");
+
+  const {
+    data: purchase,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = usePurchaseQuery(purchaseId);
+
+  const { data: walletData } = useWalletBalanceQuery();
+  const walletBalance = parseFloat(
+    String(walletData?.walletBalance ?? walletData?.balance ?? 0),
+  );
+
+  const continueInstallmentMutation = useContinueInstallmentMutation();
+
+  const handlePayInstallment = async () => {
+    setErrorNotice("");
+    setSuccessNotice("");
+
+    if (!purchaseId) {
+      setErrorNotice("Invalid purchase reference.");
+      return;
+    }
+
+    const amountNum = parseFloat(payAmount);
+    if (Number.isNaN(amountNum) || amountNum <= 0) {
+      setErrorNotice("Please enter a valid payment amount greater than zero.");
+      return;
+    }
+
+    const dueNum = parseFloat(String(purchase?.totalAmountDue || 0));
+    if (amountNum > dueNum) {
+      setErrorNotice(
+        `Amount cannot exceed outstanding balance of ${formatMoney(dueNum)}.`,
+      );
+      return;
+    }
+
+    if (walletBalance < amountNum) {
+      setErrorNotice(
+        `Insufficient wallet balance (${formatMoney(walletBalance)}). Please fund your wallet.`,
+      );
+      return;
+    }
+
+    try {
+      const response = await continueInstallmentMutation.mutateAsync({
+        purchaseId,
+        payload: {
+          amountToPay: amountNum,
+        },
+      });
+
+      setSuccessNotice(
+        response.message || "Installment payment processed successfully!",
+      );
+      setPayAmount("");
+    } catch (err) {
+      setErrorNotice(
+        getApiErrorMessage(err, "Failed to submit installment payment."),
+      );
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
+        <RotateCw size={32} className="text-[#7C3AED] animate-spin mb-3" />
+        <p className="text-sm text-gray-500">Loading purchase details...</p>
+      </div>
+    );
+  }
+
+  if (isError || !purchase) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+        <AlertCircle size={40} className="text-red-500 mb-3" />
+        <h3 className="font-bold text-gray-800 text-base mb-1">
+          Purchase Unavailable
+        </h3>
+        <p className="text-xs text-gray-500 mb-4 max-w-xs">
+          {getApiErrorMessage(
+            error,
+            "Could not retrieve this purchase record or you are not authorized to view it.",
+          )}
+        </p>
+        <PaveBtn onClick={() => onNav("marketplace")}>
+          Back to Marketplace
+        </PaveBtn>
+      </div>
+    );
+  }
+
+  const isCompleted = purchase.purchaseStatus === "completed";
+  const dueAmount = parseFloat(String(purchase.totalAmountDue || 0));
+  const paidAmount = parseFloat(String(purchase.totalAmountPaid || 0));
+  const totalAmount = parseFloat(String(purchase.totalPrice || 0));
+  const percentNum =
+    totalAmount > 0
+      ? Math.min(100, Math.round((paidAmount / totalAmount) * 100))
+      : 0;
+
+  return (
+    <div className="flex-1 flex flex-col overflow-y-auto">
+      <ScreenHeader
+        title="Purchase & Installments"
+        onBack={() => onNav("marketplace")}
+      />
+
+      <div className="px-5 py-5 flex flex-col gap-5">
+        {/* Product Info Card */}
+        <div className="bg-white rounded-2xl p-4 border border-[#F1F3FB] shadow-xs flex items-center gap-3">
+          <div className="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center text-[#7C3AED] shrink-0 overflow-hidden">
+            <ImageWithFallback
+              src={
+                purchase.product?.productImage ||
+                "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&auto=format&fit=crop&q=80"
+              }
+              alt={purchase.product?.productName || "Product"}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] text-gray-400 font-mono">
+                #{purchase.id.slice(0, 8)}
+              </span>
+              <Badge color={isCompleted ? "green" : "indigo"}>
+                {purchase.purchaseStatus}
+              </Badge>
+            </div>
+            <h4 className="font-bold text-sm text-gray-900 truncate">
+              {purchase.product?.productName || "Market Product"}
+            </h4>
+            <div className="text-xs text-gray-500">
+              Quantity: {purchase.quantity} • Total: {formatMoney(purchase.totalPrice)}
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Progress Card */}
+        <div className="bg-[#F5F3FF] rounded-2xl p-5 border border-[#DDD6FE]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-[#7C3AED]">
+              Payment Progress
+            </span>
+            <span className="text-xs font-bold text-[#7C3AED]">
+              {percentNum}% Paid
+            </span>
+          </div>
+
+          <div className="h-3 bg-[#DDD6FE] rounded-full overflow-hidden mb-3">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                isCompleted ? "bg-[#059669]" : "bg-[#7C3AED]"
+              }`}
+              style={{ width: `${percentNum}%` }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#DDD6FE] text-xs">
+            <div>
+              <span className="text-gray-500 block">Total Paid</span>
+              <span className="font-bold text-gray-900">
+                {formatMoney(paidAmount)}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-500 block">Remaining Due</span>
+              <span className="font-bold text-[#7C3AED]">
+                {formatMoney(dueAmount)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Success Notice */}
+        {successNotice && (
+          <div className="p-3 bg-green-50 border border-green-200 text-green-800 text-xs rounded-xl flex items-center gap-2">
+            <CheckCircle2 size={16} className="shrink-0" />
+            <span>{successNotice}</span>
+          </div>
+        )}
+
+        {/* Error Notice */}
+        {errorNotice && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <AlertCircle size={16} className="shrink-0" />
+            <span>{errorNotice}</span>
+          </div>
+        )}
+
+        {/* If In Progress: Continue Installment Payment Form */}
+        {!isCompleted && dueAmount > 0 ? (
+          <div className="bg-white rounded-2xl p-5 border border-[#F1F3FB] shadow-xs flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <CreditCard size={18} className="text-[#7C3AED]" />
+              <h4 className="font-bold text-sm text-gray-900">
+                Make Installment Payment
+              </h4>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center text-xs text-gray-600 mb-1.5">
+                <span>Enter Amount (₦)</span>
+                <button
+                  type="button"
+                  onClick={() => setPayAmount(String(dueAmount))}
+                  className="text-[#7C3AED] font-semibold underline cursor-pointer"
+                >
+                  Pay Full Balance ({formatMoney(dueAmount)})
+                </button>
+              </div>
+              <input
+                type="number"
+                min="1"
+                max={dueAmount}
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                placeholder={`Max ${formatMoney(dueAmount)}`}
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm outline-none focus:border-[#7C3AED]"
+              />
+            </div>
+
+            {/* Wallet balance display */}
+            <div className="flex items-center justify-between text-xs text-gray-500 bg-gray-50 p-2.5 rounded-lg">
+              <span className="flex items-center gap-1.5">
+                <Wallet size={14} /> Wallet Balance:
+              </span>
+              <span className="font-semibold text-gray-800">
+                {formatMoney(walletBalance)}
+              </span>
+            </div>
+
+            <PaveBtn
+              onClick={() => void handlePayInstallment()}
+              disabled={
+                continueInstallmentMutation.isPending ||
+                !payAmount ||
+                parseFloat(payAmount) <= 0
+              }
+            >
+              {continueInstallmentMutation.isPending
+                ? "Processing installment..."
+                : `Pay ${payAmount ? formatMoney(payAmount) : "Installment"}`}
+            </PaveBtn>
+          </div>
+        ) : (
+          <div className="bg-green-50 rounded-2xl p-5 border border-green-200 text-center flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+              <CheckCircle2 size={22} />
+            </div>
+            <h4 className="font-bold text-green-900 text-sm">
+              Purchase Fully Paid!
+            </h4>
+            <p className="text-xs text-green-700 max-w-xs">
+              All installments for this item are complete. Your order is scheduled for fulfillment and delivery.
+            </p>
+          </div>
+        )}
+
+        <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>
+          Back to Marketplace
+        </PaveBtn>
+      </div>
     </div>
   );
 }

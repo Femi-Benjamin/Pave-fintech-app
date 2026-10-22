@@ -31,6 +31,7 @@ export type Screen =
   | "marketplace"
   | "product-detail"
   | "payment-plan"
+  | "purchase-detail"
   | "messages"
   | "chat"
   | "group-chat"
