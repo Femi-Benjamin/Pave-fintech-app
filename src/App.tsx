@@ -223,6 +223,7 @@ function MobileApp({
           <GroupSavingDetailScreen
             onNav={nav}
             groupId={selectedGroupSavingId}
+            onSelectProduct={setSelectedProduct}
           />
         );
       case "join-program":

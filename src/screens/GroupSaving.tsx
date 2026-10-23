@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
@@ -21,8 +21,19 @@ import {
   UserPlus,
   Users,
   Wallet,
+  ShoppingBag,
+  Package,
 } from "lucide-react";
-import { PaveBtn, ScreenHeader } from "../components/UI";
+import { PaveBtn, ScreenHeader, ImageWithFallback } from "../components/UI";
+import {
+  useGroupProductsQuery,
+  useCreateProductMutation,
+  useDeleteProductMutation,
+  useCategoriesQuery,
+  useProductsQuery,
+} from "../hooks/useMarketApi";
+import type { ProductItem } from "../api/market";
+import { formatMoney } from "./MarketplaceScreens";
 import { PaveLoadingState } from "../components/PaveLoadingState";
 import { Screen, fmt, pct } from "../pave-data";
 import { getApiErrorMessage } from "../api/auth";
@@ -746,9 +757,11 @@ export function CreateGroupSavingScreen({
 export function GroupSavingDetailScreen({
   onNav,
   groupId,
+  onSelectProduct,
 }: {
   onNav: (s: Screen) => void;
   groupId: string;
+  onSelectProduct?: (p: any) => void;
 }) {
   const [selectedWithdrawalId, setSelectedWithdrawalId] = useState("");
   const groupQuery = useGroupSavingQuery(groupId);
@@ -775,6 +788,62 @@ export function GroupSavingDetailScreen({
   const deleteMutation = useDeleteGroupSavingMutation();
   const leaveMutation = useLeaveGroupSavingMutation();
   const inviteMutation = useInviteMemberToGroupMutation();
+
+  const groupOwnerId = extractEntityId(
+    group?.userId ??
+      (group as any)?.creatorId ??
+      (group as any)?.createdBy ??
+      (group as any)?.adminId ??
+      (group as any)?.ownerId,
+  );
+
+  const categoriesQuery = useCategoriesQuery();
+  const allProductsQuery = useProductsQuery();
+  const groupProductsQuery = useGroupProductsQuery(
+    groupId,
+    canAccessGroup,
+    groupOwnerId,
+  );
+  const createProductMutation = useCreateProductMutation();
+  const deleteProductMutation = useDeleteProductMutation();
+
+  // Combine categories from dedicated endpoint (if accessible) and dynamically derived from loaded products
+  const availableCategories = useMemo(() => {
+    const catMap = new Map<string, { id: string; categoryName: string }>();
+
+    // 1. Categories from categories endpoint (if accessible)
+    if (Array.isArray(categoriesQuery.data)) {
+      categoriesQuery.data.forEach((c) => {
+        if (c?.id && c?.categoryName) {
+          catMap.set(c.id, { id: c.id, categoryName: c.categoryName.trim() });
+        }
+      });
+    }
+
+    // 2. Categories dynamically extracted from existing marketplace products
+    if (Array.isArray(allProductsQuery.data)) {
+      allProductsQuery.data.forEach((p) => {
+        const catId = p.categoryId || p.category?.id;
+        const catName = p.category?.categoryName || "Marketplace Product";
+        if (catId && !catMap.has(catId)) {
+          catMap.set(catId, { id: catId, categoryName: catName.trim() });
+        }
+      });
+    }
+
+    return Array.from(catMap.values());
+  }, [categoriesQuery.data, allProductsQuery.data]);
+
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [newProductName, setNewProductName] = useState("");
+  const [newProductCategoryId, setNewProductCategoryId] = useState("");
+  const [newProductPrice, setNewProductPrice] = useState("");
+  const [newProductQuantity, setNewProductQuantity] = useState("1");
+  const [newProductDescription, setNewProductDescription] = useState("");
+  const [newProductImage, setNewProductImage] = useState<File | null>(null);
+  const [productFormError, setProductFormError] = useState("");
+  const [productFormSuccess, setProductFormSuccess] = useState("");
+
   const [activeAction, setActiveAction] = useState<
     "contribute" | "withdraw" | null
   >(null);
@@ -872,13 +941,6 @@ export function GroupSavingDetailScreen({
     }
     return false;
   });
-  const groupOwnerId = extractEntityId(
-    group?.userId ??
-      (group as any)?.creatorId ??
-      (group as any)?.createdBy ??
-      (group as any)?.adminId ??
-      (group as any)?.ownerId,
-  );
   const membershipRole = currentMembership?.role
     ? String(currentMembership.role).toLowerCase().trim()
     : "";
@@ -1008,6 +1070,82 @@ export function GroupSavingDetailScreen({
       setInvitePhoneNumber("");
     } catch {
       // The mutation error is rendered beside the invite form.
+    }
+  };
+
+  const handlePostGroupProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProductFormError("");
+    setProductFormSuccess("");
+
+    if (!isGroupOwner) {
+      setProductFormError("Only the AJO group manager can post products for this group.");
+      return;
+    }
+
+    if (!newProductName.trim()) {
+      setProductFormError("Please enter a product name.");
+      return;
+    }
+    const priceNum = parseFloat(newProductPrice);
+    if (Number.isNaN(priceNum) || priceNum <= 0) {
+      setProductFormError("Please enter a valid price in NGN.");
+      return;
+    }
+    const qtyNum = parseInt(newProductQuantity, 10);
+    if (Number.isNaN(qtyNum) || qtyNum < 1) {
+      setProductFormError("Quantity must be at least 1.");
+      return;
+    }
+    const categoryId =
+      newProductCategoryId ||
+      availableCategories[0]?.id ||
+      categoriesQuery.data?.[0]?.id ||
+      "7c8e58bb-dcd3-4944-a75c-8bcf302b4ea3";
+
+    try {
+      const response = await createProductMutation.mutateAsync({
+        categoryId,
+        payload: {
+          productName: newProductName.trim(),
+          description: newProductDescription.trim()
+            ? `${newProductDescription.trim()} [AJO:${groupId}]`
+            : `Group item for ${group?.name || "AJO"} [AJO:${groupId}]`,
+          price: priceNum,
+          quantity: qtyNum,
+          categoryId,
+          groupId,
+          image: newProductImage,
+        },
+      });
+
+      setProductFormSuccess(
+        response.message || "Product posted successfully for group members!",
+      );
+      setNewProductName("");
+      setNewProductPrice("");
+      setNewProductQuantity("1");
+      setNewProductDescription("");
+      setNewProductImage(null);
+      setShowProductForm(false);
+    } catch (err) {
+      setProductFormError(
+        getApiErrorMessage(err, "Failed to post product to group."),
+      );
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!window.confirm("Remove this product from the group?")) return;
+    try {
+      await deleteProductMutation.mutateAsync({
+        productId,
+        inProgressPurchasesCount: 0,
+        isProductOwner: isGroupOwner,
+        groupId,
+      });
+    } catch (err) {
+      alert(getApiErrorMessage(err, "Unable to delete product."));
     }
   };
 
@@ -1900,6 +2038,287 @@ export function GroupSavingDetailScreen({
               );
             })}
           </div>
+        </section>
+
+        {/* AJO Group Manager Marketplace Section */}
+        <section className="rounded-2xl border border-[#F1F3FB] bg-white p-5 shadow-xs">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <ShoppingBag size={18} className="text-[#3730A3]" />
+              <h3 className="text-sm font-bold text-[#0D0F1C]">
+                AJO Group Marketplace
+              </h3>
+            </div>
+            {isGroupOwner && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProductForm(!showProductForm);
+                  setProductFormError("");
+                  setProductFormSuccess("");
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#3730A3] text-white hover:bg-[#312E81] transition-all cursor-pointer"
+              >
+                <Plus size={14} />
+                <span>{showProductForm ? "Cancel" : "Post Product"}</span>
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-[#6B7280] mb-4">
+            Exclusive products and layaway purchase plans for members of {group.name}.
+          </p>
+
+          {/* Manager Product Posting Form */}
+          {isGroupOwner && showProductForm && (
+            <form
+              onSubmit={handlePostGroupProduct}
+              className="mb-5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4 flex flex-col gap-3 text-xs"
+            >
+              <div className="font-semibold text-sm text-[#0F172A] border-b border-[#E2E8F0] pb-2">
+                List a Product for Your Members
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newProductName}
+                  onChange={(e) => setNewProductName(e.target.value)}
+                  placeholder="e.g. Samsung Galaxy A54, Solar Generator..."
+                  className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-lg text-xs outline-none focus:border-[#3730A3]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                    Category
+                  </label>
+                  <select
+                    value={newProductCategoryId}
+                    onChange={(e) => setNewProductCategoryId(e.target.value)}
+                    className="w-full px-2.5 py-2 bg-white border border-[#CBD5E1] rounded-lg text-xs outline-none focus:border-[#3730A3]"
+                  >
+                    <option value="">
+                      {availableCategories.length > 0
+                        ? "-- Select Category --"
+                        : "Default Category"}
+                    </option>
+                    {availableCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.categoryName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                    Price (₦) *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={newProductPrice}
+                    onChange={(e) => setNewProductPrice(e.target.value)}
+                    placeholder="e.g. 150000"
+                    className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-lg text-xs outline-none focus:border-[#3730A3]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                    Quantity / Stock *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={newProductQuantity}
+                    onChange={(e) => setNewProductQuantity(e.target.value)}
+                    placeholder="1"
+                    className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-lg text-xs outline-none focus:border-[#3730A3]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                    Product Image (Optional)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setNewProductImage(e.target.files[0]);
+                      }
+                    }}
+                    className="w-full text-[11px] file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EEF2FF] file:text-[#3730A3] file:font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={newProductDescription}
+                  onChange={(e) => setNewProductDescription(e.target.value)}
+                  placeholder="Provide specifications, warranty, or delivery terms..."
+                  className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-lg text-xs outline-none focus:border-[#3730A3]"
+                />
+              </div>
+
+              {productFormError && (
+                <div
+                  role="alert"
+                  className="p-3 bg-red-50 border border-red-200 rounded-xl flex flex-col gap-2"
+                >
+                  <p className="text-[11px] text-red-700 font-medium">
+                    {productFormError}
+                  </p>
+                  {(productFormError.toLowerCase().includes("nepabill") ||
+                    productFormError.toLowerCase().includes("nin") ||
+                    productFormError.toLowerCase().includes("face") ||
+                    productFormError.toLowerCase().includes("kyc")) && (
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-red-200">
+                      <span className="text-[10px] text-red-600 leading-tight">
+                        The PAVEPADI backend requires NIN, utility bill, and selfie verification before posting products.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onNav("kyc-welcome")}
+                        className="px-2.5 py-1 text-[11px] font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer self-start sm:self-auto shrink-0"
+                      >
+                        Complete KYC
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {productFormSuccess && (
+                <p className="text-[11px] text-green-700 font-semibold flex items-center gap-1">
+                  <CheckCircle2 size={12} />
+                  <span>{productFormSuccess}</span>
+                </p>
+              )}
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowProductForm(false)}
+                  className="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createProductMutation.isPending}
+                  className="px-4 py-1.5 rounded-lg bg-[#3730A3] text-white font-semibold hover:bg-[#312E81] disabled:opacity-50 cursor-pointer"
+                >
+                  {createProductMutation.isPending ? "Posting..." : "Post to Group"}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Group Products List */}
+          {groupProductsQuery.isLoading ? (
+            <div className="py-6 text-center text-xs text-gray-400">
+              Loading group products...
+            </div>
+          ) : groupProductsQuery.isError ? (
+            <div className="p-3 bg-red-50 text-red-700 rounded-xl text-xs">
+              {getApiErrorMessage(
+                groupProductsQuery.error,
+                "Unable to load products for this group.",
+              )}
+            </div>
+          ) : (groupProductsQuery.data ?? []).length === 0 ? (
+            <div className="p-6 text-center rounded-xl bg-[#F8FAFC] border border-dashed border-[#CBD5E1] flex flex-col items-center gap-2">
+              <Package size={28} className="text-[#94A3B8]" />
+              <p className="text-xs text-[#64748B] max-w-xs">
+                No products posted for this AJO group yet.
+                {isGroupOwner && " Click '+ Post Product' above to list an item for your members."}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(groupProductsQuery.data ?? []).map((prod) => (
+                <div
+                  key={prod.id}
+                  className="rounded-xl border border-[#E2E8F0] p-3 flex flex-col justify-between bg-white shadow-xs"
+                >
+                  <div>
+                    <div className="aspect-16/9 rounded-lg overflow-hidden bg-gray-100 mb-2 relative">
+                      <ImageWithFallback
+                        src={
+                          prod.productImage ||
+                          "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80"
+                        }
+                        alt={prod.productName}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+                        Qty: {prod.quantity}
+                      </span>
+                    </div>
+                    <div className="font-semibold text-xs text-[#0D0F1C] line-clamp-1">
+                      {prod.productName}
+                    </div>
+                    <div className="text-[11px] text-[#6B7280] line-clamp-2 mt-0.5">
+                      {prod.description}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                      <div className="font-bold text-xs text-[#0D0F1C]">
+                        {formatMoney(prod.price)}
+                      </div>
+                      <div className="text-[10px] text-[#059669]">
+                        Pay {formatMoney(Number(prod.price) * 0.5)} now
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      {isGroupOwner && (
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteProduct(prod.id)}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+                          title="Delete product"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onSelectProduct) {
+                            onSelectProduct(prod);
+                          }
+                          onNav("payment-plan");
+                        }}
+                        className="px-2.5 py-1 bg-[#3730A3] text-white text-[11px] font-semibold rounded-lg hover:bg-[#312E81] cursor-pointer"
+                      >
+                        Buy / Plan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         <section>

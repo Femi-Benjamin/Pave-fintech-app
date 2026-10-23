@@ -12,6 +12,10 @@ import {
   getPurchaseById,
   continueInstallment,
   getAllPurchases,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getGroupProducts,
 } from "../api/market";
 import type {
   Category,
@@ -19,6 +23,8 @@ import type {
   PurchaseItem,
   CreatePurchasePayload,
   ContinueInstallmentPayload,
+  CreateProductPayload,
+  UpdateProductPayload,
 } from "../api/market";
 import { transactionQueryKeys } from "./usePaveApi";
 
@@ -30,6 +36,8 @@ export const marketQueryKeys = {
   products: () => [...marketQueryKeys.all, "products"] as const,
   product: (productId: string) =>
     [...marketQueryKeys.all, "product", productId] as const,
+  groupProducts: (groupId: string) =>
+    [...marketQueryKeys.all, "group-products", groupId] as const,
   purchases: () => [...marketQueryKeys.all, "purchases"] as const,
   purchase: (purchaseId: string) =>
     [...marketQueryKeys.all, "purchase", purchaseId] as const,
@@ -75,6 +83,22 @@ export function useProductsQuery() {
 }
 
 /**
+ * Hook to fetch products specific to an AJO group.
+ */
+export function useGroupProductsQuery(
+  groupId?: string,
+  isMember = true,
+  managerUserId?: string,
+) {
+  return useQuery<ProductItem[], Error>({
+    queryKey: marketQueryKeys.groupProducts(groupId || ""),
+    queryFn: () => getGroupProducts(groupId!, isMember, managerUserId),
+    enabled: !!groupId && isMember,
+    staleTime: 30 * 1000,
+  });
+}
+
+/**
  * Hook to fetch a single product by ID.
  */
 export function useProductQuery(productId?: string) {
@@ -106,6 +130,96 @@ export function usePurchaseQuery(purchaseId?: string) {
     queryFn: () => getPurchaseById(purchaseId!),
     enabled: !!purchaseId,
     staleTime: 30 * 1000,
+  });
+}
+
+/**
+ * Mutation for AJO group managers to create a product for their group
+ */
+export function useCreateProductMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      categoryId,
+      payload,
+    }: {
+      categoryId: string;
+      payload: CreateProductPayload;
+    }) => createProduct(categoryId, payload),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: marketQueryKeys.products(),
+      });
+      if (variables.payload.groupId) {
+        void queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.groupProducts(variables.payload.groupId),
+        });
+      }
+    },
+  });
+}
+
+/**
+ * Mutation for AJO group managers to update a product
+ */
+export function useUpdateProductMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      productId,
+      payload,
+      isProductOwner = true,
+    }: {
+      productId: string;
+      payload: UpdateProductPayload;
+      isProductOwner?: boolean;
+    }) => updateProduct(productId, payload, isProductOwner),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: marketQueryKeys.product(variables.productId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: marketQueryKeys.products(),
+      });
+      if (variables.payload.groupId) {
+        void queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.groupProducts(variables.payload.groupId),
+        });
+      }
+    },
+  });
+}
+
+/**
+ * Mutation for AJO group managers to delete a product
+ */
+export function useDeleteProductMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      productId,
+      inProgressPurchasesCount = 0,
+      isProductOwner = true,
+      groupId,
+    }: {
+      productId: string;
+      inProgressPurchasesCount?: number;
+      isProductOwner?: boolean;
+      groupId?: string;
+    }) => deleteProduct(productId, inProgressPurchasesCount, isProductOwner),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: marketQueryKeys.products(),
+      });
+      if (variables.groupId) {
+        void queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.groupProducts(variables.groupId),
+        });
+      }
+    },
   });
 }
 

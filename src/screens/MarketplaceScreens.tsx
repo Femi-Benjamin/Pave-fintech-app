@@ -771,12 +771,26 @@ export function PaymentPlanScreen({
       return;
     }
 
+    const currentUserId = getAuthenticatedUserId();
+    const sellerUserId = p?.userId;
+    if (sellerUserId && currentUserId && String(sellerUserId).trim() === String(currentUserId).trim()) {
+      setErrorMsg("AJO managers cannot purchase their own products.");
+      return;
+    }
+
+    if (amountToPay < default50Percent && amountToPay < totalPrice) {
+      setErrorMsg(`A minimum down payment of 50% (${formatMoney(default50Percent)}) is required to secure this product.`);
+      return;
+    }
+
     try {
       const response = await createPurchaseMutation.mutateAsync({
         productId,
         payload: {
           quantity,
           amountToPay,
+          sellerUserId: sellerUserId ? String(sellerUserId) : undefined,
+          buyerUserId: currentUserId ? String(currentUserId) : undefined,
         },
       });
 
@@ -1178,6 +1192,8 @@ export function PurchaseDetailScreen({
         purchaseId,
         payload: {
           amountToPay: amountNum,
+          totalAmountDue: dueNum,
+          purchaseStatus: purchase?.purchaseStatus,
         },
       });
 
