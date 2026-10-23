@@ -727,7 +727,7 @@ export function PaymentPlanScreen({
   const [createdPurchase, setCreatedPurchase] = useState<PurchaseItem | null>(null);
 
   const { data: walletData } = useWalletBalanceQuery();
-  const walletBalance = parseFloat(String(walletData?.walletBalance ?? walletData?.balance ?? 0));
+  const walletBalance = parseFloat(String(walletData?.balance ?? 0));
 
   const createPurchaseMutation = useCreatePurchaseMutation();
 
@@ -1138,7 +1138,7 @@ export function PurchaseDetailScreen({
 
   const { data: walletData } = useWalletBalanceQuery();
   const walletBalance = parseFloat(
-    String(walletData?.walletBalance ?? walletData?.balance ?? 0),
+    String(walletData?.balance ?? 0),
   );
 
   const continueInstallmentMutation = useContinueInstallmentMutation();

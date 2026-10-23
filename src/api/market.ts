@@ -174,6 +174,7 @@ export async function createPurchase(
  */
 export async function getPurchaseById(
   purchaseId: string,
+  currentUserIdOverride?: string,
 ): Promise<PurchaseItem> {
   if (!purchaseId || !purchaseId.trim()) {
     throw new Error("Purchase ID is required");
@@ -188,7 +189,7 @@ export async function getPurchaseById(
     throw new Error("Purchase record not found");
   }
 
-  const currentUserId = getAuthenticatedUserId();
+  const currentUserId = currentUserIdOverride ?? getAuthenticatedUserId();
   if (currentUserId && purchase.userId && purchase.userId !== currentUserId) {
     throw new Error(
       "Unauthorized access: This purchase record does not belong to your account.",
@@ -228,12 +229,14 @@ export async function continueInstallment(
  * Auxiliary: GET /api/v1/product/get-all-purchase
  * Retrieves all purchases and filters to only those belonging to the current user.
  */
-export async function getAllPurchases(): Promise<PurchaseItem[]> {
+export async function getAllPurchases(
+  currentUserIdOverride?: string,
+): Promise<PurchaseItem[]> {
   const { data } = await api.get<MarketApiResponse<PurchaseItem[]>>(
     "/api/v1/product/get-all-purchase",
   );
   const purchases = data?.data ?? [];
-  const currentUserId = getAuthenticatedUserId();
+  const currentUserId = currentUserIdOverride ?? getAuthenticatedUserId();
 
   if (!currentUserId) {
     return purchases;

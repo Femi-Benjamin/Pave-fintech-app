@@ -92,7 +92,7 @@ export function useProductQuery(productId?: string) {
 export function usePurchasesQuery() {
   return useQuery<PurchaseItem[], Error>({
     queryKey: marketQueryKeys.purchases(),
-    queryFn: getAllPurchases,
+    queryFn: () => getAllPurchases(),
     staleTime: 30 * 1000,
   });
 }
