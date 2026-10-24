@@ -106,7 +106,7 @@ export function PaveLoadingState({
         {/* Member/Transactions list skeleton */}
         <div className="rounded-2xl border border-[#F1F3FB] bg-white p-5 flex flex-col gap-3 shadow-xs">
           <div className="h-4 w-36 rounded-md bg-[#E2E8F0] mb-1 animate-pulse" />
-          {[1, 2, 3].map((idx) => (
+          {[1, 2].map((idx) => (
             <div
               key={idx}
               className="flex items-center justify-between py-2.5 border-b border-[#F1F3FB] last:border-0"

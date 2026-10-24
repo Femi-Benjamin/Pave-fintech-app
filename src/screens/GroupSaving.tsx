@@ -2416,7 +2416,13 @@ export function GroupSavingDetailScreen({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${
+                (groupProductsQuery.data ?? []).length > 2
+                  ? "max-h-[560px] overflow-y-auto pr-1 sm:max-h-[600px]"
+                  : ""
+              }`}
+            >
               {(groupProductsQuery.data ?? []).map((prod) => {
                 const isOwner = isOwnProduct(prod, currentUserId);
                 const isAvailable = prod.status === "available" && prod.quantity > 0;
