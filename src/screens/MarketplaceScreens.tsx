@@ -715,7 +715,7 @@ export function ProductDetailScreen({
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">50% to Secure (Down Payment)</span>
+                  <span className="text-[#6B7280]">Initial Deposit to Secure (50%)</span>
                   <span className="font-bold text-[#7C3AED]">
                     {formatMoney(priceNum * 0.5)}
                   </span>

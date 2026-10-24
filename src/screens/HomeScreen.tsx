@@ -346,27 +346,27 @@ export function HomeScreen({
                     onSelectSaving(saving.id);
                     onNav("savings-detail");
                   }}
-                  className="bg-[#F7F8FF] rounded-2xl p-4 border border-[#F1F3FB] hover:border-[#C7D2FE] transition-all text-left cursor-pointer flex flex-col justify-between"
+                  className="bg-white rounded-2xl p-4 border border-[#CBD5E1] hover:border-[#3730A3]/30 transition-all text-left cursor-pointer flex flex-col justify-between shadow-2xs hover:shadow-md"
                 >
                   <div className="flex items-center justify-between mb-3 gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-bold text-[#0D0F1C]">
+                      <div className="truncate text-sm sm:text-base font-bold text-[#0F172A]">
                         {saving.name}
                       </div>
-                      <div className="mt-1 text-xs capitalize text-[#9CA3AF]">
+                      <div className="mt-1 text-xs sm:text-sm font-semibold capitalize text-[#475569]">
                         {saving.frequency}
                       </div>
                     </div>
                     <div className="shrink-0 text-right">
-                      <div className="text-sm font-bold text-[#0D0F1C]">
+                      <div className="text-sm sm:text-base font-bold text-[#0F172A]">
                         {fmt(Number(saving.totalSaved) || 0)}
                       </div>
-                      <div className="text-xs text-[#9CA3AF]">
+                      <div className="text-xs sm:text-sm font-semibold text-[#475569]">
                         of {fmt(Number(saving.targetAmount) || 0)}
                       </div>
                     </div>
                   </div>
-                  <div className="mb-2 h-2 overflow-hidden rounded-full bg-white">
+                  <div className="mb-2 h-2.5 overflow-hidden rounded-full bg-[#E2E8F0]">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{
@@ -383,8 +383,8 @@ export function HomeScreen({
                       className="h-full rounded-full bg-[#059669]"
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-[#9CA3AF]">
-                    <span className="font-semibold text-[#059669]">
+                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-[#334155]">
+                    <span className="font-bold text-[#059669]">
                       {Number(saving.targetAmount) > 0
                         ? pct(
                             Number(saving.totalSaved),
@@ -393,7 +393,9 @@ export function HomeScreen({
                         : 0}
                       % saved
                     </span>
-                    <span>{saving.status ?? ""}</span>
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[11px] font-bold capitalize">
+                      {saving.status ?? "active"}
+                    </span>
                   </div>
                 </button>
               ))}
@@ -455,27 +457,27 @@ export function HomeScreen({
                     onSelectGroup(s.id);
                     onNav("group-saving-detail");
                   }}
-                  className="bg-[#F7F8FF] rounded-2xl p-4 border border-[#F1F3FB] transition-all text-left flex flex-col justify-between"
+                  className="bg-white rounded-2xl p-4 border border-[#CBD5E1] hover:border-[#3730A3]/30 transition-all text-left cursor-pointer flex flex-col justify-between shadow-2xs hover:shadow-md"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF2FF] text-[#3730A3] font-bold text-base border border-[#C7D2FE]">
                         {s.name.slice(0, 1).toUpperCase()}
                       </span>
                       <div>
-                        <div className="text-sm font-bold text-[#0D0F1C]">
+                        <div className="text-sm sm:text-base font-bold text-[#0F172A]">
                           {s.name}
                         </div>
-                        <div className="text-xs text-[#9CA3AF]">
+                        <div className="text-xs sm:text-sm font-semibold capitalize text-[#475569]">
                           {s.frequency}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-bold text-[#0D0F1C]">
+                      <div className="text-sm sm:text-base font-bold text-[#0F172A]">
                         {fmt(Number(s.currentBalance) || 0)}
                       </div>
-                      <div className="text-xs text-[#9CA3AF]">
+                      <div className="text-xs sm:text-sm font-semibold text-[#475569]">
                         of {fmt(Number(s.targetAmount) || 0)}
                       </div>
                     </div>
@@ -498,14 +500,16 @@ export function HomeScreen({
                       style={{ background: "#3730A3" }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-[#9CA3AF]">
-                    <span className="font-semibold text-[#3730A3]">
+                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-[#334155]">
+                    <span className="font-bold text-[#3730A3]">
                       {Number(s.targetAmount) > 0
                         ? pct(Number(s.currentBalance), Number(s.targetAmount))
                         : 0}
                       % reached
                     </span>
-                    <span>{s.status ?? ""}</span>
+                    <span className="px-2 py-0.5 bg-indigo-50 text-[#3730A3] border border-[#C7D2FE] rounded-md text-[11px] font-bold capitalize">
+                      {s.status ?? "active"}
+                    </span>
                   </div>
                 </button>
               ))}

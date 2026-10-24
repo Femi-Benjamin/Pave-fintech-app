@@ -1567,7 +1567,7 @@ export function GroupSavingDetailScreen({
                     type="tel"
                     value={invitePhoneNumber}
                     onChange={(event) => setInvitePhoneNumber(event.target.value)}
-                    placeholder="+234 801 234 5678"
+                    placeholder="Enter member's phone number"
                     aria-label="Member phone number"
                     className="w-full rounded-xl bg-[#F1F3FB] px-4 py-2.5 text-sm outline-none border border-transparent focus:border-[#3730A3]"
                   />

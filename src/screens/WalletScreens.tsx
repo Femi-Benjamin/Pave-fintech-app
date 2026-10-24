@@ -1631,7 +1631,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
           <Input
             label="Phone Number"
-            placeholder="+234 801 234 5678"
+            placeholder="Enter phone number"
             type="tel"
             value={phone}
             onChange={setPhone}

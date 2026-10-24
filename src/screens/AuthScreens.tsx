@@ -801,7 +801,7 @@ export function RegisterScreen({
               />
               <Input
                 label="Phone Number"
-                placeholder="+234 801 234 5678"
+                placeholder="Enter phone number"
                 type="tel"
                 value={form.phone}
                 onChange={set("phone")}
