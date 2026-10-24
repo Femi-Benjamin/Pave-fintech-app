@@ -38,7 +38,7 @@ import {
 } from "../hooks/useMarketApi";
 import { useWalletBalanceQuery } from "../hooks/usePaveApi";
 import { getAuthenticatedUserId } from "../api/auth";
-import { getMarketErrorMessage, stripGroupTag } from "../api/market";
+import { getMarketErrorMessage, stripGroupTag, isOwnProduct } from "../api/market";
 import type { ProductItem, PurchaseItem } from "../api/market";
 
 /**
@@ -565,6 +565,8 @@ export function ProductDetailScreen({
   }
 
   const p = activeProduct;
+  const currentUserId = getAuthenticatedUserId();
+  const isOwner = isOwnProduct(p, currentUserId);
   const priceNum =
     typeof p.price === "number" ? p.price : parseFloat(String(p.price || 0));
   const isAvailable = p.status === "available" && p.quantity > 0;
@@ -647,56 +649,92 @@ export function ProductDetailScreen({
           </p>
         </div>
 
-        {/* Save-to-Own Plan Breakdown */}
-        <div className="bg-[#F5F3FF] rounded-2xl p-5 border border-[#DDD6FE]">
-          <div className="flex items-center gap-2 mb-3">
-            <Package size={18} className="text-[#7C3AED]" />
-            <span className="text-sm font-bold text-[#7C3AED]">
-              Save-to-Own Installment Plan
-            </span>
-          </div>
-          <div className="flex flex-col gap-2.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-[#6B7280]">Full Price</span>
-              <span className="font-bold text-[#0D0F1C]">
+        {isOwner ? (
+          /* Owner View Panel */
+          <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-200/80 px-2.5 py-1 rounded-md">
+                Your listing
+              </span>
+              <span
+                className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                  isAvailable
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {isAvailable ? "Available" : "Out of stock"}
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center text-sm pt-1">
+              <span className="text-slate-600 font-medium">Listing Price</span>
+              <span className="font-bold text-slate-900 text-base">
                 {formatMoney(priceNum)}
               </span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-[#6B7280]">50% to Secure (Down Payment)</span>
-              <span className="font-bold text-[#7C3AED]">
-                {formatMoney(priceNum * 0.5)}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-[#6B7280]">Balance on Delivery</span>
-              <span className="font-medium text-[#0D0F1C]">
-                {formatMoney(priceNum * 0.5)}
-              </span>
-            </div>
-          </div>
-          <div className="mt-3 pt-3 border-t border-[#DDD6FE] text-xs text-[#6D28D9] flex items-center gap-1.5">
-            <Sparkles size={14} className="shrink-0" />
-            <span>Pay 50% now or enter a custom down payment to start!</span>
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        {isAvailable ? (
-          <PaveBtn
-            onClick={() => {
-              if (setSelectedProduct) {
-                setSelectedProduct(p);
-              }
-              onNav("payment-plan");
-            }}
-          >
-            Start Installment Plan — From {formatMoney(priceNum * 0.5)}
-          </PaveBtn>
-        ) : (
-          <div className="bg-gray-100 rounded-xl p-4 text-center text-xs text-gray-500 font-medium">
-            This item is currently out of stock. Please check back later.
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-slate-600 font-medium">Available Stock</span>
+              <span className="font-semibold text-slate-800">
+                {p.quantity ?? 0} units
+              </span>
+            </div>
           </div>
+        ) : (
+          /* Buyer Installment Plan Breakdown */
+          <>
+            <div className="bg-[#F5F3FF] rounded-2xl p-5 border border-[#DDD6FE]">
+              <div className="flex items-center gap-2 mb-3">
+                <Package size={18} className="text-[#7C3AED]" />
+                <span className="text-sm font-bold text-[#7C3AED]">
+                  Save-to-Own Installment Plan
+                </span>
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#6B7280]">Full Price</span>
+                  <span className="font-bold text-[#0D0F1C]">
+                    {formatMoney(priceNum)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#6B7280]">50% to Secure (Down Payment)</span>
+                  <span className="font-bold text-[#7C3AED]">
+                    {formatMoney(priceNum * 0.5)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#6B7280]">Balance on Delivery</span>
+                  <span className="font-medium text-[#0D0F1C]">
+                    {formatMoney(priceNum * 0.5)}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-[#DDD6FE] text-xs text-[#6D28D9] flex items-center gap-1.5">
+                <Sparkles size={14} className="shrink-0" />
+                <span>Pay 50% now or enter a custom down payment to start!</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            {isAvailable ? (
+              <PaveBtn
+                onClick={() => {
+                  if (setSelectedProduct) {
+                    setSelectedProduct(p);
+                  }
+                  onNav("payment-plan");
+                }}
+              >
+                Start Installment Plan — From {formatMoney(priceNum * 0.5)}
+              </PaveBtn>
+            ) : (
+              <div className="bg-gray-100 rounded-xl p-4 text-center text-xs text-gray-500 font-medium">
+                This item is currently out of stock. Please check back later.
+              </div>
+            )}
+          </>
         )}
 
         <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>

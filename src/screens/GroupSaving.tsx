@@ -2331,76 +2331,107 @@ export function GroupSavingDetailScreen({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {(groupProductsQuery.data ?? []).map((prod) => (
-                <div
-                  key={prod.id}
-                  className="rounded-xl border border-[#E2E8F0] p-3 flex flex-col justify-between bg-white shadow-xs"
-                >
-                  <div>
-                    <div className="aspect-16/9 rounded-lg overflow-hidden bg-gray-100 mb-2 relative">
-                      <ImageWithFallback
-                        src={
-                          prod.productImage ||
-                          "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80"
-                        }
-                        alt={prod.productName}
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
-                        Qty: {prod.quantity}
-                      </span>
-                    </div>
-                    <div className="font-semibold text-xs text-[#0D0F1C] line-clamp-1">
-                      {prod.productName}
-                    </div>
-                    <div className="text-[11px] text-[#6B7280] line-clamp-2 mt-0.5">
-                      {stripGroupTag(prod.description)}
-                    </div>
-                  </div>
+              {(groupProductsQuery.data ?? []).map((prod) => {
+                const isOwner = isOwnProduct(prod, currentUserId);
+                const isAvailable = prod.status === "available" && prod.quantity > 0;
+                const handleCardClick = () => {
+                  if (onSelectProduct) {
+                    onSelectProduct(prod);
+                  }
+                  onNav("product-detail");
+                };
 
-                  <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
+                return (
+                  <div
+                    key={prod.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={handleCardClick}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleCardClick();
+                      }
+                    }}
+                    className="rounded-xl border border-[#E2E8F0] p-3 flex flex-col justify-between bg-white shadow-xs hover:shadow-md transition-all cursor-pointer outline-none focus:ring-2 focus:ring-[#3730A3]"
+                  >
                     <div>
-                      <div className="font-bold text-xs text-[#0D0F1C]">
-                        {formatMoney(prod.price)}
+                      <div className="aspect-16/9 rounded-lg overflow-hidden bg-gray-100 mb-2 relative">
+                        <ImageWithFallback
+                          src={
+                            prod.productImage ||
+                            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80"
+                          }
+                          alt={prod.productName}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+                          Qty: {prod.quantity}
+                        </span>
                       </div>
-                      <div className="text-[10px] text-[#059669]">
-                        Pay {formatMoney(Number(prod.price) * 0.5)} now
+                      <div className="font-semibold text-xs text-[#0D0F1C] line-clamp-1">
+                        {prod.productName}
+                      </div>
+                      <div className="text-[11px] text-[#6B7280] line-clamp-2 mt-0.5">
+                        {stripGroupTag(prod.description)}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      {isGroupOwner && (
-                        <button
-                          type="button"
-                          onClick={() => void handleDeleteProduct(prod.id)}
-                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-                          title="Delete product"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                      {isOwnProduct(prod, currentUserId) ? (
-                        <span className="text-[11px] font-medium text-gray-400 italic">
-                          Your listing
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (onSelectProduct) {
-                              onSelectProduct(prod);
-                            }
-                            onNav("payment-plan");
-                          }}
-                          className="px-2.5 py-1 bg-[#3730A3] text-white text-[11px] font-semibold rounded-lg hover:bg-[#312E81] cursor-pointer"
-                        >
-                          Buy / Plan
-                        </button>
-                      )}
+                    <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
+                      <div>
+                        <div className="font-bold text-xs text-[#0D0F1C]">
+                          {formatMoney(prod.price)}
+                        </div>
+                        {isOwner ? (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] text-gray-500 font-medium">
+                              Stock: {prod.quantity}
+                            </span>
+                            <span
+                              className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${
+                                isAvailable
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {isAvailable ? "Available" : "Out of stock"}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-[#059669]">
+                            Pay {formatMoney(Number(prod.price) * 0.5)} now
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        {isGroupOwner && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              void handleDeleteProduct(prod.id);
+                            }}
+                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
+                            title="Delete product"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                        {isOwner ? (
+                          <span className="text-[11px] font-medium text-gray-400 italic">
+                            Your listing
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-1 bg-[#EEF2FF] text-[#3730A3] text-[11px] font-semibold rounded-lg">
+                            View
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>
