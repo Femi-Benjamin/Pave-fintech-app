@@ -23,6 +23,7 @@ import {
   Wallet,
   ShoppingBag,
   Package,
+  Share2,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { PaveBtn, ScreenHeader, ImageWithFallback } from "../components/UI";
@@ -784,10 +785,12 @@ export function GroupSavingDetailScreen({
   onNav,
   groupId,
   onSelectProduct,
+  onSetReturnScreen,
 }: {
   onNav: (s: Screen) => void;
   groupId: string;
   onSelectProduct?: (p: any) => void;
+  onSetReturnScreen?: (s: Screen) => void;
 }) {
   const [selectedWithdrawalId, setSelectedWithdrawalId] = useState("");
   const groupQuery = useGroupSavingQuery(groupId);
@@ -883,6 +886,7 @@ export function GroupSavingDetailScreen({
   const [actionMessage, setActionMessage] = useState("");
   const [showInviteDropdown, setShowInviteDropdown] = useState(false);
   const [copiedInviteCode, setCopiedInviteCode] = useState(false);
+  const [copiedInviteLink, setCopiedInviteLink] = useState(false);
   const [copiedAdminAccount, setCopiedAdminAccount] = useState(false);
   const [copiedNarration, setCopiedNarration] = useState(false);
   const [contributeMethod, setContributeMethod] = useState<"transfer" | "wallet">("transfer");
@@ -922,6 +926,31 @@ export function GroupSavingDetailScreen({
         setCopiedNarration(true);
         window.setTimeout(() => setCopiedNarration(false), 2500);
       }
+    }).catch(() => {});
+  };
+
+  const inviteLink = group?.inviteCode
+    ? `${window.location.origin}?inviteCode=${group.inviteCode}`
+    : "";
+
+  const handleShareLink = async () => {
+    if (!inviteLink) return;
+    const shareText = `Join my AJO group "${group?.name || 'PAVEPADI AJO'}" on PAVEPADI! Invite code: ${group?.inviteCode}\n${inviteLink}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Join AJO Group ${group?.name || ''}`,
+          text: shareText,
+          url: inviteLink,
+        });
+        return;
+      } catch {
+        // Fallback to clipboard
+      }
+    }
+    navigator.clipboard.writeText(shareText).then(() => {
+      setCopiedInviteLink(true);
+      window.setTimeout(() => setCopiedInviteLink(false), 2500);
     }).catch(() => {});
   };
 
@@ -1085,15 +1114,25 @@ export function GroupSavingDetailScreen({
 
   const submitInvite = async () => {
     setActionMessage("");
+    const phone = invitePhoneNumber.trim();
+    const email = inviteEmail.trim();
     try {
       const response = await inviteMutation.mutateAsync({
         groupId,
         payload: {
-          email: inviteEmail,
-          phoneNumber: invitePhoneNumber,
+          email,
+          phoneNumber: phone,
         },
       });
-      setActionMessage(response.message);
+      let successMsg = response.message;
+      if (phone) {
+        const codeText = group?.inviteCode ? ` with invite code "${group.inviteCode}"` : "";
+        successMsg = `Invitation message${codeText} sent to ${phone} via SMS.`;
+        if (email) {
+          successMsg += ` Email invitation sent to ${email}.`;
+        }
+      }
+      setActionMessage(successMsg);
       setInviteEmail("");
       setInvitePhoneNumber("");
     } catch {
@@ -1443,19 +1482,55 @@ export function GroupSavingDetailScreen({
             {showInviteDropdown && (
               <div className="p-4 pt-1 border-t border-[#F1F3FB] flex flex-col gap-3">
                 {group.inviteCode && (
-                  <div className="flex items-center justify-between gap-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-3">
-                    <div>
-                      <span className="text-[11px] text-[#64748B] block">Private Group Invite Code</span>
-                      <span className="font-mono font-bold text-sm text-[#1E1B4B]">{group.inviteCode}</span>
+                  <div className="flex flex-col gap-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <span className="text-[11px] text-[#64748B] block">Private Group Invite Code</span>
+                        <span className="font-mono font-bold text-sm text-[#1E1B4B]">{group.inviteCode}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(group.inviteCode || "", "invite")}
+                          className="flex items-center gap-1 rounded-lg bg-white border border-[#CBD5E1] px-3 py-1.5 text-xs font-medium text-[#334155] hover:bg-[#F1F5F9] cursor-pointer"
+                        >
+                          {copiedInviteCode ? <Check size={13} /> : <Copy size={13} />}
+                          <span>{copiedInviteCode ? "Copied" : "Copy Code"}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleShareLink()}
+                          className="flex items-center gap-1 rounded-lg bg-[#3730A3] text-white px-3 py-1.5 text-xs font-medium hover:bg-[#312E81] cursor-pointer"
+                          title="Share invitation link on social media"
+                        >
+                          <Share2 size={13} />
+                          <span>{copiedInviteLink ? "Link Copied!" : "Share Link"}</span>
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyText(group.inviteCode || "", "invite")}
-                      className="flex items-center gap-1 rounded-lg bg-white border border-[#CBD5E1] px-3 py-1.5 text-xs font-medium text-[#334155] hover:bg-[#F1F5F9] cursor-pointer"
-                    >
-                      {copiedInviteCode ? <Check size={13} /> : <Copy size={13} />}
-                      <span>{copiedInviteCode ? "Copied" : "Copy Code"}</span>
-                    </button>
+                    {inviteLink && (
+                      <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
+                        <span className="text-[10px] text-[#64748B] truncate font-mono bg-white px-2 py-1 rounded border border-[#E2E8F0] flex-1">
+                          {inviteLink}
+                        </span>
+                        <a
+                          href={`https://wa.me/?text=${encodeURIComponent(`Join my AJO group "${group.name}" on PAVEPADI! Invite code: ${group.inviteCode}\n${inviteLink}`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-semibold text-[#059669] hover:underline whitespace-nowrap"
+                        >
+                          WhatsApp
+                        </a>
+                        <a
+                          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Join my AJO group "${group.name}" on PAVEPADI! Invite code: ${group.inviteCode}\n${inviteLink}`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-semibold text-[#0284C7] hover:underline whitespace-nowrap"
+                        >
+                          X / Share
+                        </a>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -2335,6 +2410,9 @@ export function GroupSavingDetailScreen({
                 const isOwner = isOwnProduct(prod, currentUserId);
                 const isAvailable = prod.status === "available" && prod.quantity > 0;
                 const handleCardClick = () => {
+                  if (onSetReturnScreen) {
+                    onSetReturnScreen("group-saving-detail");
+                  }
                   if (onSelectProduct) {
                     onSelectProduct(prod);
                   }

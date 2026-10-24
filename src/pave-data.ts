@@ -39,6 +39,48 @@ export type Screen =
   | "profile"
   | "settings";
 
+export const KNOWN_SCREENS: Screen[] = [
+  "splash",
+  "onboarding",
+  "login",
+  "register",
+  "forgot-password",
+  "otp-verify",
+  "accept-invitation",
+  "kyc-welcome",
+  "kyc-nin",
+  "kyc-id-type",
+  "kyc-id-upload",
+  "kyc-selfie",
+  "kyc-pending",
+  "kyc-approved",
+  "home",
+  "notifications",
+  "wallet",
+  "fund-wallet",
+  "transfer",
+  "bills",
+  "airtime",
+  "savings",
+  "create-saving",
+  "group-savings",
+  "create-group-saving",
+  "savings-detail",
+  "group-saving-detail",
+  "join-program",
+  "marketplace",
+  "product-detail",
+  "payment-plan",
+  "purchase-detail",
+  "messages",
+  "chat",
+  "group-chat",
+  "transactions",
+  "profile",
+  "settings",
+];
+
+
 export interface Transaction {
   id: string;
   type: "credit" | "debit";

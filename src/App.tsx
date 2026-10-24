@@ -75,6 +75,7 @@ function MobileApp({
   const [selectedPurchaseId, setSelectedPurchaseId] = useState("");
   const [selectedSavingId, setSelectedSavingId] = useState("");
   const [selectedGroupSavingId, setSelectedGroupSavingId] = useState("");
+  const [productReturnScreen, setProductReturnScreen] = useState<Screen>("marketplace");
   const [ajoSuccessNotice, setAjoSuccessNotice] = useState("");
   const [savingsSuccessNotice, setSavingsSuccessNotice] = useState("");
   const [activeChat, setActiveChat] = useState<any>(null);
@@ -224,6 +225,7 @@ function MobileApp({
             onNav={nav}
             groupId={selectedGroupSavingId}
             onSelectProduct={setSelectedProduct}
+            onSetReturnScreen={setProductReturnScreen}
           />
         );
       case "join-program":
@@ -241,6 +243,7 @@ function MobileApp({
             onNav={nav}
             setSelectedProduct={setSelectedProduct}
             setSelectedPurchaseId={setSelectedPurchaseId}
+            onSetReturnScreen={setProductReturnScreen}
           />
         );
       case "product-detail":
@@ -249,6 +252,7 @@ function MobileApp({
             onNav={nav}
             product={selectedProduct}
             setSelectedProduct={setSelectedProduct}
+            returnScreen={productReturnScreen}
           />
         );
       case "payment-plan":

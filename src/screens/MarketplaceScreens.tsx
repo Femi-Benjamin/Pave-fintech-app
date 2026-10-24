@@ -40,6 +40,7 @@ import { useWalletBalanceQuery } from "../hooks/usePaveApi";
 import { getAuthenticatedUserId } from "../api/auth";
 import { getMarketErrorMessage, stripGroupTag, isOwnProduct } from "../api/market";
 import type { ProductItem, PurchaseItem } from "../api/market";
+import { resolveReturnScreen } from "../utils/navigation";
 
 /**
  * Robust currency formatter for numbers and string values
@@ -63,10 +64,12 @@ export function MarketplaceScreen({
   onNav,
   setSelectedProduct,
   setSelectedPurchaseId,
+  onSetReturnScreen,
 }: {
   onNav: (s: Screen) => void;
   setSelectedProduct: (p: ProductItem) => void;
   setSelectedPurchaseId?: (id: string) => void;
+  onSetReturnScreen?: (s: Screen) => void;
 }) {
   const [tab, setTab] = useState<"products" | "purchases">("products");
   const [search, setSearch] = useState("");
@@ -291,6 +294,9 @@ export function MarketplaceScreen({
                     <button
                       key={p.id}
                       onClick={() => {
+                        if (onSetReturnScreen) {
+                          onSetReturnScreen("marketplace");
+                        }
                         setSelectedProduct(p);
                         onNav("product-detail");
                       }}
@@ -514,11 +520,14 @@ export function ProductDetailScreen({
   onNav,
   product,
   setSelectedProduct,
+  returnScreen,
 }: {
   onNav: (s: Screen) => void;
   product?: ProductItem | any;
   setSelectedProduct?: (p: any) => void;
+  returnScreen?: Screen | string | null;
 }) {
+  const targetReturnScreen = resolveReturnScreen(returnScreen);
   const productId = product?.id || "";
 
   const {
@@ -555,8 +564,8 @@ export function ProductDetailScreen({
           {getMarketErrorMessage(error, "Unable to retrieve this product.")}
         </p>
         <div className="flex gap-2">
-          <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>
-            Back to Marketplace
+          <PaveBtn variant="ghost" onClick={() => onNav(targetReturnScreen)}>
+            Back
           </PaveBtn>
           <PaveBtn onClick={() => void refetch()}>Try Again</PaveBtn>
         </div>
@@ -591,7 +600,7 @@ export function ProductDetailScreen({
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
 
         <button
-          onClick={() => onNav("marketplace")}
+          onClick={() => onNav(targetReturnScreen)}
           className="absolute top-12 left-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center shadow-md cursor-pointer text-gray-700 hover:bg-white"
         >
           <ArrowLeft size={18} />
@@ -727,7 +736,7 @@ export function ProductDetailScreen({
                   onNav("payment-plan");
                 }}
               >
-                Start Installment Plan — From {formatMoney(priceNum * 0.5)}
+                Proceed to Payment
               </PaveBtn>
             ) : (
               <div className="bg-gray-100 rounded-xl p-4 text-center text-xs text-gray-500 font-medium">
@@ -737,8 +746,8 @@ export function ProductDetailScreen({
           </>
         )}
 
-        <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>
-          Back to Marketplace
+        <PaveBtn variant="ghost" onClick={() => onNav(targetReturnScreen)}>
+          Back
         </PaveBtn>
       </div>
     </div>
