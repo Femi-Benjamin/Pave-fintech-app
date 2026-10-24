@@ -73,6 +73,12 @@ export interface ContinueInstallmentPayload {
   purchaseStatus?: string;
 }
 
+/**
+ * Multipart field name the backend create-product route expects for the image.
+ * Known-good request confirmed in Postman uses exactly "productImage".
+ */
+export const CREATE_PRODUCT_IMAGE_FIELD = "productImage";
+
 export interface CreateProductPayload {
   productName: string;
   description: string;
@@ -80,7 +86,7 @@ export interface CreateProductPayload {
   quantity: number;
   categoryId: string;
   groupId?: string;
-  image?: File | null;
+  image?: File | Blob | null;
 }
 
 export interface UpdateProductPayload {
@@ -124,6 +130,81 @@ export function sanitizePurchaseItem(purchase: PurchaseItem): PurchaseItem {
     sanitized.user = sanitizeUserRecord(sanitized.user) as any;
   }
   return sanitized;
+}
+
+/**
+ * TEMPORARY WORKAROUND - NOT ACCESS CONTROL.
+ * The backend has no verified group field on products yet, so the AJO group id is
+ * embedded in the product description as "[AJO:<groupId>]". Anyone can forge, edit
+ * or remove this tag, so it must never be relied on for security or visibility.
+ * Replace it with a real, server-verified groupId column on the backend.
+ * Always run descriptions through stripGroupTag() before displaying or searching them.
+ */
+const GROUP_TAG_REGEX = /\s*\[(?:AJO|GROUP):[^\]\s]+\]/g;
+
+export function stripGroupTag(text?: string | null): string {
+  return (text ?? "").replace(GROUP_TAG_REGEX, "").trim();
+}
+
+/** True when a message looks like server internals (stack traces, paths, library errors). */
+function looksTechnical(message: string): boolean {
+  return (
+    message.length > 200 ||
+    /\n|\/var\/|node_modules|MulterError|TypeError|ReferenceError|SyntaxError|\bat\s.+\(|Request failed with status code/i.test(
+      message,
+    )
+  );
+}
+
+/**
+ * Maps any thrown error to a user-safe message.
+ * - 5xx responses never show backend text (it may contain stack traces or paths).
+ * - 4xx responses show the backend message only if it reads like a human message.
+ * - Plain Errors thrown by this module's own validation are shown as written.
+ */
+export function getMarketErrorMessage(
+  error: unknown,
+  fallback = "Something went wrong. Please try again.",
+): string {
+  const err = error as any;
+  const status: number | undefined = err?.response?.status;
+
+  if (status === undefined) {
+    if (err?.isAxiosError) {
+      return "Network problem. Check your connection and try again.";
+    }
+    if (error instanceof Error && error.message && !looksTechnical(error.message)) {
+      return error.message;
+    }
+    return fallback;
+  }
+
+  const raw = err?.response?.data?.message ?? err?.response?.data?.error;
+  const backendMessage =
+    typeof raw === "string" && raw.trim() && !looksTechnical(raw)
+      ? raw.trim()
+      : "";
+
+  if (status >= 500) {
+    return "The server ran into a problem. Please try again later.";
+  }
+  if (backendMessage) {
+    return backendMessage;
+  }
+  switch (status) {
+    case 401:
+      return "Your session has expired. Please log in again.";
+    case 403:
+      return "You don't have permission to do this.";
+    case 404:
+      return "We couldn't find that item. It may have been removed.";
+    case 413:
+      return "That file is too large. Please choose a smaller one.";
+    case 429:
+      return "Too many attempts. Please wait a moment and try again.";
+    default:
+      return "Some details are invalid. Please check them and try again.";
+  }
 }
 
 /**
@@ -391,54 +472,34 @@ export async function createProduct(
 
   const cleanCatId = encodeURIComponent(categoryId.trim());
 
-  // Use FormData if an image file is provided
-  if (payload.image instanceof File) {
-    const formData = new FormData();
-    formData.append("productName", cleanName);
-    formData.append("description", payload.description || "");
-    formData.append("price", String(price));
-    formData.append("quantity", String(quantity));
-    formData.append("productRating", "5");
-    formData.append("images", payload.image);
-    if (payload.groupId) {
-      formData.append("groupId", payload.groupId.trim());
-      formData.append("groupSavingId", payload.groupId.trim());
-    }
-
-    try {
-      const { data } = await api.post<MarketApiResponse<ProductItem>>(
-        `/api/v1/product/create-product/${cleanCatId}`,
-        formData,
-      );
-      return data;
-    } catch (err: any) {
-      // Graceful fallback if backend router expects GET / PUT
-      if (err?.response?.status === 405) {
-        const { data } = await api.get<MarketApiResponse<ProductItem>>(
-          `/api/v1/product/create-product/${cleanCatId}`,
-        );
-        return data;
-      }
-      throw err;
-    }
+  // KNOWN-GOOD REQUEST (confirmed working in Postman):
+  // POST /api/v1/product/create-product/:categoryId
+  // Body: multipart/form-data, exactly these fields and no others:
+  //   productImage  (File)
+  //   productName   (text)
+  //   description   (text)
+  //   price         (text)
+  //   productRating (text, "5")
+  //   quantity      (text)
+  const formData = new FormData();
+  if (
+    payload.image instanceof File ||
+    (typeof Blob !== "undefined" && payload.image instanceof Blob)
+  ) {
+    formData.append(CREATE_PRODUCT_IMAGE_FIELD, payload.image);
   }
+  formData.append("productName", cleanName);
+  formData.append("description", payload.description || "");
+  formData.append("price", String(price));
+  formData.append("productRating", "5");
+  formData.append("quantity", String(quantity));
 
-  // JSON payload
-  const body: Record<string, any> = {
-    productName: cleanName,
-    description: payload.description || "",
-    price,
-    quantity,
-    productRating: 5,
-  };
-  if (payload.groupId) {
-    body.groupId = payload.groupId.trim();
-    body.groupSavingId = payload.groupId.trim();
-  }
+  // Note: groupId and groupSavingId are completely excluded from the request body
+  // per the backend contract. Group attribution currently relies on the [AJO:<id>] description tag.
 
   const { data } = await api.post<MarketApiResponse<ProductItem>>(
     `/api/v1/product/create-product/${cleanCatId}`,
-    body,
+    formData,
   );
   return data;
 }

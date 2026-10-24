@@ -24,6 +24,7 @@ import {
   ShoppingBag,
   Package,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { PaveBtn, ScreenHeader, ImageWithFallback } from "../components/UI";
 import {
   useGroupProductsQuery,
@@ -31,13 +32,38 @@ import {
   useDeleteProductMutation,
   useCategoriesQuery,
   useProductsQuery,
+  marketQueryKeys,
 } from "../hooks/useMarketApi";
+import { getMarketErrorMessage, stripGroupTag } from "../api/market";
 import type { ProductItem } from "../api/market";
 import { formatMoney } from "./MarketplaceScreens";
 import { PaveLoadingState } from "../components/PaveLoadingState";
 import { Screen, fmt, pct } from "../pave-data";
 import { getApiErrorMessage } from "../api/auth";
 import { useLocalStore } from "../hooks/useLocalStore";
+
+export const MAX_PRODUCT_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
+export const ALLOWED_PRODUCT_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+
+export function validateProductImageFile(file: File | null): string | null {
+  if (!file) {
+    return "Product Image * is required. Please choose a JPEG, PNG, or WebP image under 2 MB.";
+  }
+  const isAllowedType =
+    ALLOWED_PRODUCT_IMAGE_TYPES.includes(file.type as any) ||
+    /\.(jpe?g|png|webp)$/i.test(file.name);
+  if (!isAllowedType) {
+    return "Invalid image format. Allowed formats are JPEG, PNG, and WebP.";
+  }
+  if (file.size > MAX_PRODUCT_IMAGE_SIZE_BYTES) {
+    return "Image size exceeds 2 MB limit. Please choose a smaller image.";
+  }
+  return null;
+}
 import {
   useContributeToGroupSavingMutation,
   useCreateGroupSavingMutation,
@@ -797,6 +823,7 @@ export function GroupSavingDetailScreen({
       (group as any)?.ownerId,
   );
 
+  const queryClient = useQueryClient();
   const categoriesQuery = useCategoriesQuery();
   const allProductsQuery = useProductsQuery();
   const groupProductsQuery = useGroupProductsQuery(
@@ -824,7 +851,8 @@ export function GroupSavingDetailScreen({
     if (Array.isArray(allProductsQuery.data)) {
       allProductsQuery.data.forEach((p) => {
         const catId = p.categoryId || p.category?.id;
-        const catName = p.category?.categoryName || "Marketplace Product";
+        const catName =
+          p.category?.categoryName || `Category ${String(catId).slice(0, 6)}`;
         if (catId && !catMap.has(catId)) {
           catMap.set(catId, { id: catId, categoryName: catName.trim() });
         }
@@ -1097,17 +1125,29 @@ export function GroupSavingDetailScreen({
       setProductFormError("Quantity must be at least 1.");
       return;
     }
-    const categoryId =
-      newProductCategoryId ||
-      availableCategories[0]?.id ||
-      categoriesQuery.data?.[0]?.id ||
-      "7c8e58bb-dcd3-4944-a75c-8bcf302b4ea3";
+    // Never submit a default or fixture category: the manager must pick a real one.
+    const categoryId = newProductCategoryId;
+    if (!categoryId || !availableCategories.some((c) => c.id === categoryId)) {
+      setProductFormError("Please select a category for this product.");
+      return;
+    }
+    // The backend create-product route requires an image (it answers "... image or
+    // productImage are required" without one). Validate presence, type, and size.
+    const imageValidationError = validateProductImageFile(newProductImage);
+    if (imageValidationError) {
+      setProductFormError(imageValidationError);
+      return;
+    }
 
     try {
       const response = await createProductMutation.mutateAsync({
         categoryId,
         payload: {
           productName: newProductName.trim(),
+          // TEMPORARY WORKAROUND, NOT ACCESS CONTROL: the [AJO:<id>] tag links the
+          // product to this group only on the client. It can be forged or removed by
+          // anyone and must be replaced by a server-verified groupId on the backend.
+          // It is stripped from every displayed description via stripGroupTag().
           description: newProductDescription.trim()
             ? `${newProductDescription.trim()} [AJO:${groupId}]`
             : `Group item for ${group?.name || "AJO"} [AJO:${groupId}]`,
@@ -1119,18 +1159,32 @@ export function GroupSavingDetailScreen({
         },
       });
 
-      setProductFormSuccess(
-        response.message || "Product posted successfully for group members!",
-      );
+      // Invalidate and refetch both group products and marketplace products list
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.groupProducts(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: marketQueryKeys.products(),
+        }),
+        groupProductsQuery.refetch(),
+      ]);
+
+      // Close the form and reset all fields
+      setShowProductForm(false);
       setNewProductName("");
       setNewProductPrice("");
       setNewProductQuantity("1");
       setNewProductDescription("");
       setNewProductImage(null);
-      setShowProductForm(false);
+      setNewProductCategoryId("");
+      setProductFormError("");
+      setProductFormSuccess(
+        response.message || "Product created successfully",
+      );
     } catch (err) {
       setProductFormError(
-        getApiErrorMessage(err, "Failed to post product to group."),
+        getMarketErrorMessage(err, "Failed to post product to group."),
       );
     }
   };
@@ -1145,7 +1199,7 @@ export function GroupSavingDetailScreen({
         groupId,
       });
     } catch (err) {
-      alert(getApiErrorMessage(err, "Unable to delete product."));
+      alert(getMarketErrorMessage(err, "Unable to delete product."));
     }
   };
 
@@ -2068,6 +2122,27 @@ export function GroupSavingDetailScreen({
             Exclusive products and layaway purchase plans for members of {group.name}.
           </p>
 
+          {/* Success banner visible when form is closed */}
+          {productFormSuccess && (
+            <div
+              role="status"
+              className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between gap-2"
+            >
+              <div className="flex items-center gap-1.5 text-xs text-green-700 font-semibold">
+                <CheckCircle2 size={14} className="shrink-0" />
+                <span>{productFormSuccess}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProductFormSuccess("")}
+                className="text-xs text-green-700 hover:text-green-900 font-bold px-1 cursor-pointer"
+                aria-label="Dismiss success message"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {/* Manager Product Posting Form */}
           {isGroupOwner && showProductForm && (
             <form
@@ -2098,6 +2173,7 @@ export function GroupSavingDetailScreen({
                     Category
                   </label>
                   <select
+                    required
                     value={newProductCategoryId}
                     onChange={(e) => setNewProductCategoryId(e.target.value)}
                     className="w-full px-2.5 py-2 bg-white border border-[#CBD5E1] rounded-lg text-xs outline-none focus:border-[#3730A3]"
@@ -2105,7 +2181,7 @@ export function GroupSavingDetailScreen({
                     <option value="">
                       {availableCategories.length > 0
                         ? "-- Select Category --"
-                        : "Default Category"}
+                        : "No categories available"}
                     </option>
                     {availableCategories.map((cat) => (
                       <option key={cat.id} value={cat.id}>
@@ -2113,6 +2189,12 @@ export function GroupSavingDetailScreen({
                       </option>
                     ))}
                   </select>
+                  {availableCategories.length === 0 && (
+                    <p className="mt-1 text-[10px] text-amber-700">
+                      No categories are available to your account yet. Ask the
+                      platform admin to enable category access.
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -2149,18 +2231,34 @@ export function GroupSavingDetailScreen({
 
                 <div>
                   <label className="block text-[11px] font-semibold text-[#475569] mb-1">
-                    Product Image (Optional)
+                    Product Image *
                   </label>
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     onChange={(e) => {
-                      if (e.target.files?.[0]) {
-                        setNewProductImage(e.target.files[0]);
+                      const file = e.target.files?.[0] || null;
+                      if (file) {
+                        const err = validateProductImageFile(file);
+                        if (err) {
+                          setProductFormError(err);
+                          setNewProductImage(null);
+                          e.target.value = "";
+                          return;
+                        }
+                        setProductFormError("");
+                        setNewProductImage(file);
+                      } else {
+                        setNewProductImage(null);
                       }
                     }}
                     className="w-full text-[11px] file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EEF2FF] file:text-[#3730A3] file:font-semibold"
                   />
+                  {newProductImage && (
+                    <p className="mt-1 text-[10px] text-gray-500 truncate">
+                      Selected: {newProductImage.name} ({(newProductImage.size / 1024).toFixed(1)} KB)
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -2177,39 +2275,16 @@ export function GroupSavingDetailScreen({
                 />
               </div>
 
+              {/* Error Alert */}
               {productFormError && (
                 <div
                   role="alert"
-                  className="p-3 bg-red-50 border border-red-200 rounded-xl flex flex-col gap-2"
+                  className="p-3 bg-red-50 border border-red-200 rounded-xl"
                 >
                   <p className="text-[11px] text-red-700 font-medium">
                     {productFormError}
                   </p>
-                  {(productFormError.toLowerCase().includes("nepabill") ||
-                    productFormError.toLowerCase().includes("nin") ||
-                    productFormError.toLowerCase().includes("face") ||
-                    productFormError.toLowerCase().includes("kyc")) && (
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-red-200">
-                      <span className="text-[10px] text-red-600 leading-tight">
-                        The PAVEPADI backend requires NIN, utility bill, and selfie verification before posting products.
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => onNav("kyc-welcome")}
-                        className="px-2.5 py-1 text-[11px] font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer self-start sm:self-auto shrink-0"
-                      >
-                        Complete KYC
-                      </button>
-                    </div>
-                  )}
                 </div>
-              )}
-
-              {productFormSuccess && (
-                <p className="text-[11px] text-green-700 font-semibold flex items-center gap-1">
-                  <CheckCircle2 size={12} />
-                  <span>{productFormSuccess}</span>
-                </p>
               )}
 
               <div className="flex justify-end gap-2 pt-1">
@@ -2222,7 +2297,10 @@ export function GroupSavingDetailScreen({
                 </button>
                 <button
                   type="submit"
-                  disabled={createProductMutation.isPending}
+                  disabled={
+                    createProductMutation.isPending ||
+                    availableCategories.length === 0
+                  }
                   className="px-4 py-1.5 rounded-lg bg-[#3730A3] text-white font-semibold hover:bg-[#312E81] disabled:opacity-50 cursor-pointer"
                 >
                   {createProductMutation.isPending ? "Posting..." : "Post to Group"}
@@ -2276,7 +2354,7 @@ export function GroupSavingDetailScreen({
                       {prod.productName}
                     </div>
                     <div className="text-[11px] text-[#6B7280] line-clamp-2 mt-0.5">
-                      {prod.description}
+                      {stripGroupTag(prod.description)}
                     </div>
                   </div>
 

@@ -37,7 +37,8 @@ import {
   useContinueInstallmentMutation,
 } from "../hooks/useMarketApi";
 import { useWalletBalanceQuery } from "../hooks/usePaveApi";
-import { getApiErrorMessage, getAuthenticatedUserId } from "../api/auth";
+import { getAuthenticatedUserId } from "../api/auth";
+import { getMarketErrorMessage, stripGroupTag } from "../api/market";
 import type { ProductItem, PurchaseItem } from "../api/market";
 
 /**
@@ -118,7 +119,9 @@ export function MarketplaceScreen({
       const matchesSearch =
         p.productName.toLowerCase().includes(search.toLowerCase()) ||
         (p.description &&
-          p.description.toLowerCase().includes(search.toLowerCase()));
+          stripGroupTag(p.description)
+            .toLowerCase()
+            .includes(search.toLowerCase()));
       return matchesCategory && matchesSearch;
     });
   }, [products, selectedCategoryName, search]);
@@ -240,7 +243,7 @@ export function MarketplaceScreen({
                   Unable to load marketplace products
                 </h3>
                 <p className="text-xs text-gray-500 mb-4 max-w-xs">
-                  {getApiErrorMessage(
+                  {getMarketErrorMessage(
                     productsError,
                     "Could not connect to the marketplace catalog.",
                   )}
@@ -381,7 +384,7 @@ export function MarketplaceScreen({
             <div className="bg-red-50 text-red-700 p-4 rounded-xl text-xs flex flex-col gap-2">
               <p className="font-semibold">Unable to load your purchases</p>
               <p>
-                {getApiErrorMessage(
+                {getMarketErrorMessage(
                   purchasesError,
                   "Could not retrieve purchase history.",
                 )}
@@ -549,7 +552,7 @@ export function ProductDetailScreen({
           Product Not Found
         </h3>
         <p className="text-xs text-gray-500 mb-4 max-w-xs">
-          {getApiErrorMessage(error, "Unable to retrieve this product.")}
+          {getMarketErrorMessage(error, "Unable to retrieve this product.")}
         </p>
         <div className="flex gap-2">
           <PaveBtn variant="ghost" onClick={() => onNav("marketplace")}>
@@ -578,10 +581,9 @@ export function ProductDetailScreen({
         <ImageWithFallback
           src={
             p.productImage ||
-            p.image ||
             "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=80"
           }
-          alt={p.productName || p.name}
+          alt={p.productName}
           className="w-full aspect-4/3 object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
@@ -599,15 +601,20 @@ export function ProductDetailScreen({
         <div>
           <div className="flex items-center justify-between mb-2">
             <Badge color="indigo">{categoryName}</Badge>
-            <div className="flex items-center gap-1.5">
-              <Star size={14} className="text-[#F59E0B] fill-[#F59E0B]" />
-              <span className="text-sm font-semibold text-gray-800">
-                {p.productRating || p.rating || 5}
-              </span>
-              <span className="text-xs text-[#9CA3AF]">
-                ({p.reviews || 12} reviews)
-              </span>
-            </div>
+            {/* Show only real data: no default rating and no made-up review count. */}
+            {Number(p.productRating) > 0 && (
+              <div className="flex items-center gap-1.5">
+                <Star size={14} className="text-[#F59E0B] fill-[#F59E0B]" />
+                <span className="text-sm font-semibold text-gray-800">
+                  {p.productRating}
+                </span>
+                {Number(p.reviews) > 0 && (
+                  <span className="text-xs text-[#9CA3AF]">
+                    ({p.reviews} reviews)
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <h2
@@ -619,7 +626,7 @@ export function ProductDetailScreen({
             }}
             className="text-gray-900"
           >
-            {p.productName || p.name}
+            {p.productName}
           </h2>
 
           <div className="flex items-center gap-2 mt-2">
@@ -635,7 +642,8 @@ export function ProductDetailScreen({
           </div>
 
           <p className="text-[#4B5563] text-sm mt-3 leading-relaxed">
-            {p.description || "High-quality item available for layaway plan."}
+            {stripGroupTag(p.description) ||
+              "High-quality item available for layaway plan."}
           </p>
         </div>
 
@@ -801,7 +809,7 @@ export function PaymentPlanScreen({
         }
       }
     } catch (err) {
-      setErrorMsg(getApiErrorMessage(err, "Unable to initiate product purchase."));
+      setErrorMsg(getMarketErrorMessage(err, "Unable to initiate product purchase."));
     }
   };
 
@@ -829,15 +837,14 @@ export function PaymentPlanScreen({
             <ImageWithFallback
               src={
                 p.productImage ||
-                p.image ||
                 "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&auto=format&fit=crop&q=80"
               }
-              alt={p.productName || p.name}
+              alt={p.productName}
               className="w-16 h-16 rounded-xl object-cover shrink-0"
             />
             <div className="min-w-0 flex-1">
               <div className="font-semibold text-sm text-[#0D0F1C] truncate">
-                {p.productName || p.name}
+                {p.productName}
               </div>
               <div className="text-[#7C3AED] font-bold text-sm">
                 {formatMoney(unitPrice)} <span className="text-xs font-normal text-gray-500">/ unit</span>
@@ -1015,7 +1022,7 @@ export function PaymentPlanScreen({
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               <span>
                 {errorMsg ||
-                  getApiErrorMessage(
+                  getMarketErrorMessage(
                     createPurchaseMutation.error,
                     "Unable to create purchase.",
                   )}
@@ -1203,7 +1210,7 @@ export function PurchaseDetailScreen({
       setPayAmount("");
     } catch (err) {
       setErrorNotice(
-        getApiErrorMessage(err, "Failed to submit installment payment."),
+        getMarketErrorMessage(err, "Failed to submit installment payment."),
       );
     }
   };
@@ -1225,7 +1232,7 @@ export function PurchaseDetailScreen({
           Purchase Unavailable
         </h3>
         <p className="text-xs text-gray-500 mb-4 max-w-xs">
-          {getApiErrorMessage(
+          {getMarketErrorMessage(
             error,
             "Could not retrieve this purchase record or you are not authorized to view it.",
           )}

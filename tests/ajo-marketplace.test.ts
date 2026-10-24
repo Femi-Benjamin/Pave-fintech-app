@@ -101,6 +101,77 @@ test("AJO Marketplace: Manager M1 can create products for G1, but not for G2", a
   }
 });
 
+test("AJO Marketplace: createProduct sends exact known-good FormData keys and no groupId or groupSavingId", async () => {
+  const originalPost = api.post;
+  let postedUrl = "";
+  let postedData: any = null;
+
+  (api as any).post = async (url: string, data: any) => {
+    postedUrl = url;
+    postedData = data;
+    return {
+      data: {
+        success: true,
+        message: "Product created successfully",
+        data: {
+          id: "prod-good-1",
+          userId: M1_ID,
+          categoryId: "cat-123",
+          productName: "Solar Generator 1kVA",
+          description: "Portable solar system [AJO:group-g1]",
+          price: "40000.00",
+          quantity: 10,
+          productRating: 5,
+          productImage: "https://ik.imagekit.io/pave/sample.jpeg",
+        },
+      },
+    };
+  };
+
+  try {
+    const dummyImage = new File(["fake-image-bytes"], "generator.png", {
+      type: "image/png",
+    });
+
+    await createProduct("cat-123", {
+      productName: "Solar Generator 1kVA",
+      description: "Portable solar system [AJO:group-g1]",
+      price: 40000,
+      quantity: 10,
+      categoryId: "cat-123",
+      groupId: G1_ID,
+      image: dummyImage,
+    });
+
+    assert.equal(postedUrl, "/api/v1/product/create-product/cat-123");
+    assert.ok(postedData instanceof FormData, "Request data must be FormData");
+
+    const keys = Array.from(postedData.keys());
+    const expectedKeys = [
+      "productName",
+      "description",
+      "price",
+      "quantity",
+      "productRating",
+      "productImage",
+    ];
+
+    assert.deepEqual(keys.slice().sort(), expectedKeys.slice().sort());
+    assert.equal(postedData.get("productRating"), "5");
+    assert.equal(postedData.get("productName"), "Solar Generator 1kVA");
+    assert.equal(postedData.get("price"), "40000");
+    assert.equal(postedData.get("quantity"), "10");
+    assert.equal(
+      postedData.get("description"),
+      "Portable solar system [AJO:group-g1]",
+    );
+    assert.equal(postedData.has("groupId"), false);
+    assert.equal(postedData.has("groupSavingId"), false);
+  } finally {
+    api.post = originalPost;
+  }
+});
+
 test("AJO Marketplace: Non-member C cannot see G1 products", async () => {
   await assert.rejects(
     async () => {
