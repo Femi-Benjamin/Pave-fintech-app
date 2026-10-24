@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 export function PaveBtn({
@@ -125,6 +125,9 @@ export function ScreenHeader({ title, onBack, right }: any) {
 
 export function Avatar({ name, size = 40, color = "#3730A3", src }: any) {
   const [hasError, setHasError] = useState(false);
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
   const initials = name
     ? name
         .split(" ")

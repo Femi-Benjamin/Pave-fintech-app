@@ -21,6 +21,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Avatar, Badge, Input, PaveBtn, ScreenHeader } from "../components/UI";
+import { extractImageUrl, isHttpUrl } from "../utils/avatar";
 import { Screen } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { ProfileScreenSkeleton } from "../components/Skeleton";
@@ -59,9 +60,14 @@ export function ProfileScreen({
   const email = authUser?.email?.trim() || "";
   const uploadImageMutation = useUploadUserImageMutation(email);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(() => {
-    return typeof window !== "undefined" && email
-      ? localStorage.getItem(`pave_avatar_${email}`) || null
-      : null;
+    if (typeof window === "undefined" || !email) return null;
+    const stored = localStorage.getItem(`pave_avatar_${email}`);
+    if (stored && !isHttpUrl(stored)) {
+      // Drop dead blob: URLs saved by older versions.
+      localStorage.removeItem(`pave_avatar_${email}`);
+      return null;
+    }
+    return stored || null;
   });
   const [avatarUploadError, setAvatarUploadError] = useState("");
   const [avatarUploadSuccess, setAvatarUploadSuccess] = useState("");
@@ -284,24 +290,32 @@ export function ProfileScreen({
 
               uploadImageMutation.mutate(file, {
                 onSuccess: (data: any) => {
-                  const savedImg =
-                    data?.user?.image ||
-                    data?.user?.face ||
-                    data?.data?.image ||
-                    data?.data?.face ||
-                    data?.imageUrl ||
-                    previewUrl;
-                  if (email && savedImg) {
-                    localStorage.setItem(`pave_avatar_${email}`, savedImg);
+                  const savedImg = extractImageUrl(data);
+                  if (savedImg) {
+                    if (email) {
+                      localStorage.setItem(`pave_avatar_${email}`, savedImg);
+                    }
+                    if (authUser) {
+                      setAuthUser({
+                        ...authUser,
+                        image: savedImg,
+                        face: savedImg,
+                      });
+                    }
+                    setAvatarPreview(savedImg);
+                    URL.revokeObjectURL(previewUrl);
+                    setAvatarUploadSuccess("Profile photo updated successfully!");
+                  } else {
+                    // Server accepted the request but returned no image link:
+                    // keep the preview for this session only, never claim success.
+                    console.warn(
+                      "uploadImage returned no image URL. Response keys:",
+                      data && typeof data === "object" ? Object.keys(data) : typeof data,
+                    );
+                    setAvatarUploadError(
+                      "Upload sent, but the server did not return an image link, so the photo may not be saved. Please try again or contact support.",
+                    );
                   }
-                  if (authUser) {
-                    setAuthUser({
-                      ...authUser,
-                      image: savedImg,
-                      face: savedImg,
-                    });
-                  }
-                  setAvatarUploadSuccess("Profile photo updated successfully!");
                 },
                 onError: (err) => {
                   setAvatarUploadError(

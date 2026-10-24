@@ -572,7 +572,6 @@ export function LoginScreen({
               ) : (
                 <div />
               )}
-              <Logo size="sm" />
             </div>
 
             <div className="mb-4 sm:mb-6">
@@ -754,7 +753,6 @@ export function RegisterScreen({
               ) : (
                 <div />
               )}
-              <Logo size="sm" />
             </div>
 
             {/* Heading row: on large screens, Create Account on the left, Website button on the right */}
