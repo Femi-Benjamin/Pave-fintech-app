@@ -9,6 +9,27 @@ export interface LogoProps {
   onClick?: () => void;
 }
 
+export function BrandText({
+  className = "",
+  variant = "default",
+}: {
+  className?: string;
+  variant?: "default" | "light" | "dark";
+}) {
+  return (
+    <span className={`inline-flex font-display font-extrabold ${className}`}>
+      <span className={variant === "light" ? "text-white" : "text-black"}>
+        PAVE
+      </span>
+      <span
+        className={variant === "light" ? "text-white/90" : "text-[#7C3AED]"}
+      >
+        PADI
+      </span>
+    </span>
+  );
+}
+
 export default function Logo({
   size = "md",
   layout = "horizontal",
@@ -49,13 +70,6 @@ export default function Logo({
           ? "gap-3.5 sm:gap-4"
           : "gap-3";
 
-  const textColorClass =
-    variant === "light"
-      ? "text-white"
-      : variant === "dark"
-        ? "text-[#0D0F1C]"
-        : "text-[#0D0F1C] dark:text-white";
-
   const content = (
     <div
       className={`flex ${
@@ -73,12 +87,10 @@ export default function Logo({
         />
       </div>
       {showText && (
-        <span
-          className={`${textClasses[size]} tracking-tight ${textColorClass}`}
-          style={{ fontFamily: "var(--font-family-display)" }}
-        >
-          PAVEPADI
-        </span>
+        <BrandText
+          className={`${textClasses[size]} tracking-tight`}
+          variant={variant}
+        />
       )}
     </div>
   );

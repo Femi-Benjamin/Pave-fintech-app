@@ -28,7 +28,7 @@ import {
   X,
   QrCode,
 } from "lucide-react";
-import Logo from "./Logo";
+import Logo, { BrandText } from "./Logo";
 import ProductNavbar, { ProductPageId } from "./ProductNavbar";
 import RotatingSavingsPage from "../screens/products/RotatingSavingsPage";
 import PersonalSavingsPage from "../screens/products/PersonalSavingsPage";
@@ -350,7 +350,7 @@ export default function OnboardingScreen({
                           <div className="flex items-center gap-2.5">
                             <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
                             <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                              PAVEPADI Vault Balance
+                              <BrandText variant="light" className="text-[10px]" /> Vault Balance
                             </span>
                           </div>
                           <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 text-white border border-white/10">
@@ -696,7 +696,7 @@ export default function OnboardingScreen({
                   </h2>
                   <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed font-normal">
                     Whether it's building a 6-month emergency buffer, saving for
-                    a tech gadget, or planning your dream holiday, PAVEPADI helps
+                    a tech gadget, or planning your dream holiday, <BrandText /> helps
                     you reach your financial milestones faster with automated
                     recurring transfers.
                   </p>

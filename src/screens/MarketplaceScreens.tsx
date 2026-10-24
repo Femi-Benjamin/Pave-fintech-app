@@ -19,6 +19,7 @@ import {
   Minus,
   Sparkles,
 } from "lucide-react";
+import Logo, { BrandText } from "../components/Logo";
 import {
   Badge,
   PaveBtn,
@@ -144,14 +145,14 @@ export function MarketplaceScreen({
       >
         <div className="flex items-center justify-between mb-2">
           <h2
-            className="text-white"
+            className="text-white flex items-center gap-2"
             style={{
               fontFamily: "var(--font-family-display)",
               fontWeight: 700,
               fontSize: 22,
             }}
           >
-            PAVEPADI Market
+            <BrandText variant="light" /> Market
           </h2>
           <span className="text-xs bg-white/20 text-white px-2.5 py-1 rounded-full font-medium">
             Save-to-Own
@@ -227,8 +228,8 @@ export function MarketplaceScreen({
           {/* Products Content Area */}
           <div className="px-4 pt-4 pb-8">
             {isProductsLoading ? (
-              <div className="grid grid-cols-2 gap-3">
-                {[1, 2, 3, 4].map((i) => (
+              <div className="grid grid-cols-2 gap-3 max-h-[360px] overflow-hidden">
+                {[1, 2].map((i) => (
                   <div
                     key={i}
                     className="bg-white rounded-2xl p-3 border border-[#F1F3FB] animate-pulse flex flex-col gap-2"
@@ -282,7 +283,7 @@ export function MarketplaceScreen({
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid grid-cols-2 gap-3 ${filteredProducts.length > 2 ? 'max-h-[520px] overflow-y-auto scrollbar-hide pr-1' : ''}`}>
                 {filteredProducts.map((p) => {
                   const priceNum =
                     typeof p.price === "number"
@@ -329,28 +330,28 @@ export function MarketplaceScreen({
                         )}
                       </div>
 
-                      <div className="p-3.5 flex-1 flex flex-col justify-between">
+                      <div className="p-4 flex-1 flex flex-col justify-between">
                         <div>
-                          <div className="text-[11px] text-[#3730A3] font-bold uppercase tracking-wider mb-1">
+                          <div className="text-[12px] text-[#3730A3] font-bold uppercase tracking-wider mb-1.5">
                             {p.category?.categoryName || "Marketplace"}
                           </div>
-                          <h4 className="text-xs sm:text-sm font-bold text-[#0F172A] leading-snug line-clamp-2 mb-2">
+                          <h4 className="text-sm sm:text-base font-bold text-[#0F172A] leading-snug line-clamp-2 mb-3">
                             {p.productName}
                           </h4>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
+                        <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-1">
                           <div
                             className="font-extrabold text-[#0F172A]"
                             style={{
                               fontFamily: "var(--font-family-display)",
-                              fontSize: 15,
+                              fontSize: 17,
                             }}
                           >
                             {formatMoney(priceNum)}
                           </div>
                           <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
+                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
                               isAvailable
                                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 : "bg-red-50 text-red-700 border border-red-200"
@@ -607,7 +608,7 @@ export function ProductDetailScreen({
 
         <button
           onClick={() => onNav(targetReturnScreen)}
-          className="absolute top-12 left-4 w-9 h-9 rounded-full bg-white border border-[#C7D2FE] text-[#3730A3] flex items-center justify-center shadow-md cursor-pointer hover:bg-[#EEF2FF] transition-colors"
+          className="absolute top-12 left-4 w-9 h-9 rounded-full bg-[#EEF2FF] border border-[#C7D2FE] text-[#3730A3] flex items-center justify-center shadow-md cursor-pointer hover:bg-[#E0E7FF] transition-colors"
           aria-label="Go back"
         >
           <ArrowLeft size={18} />
@@ -715,7 +716,7 @@ export function ProductDetailScreen({
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Initial Deposit to Secure (50%)</span>
+                  <span className="text-[#6B7280]">Secure by paying small small</span>
                   <span className="font-bold text-[#7C3AED]">
                     {formatMoney(priceNum * 0.5)}
                   </span>

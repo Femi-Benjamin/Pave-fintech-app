@@ -12,7 +12,7 @@ import {
   Hash,
   Loader,
 } from "lucide-react";
-import Logo from "../components/Logo";
+import Logo, { BrandText } from "../components/Logo";
 import { PaveBtn, Input } from "../components/UI";
 import { Screen } from "../pave-data";
 import {
@@ -409,7 +409,7 @@ export function AuthBrandPanel({
   title,
   subtitle,
 }: {
-  title: string;
+  title: React.ReactNode;
   subtitle: string;
 }) {
   return (
@@ -553,13 +553,25 @@ export function LoginScreen({
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
         <AuthBrandPanel
-          title="Welcome Back to PAVEPADI"
+          title={<>Welcome Back to <BrandText variant="light" /></>}
           subtitle="Access your virtual account, savings circles, and installment orders seamlessly."
         />
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            <div className="md:hidden flex items-center justify-center w-full mb-4 sm:mb-6">
+            {/* Mobile Header: Website button on the left, Logo on the right */}
+            <div className="md:hidden flex items-center justify-between w-full mb-4 sm:mb-6">
+              {onBackToWebsite ? (
+                <button
+                  type="button"
+                  onClick={onBackToWebsite}
+                  className="flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
+                >
+                  <ArrowLeft size={16} /> Website
+                </button>
+              ) : (
+                <div />
+              )}
               <Logo size="sm" />
             </div>
 
@@ -574,7 +586,7 @@ export function LoginScreen({
                 Welcome back 👋
               </h1>
               <p className="text-[#6B7280] text-xs sm:text-sm mt-1">
-                Sign in to your PAVEPADI account to continue
+                Sign in to your <BrandText className="text-[11px] sm:text-xs" /> account to continue
               </p>
             </div>
 
@@ -723,14 +735,13 @@ export function RegisterScreen({
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
         <AuthBrandPanel
-          title="Start Building Wealth Today"
+          title={<>Start Building Wealth Today with <BrandText variant="light" /></>}
           subtitle="Join Nigeria's smart cooperative community with automated savings and verified accountability."
         />
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            {/* On mobile: Pave logo on the left, Website button on the right */}
-            {/* On mobile: ArrowLeft Website on the left, Pave logo on the right */}
+            {/* Mobile: Website button on the left, Logo on the right */}
             <div className="flex md:hidden items-center justify-between mb-3 sm:mb-4">
               {onBackToWebsite ? (
                 <button
@@ -973,21 +984,21 @@ export function ForgotPasswordScreen({
     >
       <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
         <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
+          <button
+            onClick={() => onNav("login")}
+            className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </button>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => onNav("login")}
-              className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
-            >
-              <ArrowLeft size={18} />
-            </button>
             <h2
               className="text-lg sm:text-xl font-bold text-[#0D0F1C]"
               style={{ fontFamily: "var(--font-family-display)" }}
             >
               Reset Password
             </h2>
+            <Logo size="sm" />
           </div>
-          <Logo size="sm" />
         </div>
 
         <div className="flex-1 flex flex-col">
@@ -1147,21 +1158,21 @@ export function AcceptInvitationScreen({
     >
       <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
         <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
+          <button
+            onClick={() => onNav("login")}
+            className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </button>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => onNav("login")}
-              className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
-            >
-              <ArrowLeft size={18} />
-            </button>
             <h2
               className="text-lg sm:text-xl font-bold text-[#0D0F1C]"
               style={{ fontFamily: "var(--font-family-display)" }}
             >
-              Join PAVEPADI
+              Join <BrandText />
             </h2>
+            <Logo size="sm" />
           </div>
-          <Logo size="sm" />
         </div>
 
         <div className="flex-1 flex flex-col">

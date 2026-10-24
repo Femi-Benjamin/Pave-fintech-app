@@ -13,7 +13,7 @@ import {
   RotateCw,
 } from "lucide-react";
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
-import Logo from "../components/Logo";
+import Logo, { BrandText } from "../components/Logo";
 import { Badge } from "../components/UI";
 import { Screen, fmt, pct } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
@@ -277,8 +277,8 @@ export function HomeScreen({
                   View details in Wallet
                 </p>
               </div>
-              <span className="text-xs text-white/80 bg-white/10 px-3 py-1 rounded-full">
-                Wema Bank • PAVEPADI
+              <span className="text-xs text-white/80 bg-white/10 px-3 py-1 rounded-full flex items-center gap-1.5">
+                Wema Bank • <BrandText variant="light" className="text-[10px]" />
               </span>
             </div>
           </div>
@@ -708,7 +708,7 @@ export function HomeScreen({
               className="font-bold text-base mb-2"
               style={{ fontFamily: "var(--font-family-display)" }}
             >
-              Pay 50% Down, Own Today
+              Secure by paying small small
             </div>
             <p className="text-xs text-white/80 leading-relaxed mb-4">
               Get top electronics, home essentials, and fashion with flexible
