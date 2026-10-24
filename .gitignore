@@ -37,3 +37,10 @@ lerna-debug.log*
 .turbo
 .cache
 tsconfig.tsbuildinfo
+
+# Leaked data and Postman exports
+*.postman_collection*.json
+live_postman_collection.json
+postman_doc_page.html
+public/assets/aistudio/
+

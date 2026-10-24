@@ -146,6 +146,29 @@ export function stripGroupTag(text?: string | null): string {
   return (text ?? "").replace(GROUP_TAG_REGEX, "").trim();
 }
 
+/**
+ * Helper to determine if a product belongs to the current user (product owner/manager).
+ * Returns true when both product.userId and currentUserId exist and String(product.userId) equals String(currentUserId).
+ */
+export function isOwnProduct(
+  product?: Partial<ProductItem> | null,
+  currentUserId?: string | number | null,
+): boolean {
+  if (
+    !product ||
+    product.userId === undefined ||
+    product.userId === null ||
+    String(product.userId).trim() === "" ||
+    currentUserId === undefined ||
+    currentUserId === null ||
+    String(currentUserId).trim() === ""
+  ) {
+    return false;
+  }
+  return String(product.userId).trim() === String(currentUserId).trim();
+}
+
+
 /** True when a message looks like server internals (stack traces, paths, library errors). */
 function looksTechnical(message: string): boolean {
   return (

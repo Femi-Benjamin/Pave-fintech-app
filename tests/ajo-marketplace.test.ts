@@ -11,6 +11,7 @@ import {
   getAllPurchases,
   sanitizeUserRecord,
   sanitizePurchaseItem,
+  isOwnProduct,
 } from "../src/api/market";
 import type { ProductItem, PurchaseItem } from "../api/market";
 import { api } from "../src/lib/api-client";
@@ -387,3 +388,25 @@ test("AJO Marketplace: Response Hygiene - No password, sessionId, or token in sa
   assert.equal((cleanPurchase.user as any)?.sessionId, undefined);
   assert.equal((cleanPurchase.user as any)?.token, undefined);
 });
+
+test("AJO Marketplace: isOwnProduct correctly identifies product owner", () => {
+  // Same string IDs
+  assert.equal(isOwnProduct({ userId: "user-123" }, "user-123"), true);
+
+  // Number vs String IDs
+  assert.equal(isOwnProduct({ userId: 123 as any }, "123"), true);
+  assert.equal(isOwnProduct({ userId: "123" }, 123 as any), true);
+
+  // Different IDs
+  assert.equal(isOwnProduct({ userId: "user-123" }, "user-456"), false);
+
+  // Missing product or missing user IDs or empty/null/undefined
+  assert.equal(isOwnProduct(null, "user-123"), false);
+  assert.equal(isOwnProduct(undefined, "user-123"), false);
+  assert.equal(isOwnProduct({ userId: undefined }, "user-123"), false);
+  assert.equal(isOwnProduct({ userId: "user-123" }, null), false);
+  assert.equal(isOwnProduct({ userId: "user-123" }, undefined), false);
+  assert.equal(isOwnProduct({ userId: "" }, "user-123"), false);
+  assert.equal(isOwnProduct({ userId: "user-123" }, ""), false);
+});
+

@@ -34,7 +34,7 @@ import {
   useProductsQuery,
   marketQueryKeys,
 } from "../hooks/useMarketApi";
-import { getMarketErrorMessage, stripGroupTag } from "../api/market";
+import { getMarketErrorMessage, stripGroupTag, isOwnProduct } from "../api/market";
 import type { ProductItem } from "../api/market";
 import { formatMoney } from "./MarketplaceScreens";
 import { PaveLoadingState } from "../components/PaveLoadingState";
@@ -2379,18 +2379,24 @@ export function GroupSavingDetailScreen({
                           <Trash2 size={13} />
                         </button>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (onSelectProduct) {
-                            onSelectProduct(prod);
-                          }
-                          onNav("payment-plan");
-                        }}
-                        className="px-2.5 py-1 bg-[#3730A3] text-white text-[11px] font-semibold rounded-lg hover:bg-[#312E81] cursor-pointer"
-                      >
-                        Buy / Plan
-                      </button>
+                      {isOwnProduct(prod, currentUserId) ? (
+                        <span className="text-[11px] font-medium text-gray-400 italic">
+                          Your listing
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onSelectProduct) {
+                              onSelectProduct(prod);
+                            }
+                            onNav("payment-plan");
+                          }}
+                          className="px-2.5 py-1 bg-[#3730A3] text-white text-[11px] font-semibold rounded-lg hover:bg-[#312E81] cursor-pointer"
+                        >
+                          Buy / Plan
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
