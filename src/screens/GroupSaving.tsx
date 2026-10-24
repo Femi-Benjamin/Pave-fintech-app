@@ -1124,15 +1124,26 @@ export function GroupSavingDetailScreen({
           phoneNumber: phone,
         },
       });
-      let successMsg = response.message;
-      if (phone) {
-        const codeText = group?.inviteCode ? ` with invite code "${group.inviteCode}"` : "";
-        successMsg = `Invitation message${codeText} sent to ${phone} via SMS.`;
-        if (email) {
-          successMsg += ` Email invitation sent to ${email}.`;
-        }
+
+      const resAny = response as any;
+      const msg = response?.message?.trim();
+      const hasDeliveryInfo =
+        Boolean(resAny?.delivery) ||
+        Boolean(resAny?.delivered) ||
+        Boolean(resAny?.smsSent) ||
+        Boolean(resAny?.emailSent) ||
+        (msg && (msg.toLowerCase().includes("sms") || msg.toLowerCase().includes("email")));
+
+      if (msg && hasDeliveryInfo) {
+        setActionMessage(msg);
+      } else if (msg && !group?.inviteCode) {
+        setActionMessage(msg);
+      } else if (group?.inviteCode) {
+        setActionMessage(`Invitation request submitted. Invite code: ${group.inviteCode}`);
+      } else {
+        setActionMessage(msg || "Invitation request submitted.");
       }
-      setActionMessage(successMsg);
+
       setInviteEmail("");
       setInvitePhoneNumber("");
     } catch {

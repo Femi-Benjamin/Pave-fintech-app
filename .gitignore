@@ -43,4 +43,6 @@ tsconfig.tsbuildinfo
 live_postman_collection.json
 postman_doc_page.html
 public/assets/aistudio/
+.aistudio/
+
 
