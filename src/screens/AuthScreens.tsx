@@ -559,21 +559,6 @@ export function LoginScreen({
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            {/* Mobile Header: Website button on the left, Logo on the right */}
-            <div className="md:hidden flex items-center justify-between w-full mb-4 sm:mb-6">
-              {onBackToWebsite ? (
-                <button
-                  type="button"
-                  onClick={onBackToWebsite}
-                  className="flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
-                >
-                  <ArrowLeft size={16} /> Website
-                </button>
-              ) : (
-                <div />
-              )}
-            </div>
-
             <div className="mb-4 sm:mb-6">
               <h1
                 style={{
@@ -740,18 +725,16 @@ export function RegisterScreen({
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            {/* Mobile: Website button on the left, Logo on the right */}
-            <div className="flex md:hidden items-center justify-between mb-3 sm:mb-4">
-              {onBackToWebsite ? (
+            {/* Mobile: "Website" text link on the right (no arrow) */}
+            <div className="flex md:hidden items-center justify-end mb-3 sm:mb-4">
+              {onBackToWebsite && (
                 <button
                   type="button"
                   onClick={onBackToWebsite}
-                  className="flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
+                  className="text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
                 >
-                  <ArrowLeft size={16} /> Website
+                  Website
                 </button>
-              ) : (
-                <div />
               )}
             </div>
 
@@ -762,7 +745,7 @@ export function RegisterScreen({
                   fontFamily: "var(--font-family-display)",
                   fontWeight: 700,
                 }}
-                className="text-2xl sm:text-3xl text-[#0D0F1C]"
+                className="w-full md:w-auto text-center md:text-left text-2xl sm:text-3xl text-[#0D0F1C]"
               >
                 Create Account
               </h1>
@@ -770,13 +753,13 @@ export function RegisterScreen({
                 <button
                   type="button"
                   onClick={onBackToWebsite}
-                  className="hidden md:flex items-center gap-1.5 text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline shrink-0"
+                  className="hidden md:flex items-center text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline shrink-0"
                 >
-                  <ArrowLeft size={16} /> Website
+                  Website
                 </button>
               )}
             </div>
-            <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-3 sm:mb-4">
+            <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-3 sm:mb-4 text-center md:text-left">
               Fill in your personal details and create a secure password.
             </p>
 
@@ -1155,22 +1138,18 @@ export function AcceptInvitationScreen({
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
-        <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
+        <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
           <button
             onClick={() => onNav("login")}
+            aria-label="Back to login"
             className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
           >
             <ArrowLeft size={18} />
           </button>
-          <div className="flex items-center gap-3">
-            <h2
-              className="text-lg sm:text-xl font-bold text-[#0D0F1C]"
-              style={{ fontFamily: "var(--font-family-display)" }}
-            >
-              Join <BrandText />
-            </h2>
+          <div className="flex items-center justify-center">
             <Logo size="sm" />
           </div>
+          <div aria-hidden="true" />
         </div>
 
         <div className="flex-1 flex flex-col">
