@@ -20,6 +20,7 @@ export function PaveBtn({
     primary: "bg-[#3730A3] text-white hover:bg-[#312E81]",
     ghost: "bg-transparent text-[#3730A3] hover:bg-[#EEF2FF]",
     outline: "border-2 border-[#3730A3] text-[#3730A3] hover:bg-[#EEF2FF]",
+    secondary: "bg-[#EEF2FF] text-[#3730A3] border border-[#C7D2FE] hover:bg-[#E0E7FF]",
     danger: "bg-[#DC2626] text-white hover:bg-[#B91C1C]",
     green: "bg-[#059669] text-white hover:bg-[#047857]",
     gold: "bg-[#D97706] text-white hover:bg-[#B45309]",
@@ -105,7 +106,7 @@ export function ScreenHeader({ title, onBack, right }: any) {
     <div className="flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-sm border-b border-black/5">
       <button
         onClick={onBack}
-        className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer"
+        className="w-9 h-9 rounded-full bg-[#EEF2FF] border border-[#C7D2FE] text-[#3730A3] flex items-center justify-center cursor-pointer hover:bg-[#E0E7FF] transition-colors"
       >
         <ArrowLeft size={18} />
       </button>

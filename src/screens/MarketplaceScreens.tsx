@@ -158,7 +158,7 @@ export function MarketplaceScreen({
           </span>
         </div>
         <p className="text-white/80 text-sm mb-4">
-          Save now, own it later. Secure with 50% down payment.
+          Save now, own it later. Secure by paying small small.
         </p>
 
         {/* Tab switch */}
@@ -329,29 +329,35 @@ export function MarketplaceScreen({
                         )}
                       </div>
 
-                      <div className="p-3 flex-1 flex flex-col justify-between">
+                      <div className="p-3.5 flex-1 flex flex-col justify-between">
                         <div>
-                          <div className="text-[11px] text-[#7C3AED] font-medium mb-0.5">
+                          <div className="text-[11px] text-[#3730A3] font-bold uppercase tracking-wider mb-1">
                             {p.category?.categoryName || "Marketplace"}
                           </div>
-                          <h4 className="text-xs font-semibold text-[#0D0F1C] leading-snug line-clamp-2 mb-1">
+                          <h4 className="text-xs sm:text-sm font-bold text-[#0F172A] leading-snug line-clamp-2 mb-2">
                             {p.productName}
                           </h4>
                         </div>
 
-                        <div className="pt-2 border-t border-gray-100">
+                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
                           <div
-                            className="font-bold text-[#0D0F1C]"
+                            className="font-extrabold text-[#0F172A]"
                             style={{
                               fontFamily: "var(--font-family-display)",
-                              fontSize: 14,
+                              fontSize: 15,
                             }}
                           >
                             {formatMoney(priceNum)}
                           </div>
-                          <div className="text-[11px] text-[#059669] font-medium">
-                            Pay {formatMoney(priceNum * 0.5)} now
-                          </div>
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
+                              isAvailable
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : "bg-red-50 text-red-700 border border-red-200"
+                            }`}
+                          >
+                            {isAvailable ? "Available" : "Out of stock"}
+                          </span>
                         </div>
                       </div>
                     </button>
@@ -564,7 +570,7 @@ export function ProductDetailScreen({
           {getMarketErrorMessage(error, "Unable to retrieve this product.")}
         </p>
         <div className="flex gap-2">
-          <PaveBtn variant="ghost" onClick={() => onNav(targetReturnScreen)}>
+          <PaveBtn variant="secondary" onClick={() => onNav(targetReturnScreen)}>
             Back
           </PaveBtn>
           <PaveBtn onClick={() => void refetch()}>Try Again</PaveBtn>
@@ -601,7 +607,8 @@ export function ProductDetailScreen({
 
         <button
           onClick={() => onNav(targetReturnScreen)}
-          className="absolute top-12 left-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center shadow-md cursor-pointer text-gray-700 hover:bg-white"
+          className="absolute top-12 left-4 w-9 h-9 rounded-full bg-white border border-[#C7D2FE] text-[#3730A3] flex items-center justify-center shadow-md cursor-pointer hover:bg-[#EEF2FF] transition-colors"
+          aria-label="Go back"
         >
           <ArrowLeft size={18} />
         </button>
@@ -722,7 +729,7 @@ export function ProductDetailScreen({
               </div>
               <div className="mt-3 pt-3 border-t border-[#DDD6FE] text-xs text-[#6D28D9] flex items-center gap-1.5">
                 <Sparkles size={14} className="shrink-0" />
-                <span>Pay 50% now or enter a custom down payment to start!</span>
+                <span>Secure by paying small small or enter a custom amount to start!</span>
               </div>
             </div>
 
@@ -746,7 +753,7 @@ export function ProductDetailScreen({
           </>
         )}
 
-        <PaveBtn variant="ghost" onClick={() => onNav(targetReturnScreen)}>
+        <PaveBtn variant="secondary" onClick={() => onNav(targetReturnScreen)}>
           Back
         </PaveBtn>
       </div>

@@ -2458,17 +2458,17 @@ export function GroupSavingDetailScreen({
                           Qty: {prod.quantity}
                         </span>
                       </div>
-                      <div className="font-semibold text-xs text-[#0D0F1C] line-clamp-1">
+                      <div className="font-bold text-xs sm:text-sm text-[#0F172A] line-clamp-1">
                         {prod.productName}
                       </div>
-                      <div className="text-[11px] text-[#6B7280] line-clamp-2 mt-0.5">
+                      <div className="text-[11px] text-[#475569] line-clamp-2 mt-1 leading-snug">
                         {stripGroupTag(prod.description)}
                       </div>
                     </div>
 
                     <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
                       <div>
-                        <div className="font-bold text-xs text-[#0D0F1C]">
+                        <div className="font-bold text-xs sm:text-sm text-[#0F172A]">
                           {formatMoney(prod.price)}
                         </div>
                         {isOwner ? (
@@ -2487,8 +2487,16 @@ export function GroupSavingDetailScreen({
                             </span>
                           </div>
                         ) : (
-                          <div className="text-[10px] text-[#059669]">
-                            Pay {formatMoney(Number(prod.price) * 0.5)} now
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span
+                              className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${
+                                isAvailable
+                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : "bg-red-50 text-red-700 border border-red-200"
+                              }`}
+                            >
+                              {isAvailable ? "Available" : "Out of stock"}
+                            </span>
                           </div>
                         )}
                       </div>
