@@ -149,7 +149,9 @@ export function normalizeList<T>(resData: unknown): T[] {
   return [];
 }
 
-export function getCurrentUserId(explicitUser?: { id?: string } | null): string {
+export function getCurrentUserId(
+  explicitUser?: { id?: string } | null,
+): string {
   if (explicitUser?.id && String(explicitUser.id).trim()) {
     return String(explicitUser.id).trim();
   }
@@ -233,8 +235,10 @@ export async function updateGroupChat(
   const cleanId = encodeURIComponent(groupId.trim());
   const cleanPayload: Record<string, unknown> = {};
 
-  if (payload.groupName !== undefined) cleanPayload.groupName = payload.groupName.trim();
-  if (payload.description !== undefined) cleanPayload.description = payload.description.trim();
+  if (payload.groupName !== undefined)
+    cleanPayload.groupName = payload.groupName.trim();
+  if (payload.description !== undefined)
+    cleanPayload.description = payload.description.trim();
   if (payload.emails !== undefined) {
     cleanPayload.emails = payload.emails
       .map((email) => email.trim().toLowerCase())
@@ -242,7 +246,9 @@ export async function updateGroupChat(
   }
 
   if (!Array.isArray(cleanPayload.emails) || cleanPayload.emails.length === 0) {
-    throw new Error("At least one existing group member email is required to update this group.");
+    throw new Error(
+      "At least one existing group member email is required to update this group.",
+    );
   }
 
   const response = await api.put<ApiResponse<GroupChat>>(
@@ -317,7 +323,8 @@ export async function getGroupChatMessages(
 
   const raw = response.data;
   const messages = normalizeList<ChatMessageItem>(raw);
-  const pagination = (raw && typeof raw === "object" && (raw as any).pagination) || undefined;
+  const pagination =
+    (raw && typeof raw === "object" && (raw as any).pagination) || undefined;
   return { messages, pagination };
 }
 
@@ -377,15 +384,20 @@ export async function getAllUserChat(): Promise<RecipientUser[]> {
  */
 export async function getOneOnOneChats(): Promise<OneOnOneChat[]> {
   try {
-    const response = await api.get<ApiResponse<OneOnOneChat[]> | OneOnOneChat[]>(
-      "/api/v1/message/getOneOnOneChats",
-    );
+    const response = await api.get<
+      ApiResponse<OneOnOneChat[]> | OneOnOneChat[]
+    >("/api/v1/message/getOneOnOneChats");
     return normalizeList<OneOnOneChat>(response.data);
   } catch (error) {
     // The backend currently returns 404 when the account has no direct chats.
-    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    const status = axios.isAxiosError(error)
+      ? error.response?.status
+      : undefined;
     const message = axios.isAxiosError(error)
-      ? String((error.response?.data as { message?: string } | undefined)?.message || "")
+      ? String(
+          (error.response?.data as { message?: string } | undefined)?.message ||
+            "",
+        )
       : "";
     if (status === 404 && /no one[- ]on[- ]one chats found/i.test(message)) {
       return [];
@@ -447,7 +459,8 @@ export async function getOneOnOneMessages(
 
   const raw = response.data;
   const messages = normalizeList<ChatMessageItem>(raw);
-  const pagination = (raw && typeof raw === "object" && (raw as any).pagination) || undefined;
+  const pagination =
+    (raw && typeof raw === "object" && (raw as any).pagination) || undefined;
   return { messages, pagination };
 }
 

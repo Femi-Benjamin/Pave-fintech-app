@@ -147,7 +147,11 @@ describe("Messaging Integration API & Logic Suite", () => {
 
   it("formatParticipantName: formats first and last name, or falls back to email prefix", () => {
     assert.equal(
-      formatParticipantName({ id: "1", firstName: "Emeka", lastName: "Okafor" }),
+      formatParticipantName({
+        id: "1",
+        firstName: "Emeka",
+        lastName: "Okafor",
+      }),
       "Emeka Okafor",
     );
     assert.equal(
@@ -187,7 +191,10 @@ describe("Messaging Integration API & Logic Suite", () => {
   });
 
   it("messagingQueryKeys: generates stable keys for React Query invalidations", () => {
-    assert.deepEqual(messagingQueryKeys.groupChats(), ["messaging", "groupChats"]);
+    assert.deepEqual(messagingQueryKeys.groupChats(), [
+      "messaging",
+      "groupChats",
+    ]);
     assert.deepEqual(messagingQueryKeys.groupChat("g1"), [
       "messaging",
       "groupChat",
@@ -207,6 +214,9 @@ describe("Messaging Integration API & Logic Suite", () => {
       "oneOnOneMessages",
       "c1",
     ]);
-    assert.deepEqual(messagingQueryKeys.recipients(), ["messaging", "recipients"]);
+    assert.deepEqual(messagingQueryKeys.recipients(), [
+      "messaging",
+      "recipients",
+    ]);
   });
 });

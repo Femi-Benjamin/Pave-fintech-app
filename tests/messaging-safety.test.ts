@@ -15,8 +15,17 @@ async function captureCalls(run: () => Promise<unknown>) {
   const original = api.defaults.adapter;
   const calls: { method: string; url: string }[] = [];
   (api.defaults as any).adapter = async (config: any) => {
-    calls.push({ method: String(config.method).toLowerCase(), url: String(config.url) });
-    return { data: { success: true, data: {} }, status: 200, statusText: "OK", headers: {}, config };
+    calls.push({
+      method: String(config.method).toLowerCase(),
+      url: String(config.url),
+    });
+    return {
+      data: { success: true, data: {} },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    };
   };
   try {
     await run();
@@ -45,8 +54,13 @@ test("Delete warnings tell users who is affected", () => {
 });
 
 test("updateGroupChat uses PUT only (never GET)", async () => {
-  const calls = await captureCalls(() => updateGroupChat("g1", { groupName: "New", emails: ["a@b.com"] }));
-  assert.deepEqual(calls.map((c) => c.method), ["put"]);
+  const calls = await captureCalls(() =>
+    updateGroupChat("g1", { groupName: "New", emails: ["a@b.com"] }),
+  );
+  assert.deepEqual(
+    calls.map((c) => c.method),
+    ["put"],
+  );
   assert.ok(calls[0].url.endsWith("/api/v1/message/updateGroupChat/g1"));
 });
 
@@ -62,7 +76,9 @@ test("updateGroupChat does not fall back to GET when PUT fails with 404", async 
     throw err;
   };
   try {
-    await assert.rejects(() => updateGroupChat("g1", { groupName: "x", emails: ["a@b.com"] }));
+    await assert.rejects(() =>
+      updateGroupChat("g1", { groupName: "x", emails: ["a@b.com"] }),
+    );
   } finally {
     (api.defaults as any).adapter = original;
   }
@@ -70,11 +86,30 @@ test("updateGroupChat does not fall back to GET when PUT fails with 404", async 
 });
 
 test("mergeMessages merges pages without duplicates, sorted oldest first, drops deleted", () => {
-  const m = (id: string, t: string, extra: Partial<ChatMessageItem> = {}): ChatMessageItem => ({
-    id, senderId: "u1", message: id, messageType: "text", createdAt: t, ...extra,
+  const m = (
+    id: string,
+    t: string,
+    extra: Partial<ChatMessageItem> = {},
+  ): ChatMessageItem => ({
+    id,
+    senderId: "u1",
+    message: id,
+    messageType: "text",
+    createdAt: t,
+    ...extra,
   });
-  const page1 = [m("c", "2026-01-03T00:00:00Z"), m("b", "2026-01-02T00:00:00Z")];
-  const page2 = [m("b", "2026-01-02T00:00:00Z"), m("a", "2026-01-01T00:00:00Z"), m("x", "2026-01-01T12:00:00Z", { isDeleted: true })];
+  const page1 = [
+    m("c", "2026-01-03T00:00:00Z"),
+    m("b", "2026-01-02T00:00:00Z"),
+  ];
+  const page2 = [
+    m("b", "2026-01-02T00:00:00Z"),
+    m("a", "2026-01-01T00:00:00Z"),
+    m("x", "2026-01-01T12:00:00Z", { isDeleted: true }),
+  ];
   const merged = mergeMessages(page2, page1);
-  assert.deepEqual(merged.map((x) => x.id), ["a", "b", "c"]);
+  assert.deepEqual(
+    merged.map((x) => x.id),
+    ["a", "b", "c"],
+  );
 });

@@ -9,7 +9,9 @@ export function canDeleteGroupChat(
   adminId: string | undefined | null,
   currentUserId: string,
 ): boolean {
-  return Boolean(adminId) && Boolean(currentUserId) && adminId === currentUserId;
+  return (
+    Boolean(adminId) && Boolean(currentUserId) && adminId === currentUserId
+  );
 }
 
 export function canDeleteMessage(
@@ -25,7 +27,9 @@ export const DELETE_GROUP_CHAT_WARNING =
   "This will delete the group and all messages for ALL members. This cannot be undone.";
 
 /** Merge message lists by id (later lists win), drop deleted, sort oldest to newest. */
-export function mergeMessages(...lists: ChatMessageItem[][]): ChatMessageItem[] {
+export function mergeMessages(
+  ...lists: ChatMessageItem[][]
+): ChatMessageItem[] {
   const byId = new Map<string, ChatMessageItem>();
   for (const list of lists) {
     for (const m of list) {

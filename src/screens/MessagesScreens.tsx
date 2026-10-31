@@ -22,10 +22,7 @@ import {
   useDeleteNotificationMutation,
   useDeleteAllNotificationsMutation,
 } from "../hooks/useNotificationsApi";
-import {
-  notificationIcon,
-  notificationTitle,
-} from "../api/notifications";
+import { notificationIcon, notificationTitle } from "../api/notifications";
 import type { AppNotification } from "../api/notifications";
 import {
   canDeleteGroupChat,
@@ -127,7 +124,9 @@ export function MessagesScreen({
   const { authUser } = useLocalStore();
   const currentUserId = getCurrentUserId(authUser);
 
-  const [activeTab, setActiveTab] = useState<"all" | "direct" | "groups">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "direct" | "groups">(
+    "all",
+  );
   const [search, setSearch] = useState("");
   const [showNewModal, setShowNewModal] = useState(false);
   const [confirmDeleteChat, setConfirmDeleteChat] =
@@ -333,7 +332,10 @@ export function MessagesScreen({
         {hasError && (
           <div className="m-4 p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-start justify-between">
             <div className="flex items-start gap-2.5">
-              <AlertCircle size={18} className="text-[#DC2626] shrink-0 mt-0.5" />
+              <AlertCircle
+                size={18}
+                className="text-[#DC2626] shrink-0 mt-0.5"
+              />
               <div>
                 <p className="text-xs font-semibold text-[#991B1B]">
                   Unable to load conversations
@@ -358,7 +360,10 @@ export function MessagesScreen({
         {isLoading ? (
           <div className="divide-y divide-[#F9FAFB]">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-4 px-6 py-4 animate-pulse">
+              <div
+                key={i}
+                className="flex items-center gap-4 px-6 py-4 animate-pulse"
+              >
                 <div className="w-12 h-12 rounded-full bg-[#E5E7EB] shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="h-4 bg-[#E5E7EB] rounded w-1/3 mb-2" />
@@ -379,10 +384,10 @@ export function MessagesScreen({
               {search
                 ? `No results matching "${search}". Try searching for another name.`
                 : activeTab === "groups"
-                ? "You haven't joined or created any group chats yet."
-                : activeTab === "direct"
-                ? "You have no direct conversations yet."
-                : "Connect with team members or your savings group to start chatting."}
+                  ? "You haven't joined or created any group chats yet."
+                  : activeTab === "direct"
+                    ? "You have no direct conversations yet."
+                    : "Connect with team members or your savings group to start chatting."}
             </p>
             {!search && (
               <button
@@ -500,7 +505,9 @@ export function MessagesScreen({
               Delete Conversation?
             </h4>
             <p className="text-center text-xs text-[#6B7280] mt-2 leading-relaxed">
-              <strong className="text-[#0D0F1C]">{confirmDeleteChat.name}</strong>
+              <strong className="text-[#0D0F1C]">
+                {confirmDeleteChat.name}
+              </strong>
               <br />
               {confirmDeleteChat.type === "group"
                 ? DELETE_GROUP_CHAT_WARNING
@@ -518,7 +525,8 @@ export function MessagesScreen({
                 type="button"
                 onClick={handleDeleteChat}
                 disabled={
-                  deleteGroupMutation.isPending || deleteDirectMutation.isPending
+                  deleteGroupMutation.isPending ||
+                  deleteDirectMutation.isPending
                 }
                 className="flex-1 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-semibold hover:bg-[#B91C1C] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
@@ -596,7 +604,9 @@ function NewChatModal({
       }
     } catch (err: any) {
       const backendMessage =
-        err?.response?.data?.message || err?.message || "Failed to create group";
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to create group";
       const notFound = err?.response?.data?.notFoundEmails;
       if (Array.isArray(notFound) && notFound.length > 0) {
         setGroupError(
@@ -830,10 +840,14 @@ export function ChatScreen({
   });
 
   // Group metadata query for info/admin actions
-  const groupDetailsQuery = useGroupChatQuery(chatId, isGroup && Boolean(chatId));
+  const groupDetailsQuery = useGroupChatQuery(
+    chatId,
+    isGroup && Boolean(chatId),
+  );
   const groupData = groupDetailsQuery.data?.data;
   const groupAdminId = groupData?.adminId ?? chat?.adminId;
-  const isGroupAdmin = isGroup && canDeleteGroupChat(groupAdminId, currentUserId);
+  const isGroupAdmin =
+    isGroup && canDeleteGroupChat(groupAdminId, currentUserId);
 
   // Mutations
   const sendGroupMessageMutation = useSendGroupChatMessageMutation();
@@ -852,11 +866,15 @@ export function ChatScreen({
     setMoreAvailable(null);
   }, [chat?.id, chat?.recipientId]);
 
-  const firstPage = isGroup ? groupMessagesQuery.data : directMessagesQuery.data;
+  const firstPage = isGroup
+    ? groupMessagesQuery.data
+    : directMessagesQuery.data;
   const firstPagination = firstPage?.pagination;
   const hasMore =
     moreAvailable ??
-    (firstPagination ? firstPagination.page < firstPagination.totalPages : false);
+    (firstPagination
+      ? firstPagination.page < firstPagination.totalPages
+      : false);
 
   // Resolved messages list (merged by id, deleted removed, oldest first)
   const messagesList: ChatMessageItem[] = mergeMessages(
@@ -878,11 +896,15 @@ export function ChatScreen({
       setNextPage((p) => p + 1);
       setMoreAvailable(
         res.messages.length > 0 &&
-          (res.pagination ? res.pagination.page < res.pagination.totalPages : true),
+          (res.pagination
+            ? res.pagination.page < res.pagination.totalPages
+            : true),
       );
     } catch (err: any) {
       setErrorMessage(
-        err?.response?.data?.message || err?.message || "Could not load more messages.",
+        err?.response?.data?.message ||
+          err?.message ||
+          "Could not load more messages.",
       );
     } finally {
       setLoadingMore(false);
@@ -1095,68 +1117,66 @@ export function ChatScreen({
           </div>
         ) : (
           <>
-          {hasMore && (
-            <button
-              type="button"
-              onClick={handleLoadMore}
-              disabled={loadingMore}
-              className="self-center text-[11px] font-semibold text-[#3730A3] bg-white border border-[#E5E7EB] rounded-full px-3 py-1 cursor-pointer disabled:opacity-60 flex items-center gap-1"
-            >
-              {loadingMore && <Loader2 size={11} className="animate-spin" />}
-              <span>Load more messages</span>
-            </button>
-          )}
-          {messagesList.map((m) => {
-            const isMe = m.senderId === currentUserId;
-            const senderName = isMe
-              ? "You"
-              : formatParticipantName(m.sender);
-
-            return (
-              <div
-                key={m.id}
-                className={`group flex flex-col ${isMe ? "items-end" : "items-start"}`}
+            {hasMore && (
+              <button
+                type="button"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="self-center text-[11px] font-semibold text-[#3730A3] bg-white border border-[#E5E7EB] rounded-full px-3 py-1 cursor-pointer disabled:opacity-60 flex items-center gap-1"
               >
-                {/* Sender name for group chats */}
-                {isGroup && !isMe && (
-                  <span className="text-[11px] font-semibold text-[#6B7280] mb-1 px-1">
-                    {senderName}
-                  </span>
-                )}
+                {loadingMore && <Loader2 size={11} className="animate-spin" />}
+                <span>Load more messages</span>
+              </button>
+            )}
+            {messagesList.map((m) => {
+              const isMe = m.senderId === currentUserId;
+              const senderName = isMe ? "You" : formatParticipantName(m.sender);
 
-                <div className="flex items-end gap-1.5 max-w-[82%]">
-                  {/* Delete message action on hover for current user's messages */}
-                  {!isGroup && canDeleteMessage(m, currentUserId) && (
-                    <button
-                      type="button"
-                      onClick={() => setDeleteMessageTarget(m)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-[#DC2626] rounded transition-all cursor-pointer"
-                      title="Delete message"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+              return (
+                <div
+                  key={m.id}
+                  className={`group flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                >
+                  {/* Sender name for group chats */}
+                  {isGroup && !isMe && (
+                    <span className="text-[11px] font-semibold text-[#6B7280] mb-1 px-1">
+                      {senderName}
+                    </span>
                   )}
 
-                  <div
-                    className={`px-4 py-2.5 rounded-2xl text-xs break-words shadow-sm leading-relaxed ${
-                      isMe
-                        ? "bg-[#3730A3] text-white rounded-br-xs"
-                        : "bg-white text-[#0D0F1C] border border-[#E5E7EB] rounded-bl-xs"
-                    }`}
-                  >
-                    <div>{m.message}</div>
+                  <div className="flex items-end gap-1.5 max-w-[82%]">
+                    {/* Delete message action on hover for current user's messages */}
+                    {!isGroup && canDeleteMessage(m, currentUserId) && (
+                      <button
+                        type="button"
+                        onClick={() => setDeleteMessageTarget(m)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-[#DC2626] rounded transition-all cursor-pointer"
+                        title="Delete message"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+
                     <div
-                      className={`text-[10px] mt-1 text-right ${
-                        isMe ? "text-white/70" : "text-[#9CA3AF]"
+                      className={`px-4 py-2.5 rounded-2xl text-xs wrap-break-word shadow-sm leading-relaxed ${
+                        isMe
+                          ? "bg-[#3730A3] text-white rounded-br-xs"
+                          : "bg-white text-[#0D0F1C] border border-[#E5E7EB] rounded-bl-xs"
                       }`}
                     >
-                      {formatMessageTime(m.createdAt)}
+                      <div>{m.message}</div>
+                      <div
+                        className={`text-[10px] mt-1 text-right ${
+                          isMe ? "text-white/70" : "text-[#9CA3AF]"
+                        }`}
+                      >
+                        {formatMessageTime(m.createdAt)}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
           </>
         )}
         <div ref={messagesEndRef} />
@@ -1170,9 +1190,7 @@ export function ChatScreen({
         <button
           type="button"
           onClick={() =>
-            setErrorMessage(
-              "File and media attachments are not supported yet.",
-            )
+            setErrorMessage("File and media attachments are not supported yet.")
           }
           className="w-9 h-9 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer transition-colors"
           title="Attach file (not supported by backend)"
@@ -1220,7 +1238,9 @@ export function ChatScreen({
       {deleteMessageTarget && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-xs w-full p-5 shadow-xl animate-in fade-in zoom-in-95">
-            <h4 className="font-bold text-sm text-[#0D0F1C]">Delete message?</h4>
+            <h4 className="font-bold text-sm text-[#0D0F1C]">
+              Delete message?
+            </h4>
             <p className="text-xs text-[#6B7280] mt-1.5">
               This message will be removed from the conversation.
             </p>
@@ -1273,7 +1293,8 @@ export function ChatScreen({
                 type="button"
                 onClick={handleDeleteConversation}
                 disabled={
-                  deleteGroupMutation.isPending || deleteDirectMutation.isPending
+                  deleteGroupMutation.isPending ||
+                  deleteDirectMutation.isPending
                 }
                 className="flex-1 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-semibold hover:bg-[#B91C1C] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
@@ -1383,7 +1404,9 @@ function GroupDetailsModal({
                 {group.groupName}
               </h3>
               {group.description && (
-                <p className="text-xs text-[#6B7280] mt-1">{group.description}</p>
+                <p className="text-xs text-[#6B7280] mt-1">
+                  {group.description}
+                </p>
               )}
             </div>
 
@@ -1398,9 +1421,14 @@ function GroupDetailsModal({
                     <span>Edit Group Details</span>
                   </button>
                 ) : (
-                  <form onSubmit={handleUpdate} className="flex flex-col gap-2 mt-2">
+                  <form
+                    onSubmit={handleUpdate}
+                    className="flex flex-col gap-2 mt-2"
+                  >
                     {editError && (
-                      <div className="text-[11px] text-[#DC2626]">{editError}</div>
+                      <div className="text-[11px] text-[#DC2626]">
+                        {editError}
+                      </div>
                     )}
                     <input
                       type="text"
@@ -1449,7 +1477,8 @@ function GroupDetailsModal({
               <div className="divide-y divide-[#F3F4F6] max-h-48 overflow-y-auto">
                 {group.members?.map((m) => {
                   const mName = formatParticipantName(m.user);
-                  const isUserAdmin = m.role === "admin" || m.userId === group.adminId;
+                  const isUserAdmin =
+                    m.role === "admin" || m.userId === group.adminId;
                   return (
                     <div
                       key={m.id}
@@ -1457,7 +1486,9 @@ function GroupDetailsModal({
                     >
                       <div className="flex items-center gap-2">
                         <Avatar name={mName} size={28} color="#3730A3" />
-                        <span className="font-medium text-[#0D0F1C]">{mName}</span>
+                        <span className="font-medium text-[#0D0F1C]">
+                          {mName}
+                        </span>
                       </div>
                       {isUserAdmin && (
                         <span className="text-[10px] px-1.5 py-0.5 bg-[#FEF3C7] text-[#D97706] rounded font-semibold">
@@ -1496,7 +1527,9 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
   const handleOpen = (n: AppNotification) => {
     if (n.isRead) return;
-    markRead.mutate(n.id, { onError: (e) => fail(e, "Could not mark as read.") });
+    markRead.mutate(n.id, {
+      onError: (e) => fail(e, "Could not mark as read."),
+    });
   };
 
   return (
@@ -1560,7 +1593,10 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
       <div className="flex-1 px-4 py-4 flex flex-col gap-2">
         {isLoading ? (
           [1, 2, 3].map((i) => (
-            <div key={i} className="h-20 rounded-2xl bg-[#F3F4F6] animate-pulse" />
+            <div
+              key={i}
+              className="h-20 rounded-2xl bg-[#F3F4F6] animate-pulse"
+            />
           ))
         ) : error ? (
           <div className="p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
@@ -1577,7 +1613,9 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             <div className="w-14 h-14 rounded-full bg-[#EEF2FF] flex items-center justify-center text-2xl mb-3">
               🔔
             </div>
-            <p className="font-semibold text-sm text-[#0D0F1C]">No notifications yet</p>
+            <p className="font-semibold text-sm text-[#0D0F1C]">
+              No notifications yet
+            </p>
             <p className="text-xs text-[#6B7280] mt-1">
               Updates about your wallet, savings and messages will show here.
             </p>
@@ -1605,7 +1643,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     <div className="w-2 h-2 rounded-full bg-[#3730A3] shrink-0" />
                   )}
                 </div>
-                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed break-words">
+                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed wrap-break-word">
                   {n.message}
                 </p>
                 <span className="text-xs text-[#9CA3AF] mt-1 block">
@@ -1633,9 +1671,13 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-xs w-full p-5 shadow-xl">
             <h4 className="font-bold text-sm text-[#0D0F1C]">
-              {confirmClearAll ? "Clear all notifications?" : "Delete notification?"}
+              {confirmClearAll
+                ? "Clear all notifications?"
+                : "Delete notification?"}
             </h4>
-            <p className="text-xs text-[#6B7280] mt-1.5">This cannot be undone.</p>
+            <p className="text-xs text-[#6B7280] mt-1.5">
+              This cannot be undone.
+            </p>
             <div className="flex items-center gap-2 mt-4">
               <button
                 type="button"
