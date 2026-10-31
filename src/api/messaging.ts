@@ -218,9 +218,10 @@ export async function getGroupChats(): Promise<GroupChat[]> {
 
 /**
  * 4. Update Group Chat
- * Documented as GET in Postman item request, but executed as PUT in Postman example request.
- * We attempt PUT first, and if rejected with 404/405, fall back to GET.
- * Endpoint: /api/v1/message/updateGroupChat/:groupId
+ * PUT /api/v1/message/updateGroupChat/:groupId
+ *
+ * Use the documented PUT operation only. GET is read-only and must never be
+ * used as a fallback for a failed update.
  */
 export async function updateGroupChat(
   groupId: string,
@@ -230,30 +231,25 @@ export async function updateGroupChat(
     throw new Error("Group ID is required");
   }
   const cleanId = encodeURIComponent(groupId.trim());
-  const url = `/api/v1/message/updateGroupChat/${cleanId}`;
-
   const cleanPayload: Record<string, unknown> = {};
+
   if (payload.groupName !== undefined) cleanPayload.groupName = payload.groupName.trim();
   if (payload.description !== undefined) cleanPayload.description = payload.description.trim();
-  if (payload.emails !== undefined && Array.isArray(payload.emails)) {
-    cleanPayload.emails = payload.emails.map((e) => e.trim().toLowerCase()).filter(Boolean);
+  if (payload.emails !== undefined) {
+    cleanPayload.emails = payload.emails
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean);
   }
 
-  try {
-    // Primary: PUT method as verified in Postman executed example
-    const response = await api.put<ApiResponse<GroupChat>>(url, cleanPayload);
-    return response.data;
-  } catch (putError: any) {
-    const status = putError?.response?.status;
-    // Fall back to GET if server router exclusively registered GET as documented
-    if (status === 404 || status === 405) {
-      const fallbackResponse = await api.get<ApiResponse<GroupChat>>(url, {
-        params: cleanPayload,
-      });
-      return fallbackResponse.data;
-    }
-    throw putError;
+  if (!Array.isArray(cleanPayload.emails) || cleanPayload.emails.length === 0) {
+    throw new Error("At least one existing group member email is required to update this group.");
   }
+
+  const response = await api.put<ApiResponse<GroupChat>>(
+    `/api/v1/message/updateGroupChat/${cleanId}`,
+    cleanPayload,
+  );
+  return response.data;
 }
 
 /**
@@ -380,10 +376,22 @@ export async function getAllUserChat(): Promise<RecipientUser[]> {
  * GET /api/v1/message/getOneOnOneChats
  */
 export async function getOneOnOneChats(): Promise<OneOnOneChat[]> {
-  const response = await api.get<ApiResponse<OneOnOneChat[]> | OneOnOneChat[]>(
-    "/api/v1/message/getOneOnOneChats",
-  );
-  return normalizeList<OneOnOneChat>(response.data);
+  try {
+    const response = await api.get<ApiResponse<OneOnOneChat[]> | OneOnOneChat[]>(
+      "/api/v1/message/getOneOnOneChats",
+    );
+    return normalizeList<OneOnOneChat>(response.data);
+  } catch (error) {
+    // The backend currently returns 404 when the account has no direct chats.
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    const message = axios.isAxiosError(error)
+      ? String((error.response?.data as { message?: string } | undefined)?.message || "")
+      : "";
+    if (status === 404 && /no one[- ]on[- ]one chats found/i.test(message)) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 /**
