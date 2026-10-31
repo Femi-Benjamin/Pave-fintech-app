@@ -1,0 +1,507 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getGroupProducts,
+  createPurchase,
+  getPurchaseById,
+  continueInstallment,
+  getAllPurchases,
+  sanitizeUserRecord,
+  sanitizePurchaseItem,
+  isOwnProduct,
+  withGroupTag,
+} from "../src/api/market";
+import type { ProductItem, PurchaseItem } from "../api/market";
+import { api } from "../src/lib/api-client";
+
+// Report the base URL used for testing fixtures
+const TEST_BASE_URL = api.defaults.baseURL || "https://pave-uuh6.onrender.com";
+console.log(`[TEST RUNNER] Using configured test base URL: ${TEST_BASE_URL}`);
+
+// Fixtures
+const M1_ID = "user-m1-manager";
+const M2_ID = "user-m2-manager";
+const MEMBER_A_ID = "user-member-a";
+const MEMBER_B_ID = "user-member-b";
+const NON_MEMBER_C_ID = "user-non-member-c";
+const ADMIN_ID = "user-admin";
+
+const G1_ID = "group-g1";
+const G2_ID = "group-g2";
+
+const PROD_G1_ID = "prod-g1-100";
+const PROD_G2_ID = "prod-g2-200";
+
+const PURCHASE_B_ID = "purchase-b-999";
+
+test("AJO Marketplace: Manager M1 can create products for G1, but not for G2", async () => {
+  const originalPost = api.post;
+
+  (api as any).post = async (url: string, data: any) => {
+    return {
+      data: {
+        success: true,
+        message: "Product created successfully",
+        data: {
+          id: PROD_G1_ID,
+          userId: M1_ID,
+          categoryId: "cat-1",
+          productName: "Solar Inverter 5kVA",
+          description: "Exclusive for Group G1 [AJO:group-g1]",
+          price: "350000.00",
+          quantity: 5,
+          groupId: G1_ID,
+          status: "available",
+          productRating: 5,
+        },
+      },
+    };
+  };
+
+  try {
+    // M1 creating in G1 succeeds
+    const res = await createProduct("cat-1", {
+      productName: "Solar Inverter 5kVA",
+      description: "Exclusive for Group G1",
+      price: 350000,
+      quantity: 5,
+      categoryId: "cat-1",
+      groupId: G1_ID,
+    });
+    assert.equal(res.success, true);
+    assert.equal(res.data.id, PROD_G1_ID);
+    assert.equal(res.data.groupId, G1_ID);
+
+    // M1 attempting to update product in G2 is blocked by isProductOwner check
+    await assert.rejects(
+      async () => {
+        await updateProduct(
+          PROD_G2_ID,
+          { productName: "Unauthorized Edit" },
+          false, // Not the product owner/manager of G2
+        );
+      },
+      { message: "Unauthorized: You can only edit products belonging to groups you manage." },
+    );
+
+    // M1 attempting to delete product in G2 is blocked
+    await assert.rejects(
+      async () => {
+        await deleteProduct(
+          PROD_G2_ID,
+          0,
+          false, // Not the product owner/manager
+        );
+      },
+      { message: "Unauthorized: You can only delete products belonging to groups you manage." },
+    );
+  } finally {
+    api.post = originalPost;
+  }
+});
+
+test("AJO Marketplace: createProduct sends exact known-good FormData keys and no groupId or groupSavingId", async () => {
+  const originalPost = api.post;
+  let postedUrl = "";
+  let postedData: any = null;
+
+  (api as any).post = async (url: string, data: any) => {
+    postedUrl = url;
+    postedData = data;
+    return {
+      data: {
+        success: true,
+        message: "Product created successfully",
+        data: {
+          id: "prod-good-1",
+          userId: M1_ID,
+          categoryId: "cat-123",
+          productName: "Solar Generator 1kVA",
+          description: "Portable solar system [AJO:group-g1]",
+          price: "40000.00",
+          quantity: 10,
+          productRating: 5,
+          productImage: "https://ik.imagekit.io/pave/sample.jpeg",
+        },
+      },
+    };
+  };
+
+  try {
+    const dummyImage = new File(["fake-image-bytes"], "generator.png", {
+      type: "image/png",
+    });
+
+    await createProduct("cat-123", {
+      productName: "Solar Generator 1kVA",
+      description: "Portable solar system [AJO:group-g1]",
+      price: 40000,
+      quantity: 10,
+      categoryId: "cat-123",
+      groupId: G1_ID,
+      image: dummyImage,
+    });
+
+    assert.equal(postedUrl, "/api/v1/product/create-product/cat-123");
+    assert.ok(postedData instanceof FormData, "Request data must be FormData");
+
+    const keys = Array.from(postedData.keys());
+    const expectedKeys = [
+      "productName",
+      "description",
+      "price",
+      "quantity",
+      "productRating",
+      "productImage",
+    ];
+
+    assert.deepEqual(keys.slice().sort(), expectedKeys.slice().sort());
+    assert.equal(postedData.get("productRating"), "5");
+    assert.equal(postedData.get("productName"), "Solar Generator 1kVA");
+    assert.equal(postedData.get("price"), "40000");
+    assert.equal(postedData.get("quantity"), "10");
+    assert.equal(
+      postedData.get("description"),
+      "Portable solar system [AJO:group-g1]",
+    );
+    assert.equal(postedData.has("groupId"), false);
+    assert.equal(postedData.has("groupSavingId"), false);
+  } finally {
+    api.post = originalPost;
+  }
+});
+
+test("AJO Marketplace: Non-member C cannot see G1 products", async () => {
+  await assert.rejects(
+    async () => {
+      // Non-member access is rejected
+      await getGroupProducts(G1_ID, false, M1_ID);
+    },
+    { message: "Access Denied: You must be an active member of this AJO group to view its marketplace products." },
+  );
+});
+
+test("AJO Marketplace: Active member A in G1 can discover products for G1", async () => {
+  const originalGet = api.get;
+
+  (api as any).get = async (url: string) => {
+    return {
+      data: {
+        success: true,
+        message: "Products retrieved successfully",
+        data: [
+          {
+            id: PROD_G1_ID,
+            userId: M1_ID,
+            categoryId: "cat-1",
+            productName: "Solar Inverter 5kVA",
+            description: "Exclusive for Group G1 [AJO:group-g1]",
+            price: "350000.00",
+            quantity: 5,
+            groupId: G1_ID,
+            status: "available",
+          },
+          {
+            id: PROD_G2_ID,
+            userId: M2_ID,
+            categoryId: "cat-2",
+            productName: "MacBook Air M2",
+            description: "Exclusive for Group G2 [AJO:group-g2]",
+            price: "900000.00",
+            quantity: 2,
+            groupId: G2_ID,
+            status: "available",
+          },
+        ],
+      },
+    };
+  };
+
+  try {
+    const products = await getGroupProducts(G1_ID, true, M1_ID);
+    assert.equal(products.length, 1);
+    assert.equal(products[0].id, PROD_G1_ID);
+    assert.equal(products[0].groupId, G1_ID);
+  } finally {
+    api.get = originalGet;
+  }
+});
+
+test("AJO Marketplace: Manager M1 cannot purchase own product", async () => {
+  await assert.rejects(
+    async () => {
+      await createPurchase(PROD_G1_ID, {
+        quantity: 1,
+        amountToPay: 175000,
+        sellerUserId: M1_ID,
+        buyerUserId: M1_ID, // Buyer is seller
+      });
+    },
+    { message: "AJO managers cannot purchase their own products." },
+  );
+});
+
+test("AJO Marketplace: Member A cannot view, pay, or access Member B's purchase (IDOR protection)", async () => {
+  const originalGet = api.get;
+
+  (api as any).get = async (url: string) => {
+    return {
+      data: {
+        success: true,
+        message: "Purchases retrieved successfully",
+        data: {
+          id: PURCHASE_B_ID,
+          userId: MEMBER_B_ID,
+          productId: PROD_G2_ID,
+          quantity: 1,
+          price: "900000.00",
+          totalPrice: "900000.00",
+          totalAmountPaid: "450000.00",
+          totalAmountDue: "450000.00",
+          percentage: "50.00",
+          purchaseStatus: "in-progress",
+          product: {
+            id: PROD_G2_ID,
+            userId: M2_ID, // Owned by M2
+          },
+          user: {
+            id: MEMBER_B_ID,
+            firstName: "Bob",
+            email: "bob@example.com",
+            password: "$2b$10$LEAKED_HASH_SHOULD_BE_STRIPPED",
+            sessionId: "LEAKED_SESSION_ID",
+          },
+        },
+      },
+    };
+  };
+
+  try {
+    // Member A attempting to access Member B's purchase is blocked
+    await assert.rejects(
+      async () => {
+        await getPurchaseById(PURCHASE_B_ID, MEMBER_A_ID);
+      },
+      (err: Error) => {
+        return (
+          err.message.includes("Unauthorized access") ||
+          err.message.includes("does not belong to your account")
+        );
+      },
+    );
+
+    // Buyer B can access their own purchase
+    const bPurchase = await getPurchaseById(PURCHASE_B_ID, MEMBER_B_ID);
+    assert.equal(bPurchase.id, PURCHASE_B_ID);
+    assert.equal(bPurchase.userId, MEMBER_B_ID);
+
+    // Assert sensitive fields are stripped
+    assert.equal((bPurchase.user as any)?.password, undefined);
+    assert.equal((bPurchase.user as any)?.sessionId, undefined);
+
+    // Admin can access in read-only mode
+    const adminPurchase = await getPurchaseById(PURCHASE_B_ID, ADMIN_ID, "admin");
+    assert.equal(adminPurchase.id, PURCHASE_B_ID);
+  } finally {
+    api.get = originalGet;
+  }
+});
+
+test("AJO Marketplace: Financial Integrity - Installment cannot exceed totalAmountDue", async () => {
+  await assert.rejects(
+    async () => {
+      await continueInstallment("purchase-123", {
+        amountToPay: 200000,
+        totalAmountDue: 150000,
+      });
+    },
+    (err: Error) => err.message.includes("cannot exceed the outstanding balance due"),
+  );
+});
+
+test("AJO Marketplace: Financial Integrity - Installment rejected on completed purchase", async () => {
+  await assert.rejects(
+    async () => {
+      await continueInstallment("purchase-123", {
+        amountToPay: 50000,
+        totalAmountDue: 0,
+        purchaseStatus: "completed",
+      });
+    },
+    { message: "This purchase is already fully paid. No further payments can be accepted." },
+  );
+});
+
+test("AJO Marketplace: Financial Integrity - Product deletion blocked with in-progress purchases", async () => {
+  await assert.rejects(
+    async () => {
+      await deleteProduct(
+        PROD_G1_ID,
+        2, // 2 active in-progress purchases exist
+        true,
+      );
+    },
+    (err: Error) =>
+      err.message.includes("Cannot delete product: There are 2 active in-progress installment purchase(s)"),
+  );
+});
+
+test("AJO Marketplace: Response Hygiene - No password, sessionId, or token in sanitized responses", () => {
+  const dirtyUser = {
+    id: "user-123",
+    email: "user@example.com",
+    firstName: "Alice",
+    password: "$2b$10$SuperSecretHash123456789",
+    sessionId: "sess-abc-xyz-456",
+    token: "eyJhbGciOiJIUzI1Ni...",
+    authToken: "bearer-token-123",
+  };
+
+  const cleanUser = sanitizeUserRecord(dirtyUser);
+  assert.equal(cleanUser?.id, "user-123");
+  assert.equal(cleanUser?.email, "user@example.com");
+  assert.equal((cleanUser as any)?.password, undefined);
+  assert.equal((cleanUser as any)?.sessionId, undefined);
+  assert.equal((cleanUser as any)?.token, undefined);
+  assert.equal((cleanUser as any)?.authToken, undefined);
+
+  const dirtyPurchase: PurchaseItem = {
+    id: "pur-1",
+    userId: "user-123",
+    productId: "prod-1",
+    quantity: 1,
+    price: "100000.00",
+    totalPrice: "100000.00",
+    totalAmountPaid: "50000.00",
+    totalAmountDue: "50000.00",
+    percentage: "50.00",
+    purchaseStatus: "in-progress",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    user: dirtyUser as any,
+  };
+
+  const cleanPurchase = sanitizePurchaseItem(dirtyPurchase);
+  assert.equal((cleanPurchase.user as any)?.password, undefined);
+  assert.equal((cleanPurchase.user as any)?.sessionId, undefined);
+  assert.equal((cleanPurchase.user as any)?.token, undefined);
+});
+
+test("AJO Marketplace: isOwnProduct correctly identifies product owner", () => {
+  // Same string IDs
+  assert.equal(isOwnProduct({ userId: "user-123" }, "user-123"), true);
+
+  // Number vs String IDs
+  assert.equal(isOwnProduct({ userId: 123 as any }, "123"), true);
+  assert.equal(isOwnProduct({ userId: "123" }, 123 as any), true);
+
+  // Different IDs
+  assert.equal(isOwnProduct({ userId: "user-123" }, "user-456"), false);
+
+  // Missing product or missing user IDs or empty/null/undefined
+  assert.equal(isOwnProduct(null, "user-123"), false);
+  assert.equal(isOwnProduct(undefined, "user-123"), false);
+  assert.equal(isOwnProduct({ userId: undefined }, "user-123"), false);
+  assert.equal(isOwnProduct({ userId: "user-123" }, null), false);
+  assert.equal(isOwnProduct({ userId: "user-123" }, undefined), false);
+  assert.equal(isOwnProduct({ userId: "" }, "user-123"), false);
+  assert.equal(isOwnProduct({ userId: "user-123" }, ""), false);
+});
+
+test("AJO Marketplace: updateProduct sends text-only multipart with exact keys", async () => {
+  const originalPut = api.put;
+  let putUrl = "";
+  let putData: any = null;
+  (api as any).put = async (url: string, data: any) => {
+    putUrl = url;
+    putData = data;
+    return { data: { success: true, message: "ok", data: { id: "p1" } } };
+  };
+  try {
+    await updateProduct(
+      "p1",
+      {
+        productName: "  Solar Generator  ",
+        description: "Updated text [AJO:group-g1]",
+        price: "45000",
+        quantity: 7,
+        groupId: "group-g1",
+      },
+      true,
+    );
+    assert.equal(putUrl, "/api/v1/product/update-product/p1");
+    assert.ok(putData instanceof FormData);
+    const keys = Array.from(putData.keys()).sort();
+    assert.deepEqual(
+      keys,
+      ["description", "price", "productName", "productRating", "quantity"],
+    );
+    assert.equal(putData.get("productName"), "Solar Generator");
+    assert.equal(putData.get("price"), "45000");
+    assert.equal(putData.get("quantity"), "7");
+    assert.equal(putData.get("productRating"), "5");
+    assert.equal(putData.has("groupId"), false);
+    assert.equal(putData.has("images"), false);
+    assert.equal(putData.has("productImage"), false);
+  } finally {
+    (api as any).put = originalPut;
+  }
+});
+
+test("AJO Marketplace: updateProduct rejects invalid price, quantity, empty name", async () => {
+  await assert.rejects(() => updateProduct("p1", { price: 0 }), /positive amount/);
+  await assert.rejects(() => updateProduct("p1", { quantity: 1.5 }), /non-negative integer/);
+  await assert.rejects(() => updateProduct("p1", { quantity: -1 }), /non-negative integer/);
+  await assert.rejects(() => updateProduct("p1", { productName: "   " }), /name is required/);
+});
+
+test("AJO Marketplace: withGroupTag preserves the original group tag on edit", () => {
+  assert.equal(withGroupTag("New text", "Old text [AJO:group-g1]"), "New text [AJO:group-g1]");
+  assert.equal(withGroupTag("New [AJO:other]", "Old [AJO:group-g1]"), "New [AJO:group-g1]");
+  assert.equal(withGroupTag("New text", "Old text"), "New text");
+  assert.equal(withGroupTag("New text", undefined), "New text");
+});
+
+test("AJO Marketplace: updateProduct sends a new photo as productImage only when provided", async () => {
+  const originalPut = api.put;
+  let putData: any = null;
+  (api as any).put = async (_url: string, data: any) => {
+    putData = data;
+    return { data: { success: true, message: "ok", data: { id: "p1" } } };
+  };
+  try {
+    const file = new File([new Uint8Array([1, 2, 3])], "new.png", { type: "image/png" });
+    await updateProduct("p1", { productName: "Phone", image: file }, true);
+    assert.deepEqual(
+      Array.from(putData.keys()).sort(),
+      ["productImage", "productName", "productRating"],
+    );
+    assert.ok(putData.get("productImage") instanceof File);
+    assert.equal(putData.has("images"), false);
+
+    await updateProduct("p1", { productName: "Phone", image: null }, true);
+    assert.equal(putData.has("productImage"), false);
+  } finally {
+    (api as any).put = originalPut;
+  }
+});
+
+test("AJO Marketplace: updateProduct sends status when provided (backend requires it)", async () => {
+  const originalPut = api.put;
+  let putData: any = null;
+  (api as any).put = async (_url: string, data: any) => {
+    putData = data;
+    return { data: { success: true, message: "ok", data: { id: "p1" } } };
+  };
+  try {
+    await updateProduct("p1", { productName: "Phone", status: " available " }, true);
+    assert.equal(putData.get("status"), "available");
+    await updateProduct("p1", { productName: "Phone" }, true);
+    assert.equal(putData.has("status"), false);
+  } finally {
+    (api as any).put = originalPut;
+  }
+});

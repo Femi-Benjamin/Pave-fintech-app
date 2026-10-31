@@ -1,0 +1,6 @@
+{
+  "name": "PAVEPADI Digital Wallet",
+  "description": "Smart digital wallet for automated personal savings and traditional thrift contributions (Ajo/Esusu).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
