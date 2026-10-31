@@ -64,6 +64,7 @@ export function useGroupChatMessagesQuery(
     queryFn: () => getGroupChatMessages(groupId),
     enabled,
     refetchInterval: options?.refetchInterval ?? 6000, // 6s controlled polling when chat is active
+    refetchIntervalInBackground: false,
     staleTime: 1000 * 3,
   });
 }
@@ -87,6 +88,7 @@ export function useOneOnOneMessagesQuery(
     queryFn: () => getOneOnOneMessages(chatId),
     enabled,
     refetchInterval: options?.refetchInterval ?? 6000, // 6s controlled polling when chat is active
+    refetchIntervalInBackground: false,
     staleTime: 1000 * 3,
   });
 }

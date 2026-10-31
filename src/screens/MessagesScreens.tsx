@@ -15,6 +15,25 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { Avatar } from "../components/UI";
+import {
+  useNotificationsQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
+  useDeleteNotificationMutation,
+  useDeleteAllNotificationsMutation,
+} from "../hooks/useNotificationsApi";
+import {
+  notificationIcon,
+  notificationTitle,
+} from "../api/notifications";
+import type { AppNotification } from "../api/notifications";
+import {
+  canDeleteGroupChat,
+  canDeleteMessage,
+  mergeMessages,
+  DELETE_DIRECT_CHAT_WARNING,
+  DELETE_GROUP_CHAT_WARNING,
+} from "../utils/messaging";
 import { Screen } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import {
@@ -40,6 +59,8 @@ import {
   getCurrentUserId,
   formatParticipantName,
   getOtherParticipant,
+  getGroupChatMessages,
+  getOneOnOneMessages,
 } from "../api/messaging";
 
 export interface ActiveChatState {
@@ -111,6 +132,7 @@ export function MessagesScreen({
   const [showNewModal, setShowNewModal] = useState(false);
   const [confirmDeleteChat, setConfirmDeleteChat] =
     useState<UnifiedConversationItem | null>(null);
+  const [listError, setListError] = useState("");
 
   // Queries
   const {
@@ -213,7 +235,8 @@ export function MessagesScreen({
       }
       setConfirmDeleteChat(null);
     } catch (err: any) {
-      alert(
+      setConfirmDeleteChat(null);
+      setListError(
         err?.response?.data?.message ||
           err?.message ||
           "Failed to delete conversation",
@@ -295,6 +318,18 @@ export function MessagesScreen({
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
+        {listError && (
+          <div className="mx-4 mt-4 px-4 py-2 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
+            <span>{listError}</span>
+            <button
+              onClick={() => setListError("")}
+              className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {hasError && (
           <div className="m-4 p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-start justify-between">
             <div className="flex items-start gap-2.5">
@@ -403,18 +438,21 @@ export function MessagesScreen({
                   </div>
                 </div>
 
-                {/* Delete button (subject to authorization) */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setConfirmDeleteChat(item);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 p-2 ml-2 text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] rounded-lg transition-all cursor-pointer"
-                  title="Delete conversation"
-                >
-                  <Trash2 size={16} />
-                </button>
+                {/* Delete: groups only for the group admin (backend does not check) */}
+                {(item.type === "direct" ||
+                  canDeleteGroupChat(item.adminId, currentUserId)) && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setConfirmDeleteChat(item);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-2 ml-2 text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] rounded-lg transition-all cursor-pointer"
+                    title="Delete conversation"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -462,9 +500,11 @@ export function MessagesScreen({
               Delete Conversation?
             </h4>
             <p className="text-center text-xs text-[#6B7280] mt-2 leading-relaxed">
-              Are you sure you want to delete{" "}
               <strong className="text-[#0D0F1C]">{confirmDeleteChat.name}</strong>
-              ? This action cannot be undone.
+              <br />
+              {confirmDeleteChat.type === "group"
+                ? DELETE_GROUP_CHAT_WARNING
+                : DELETE_DIRECT_CHAT_WARNING}
             </p>
             <div className="flex items-center gap-3 mt-6">
               <button
@@ -759,10 +799,22 @@ export function ChatScreen({
     useState<ChatMessageItem | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const skipScrollRef = useRef(false);
 
-  // Active chat metadata
+  // Older pages loaded on demand (page 1 is the polled query)
+  const [extraMessages, setExtraMessages] = useState<ChatMessageItem[]>([]);
+  const [nextPage, setNextPage] = useState(2);
+  const [moreAvailable, setMoreAvailable] = useState<boolean | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Active chat metadata. A new direct conversation receives its ID from
+  // the first successful oneOnOneChat response.
   const isGroup = chat?.type === "group";
-  const chatId = chat?.id || "";
+  const [resolvedChatId, setResolvedChatId] = useState(chat?.id || "");
+  useEffect(() => {
+    setResolvedChatId(chat?.id || "");
+  }, [chat?.id]);
+  const chatId = resolvedChatId;
   const recipientId = chat?.recipientId || "";
   const chatName = chat?.name || (isGroup ? "Group Chat" : "Direct Chat");
 
@@ -779,6 +831,9 @@ export function ChatScreen({
 
   // Group metadata query for info/admin actions
   const groupDetailsQuery = useGroupChatQuery(chatId, isGroup && Boolean(chatId));
+  const groupData = groupDetailsQuery.data?.data;
+  const groupAdminId = groupData?.adminId ?? chat?.adminId;
+  const isGroupAdmin = isGroup && canDeleteGroupChat(groupAdminId, currentUserId);
 
   // Mutations
   const sendGroupMessageMutation = useSendGroupChatMessageMutation();
@@ -790,10 +845,49 @@ export function ChatScreen({
   const isSending =
     sendGroupMessageMutation.isPending || sendOneOnOneMutation.isPending;
 
-  // Resolved messages list
-  const messagesList: ChatMessageItem[] = isGroup
-    ? groupMessagesQuery.data?.messages || []
-    : directMessagesQuery.data?.messages || [];
+  // Reset local paging state when switching conversation
+  useEffect(() => {
+    setExtraMessages([]);
+    setNextPage(2);
+    setMoreAvailable(null);
+  }, [chat?.id, chat?.recipientId]);
+
+  const firstPage = isGroup ? groupMessagesQuery.data : directMessagesQuery.data;
+  const firstPagination = firstPage?.pagination;
+  const hasMore =
+    moreAvailable ??
+    (firstPagination ? firstPagination.page < firstPagination.totalPages : false);
+
+  // Resolved messages list (merged by id, deleted removed, oldest first)
+  const messagesList: ChatMessageItem[] = mergeMessages(
+    extraMessages,
+    firstPage?.messages || [],
+  );
+
+  const handleLoadMore = async () => {
+    if (!chatId || loadingMore) return;
+    setLoadingMore(true);
+    setErrorMessage("");
+    try {
+      const params = { page: nextPage, limit: firstPagination?.limit };
+      const res = isGroup
+        ? await getGroupChatMessages(chatId, params)
+        : await getOneOnOneMessages(chatId, params);
+      skipScrollRef.current = true;
+      setExtraMessages((cur) => mergeMessages(cur, res.messages));
+      setNextPage((p) => p + 1);
+      setMoreAvailable(
+        res.messages.length > 0 &&
+          (res.pagination ? res.pagination.page < res.pagination.totalPages : true),
+      );
+    } catch (err: any) {
+      setErrorMessage(
+        err?.response?.data?.message || err?.message || "Could not load more messages.",
+      );
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const isLoadingMessages = isGroup
     ? groupMessagesQuery.isLoading
@@ -805,6 +899,10 @@ export function ChatScreen({
 
   // Scroll to bottom on load and whenever messages change
   useEffect(() => {
+    if (skipScrollRef.current) {
+      skipScrollRef.current = false;
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messagesList.length]);
 
@@ -827,11 +925,15 @@ export function ChatScreen({
         if (!recipientId && !chatId) {
           throw new Error("Missing recipient or conversation reference");
         }
-        await sendOneOnOneMutation.mutateAsync({
+        const response = await sendOneOnOneMutation.mutateAsync({
           userId: recipientId,
           message: textToSend,
           messageType: "text",
         });
+        const createdChatId = response?.data?.chat?.id;
+        if (createdChatId) {
+          setResolvedChatId(createdChatId);
+        }
       }
       setInputMessage("");
     } catch (err: any) {
@@ -846,20 +948,22 @@ export function ChatScreen({
   // Delete message handler
   const handleDeleteMessage = async () => {
     if (!deleteMessageTarget) return;
+    // Backend does not check ownership, so only ever delete own 1-on-1 messages
+    if (isGroup || !canDeleteMessage(deleteMessageTarget, currentUserId)) {
+      setDeleteMessageTarget(null);
+      return;
+    }
     try {
-      if (!isGroup) {
-        await deleteOneOnOneMsgMutation.mutateAsync({
-          messageId: deleteMessageTarget.id,
-          chatId,
-        });
-      } else {
-        alert(
-          "Group message deletion is not supported by the current backend API.",
-        );
-      }
+      await deleteOneOnOneMsgMutation.mutateAsync({
+        messageId: deleteMessageTarget.id,
+        chatId,
+      });
+      const removedId = deleteMessageTarget.id;
+      setExtraMessages((cur) => cur.filter((m) => m.id !== removedId));
       setDeleteMessageTarget(null);
     } catch (err: any) {
-      alert(
+      setDeleteMessageTarget(null);
+      setErrorMessage(
         err?.response?.data?.message ||
           err?.message ||
           "Failed to delete message",
@@ -869,6 +973,10 @@ export function ChatScreen({
 
   // Delete entire conversation
   const handleDeleteConversation = async () => {
+    if (isGroup && !canDeleteGroupChat(groupAdminId, currentUserId)) {
+      setConfirmDeleteChat(false);
+      return;
+    }
     try {
       if (isGroup) {
         await deleteGroupMutation.mutateAsync(chatId);
@@ -877,16 +985,14 @@ export function ChatScreen({
       }
       onNav("messages");
     } catch (err: any) {
-      alert(
+      setConfirmDeleteChat(false);
+      setErrorMessage(
         err?.response?.data?.message ||
           err?.message ||
           "Failed to delete conversation",
       );
     }
   };
-
-  const groupData = groupDetailsQuery.data?.data;
-  const isGroupAdmin = isGroup && groupData && groupData.adminId === currentUserId;
 
   return (
     <div className="flex-1 flex flex-col bg-white overflow-hidden">
@@ -931,7 +1037,7 @@ export function ChatScreen({
           </button>
         )}
 
-        {chatId && (
+        {chatId && (!isGroup || isGroupAdmin) && (
           <button
             onClick={() => setConfirmDeleteChat(true)}
             className="w-8 h-8 rounded-full text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] flex items-center justify-center cursor-pointer transition-colors"
@@ -988,7 +1094,19 @@ export function ChatScreen({
             </p>
           </div>
         ) : (
-          messagesList.map((m) => {
+          <>
+          {hasMore && (
+            <button
+              type="button"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="self-center text-[11px] font-semibold text-[#3730A3] bg-white border border-[#E5E7EB] rounded-full px-3 py-1 cursor-pointer disabled:opacity-60 flex items-center gap-1"
+            >
+              {loadingMore && <Loader2 size={11} className="animate-spin" />}
+              <span>Load more messages</span>
+            </button>
+          )}
+          {messagesList.map((m) => {
             const isMe = m.senderId === currentUserId;
             const senderName = isMe
               ? "You"
@@ -1008,7 +1126,7 @@ export function ChatScreen({
 
                 <div className="flex items-end gap-1.5 max-w-[82%]">
                   {/* Delete message action on hover for current user's messages */}
-                  {isMe && !isGroup && (
+                  {!isGroup && canDeleteMessage(m, currentUserId) && (
                     <button
                       type="button"
                       onClick={() => setDeleteMessageTarget(m)}
@@ -1038,7 +1156,8 @@ export function ChatScreen({
                 </div>
               </div>
             );
-          })
+          })}
+          </>
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -1051,8 +1170,8 @@ export function ChatScreen({
         <button
           type="button"
           onClick={() =>
-            alert(
-              "File and media attachment uploads are not supported by the current backend API.",
+            setErrorMessage(
+              "File and media attachments are not supported yet.",
             )
           }
           className="w-9 h-9 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer transition-colors"
@@ -1140,8 +1259,7 @@ export function ChatScreen({
               Delete Conversation?
             </h4>
             <p className="text-center text-xs text-[#6B7280] mt-2 leading-relaxed">
-              Are you sure you want to delete this conversation? This action cannot
-              be undone.
+              {isGroup ? DELETE_GROUP_CHAT_WARNING : DELETE_DIRECT_CHAT_WARNING}
             </p>
             <div className="flex items-center gap-3 mt-6">
               <button
@@ -1202,10 +1320,26 @@ function GroupDetailsModal({
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setEditError("");
+
+    const memberEmails = (group?.members || [])
+      .map((member) => member.user?.email?.trim().toLowerCase())
+      .filter((email): email is string => Boolean(email));
+
+    if (memberEmails.length === 0) {
+      setEditError(
+        "We couldn't retrieve the group members' email addresses. Refresh the group details and try again.",
+      );
+      return;
+    }
+
     try {
       await updateMutation.mutateAsync({
         groupId,
-        payload: { groupName: editName.trim(), description: editDesc.trim() },
+        payload: {
+          groupName: editName.trim(),
+          description: editDesc.trim(),
+          emails: memberEmails,
+        },
       });
       setIsEditing(false);
     } catch (err: any) {
@@ -1342,60 +1476,27 @@ function GroupDetailsModal({
   );
 }
 
-// ─── NotificationsScreen (Preserved) ─────────────────────────────────────────
+// ─── NotificationsScreen (live API) ──────────────────────────────────────────
 export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
-  const [notifs, setNotifs] = useState([
-    {
-      id: "1",
-      icon: "💰",
-      title: "Savings Reminder",
-      body: "Your weekly iPhone goal deposit of ₦7,500 is due today.",
-      time: "2m ago",
-      color: "#3730A3",
-      read: false,
-    },
-    {
-      id: "2",
-      icon: "✅",
-      title: "KYC Approved",
-      body: "Your identity has been verified successfully!",
-      time: "1h ago",
-      color: "#059669",
-      read: false,
-    },
-    {
-      id: "3",
-      icon: "📦",
-      title: "Product Update",
-      body: "Great news! You've paid 50% toward Samsung Galaxy S25.",
-      time: "3h ago",
-      color: "#7C3AED",
-      read: true,
-    },
-    {
-      id: "4",
-      icon: "💬",
-      title: "New Message",
-      body: "Chinwe Okonkwo sent you a message.",
-      time: "5h ago",
-      color: "#D97706",
-      read: true,
-    },
-    {
-      id: "5",
-      icon: "🏦",
-      title: "Wallet Credited",
-      body: "₦50,000 has been added to your wallet.",
-      time: "1d ago",
-      color: "#059669",
-      read: true,
-    },
-  ]);
+  const { data, isLoading, error, refetch } = useNotificationsQuery();
+  const markRead = useMarkNotificationReadMutation();
+  const markAll = useMarkAllNotificationsReadMutation();
+  const deleteOne = useDeleteNotificationMutation();
+  const deleteAll = useDeleteAllNotificationsMutation();
 
-  const markAllAsRead = () => {
-    setNotifs((current) =>
-      current.map((notification) => ({ ...notification, read: true })),
-    );
+  const [actionError, setActionError] = useState("");
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  const items = data?.items || [];
+  const unread = data?.unreadCount ?? 0;
+
+  const fail = (err: any, fallback: string) =>
+    setActionError(err?.response?.data?.message || err?.message || fallback);
+
+  const handleOpen = (n: AppNotification) => {
+    if (n.isRead) return;
+    markRead.mutate(n.id, { onError: (e) => fail(e, "Could not mark as read.") });
   };
 
   return (
@@ -1420,48 +1521,155 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             Notifications
           </h2>
           <button
-            onClick={markAllAsRead}
-            className="text-sm text-[#3730A3] font-medium cursor-pointer"
+            onClick={() =>
+              markAll.mutate(undefined, {
+                onError: (e) => fail(e, "Could not mark all as read."),
+              })
+            }
+            disabled={unread === 0 || markAll.isPending}
+            className="text-sm text-[#3730A3] font-medium cursor-pointer disabled:opacity-40"
           >
             Mark all read
           </button>
         </div>
-      </div>
-      <div className="flex-1 px-4 py-4 flex flex-col gap-2">
-        {notifs.map((n) => (
-          <div
-            key={n.id}
-            className={`flex items-start gap-4 p-4 rounded-2xl transition-colors ${
-              n.read
-                ? "bg-white border border-[#F1F3FB]"
-                : "bg-[#EEF2FF] border border-[#C7D2FE]"
-            }`}
-          >
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-xl"
-              style={{ background: `${n.color}15` }}
+        {items.length > 0 && (
+          <div className="flex items-center justify-between mt-3 text-xs text-[#6B7280]">
+            <span>{unread} unread</span>
+            <button
+              onClick={() => setConfirmClearAll(true)}
+              className="text-[#DC2626] font-semibold hover:underline cursor-pointer"
             >
-              {n.icon}
+              Clear all
+            </button>
+          </div>
+        )}
+      </div>
+
+      {actionError && (
+        <div className="mx-4 mt-3 px-4 py-2 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
+          <span>{actionError}</span>
+          <button
+            onClick={() => setActionError("")}
+            className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      <div className="flex-1 px-4 py-4 flex flex-col gap-2">
+        {isLoading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="h-20 rounded-2xl bg-[#F3F4F6] animate-pulse" />
+          ))
+        ) : error ? (
+          <div className="p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
+            <span>Unable to load notifications.</span>
+            <button
+              onClick={() => refetch()}
+              className="font-semibold text-[#DC2626] hover:underline cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-14 h-14 rounded-full bg-[#EEF2FF] flex items-center justify-center text-2xl mb-3">
+              🔔
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-[#0D0F1C]">
-                  {n.title}
-                </span>
-                {!n.read && (
-                  <div className="w-2 h-2 rounded-full bg-[#3730A3] shrink-0" />
-                )}
+            <p className="font-semibold text-sm text-[#0D0F1C]">No notifications yet</p>
+            <p className="text-xs text-[#6B7280] mt-1">
+              Updates about your wallet, savings and messages will show here.
+            </p>
+          </div>
+        ) : (
+          items.map((n) => (
+            <div
+              key={n.id}
+              onClick={() => handleOpen(n)}
+              className={`flex items-start gap-4 p-4 rounded-2xl transition-colors cursor-pointer ${
+                n.isRead
+                  ? "bg-white border border-[#F1F3FB]"
+                  : "bg-[#EEF2FF] border border-[#C7D2FE]"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-full bg-[#3730A3]/10 flex items-center justify-center shrink-0 text-xl">
+                {notificationIcon(n.type)}
               </div>
-              <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
-                {n.body}
-              </p>
-              <span className="text-xs text-[#9CA3AF] mt-1 block">
-                {n.time}
-              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-[#0D0F1C] truncate">
+                    {notificationTitle(n.type)}
+                  </span>
+                  {!n.isRead && (
+                    <div className="w-2 h-2 rounded-full bg-[#3730A3] shrink-0" />
+                  )}
+                </div>
+                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed break-words">
+                  {n.message}
+                </p>
+                <span className="text-xs text-[#9CA3AF] mt-1 block">
+                  {formatMessageTime(n.createdAt)}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmDeleteId(n.id);
+                }}
+                aria-label="Delete notification"
+                title="Delete notification"
+                className="p-1.5 text-[#9CA3AF] hover:text-[#DC2626] rounded cursor-pointer shrink-0"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+
+      {(confirmClearAll || confirmDeleteId) && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xs w-full p-5 shadow-xl">
+            <h4 className="font-bold text-sm text-[#0D0F1C]">
+              {confirmClearAll ? "Clear all notifications?" : "Delete notification?"}
+            </h4>
+            <p className="text-xs text-[#6B7280] mt-1.5">This cannot be undone.</p>
+            <div className="flex items-center gap-2 mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmClearAll(false);
+                  setConfirmDeleteId(null);
+                }}
+                className="flex-1 py-2 rounded-xl border border-[#E5E7EB] text-xs font-semibold text-[#374151] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirmClearAll) {
+                    deleteAll.mutate(undefined, {
+                      onError: (e) => fail(e, "Could not clear notifications."),
+                    });
+                  } else if (confirmDeleteId) {
+                    deleteOne.mutate(confirmDeleteId, {
+                      onError: (e) => fail(e, "Could not delete notification."),
+                    });
+                  }
+                  setConfirmClearAll(false);
+                  setConfirmDeleteId(null);
+                }}
+                className="flex-1 py-2 rounded-xl bg-[#DC2626] text-white text-xs font-semibold cursor-pointer"
+              >
+                Delete
+              </button>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
