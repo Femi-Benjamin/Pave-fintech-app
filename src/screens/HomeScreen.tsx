@@ -25,6 +25,7 @@ import {
   useWalletBalanceQuery,
 } from "../hooks/usePaveApi";
 import { useGroupSavingsQuery } from "../hooks/useGroupSavingApi";
+import { useNotificationsQuery } from "../hooks/useNotificationsApi";
 import type { TransactionRecord } from "../api/transactions";
 import type { Saving } from "../api/savings";
 import { isGroupSavingMember } from "../api/groupSaving";
@@ -114,6 +115,7 @@ export function HomeScreen({
   onSelectSaving: (savingId: string) => void;
 }) {
   const { authUser } = useLocalStore();
+  const unreadNotifications = useNotificationsQuery().data?.unreadCount ?? 0;
   const currentUserId = getAuthenticatedUserId(authUser);
   const userEmail = getAuthenticatedUserEmail(authUser);
   const walletBalanceQuery = useWalletBalanceQuery();
@@ -223,7 +225,11 @@ export function HomeScreen({
             aria-label="Notifications"
           >
             <Bell size={18} className="text-[#374151]" />
-            <div className="absolute top-2 right-2 w-2 h-2 bg-[#D97706] rounded-full" />
+            {unreadNotifications > 0 && (
+              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#D97706] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </div>
+            )}
           </button>
         </div>
       </div>
