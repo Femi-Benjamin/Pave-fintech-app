@@ -45,7 +45,7 @@ test("Delete warnings tell users who is affected", () => {
 });
 
 test("updateGroupChat uses PUT only (never GET)", async () => {
-  const calls = await captureCalls(() => updateGroupChat("g1", { groupName: "New" }));
+  const calls = await captureCalls(() => updateGroupChat("g1", { groupName: "New", emails: ["a@b.com"] }));
   assert.deepEqual(calls.map((c) => c.method), ["put"]);
   assert.ok(calls[0].url.endsWith("/api/v1/message/updateGroupChat/g1"));
 });
@@ -62,7 +62,7 @@ test("updateGroupChat does not fall back to GET when PUT fails with 404", async 
     throw err;
   };
   try {
-    await assert.rejects(() => updateGroupChat("g1", { groupName: "x" }));
+    await assert.rejects(() => updateGroupChat("g1", { groupName: "x", emails: ["a@b.com"] }));
   } finally {
     (api.defaults as any).adapter = original;
   }
