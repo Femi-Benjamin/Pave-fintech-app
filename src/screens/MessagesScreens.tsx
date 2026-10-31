@@ -13,6 +13,8 @@ import {
   Loader2,
   AlertCircle,
   MessageSquare,
+  Check,
+  CheckCheck,
 } from "lucide-react";
 import { Avatar } from "../components/UI";
 import {
@@ -28,6 +30,8 @@ import {
   canDeleteGroupChat,
   canDeleteMessage,
   mergeMessages,
+  buildChatRows,
+  avatarColorFor,
   DELETE_DIRECT_CHAT_WARNING,
   DELETE_GROUP_CHAT_WARNING,
 } from "../utils/messaging";
@@ -98,6 +102,100 @@ function formatMessageTime(dateString?: string): string {
   });
 }
 
+// ─── Shared visuals ──────────────────────────────────────────────────────────
+function AvatarStack({
+  people,
+  total,
+  size = 22,
+}: {
+  people: { name: string; image?: string | null }[];
+  total: number;
+  size?: number;
+}) {
+  const shown = people.slice(0, 3);
+  const extra = Math.max(0, total - shown.length);
+  if (shown.length === 0) return null;
+  return (
+    <div className="flex items-center">
+      {shown.map((p, i) => (
+        <div
+          key={`${p.name}-${i}`}
+          className="rounded-full ring-2 ring-white"
+          style={{ marginLeft: i === 0 ? 0 : -Math.round(size * 0.32) }}
+        >
+          {p.image ? (
+            <Avatar name={p.name} size={size} src={p.image} color={avatarColorFor(p.name)} />
+          ) : (
+            <div
+              className="rounded-full text-white font-bold flex items-center justify-center"
+              style={{
+                width: size,
+                height: size,
+                background: avatarColorFor(p.name),
+                fontSize: Math.max(9, Math.round(size * 0.46)),
+              }}
+              aria-hidden="true"
+            >
+              {(p.name.trim()[0] || "?").toUpperCase()}
+            </div>
+          )}
+        </div>
+      ))}
+      {extra > 0 && (
+        <div
+          className="rounded-full ring-2 ring-white bg-[#EEF2FF] text-[#3730A3] font-bold flex items-center justify-center"
+          style={{
+            width: size,
+            height: size,
+            marginLeft: -Math.round(size * 0.32),
+            fontSize: Math.max(9, Math.round(size * 0.4)),
+          }}
+        >
+          +{extra}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Groups are rounded tiles, people are circles: the shape tells you which is which.
+function ConversationAvatar({
+  name,
+  type,
+  size = 52,
+}: {
+  name: string;
+  type: "group" | "direct";
+  size?: number;
+}) {
+  if (type === "direct") {
+    return <Avatar name={name} size={size} color={avatarColorFor(name)} />;
+  }
+  return (
+    <div
+      className="shrink-0 flex items-center justify-center text-white font-bold"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: Math.round(size * 0.34),
+        background: "linear-gradient(140deg, #7C3AED 0%, #3730A3 100%)",
+        fontFamily: "var(--font-family-display)",
+        fontSize: Math.round(size * 0.42),
+      }}
+      aria-hidden="true"
+    >
+      {(name.trim()[0] || "G").toUpperCase()}
+    </div>
+  );
+}
+
+function formatClock(dateString?: string): string {
+  if (!dateString) return "";
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
 // ─── Conversation List Item View Model ───────────────────────────────────────
 interface UnifiedConversationItem {
   id: string;
@@ -109,6 +207,7 @@ interface UnifiedConversationItem {
   recipientId?: string;
   adminId?: string;
   memberCount?: number;
+  members?: { name: string; image?: string | null }[];
   rawGroup?: GroupChat;
   rawDirect?: OneOnOneChat;
 }
@@ -171,6 +270,10 @@ export function MessagesScreen({
       timestamp: isNaN(ts) ? 0 : ts,
       adminId: g.adminId,
       memberCount: g.members?.length,
+      members: (g.members || []).map((m) => ({
+        name: formatParticipantName(m.user),
+        image: m.user?.image,
+      })),
       rawGroup: g,
     });
   });
@@ -243,225 +346,273 @@ export function MessagesScreen({
     }
   };
 
+  const directCount = unifiedList.filter((i) => i.type === "direct").length;
+  const groupCount = unifiedList.length - directCount;
+  const tabs = [
+    { id: "all", label: "All", count: unifiedList.length },
+    { id: "direct", label: "People", count: directCount },
+    { id: "groups", label: "Groups", count: groupCount },
+  ] as const;
+
   return (
-    <div className="flex-1 flex flex-col bg-white overflow-hidden">
-      {/* Header */}
-      <div className="px-6 pt-12 pb-4 bg-white border-b border-[#F1F3FB]">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2
-              style={{
-                fontFamily: "var(--font-family-display)",
-                fontWeight: 700,
-                fontSize: 22,
-              }}
-              className="text-[#0D0F1C]"
-            >
-              Messages
-            </h2>
-            <p className="text-xs text-[#6B7280] mt-0.5">
-              Chat with users and savings groups
-            </p>
-          </div>
-          <button
-            onClick={() => setShowNewModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#3730A3] text-white text-xs font-semibold hover:bg-[#2E2882] transition-colors cursor-pointer shadow-sm"
-          >
-            <Plus size={16} />
-            <span>New Chat</span>
-          </button>
-        </div>
-
-        {/* Search */}
-        <div className="bg-[#F8F9FD] rounded-xl px-4 py-2.5 flex items-center gap-2 border border-[#E5E7EB]">
-          <Search size={16} className="text-[#9CA3AF]" />
-          <input
-            placeholder="Search conversations..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-sm text-[#0D0F1C] outline-none placeholder-[#9CA3AF]"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="text-xs text-[#9CA3AF] hover:text-[#0D0F1C]"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        {/* Tabs */}
-        <div className="flex items-center gap-2 mt-4">
-          {(
-            [
-              { id: "all", label: "All Messages" },
-              { id: "direct", label: "Direct" },
-              { id: "groups", label: "Groups" },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === tab.id
-                  ? "bg-[#EEF2FF] text-[#3730A3] font-semibold"
-                  : "text-[#6B7280] hover:text-[#0D0F1C] hover:bg-[#F3F4F6]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto">
-        {listError && (
-          <div className="mx-4 mt-4 px-4 py-2 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
-            <span>{listError}</span>
-            <button
-              onClick={() => setListError("")}
-              className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
-
-        {hasError && (
-          <div className="m-4 p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-start justify-between">
-            <div className="flex items-start gap-2.5">
-              <AlertCircle
-                size={18}
-                className="text-[#DC2626] shrink-0 mt-0.5"
-              />
-              <div>
-                <p className="text-xs font-semibold text-[#991B1B]">
-                  Unable to load conversations
-                </p>
-                <p className="text-xs text-[#DC2626] mt-0.5">
-                  Check your network connection or verify authentication.
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                refetchGroups();
-                refetchDirect();
-              }}
-              className="text-xs font-semibold text-[#DC2626] hover:underline cursor-pointer shrink-0 ml-2"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="divide-y divide-[#F9FAFB]">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="flex items-center gap-4 px-6 py-4 animate-pulse"
+    <div className="flex-1 flex flex-col bg-[#F5F6FF] overflow-hidden">
+      {/* Header band */}
+      <div
+        className="shrink-0 px-5 sm:px-8 pt-12 pb-14"
+        style={{
+          background:
+            "linear-gradient(135deg, #1E1B4B 0%, #312E81 55%, #4C1D95 100%)",
+        }}
+      >
+        <div className="mx-auto w-full max-w-3xl">
+          <div className="flex items-end justify-between gap-4">
+            <div className="min-w-0">
+              <h2
+                style={{
+                  fontFamily: "var(--font-family-display)",
+                  fontWeight: 700,
+                  fontSize: 28,
+                  lineHeight: 1.1,
+                }}
+                className="text-white"
               >
-                <div className="w-12 h-12 rounded-full bg-[#E5E7EB] shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="h-4 bg-[#E5E7EB] rounded w-1/3 mb-2" />
-                  <div className="h-3 bg-[#F3F4F6] rounded w-2/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#EEF2FF] flex items-center justify-center text-[#3730A3] mb-4">
-              <MessageSquare size={28} />
+                Messages
+              </h2>
+              <p className="text-sm text-white/70 mt-1.5">
+                Talk to people and your savings groups
+              </p>
             </div>
-            <h3 className="font-semibold text-base text-[#0D0F1C]">
-              No conversations found
-            </h3>
-            <p className="text-xs text-[#6B7280] max-w-xs mt-1.5 leading-relaxed">
-              {search
-                ? `No results matching "${search}". Try searching for another name.`
-                : activeTab === "groups"
-                  ? "You haven't joined or created any group chats yet."
-                  : activeTab === "direct"
-                    ? "You have no direct conversations yet."
-                    : "Connect with team members or your savings group to start chatting."}
-            </p>
-            {!search && (
+            <button
+              onClick={() => setShowNewModal(true)}
+              className="shrink-0 flex items-center gap-1.5 pl-3 pr-4 py-2.5 rounded-full bg-white text-[#3730A3] text-sm font-semibold hover:bg-[#EEF2FF] active:scale-95 transition cursor-pointer shadow-lg shadow-black/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <Plus size={18} />
+              <span>New chat</span>
+            </button>
+          </div>
+
+          <div className="mt-5 flex items-center gap-2.5 rounded-2xl bg-white/10 border border-white/15 px-4 py-3 focus-within:bg-white/15 focus-within:border-white/40 transition-colors">
+            <Search size={17} className="text-white/60 shrink-0" />
+            <input
+              placeholder="Search by name or email"
+              aria-label="Search conversations"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 min-w-0 bg-transparent text-[16px] sm:text-sm text-white outline-none placeholder-white/55"
+            />
+            {search && (
               <button
-                onClick={() => setShowNewModal(true)}
-                className="mt-5 px-4 py-2 rounded-xl bg-[#3730A3] text-white text-xs font-semibold hover:bg-[#2E2882] transition-colors cursor-pointer shadow-sm"
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+                className="text-white/70 hover:text-white cursor-pointer"
               >
-                Start a New Conversation
+                <X size={16} />
               </button>
             )}
           </div>
-        ) : (
-          <div className="divide-y divide-[#F9FAFB]">
-            {filtered.map((item) => (
-              <div
-                key={`${item.type}-${item.id}`}
-                className="group w-full flex items-center justify-between px-6 py-4 hover:bg-[#F9FAFB] transition-colors text-left cursor-pointer"
-                onClick={() => handleOpenChat(item)}
-              >
-                <div className="flex items-center gap-4 min-w-0 flex-1">
-                  <div className="relative shrink-0">
-                    <Avatar
-                      name={item.name}
-                      size={48}
-                      color={item.type === "group" ? "#7C3AED" : "#3730A3"}
-                    />
-                    {item.type === "group" && (
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#7C3AED] text-white flex items-center justify-center border-2 border-white">
-                        <Users size={10} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-semibold text-sm text-[#0D0F1C] truncate">
-                          {item.name}
-                        </span>
-                        {item.type === "group" && (
-                          <span className="text-[10px] px-1.5 py-0.5 bg-[#F3E8FF] text-[#7C3AED] rounded font-medium shrink-0">
-                            Group
-                          </span>
-                        )}
-                      </div>
-                      {item.time && (
-                        <span className="text-xs text-[#9CA3AF] shrink-0">
-                          {item.time}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-[#6B7280] truncate mt-1">
-                      {item.subtitle}
-                    </div>
+        </div>
+      </div>
+
+      {/* Sheet */}
+      <div className="flex-1 min-h-0 -mt-7 flex flex-col">
+        <div className="mx-auto w-full max-w-3xl flex-1 min-h-0 flex flex-col bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(30,27,75,0.12)] overflow-hidden">
+          {/* Tabs */}
+          <div
+            role="tablist"
+            aria-label="Conversation type"
+            className="shrink-0 flex items-center gap-1.5 px-5 pt-5 pb-3"
+          >
+            {tabs.map((tab) => {
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3730A3] ${
+                    active
+                      ? "bg-[#3730A3] text-white font-semibold"
+                      : "text-[#6B7280] hover:bg-[#F5F6FF] hover:text-[#1E1B4B]"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`text-[11px] font-semibold px-1.5 rounded-full ${
+                      active ? "bg-white/20 text-white" : "bg-[#EEF2FF] text-[#3730A3]"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {listError && (
+              <div className="mx-5 mb-2 px-4 py-2.5 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
+                <span>{listError}</span>
+                <button
+                  onClick={() => setListError("")}
+                  className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {hasError && (
+              <div className="mx-5 mb-2 p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-start justify-between">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle size={18} className="text-[#DC2626] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-semibold text-[#991B1B]">
+                      Couldn't load your conversations
+                    </p>
+                    <p className="text-xs text-[#DC2626] mt-0.5">
+                      Check your connection, then try again.
+                    </p>
                   </div>
                 </div>
+                <button
+                  onClick={() => {
+                    refetchGroups();
+                    refetchDirect();
+                  }}
+                  className="text-xs font-semibold text-[#DC2626] hover:underline cursor-pointer shrink-0 ml-2"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
 
-                {/* Delete: groups only for the group admin (backend does not check) */}
-                {(item.type === "direct" ||
-                  canDeleteGroupChat(item.adminId, currentUserId)) && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setConfirmDeleteChat(item);
+            {isLoading ? (
+              <div>
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-center gap-4 px-5 py-4 animate-pulse">
+                    <div className="w-[52px] h-[52px] rounded-full bg-[#EEF0FA] shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="h-4 bg-[#EEF0FA] rounded w-1/3 mb-2.5" />
+                      <div className="h-3 bg-[#F3F4FB] rounded w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
+                <div className="relative w-20 h-20 mb-5">
+                  <div className="absolute left-0 top-3 w-12 h-12 rounded-full bg-[#EEF2FF] flex items-center justify-center text-[#3730A3]">
+                    <MessageSquare size={22} />
+                  </div>
+                  <div
+                    className="absolute right-0 bottom-0 w-12 h-12 flex items-center justify-center text-white"
+                    style={{
+                      borderRadius: 16,
+                      background: "linear-gradient(140deg, #7C3AED 0%, #3730A3 100%)",
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-2 ml-2 text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] rounded-lg transition-all cursor-pointer"
-                    title="Delete conversation"
                   >
-                    <Trash2 size={16} />
+                    <Users size={22} />
+                  </div>
+                </div>
+                <h3
+                  style={{ fontFamily: "var(--font-family-display)" }}
+                  className="font-bold text-lg text-[#1E1B4B]"
+                >
+                  {search ? "No matches" : "Nothing here yet"}
+                </h3>
+                <p className="text-sm text-[#6B7280] max-w-xs mt-1.5 leading-relaxed">
+                  {search
+                    ? `No conversation matches "${search}". Try a different name or email.`
+                    : activeTab === "groups"
+                    ? "Create a group chat to talk with your savings circle."
+                    : activeTab === "direct"
+                    ? "Start a chat with another Pave user."
+                    : "Start a chat with a person or create a group for your savings circle."}
+                </p>
+                {!search && (
+                  <button
+                    onClick={() => setShowNewModal(true)}
+                    className="mt-5 px-5 py-2.5 rounded-full bg-[#3730A3] text-white text-sm font-semibold hover:bg-[#2E2882] active:scale-95 transition cursor-pointer"
+                  >
+                    New chat
                   </button>
                 )}
               </div>
-            ))}
+            ) : (
+              <ul className="pb-6">
+                {filtered.map((item) => {
+                  const canDelete =
+                    item.type === "direct" ||
+                    canDeleteGroupChat(item.adminId, currentUserId);
+                  return (
+                    <li key={`${item.type}-${item.id}`} className="group relative">
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleOpenChat(item)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleOpenChat(item);
+                          }
+                        }}
+                        className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F5F6FF] active:bg-[#EEF2FF] transition-colors cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#3730A3]"
+                      >
+                        <ConversationAvatar name={item.name} type={item.type} />
+                        <div className="flex-1 min-w-0 border-b border-[#EEF0FA] pb-3.5 -mb-3.5 group-last:border-b-0">
+                          <div className="flex items-baseline justify-between gap-3">
+                            <span
+                              style={{ fontFamily: "var(--font-family-display)" }}
+                              className="font-bold text-[16px] text-[#1E1B4B] truncate"
+                            >
+                              {item.name}
+                            </span>
+                            {item.time && (
+                              <span className="text-xs text-[#9CA3AF] shrink-0 tabular-nums">
+                                {item.time}
+                              </span>
+                            )}
+                          </div>
+                          <div className="mt-1 flex items-center gap-2 min-w-0">
+                            {item.type === "group" && item.members && item.members.length > 0 && (
+                              <AvatarStack
+                                people={item.members}
+                                total={item.memberCount || item.members.length}
+                                size={20}
+                              />
+                            )}
+                            <span className="text-[13px] text-[#6B7280] truncate">
+                              {item.type === "group"
+                                ? `${item.memberCount || 0} member${item.memberCount === 1 ? "" : "s"}${
+                                    item.subtitle && !/^\d+ members$/.test(item.subtitle)
+                                      ? ` · ${item.subtitle}`
+                                      : ""
+                                  }`
+                                : item.subtitle}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="w-8 shrink-0" aria-hidden="true" />
+                      </div>
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteChat(item)}
+                          aria-label={`Delete conversation with ${item.name}`}
+                          title="Delete conversation"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* New Chat Modal */}
@@ -804,6 +955,7 @@ export function ChatScreen({
   const [inputMessage, setInputMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const [confirmDeleteChat, setConfirmDeleteChat] = useState(false);
   const [deleteMessageTarget, setDeleteMessageTarget] =
     useState<ChatMessageItem | null>(null);
@@ -1016,213 +1168,342 @@ export function ChatScreen({
     }
   };
 
+  const rows = buildChatRows(messagesList);
+  const firstName = chatName.trim().split(" ")[0] || "them";
+  const starters = isGroup
+    ? ["Hello everyone 👋", "When is the next contribution?"]
+    : ["Hello 👋", "How are you?", "Can we talk about our contribution?"];
+  const groupPeople = (groupData?.members || []).map((m) => ({
+    name: formatParticipantName(m.user),
+    image: m.user?.image,
+  }));
+
   return (
-    <div className="flex-1 flex flex-col bg-white overflow-hidden">
-      {/* Top Bar */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-[#F1F3FB] shrink-0">
-        <button
-          onClick={() => onNav("messages")}
-          className="w-8 h-8 rounded-full bg-[#F3F4F6] text-[#374151] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer transition-colors"
-          title="Back to messages"
-        >
-          <ArrowLeft size={16} />
-        </button>
+    <div className="flex-1 flex flex-col bg-[#F5F6FF] overflow-hidden">
+      {/* Top bar */}
+      <div className="shrink-0 bg-white border-b border-[#E7E9F7]">
+        <div className="mx-auto w-full max-w-3xl flex items-center gap-3 px-3 sm:px-5 pt-3 sm:pt-4 pb-3">
+          <button
+            onClick={() => onNav("messages")}
+            aria-label="Back to messages"
+            className="w-10 h-10 rounded-full text-[#374151] hover:bg-[#F5F6FF] active:scale-95 flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#3730A3]"
+          >
+            <ArrowLeft size={20} />
+          </button>
 
-        <div className="relative shrink-0">
-          <Avatar
+          <ConversationAvatar
             name={chatName}
-            size={40}
-            color={isGroup ? "#7C3AED" : "#3730A3"}
+            type={isGroup ? "group" : "direct"}
+            size={44}
           />
-        </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-[#0D0F1C] truncate">
-            {chatName}
+          <div className="flex-1 min-w-0">
+            <div
+              style={{ fontFamily: "var(--font-family-display)" }}
+              className="text-[17px] font-bold text-[#1E1B4B] truncate leading-tight"
+            >
+              {chatName}
+            </div>
+            <div className="mt-1 flex items-center gap-2 min-w-0 text-xs text-[#6B7280]">
+              {isGroup ? (
+                <>
+                  {groupPeople.length > 0 && (
+                    <AvatarStack
+                      people={groupPeople}
+                      total={groupData?.members?.length || groupPeople.length}
+                      size={18}
+                    />
+                  )}
+                  <span className="truncate">
+                    {groupData
+                      ? `${groupData.members?.length || 0} members`
+                      : "Group chat"}
+                  </span>
+                </>
+              ) : (
+                <span className="truncate">
+                  {chat?.description || "Direct message"}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="text-xs text-[#6B7280] truncate">
-            {isGroup
-              ? groupData
-                ? `${groupData.members?.length || 0} members`
-                : "Group Chat"
-              : chat?.description || "Direct Message"}
-          </div>
+
+          {isGroup && (
+            <button
+              onClick={() => setShowInfoModal(true)}
+              aria-label="Group info"
+              title="Group info"
+              className="w-10 h-10 rounded-full text-[#6B7280] hover:text-[#3730A3] hover:bg-[#EEF2FF] flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#3730A3]"
+            >
+              <Info size={19} />
+            </button>
+          )}
+
+          {chatId && (!isGroup || isGroupAdmin) && (
+            <button
+              onClick={() => setConfirmDeleteChat(true)}
+              aria-label="Delete conversation"
+              title="Delete conversation"
+              className="w-10 h-10 rounded-full text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#DC2626]"
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
         </div>
-
-        {isGroup && (
-          <button
-            onClick={() => setShowInfoModal(true)}
-            className="w-8 h-8 rounded-full text-[#6B7280] hover:text-[#3730A3] hover:bg-[#EEF2FF] flex items-center justify-center cursor-pointer transition-colors"
-            title="Group info"
-          >
-            <Info size={18} />
-          </button>
-        )}
-
-        {chatId && (!isGroup || isGroupAdmin) && (
-          <button
-            onClick={() => setConfirmDeleteChat(true)}
-            className="w-8 h-8 rounded-full text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] flex items-center justify-center cursor-pointer transition-colors"
-            title="Delete conversation"
-          >
-            <Trash2 size={16} />
-          </button>
-        )}
       </div>
 
       {/* Error banner */}
       {errorMessage && (
-        <div className="px-4 py-2 bg-[#FEF2F2] border-b border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
-          <div className="flex items-center gap-2">
-            <AlertCircle size={14} className="shrink-0" />
-            <span>{errorMessage}</span>
+        <div className="shrink-0 px-4 py-2 bg-[#FEF2F2] border-b border-[#FCA5A5] text-xs text-[#991B1B]">
+          <div className="mx-auto w-full max-w-3xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle size={14} className="shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+            <button
+              onClick={() => setErrorMessage("")}
+              className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+            >
+              Dismiss
+            </button>
           </div>
-          <button
-            onClick={() => setErrorMessage("")}
-            className="text-[11px] font-semibold text-[#DC2626] hover:underline"
-          >
-            Dismiss
-          </button>
         </div>
       )}
 
-      {/* Messages Scroll Container */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3 bg-[#F8F9FD]">
-        {isLoadingMessages ? (
-          <div className="flex flex-col gap-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}
-              >
-                <div className="w-48 h-12 rounded-2xl bg-[#E5E7EB] animate-pulse" />
-              </div>
-            ))}
-          </div>
-        ) : messagesError ? (
-          <div className="p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-xl text-center text-xs text-[#991B1B]">
-            Unable to retrieve messages for this conversation.
-          </div>
-        ) : messagesList.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-12 text-center text-xs text-[#6B7280]">
-            <div className="w-12 h-12 rounded-full bg-[#EEF2FF] text-[#3730A3] flex items-center justify-center mb-3">
-              <MessageSquare size={22} />
-            </div>
-            <p className="font-semibold text-sm text-[#0D0F1C]">
-              No messages yet
-            </p>
-            <p className="mt-1 max-w-xs text-[#6B7280]">
-              Start the conversation by sending a message below.
-            </p>
-          </div>
-        ) : (
-          <>
-            {hasMore && (
-              <button
-                type="button"
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="self-center text-[11px] font-semibold text-[#3730A3] bg-white border border-[#E5E7EB] rounded-full px-3 py-1 cursor-pointer disabled:opacity-60 flex items-center gap-1"
-              >
-                {loadingMore && <Loader2 size={11} className="animate-spin" />}
-                <span>Load more messages</span>
-              </button>
-            )}
-            {messagesList.map((m) => {
-              const isMe = m.senderId === currentUserId;
-              const senderName = isMe ? "You" : formatParticipantName(m.sender);
-
-              return (
+      {/* Messages */}
+      <div
+        className="flex-1 overflow-y-auto"
+        style={{
+          backgroundImage:
+            "radial-gradient(rgba(55,48,163,0.07) 1px, transparent 1px)",
+          backgroundSize: "20px 20px",
+        }}
+      >
+        <div className="mx-auto w-full max-w-3xl min-h-full px-3 sm:px-5 py-4 flex flex-col">
+          {isLoadingMessages ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
                 <div
-                  key={m.id}
-                  className={`group flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                  key={i}
+                  className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}
                 >
-                  {/* Sender name for group chats */}
-                  {isGroup && !isMe && (
-                    <span className="text-[11px] font-semibold text-[#6B7280] mb-1 px-1">
-                      {senderName}
-                    </span>
-                  )}
+                  <div className="w-52 h-12 rounded-2xl bg-[#E4E7F7] animate-pulse" />
+                </div>
+              ))}
+            </div>
+          ) : messagesError ? (
+            <div className="my-auto p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-xl text-center text-xs text-[#991B1B]">
+              Couldn't load this conversation. Go back and open it again.
+            </div>
+          ) : messagesList.length === 0 ? (
+            <div className="my-auto flex flex-col items-center text-center px-4 py-10">
+              <div className="mb-4">
+                {isGroup && groupPeople.length > 0 ? (
+                  <AvatarStack
+                    people={groupPeople}
+                    total={groupData?.members?.length || groupPeople.length}
+                    size={44}
+                  />
+                ) : (
+                  <ConversationAvatar
+                    name={chatName}
+                    type={isGroup ? "group" : "direct"}
+                    size={72}
+                  />
+                )}
+              </div>
+              <h3
+                style={{ fontFamily: "var(--font-family-display)" }}
+                className="font-bold text-lg text-[#1E1B4B]"
+              >
+                {isGroup ? `Start chatting in ${chatName}` : `Say hello to ${firstName}`}
+              </h3>
+              <p className="mt-1.5 max-w-xs text-sm text-[#6B7280] leading-relaxed">
+                Your messages will appear here. Pick one below or write your own.
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {starters.map((text) => (
+                  <button
+                    key={text}
+                    type="button"
+                    onClick={() => setInputMessage(text)}
+                    className="px-3.5 py-2 rounded-full bg-white border border-[#DDE0F5] text-[13px] text-[#3730A3] font-medium hover:bg-[#EEF2FF] active:scale-95 transition cursor-pointer"
+                  >
+                    {text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              {hasMore && (
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="self-center mb-3 text-xs font-semibold text-[#3730A3] bg-white border border-[#DDE0F5] rounded-full px-4 py-1.5 cursor-pointer disabled:opacity-60 flex items-center gap-1.5 hover:bg-[#EEF2FF] transition"
+                >
+                  {loadingMore && <Loader2 size={12} className="animate-spin" />}
+                  <span>Load more messages</span>
+                </button>
+              )}
+              {rows.map((row) => {
+                if (row.kind === "day") {
+                  return (
+                    <div key={row.key} className="flex justify-center my-3">
+                      <span className="text-[11px] font-semibold text-[#6B7280] bg-white/90 border border-[#E7E9F7] rounded-full px-3 py-1">
+                        {row.label}
+                      </span>
+                    </div>
+                  );
+                }
+                const m = row.message;
+                const isMe = m.senderId === currentUserId;
+                const senderName = formatParticipantName(m.sender);
+                const showSender = isGroup && !isMe && row.isFirstInRun;
+                const showAvatar = isGroup && !isMe;
+                const radius = isMe
+                  ? row.isFirstInRun && row.isLastInRun
+                    ? "rounded-2xl rounded-br-md"
+                    : row.isFirstInRun
+                    ? "rounded-2xl rounded-br-md"
+                    : row.isLastInRun
+                    ? "rounded-2xl rounded-tr-md"
+                    : "rounded-2xl rounded-r-md"
+                  : row.isFirstInRun && row.isLastInRun
+                  ? "rounded-2xl rounded-bl-md"
+                  : row.isFirstInRun
+                  ? "rounded-2xl rounded-bl-md"
+                  : row.isLastInRun
+                  ? "rounded-2xl rounded-tl-md"
+                  : "rounded-2xl rounded-l-md";
 
-                  <div className="flex items-end gap-1.5 max-w-[82%]">
-                    {/* Delete message action on hover for current user's messages */}
+                return (
+                  <div
+                    key={row.key}
+                    className={`group flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"} ${
+                      row.isFirstInRun ? "mt-3" : "mt-0.5"
+                    }`}
+                  >
+                    {showAvatar && (
+                      <div className="w-7 shrink-0">
+                        {row.isLastInRun && (
+                          <Avatar
+                            name={senderName}
+                            size={28}
+                            src={m.sender?.image || undefined}
+                            color={avatarColorFor(senderName)}
+                          />
+                        )}
+                      </div>
+                    )}
+
                     {!isGroup && canDeleteMessage(m, currentUserId) && (
                       <button
                         type="button"
                         onClick={() => setDeleteMessageTarget(m)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-[#9CA3AF] hover:text-[#DC2626] rounded transition-all cursor-pointer"
+                        aria-label="Delete message"
                         title="Delete message"
+                        className={`self-center p-1.5 rounded-full text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer ${
+                          selectedMessageId === m.id ? "" : "max-sm:hidden"
+                        }`}
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={14} />
                       </button>
                     )}
 
-                    <div
-                      className={`px-4 py-2.5 rounded-2xl text-xs wrap-break-word shadow-sm leading-relaxed ${
-                        isMe
-                          ? "bg-[#3730A3] text-white rounded-br-xs"
-                          : "bg-white text-[#0D0F1C] border border-[#E5E7EB] rounded-bl-xs"
-                      }`}
-                    >
-                      <div>{m.message}</div>
+                    <div className="max-w-[78%] sm:max-w-[68%] min-w-0">
+                      {showSender && (
+                        <div
+                          className="text-xs font-semibold mb-1 px-1 truncate"
+                          style={{ color: avatarColorFor(senderName) }}
+                        >
+                          {senderName}
+                        </div>
+                      )}
                       <div
-                        className={`text-[10px] mt-1 text-right ${
-                          isMe ? "text-white/70" : "text-[#9CA3AF]"
+                        onClick={() =>
+                          setSelectedMessageId((cur) => (cur === m.id ? null : m.id))
+                        }
+                        className={`px-3.5 py-2 text-[15px] sm:text-sm leading-relaxed wrap-break-word whitespace-pre-wrap ${radius} ${
+                          isMe
+                            ? "bg-[#3730A3] text-white shadow-[0_1px_2px_rgba(55,48,163,0.35)]"
+                            : "bg-white text-[#1E1B4B] border border-[#E7E9F7]"
                         }`}
                       >
-                        {formatMessageTime(m.createdAt)}
+                        {m.message}
+                        {row.isLastInRun && (
+                          <span
+                            className={`ml-2 inline-flex items-center gap-1 align-bottom text-[10px] tabular-nums translate-y-0.5 ${
+                              isMe ? "text-white/70" : "text-[#9CA3AF]"
+                            }`}
+                          >
+                            {formatClock(m.createdAt)}
+                            {isMe &&
+                              (m.isRead ? (
+                                <CheckCheck size={13} className="text-[#A5B4FC]" aria-label="Read" />
+                              ) : (
+                                <Check size={13} aria-label="Sent" />
+                              ))}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </>
-        )}
-        <div ref={messagesEndRef} />
+                );
+              })}
+            </>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      {/* Message Composer */}
+      {/* Composer */}
       <form
         onSubmit={handleSendMessage}
-        className="px-4 py-3 bg-white border-t border-[#F1F3FB] flex items-center gap-2 shrink-0"
+        className="shrink-0 px-3 sm:px-5 pb-3 pt-2"
       >
-        <button
-          type="button"
-          onClick={() =>
-            setErrorMessage("File and media attachments are not supported yet.")
-          }
-          className="w-9 h-9 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer transition-colors"
-          title="Attach file (not supported by backend)"
-        >
-          <Paperclip size={16} />
-        </button>
-
-        <input
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSendMessage();
+        <div className="mx-auto w-full max-w-3xl flex items-center gap-1.5 bg-white rounded-full border border-[#DDE0F5] shadow-[0_4px_18px_rgba(30,27,75,0.08)] p-1.5 focus-within:border-[#3730A3] transition-colors">
+          <button
+            type="button"
+            onClick={() =>
+              setErrorMessage("File and media attachments are not supported yet.")
             }
-          }}
-          placeholder="Type a message..."
-          disabled={isSending}
-          className="flex-1 bg-[#F8F9FD] border border-[#E5E7EB] rounded-full px-4 py-2 text-xs text-[#0D0F1C] outline-none focus:border-[#3730A3] placeholder-[#9CA3AF] disabled:opacity-60"
-        />
+            aria-label="Attach a file"
+            title="Attachments aren't available yet"
+            className="w-10 h-10 rounded-full text-[#6B7280] hover:text-[#3730A3] hover:bg-[#F5F6FF] flex items-center justify-center cursor-pointer transition shrink-0"
+          >
+            <Paperclip size={18} />
+          </button>
 
-        <button
-          type="submit"
-          disabled={!inputMessage.trim() || isSending}
-          className="w-9 h-9 rounded-full bg-[#3730A3] hover:bg-[#2E2882] disabled:opacity-40 text-white flex items-center justify-center cursor-pointer transition-colors shrink-0 shadow-sm"
-        >
-          {isSending ? (
-            <Loader2 size={16} className="animate-spin text-white" />
-          ) : (
-            <Send size={15} />
-          )}
-        </button>
+          <input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            placeholder="Write a message"
+            aria-label="Message"
+            disabled={isSending}
+            className="flex-1 min-w-0 bg-transparent px-2 py-2 text-[16px] sm:text-sm text-[#1E1B4B] outline-none placeholder-[#9CA3AF] disabled:opacity-60"
+          />
+
+          <button
+            type="submit"
+            disabled={!inputMessage.trim() || isSending}
+            aria-label="Send message"
+            className="w-10 h-10 rounded-full bg-[#3730A3] hover:bg-[#2E2882] active:scale-95 disabled:bg-[#C7CBEE] text-white flex items-center justify-center cursor-pointer transition shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3730A3]"
+          >
+            {isSending ? (
+              <Loader2 size={18} className="animate-spin text-white" />
+            ) : (
+              <Send size={17} />
+            )}
+          </button>
+        </div>
       </form>
 
       {/* Group Info Modal */}
