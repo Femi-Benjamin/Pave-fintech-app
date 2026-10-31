@@ -289,7 +289,7 @@ export function MarketplaceScreen({
                 )}
               </div>
             ) : (
-              <div className={`grid grid-cols-2 gap-3 ${filteredProducts.length > 2 ? 'max-h-[520px] overflow-y-auto scrollbar-hide pr-1' : ''}`}>
+              <div className="grid grid-cols-2 gap-3">
                 {filteredProducts.map((p) => {
                   const priceNum =
                     typeof p.price === "number"
