@@ -113,3 +113,23 @@ test("mergeMessages merges pages without duplicates, sorted oldest first, drops 
     ["a", "b", "c"],
   );
 });
+
+test("createOneOnOneChat sends userId in the JSON body, never in the URL or query params", async () => {
+  const original = api.defaults.adapter;
+  let sent: any = null;
+  (api.defaults as any).adapter = async (config: any) => {
+    sent = { method: String(config.method).toLowerCase(), url: String(config.url), params: config.params, data: config.data };
+    return { data: { success: true, data: { chat: { id: "c1" } } }, status: 200, statusText: "OK", headers: {}, config };
+  };
+  try {
+    const { createOneOnOneChat } = await import("../src/api/messaging");
+    await createOneOnOneChat({ userId: "user-123", message: "hi" });
+  } finally {
+    (api.defaults as any).adapter = original;
+  }
+  assert.equal(sent.method, "post");
+  assert.equal(sent.url, "/api/v1/message/oneOnOneChat");
+  assert.equal(sent.params, undefined);
+  assert.equal(JSON.parse(sent.data).userId, "user-123");
+  assert.equal(JSON.parse(sent.data).message, "hi");
+});
