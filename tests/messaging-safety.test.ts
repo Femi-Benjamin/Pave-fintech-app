@@ -128,7 +128,7 @@ test("createOneOnOneChat sends userId in the JSON body, never in the URL or quer
     (api.defaults as any).adapter = original;
   }
   assert.equal(sent.method, "post");
-  assert.equal(sent.url, "/api/v1/message/oneOnOneChat");
+  assert.equal(sent.url, "/api/v1/message/createOneOnOneChat");
   assert.equal(sent.params, undefined);
   assert.equal(JSON.parse(sent.data).userId, "user-123");
   assert.equal(JSON.parse(sent.data).message, "hi");

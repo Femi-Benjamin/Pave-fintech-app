@@ -332,7 +332,7 @@ export async function getGroupChatMessages(
 
 /**
  * 8. Create One-on-One Chat / Send One-on-One Message
- * POST /api/v1/message/oneOnOneChat
+ * POST /api/v1/message/createOneOnOneChat
  * Also serves as the sending mechanism for 1-on-1 messages with userId and optional message body.
  */
 export async function createOneOnOneChat(
@@ -353,7 +353,7 @@ export async function createOneOnOneChat(
 
   const response = await api.post<
     ApiResponse<{ chat: OneOnOneChat; message?: ChatMessageItem }>
-  >("/api/v1/message/oneOnOneChat", cleanPayload);
+  >("/api/v1/message/createOneOnOneChat", cleanPayload);
   return response.data;
 }
 
