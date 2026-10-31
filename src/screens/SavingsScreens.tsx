@@ -503,7 +503,7 @@ export function CreateSavingScreen({
                   type="button"
                   onClick={() => onNav("savings")}
                   disabled={createMutation.isPending}
-                  className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] bg-[#F3F4F6] transition hover:bg-[#E5E7EB] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Cancel
                 </button>

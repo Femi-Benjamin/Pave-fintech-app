@@ -18,7 +18,7 @@ export function PaveBtn({
       : "px-6 py-3 text-base";
   const variants: any = {
     primary: "bg-[#3730A3] text-white hover:bg-[#312E81]",
-    ghost: "bg-transparent text-[#3730A3] hover:bg-[#EEF2FF]",
+    ghost: "bg-[#F3F4F6] text-[#3730A3] hover:bg-[#EEF2FF]",
     outline: "border-2 border-[#3730A3] text-[#3730A3] hover:bg-[#EEF2FF]",
     secondary: "bg-[#EEF2FF] text-[#3730A3] border border-[#C7D2FE] hover:bg-[#E0E7FF]",
     danger: "bg-[#DC2626] text-white hover:bg-[#B91C1C]",

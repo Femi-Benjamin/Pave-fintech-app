@@ -575,7 +575,7 @@ export function CreateGroupSavingScreen({
                   <button
                     type="button"
                     onClick={() => onNav("group-savings")}
-                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F3F4F6]"
+                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] bg-[#F3F4F6] transition hover:bg-[#E5E7EB]"
                   >
                     Cancel
                   </button>
@@ -669,7 +669,7 @@ export function CreateGroupSavingScreen({
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F3F4F6]"
+                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] bg-[#F3F4F6] transition hover:bg-[#E5E7EB]"
                   >
                     Back
                   </button>
@@ -2445,7 +2445,7 @@ export function GroupSavingDetailScreen({
                 <button
                   type="button"
                   onClick={() => setShowProductForm(false)}
-                  className="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg border border-gray-300 bg-[#F3F4F6] text-gray-700 font-medium hover:bg-gray-200 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -2795,7 +2795,7 @@ export function GroupSavingDetailScreen({
                 type="button"
                 onClick={() => setShowDeleteGroupModal(false)}
                 disabled={deleteMutation.isPending}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-[#F3F4F6] text-sm font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer disabled:opacity-50"
               >
                 Keep Group
               </button>
@@ -2879,7 +2879,7 @@ export function GroupSavingDetailScreen({
                 type="button"
                 onClick={() => setShowLeaveGroupModal(false)}
                 disabled={leaveMutation.isPending}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-[#F3F4F6] text-sm font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer disabled:opacity-50"
               >
                 Stay in Group
               </button>
@@ -2977,7 +2977,7 @@ export function GroupSavingDetailScreen({
                   setProductDeleteError("");
                 }}
                 disabled={deleteProductMutation.isPending}
-                className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-[#F3F4F6] text-sm font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
