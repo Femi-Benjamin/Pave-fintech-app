@@ -216,9 +216,12 @@ interface UnifiedConversationItem {
 export function MessagesScreen({
   onNav,
   setActiveChat,
+  activeChatId,
 }: {
   onNav: (s: Screen) => void;
   setActiveChat: (c: ActiveChatState) => void;
+  /** Id of the conversation open in the right-hand pane (desktop) */
+  activeChatId?: string;
 }) {
   const { authUser } = useLocalStore();
   const currentUserId = getCurrentUserId(authUser);
@@ -335,6 +338,7 @@ export function MessagesScreen({
       } else {
         await deleteDirectMutation.mutateAsync(confirmDeleteChat.id);
       }
+      if (activeChatId && confirmDeleteChat.id === activeChatId) onNav("messages");
       setConfirmDeleteChat(null);
     } catch (err: any) {
       setConfirmDeleteChat(null);
@@ -557,7 +561,12 @@ export function MessagesScreen({
                             handleOpenChat(item);
                           }
                         }}
-                        className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F5F6FF] active:bg-[#EEF2FF] transition-colors cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#3730A3]"
+                        aria-current={item.id === activeChatId ? "true" : undefined}
+                        className={`flex items-center gap-4 px-5 py-3.5 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#3730A3] ${
+                          item.id === activeChatId
+                            ? "bg-[#EEF2FF]"
+                            : "hover:bg-[#F5F6FF] active:bg-[#EEF2FF]"
+                        }`}
                       >
                         <ConversationAvatar name={item.name} type={item.type} />
                         <div className="flex-1 min-w-0 border-b border-[#EEF0FA] pb-3.5 -mb-3.5 group-last:border-b-0">
@@ -691,6 +700,88 @@ export function MessagesScreen({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Workspace: list + chat side by side on desktop ─────────────────────────
+// Phones keep the one-screen-at-a-time flow; from lg up the list stays on the
+// left and the open conversation fills the right.
+export function MessagesWorkspace({
+  screen,
+  onNav,
+  chat,
+  setActiveChat,
+}: {
+  screen: Screen;
+  onNav: (s: Screen) => void;
+  chat?: ActiveChatState | null;
+  setActiveChat: (c: ActiveChatState) => void;
+}) {
+  const showingChat = screen !== "messages" && !!chat;
+  return (
+    <div
+      className={`flex-1 flex min-h-0 lg:h-screen lg:max-h-screen overflow-hidden ${
+        showingChat ? "max-lg:h-dvh" : ""
+      }`}
+    >
+      <div
+        className={`${
+          showingChat ? "hidden lg:flex" : "flex"
+        } w-full lg:w-[400px] xl:w-[440px] lg:shrink-0 flex-col min-h-0 lg:border-r border-[#E7E9F7]`}
+      >
+        <MessagesScreen
+          onNav={onNav}
+          setActiveChat={setActiveChat}
+          activeChatId={showingChat ? chat?.id : undefined}
+        />
+      </div>
+      <div
+        className={`${
+          showingChat ? "flex" : "hidden lg:flex"
+        } flex-1 min-w-0 min-h-0 flex-col`}
+      >
+        {showingChat && chat ? (
+          <ChatScreen
+            key={`${chat.type}-${chat.id || chat.recipientId || "new"}`}
+            onNav={onNav}
+            chat={chat}
+          />
+        ) : (
+          <div
+            className="flex-1 flex flex-col items-center justify-center text-center px-8 bg-[#F5F6FF]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(55,48,163,0.07) 1px, transparent 1px)",
+              backgroundSize: "20px 20px",
+            }}
+          >
+            <div className="relative w-28 h-24 mb-6">
+              <div className="absolute left-0 top-4 w-16 h-16 rounded-full bg-white border border-[#DDE0F5] shadow-sm flex items-center justify-center text-[#3730A3]">
+                <MessageSquare size={28} />
+              </div>
+              <div
+                className="absolute right-0 bottom-0 w-16 h-16 flex items-center justify-center text-white shadow-lg shadow-[#3730A3]/25"
+                style={{
+                  borderRadius: 22,
+                  background: "linear-gradient(140deg, #7C3AED 0%, #3730A3 100%)",
+                }}
+              >
+                <Users size={28} />
+              </div>
+            </div>
+            <h3
+              style={{ fontFamily: "var(--font-family-display)" }}
+              className="font-bold text-xl text-[#1E1B4B]"
+            >
+              Pick a conversation
+            </h3>
+            <p className="mt-2 max-w-xs text-sm text-[#6B7280] leading-relaxed">
+              Choose a person or group on the left, or start a new chat.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1182,11 +1273,11 @@ export function ChatScreen({
     <div className="flex-1 flex flex-col bg-[#F5F6FF] overflow-hidden">
       {/* Top bar */}
       <div className="shrink-0 bg-white border-b border-[#E7E9F7]">
-        <div className="mx-auto w-full max-w-3xl flex items-center gap-3 px-3 sm:px-5 pt-3 sm:pt-4 pb-3">
+        <div className="w-full flex items-center gap-3 px-3 sm:px-5 lg:px-6 pt-3 sm:pt-4 lg:pt-4 pb-3">
           <button
             onClick={() => onNav("messages")}
             aria-label="Back to messages"
-            className="w-10 h-10 rounded-full text-[#374151] hover:bg-[#F5F6FF] active:scale-95 flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#3730A3]"
+            className="lg:hidden w-10 h-10 rounded-full text-[#374151] hover:bg-[#F5F6FF] active:scale-95 flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#3730A3]"
           >
             <ArrowLeft size={20} />
           </button>
@@ -1279,7 +1370,7 @@ export function ChatScreen({
           backgroundSize: "20px 20px",
         }}
       >
-        <div className="mx-auto w-full max-w-3xl min-h-full px-3 sm:px-5 py-4 flex flex-col">
+        <div className="mx-auto w-full max-w-4xl min-h-full px-3 sm:px-5 lg:px-8 py-4 flex flex-col">
           {isLoadingMessages ? (
             <div className="flex flex-col gap-3">
               {[1, 2, 3].map((i) => (
@@ -1461,9 +1552,9 @@ export function ChatScreen({
       {/* Composer */}
       <form
         onSubmit={handleSendMessage}
-        className="shrink-0 px-3 sm:px-5 pb-3 pt-2"
+        className="shrink-0 px-3 sm:px-5 lg:px-8 pb-3 lg:pb-5 pt-2"
       >
-        <div className="mx-auto w-full max-w-3xl flex items-center gap-1.5 bg-white rounded-full border border-[#DDE0F5] shadow-[0_4px_18px_rgba(30,27,75,0.08)] p-1.5 focus-within:border-[#3730A3] transition-colors">
+        <div className="mx-auto w-full max-w-4xl flex items-center gap-1.5 bg-white rounded-full border border-[#DDE0F5] shadow-[0_4px_18px_rgba(30,27,75,0.08)] p-1.5 focus-within:border-[#3730A3] transition-colors">
           <button
             type="button"
             onClick={() =>

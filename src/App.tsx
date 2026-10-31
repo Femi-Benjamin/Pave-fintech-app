@@ -51,8 +51,7 @@ import {
   PurchaseDetailScreen,
 } from "./screens/MarketplaceScreens";
 import {
-  MessagesScreen,
-  ChatScreen,
+  MessagesWorkspace,
   NotificationsScreen,
 } from "./screens/MessagesScreens";
 import {
@@ -116,6 +115,8 @@ function MobileApp({
     !authOrIntroScreens.includes(screen) &&
     screen !== "chat" &&
     screen !== "group-chat";
+  // Chat screens hide the phone bottom nav, but desktop keeps its sidebar
+  const isChatScreen = screen === "chat" || screen === "group-chat";
   const isFixedIntroScreen =
     screen === "onboarding" || screen === "login" || screen === "register";
 
@@ -274,11 +275,16 @@ function MobileApp({
           />
         );
       case "messages":
-        return <MessagesScreen onNav={nav} setActiveChat={setActiveChat} />;
       case "chat":
-        return <ChatScreen onNav={nav} chat={activeChat} />;
       case "group-chat":
-        return <ChatScreen onNav={nav} chat={activeChat} />;
+        return (
+          <MessagesWorkspace
+            screen={screen}
+            onNav={nav}
+            chat={activeChat}
+            setActiveChat={setActiveChat}
+          />
+        );
       case "notifications":
         return <NotificationsScreen onNav={nav} />;
       case "transactions":
@@ -304,7 +310,7 @@ function MobileApp({
       style={{ fontFamily: "var(--font-family-body)" }}
     >
       {/* Desktop Sidebar (visible on large screens for authenticated main app) */}
-      {showNav && (
+      {(showNav || isChatScreen) && (
         <DesktopSidebar
           screen={screen}
           onNav={nav}

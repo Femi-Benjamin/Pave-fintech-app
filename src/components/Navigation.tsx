@@ -94,7 +94,7 @@ export function DesktopSidebar({
                 ["fund-wallet", "transfer", "bills", "airtime", "transactions"].includes(screen)) ||
               (item.screen === "marketplace" &&
                 ["product-detail", "cart", "checkout", "payment-plan"].includes(screen)) ||
-              (item.screen === "messages" && ["chat"].includes(screen)) ||
+              (item.screen === "messages" && ["chat", "group-chat"].includes(screen)) ||
               (item.screen === "profile" && ["settings"].includes(screen));
             return (
               <button
