@@ -760,9 +760,14 @@ export function ChatScreen({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Active chat metadata
+  // Active chat metadata. A new direct conversation receives its ID from
+  // the first successful oneOnOneChat response.
   const isGroup = chat?.type === "group";
-  const chatId = chat?.id || "";
+  const [resolvedChatId, setResolvedChatId] = useState(chat?.id || "");
+  useEffect(() => {
+    setResolvedChatId(chat?.id || "");
+  }, [chat?.id]);
+  const chatId = resolvedChatId;
   const recipientId = chat?.recipientId || "";
   const chatName = chat?.name || (isGroup ? "Group Chat" : "Direct Chat");
 
@@ -827,11 +832,15 @@ export function ChatScreen({
         if (!recipientId && !chatId) {
           throw new Error("Missing recipient or conversation reference");
         }
-        await sendOneOnOneMutation.mutateAsync({
+        const response = await sendOneOnOneMutation.mutateAsync({
           userId: recipientId,
           message: textToSend,
           messageType: "text",
         });
+        const createdChatId = response?.data?.chat?.id;
+        if (createdChatId) {
+          setResolvedChatId(createdChatId);
+        }
       }
       setInputMessage("");
     } catch (err: any) {
@@ -1202,10 +1211,26 @@ function GroupDetailsModal({
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setEditError("");
+
+    const memberEmails = (group?.members || [])
+      .map((member) => member.user?.email?.trim().toLowerCase())
+      .filter((email): email is string => Boolean(email));
+
+    if (memberEmails.length === 0) {
+      setEditError(
+        "We couldn't retrieve the group members' email addresses. Refresh the group details and try again.",
+      );
+      return;
+    }
+
     try {
       await updateMutation.mutateAsync({
         groupId,
-        payload: { groupName: editName.trim(), description: editDesc.trim() },
+        payload: {
+          groupName: editName.trim(),
+          description: editDesc.trim(),
+          emails: memberEmails,
+        },
       });
       setIsEditing(false);
     } catch (err: any) {
