@@ -21,6 +21,7 @@ export const BOTTOM_NAV = [
   { screen: "savings" as Screen, icon: Target, label: "Savings" },
   { screen: "group-savings" as Screen, icon: PiggyBank, label: "Ajo" },
   { screen: "marketplace" as Screen, icon: ShoppingBag, label: "Shop" },
+  { screen: "messages" as Screen, icon: MessageCircle, label: "Messages" },
   { screen: "profile" as Screen, icon: User, label: "Profile" },
 ];
 

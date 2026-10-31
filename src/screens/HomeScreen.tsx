@@ -11,6 +11,7 @@ import {
   Landmark,
   ArrowDownLeft,
   RotateCw,
+  MessageCircle,
 } from "lucide-react";
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import Logo, { BrandText } from "../components/Logo";
@@ -208,8 +209,18 @@ export function HomeScreen({
             <RotateCw size={16} />
           </button> */}
           <button
+            onClick={() => onNav("messages")}
+            className="relative w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#374151] hover:text-[#3730A3] transition-colors"
+            title="Messages"
+            aria-label="Messages"
+          >
+            <MessageCircle size={18} />
+          </button>
+          <button
             onClick={() => onNav("notifications")}
             className="relative w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB]"
+            title="Notifications"
+            aria-label="Notifications"
           >
             <Bell size={18} className="text-[#374151]" />
             <div className="absolute top-2 right-2 w-2 h-2 bg-[#D97706] rounded-full" />

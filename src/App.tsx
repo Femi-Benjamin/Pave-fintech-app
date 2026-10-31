@@ -112,7 +112,10 @@ function MobileApp({
     "kyc-pending",
     "kyc-approved",
   ];
-  const showNav = !authOrIntroScreens.includes(screen);
+  const showNav =
+    !authOrIntroScreens.includes(screen) &&
+    screen !== "chat" &&
+    screen !== "group-chat";
   const isFixedIntroScreen =
     screen === "onboarding" || screen === "login" || screen === "register";
 
@@ -342,22 +345,24 @@ function MobileApp({
                   (item.screen === "wallet" &&
                     ["fund-wallet", "transfer", "bills", "airtime", "transactions"].includes(screen)) ||
                   (item.screen === "marketplace" &&
-                    ["product-detail", "cart", "checkout", "payment-plan", "purchase-detail"].includes(screen));
+                    ["product-detail", "cart", "checkout", "payment-plan", "purchase-detail"].includes(screen)) ||
+                  (item.screen === "messages" &&
+                    ["messages", "chat", "group-chat"].includes(screen));
                 return (
                   <button
                     key={item.screen}
                     onClick={() => nav(item.screen)}
-                    className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-colors cursor-pointer select-none active:scale-95"
+                    className="flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-colors cursor-pointer select-none active:scale-95"
                   >
                     <item.icon
-                      size={22}
+                      size={20}
                       style={{
                         color: active ? "#3730A3" : "#9CA3AF",
                         strokeWidth: active ? 2.2 : 1.6,
                       }}
                     />
                     <span
-                      className="text-xs font-semibold"
+                      className="text-[10px] sm:text-xs font-semibold"
                       style={{ color: active ? "#3730A3" : "#9CA3AF" }}
                     >
                       {item.label}
