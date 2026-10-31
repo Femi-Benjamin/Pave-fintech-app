@@ -362,7 +362,7 @@ export function MessagesScreen({
     <div className="flex-1 flex flex-col bg-[#F5F6FF] overflow-hidden">
       {/* Header band */}
       <div
-        className="shrink-0 px-5 sm:px-8 pt-12 pb-14"
+        className="shrink-0 px-5 sm:px-8 pt-12 pb-14 lg:pt-10 lg:pb-6"
         style={{
           background:
             "linear-gradient(135deg, #1E1B4B 0%, #312E81 55%, #4C1D95 100%)",
@@ -418,8 +418,8 @@ export function MessagesScreen({
       </div>
 
       {/* Sheet */}
-      <div className="flex-1 min-h-0 -mt-7 flex flex-col">
-        <div className="mx-auto w-full max-w-3xl flex-1 min-h-0 flex flex-col bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(30,27,75,0.12)] overflow-hidden">
+      <div className="flex-1 min-h-0 -mt-7 lg:mt-0 flex flex-col">
+        <div className="mx-auto w-full max-w-3xl flex-1 min-h-0 flex flex-col bg-white rounded-t-[28px] lg:rounded-none shadow-[0_-8px_30px_rgba(30,27,75,0.12)] lg:shadow-none overflow-hidden">
           {/* Tabs */}
           <div
             role="tablist"
