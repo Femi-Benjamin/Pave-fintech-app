@@ -107,15 +107,3 @@ export function notificationIcon(type: string): string {
   if (/ORDER|PRODUCT|PURCHASE|MARKET/.test(t)) return "📦";
   return "🔔";
 }
-
-/** Accent colour per notification category, so the list is easy to scan. */
-export function notificationTint(type: string): string {
-  const t = (type || "").toUpperCase();
-  if (/VEND|BILL|AIRTIME|DATA|ELECTRIC/.test(t)) return "#0F766E";
-  if (/TRANSFER|WALLET|CREDIT|DEBIT|FUND|WITHDRAW/.test(t)) return "#047857";
-  if (/SAV|CONTRIB|GOAL|AJO/.test(t)) return "#7C3AED";
-  if (/KYC|VERIF/.test(t)) return "#1D4ED8";
-  if (/MESSAGE|CHAT/.test(t)) return "#D97706";
-  if (/ORDER|PRODUCT|PURCHASE|MARKET/.test(t)) return "#BE185D";
-  return "#3730A3";
-}

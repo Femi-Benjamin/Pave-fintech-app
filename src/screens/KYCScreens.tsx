@@ -346,7 +346,7 @@ export function KYCIDUploadScreen({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {(
             [
               {
@@ -380,26 +380,30 @@ export function KYCIDUploadScreen({
                 type="button"
                 onClick={() => inputRef.current?.click()}
                 disabled={verifyNinMutation.isPending}
-                className={`relative flex w-full h-full flex-col items-center justify-center gap-1.5 sm:gap-3 p-4 sm:p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer disabled:opacity-60 ${file ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
+                className={`relative flex w-full h-full flex-row sm:flex-col items-center justify-start sm:justify-center gap-3 sm:gap-3 px-4 py-3.5 sm:p-8 text-left sm:text-center rounded-2xl border-2 border-dashed transition-all cursor-pointer disabled:opacity-60 ${file ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
               >
                 {file ? (
                   <>
-                    <CheckCircle size={36} className="h-7 w-7 sm:h-9 sm:w-9 text-[#059669]" />
-                    <span className="text-xs sm:text-sm font-semibold text-[#059669]">
-                      {label} selected
-                    </span>
-                    <span className="max-w-full truncate text-xs text-[#6B7280]">
-                      {file.name}
+                    <CheckCircle size={36} className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 text-[#059669]" />
+                    <span className="flex min-w-0 flex-col sm:items-center">
+                      <span className="text-sm font-semibold text-[#059669]">
+                        {label} selected
+                      </span>
+                      <span className="max-w-full truncate text-xs text-[#6B7280]">
+                        {file.name}
+                      </span>
                     </span>
                   </>
                 ) : (
                   <>
-                    <Upload size={32} className="h-6 w-6 sm:h-8 sm:w-8 text-[#9CA3AF]" />
-                    <span className="text-xs sm:text-sm font-semibold text-[#374151]">
-                      Upload {label}
-                    </span>
-                    <span className="text-[11px] sm:text-xs text-[#9CA3AF]">
-                      JPG, PNG up to 5MB
+                    <Upload size={32} className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 text-[#9CA3AF]" />
+                    <span className="flex min-w-0 flex-col sm:items-center">
+                      <span className="text-sm font-semibold text-[#374151]">
+                        Upload {label}
+                      </span>
+                      <span className="text-xs text-[#9CA3AF]">
+                        JPG, PNG up to 5MB
+                      </span>
                     </span>
                   </>
                 )}

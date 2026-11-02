@@ -27,7 +27,6 @@ import {
 import {
   notificationIcon,
   notificationTitle,
-  notificationTint,
 } from "../api/notifications";
 import type { AppNotification } from "../api/notifications";
 import {
@@ -36,8 +35,6 @@ import {
   mergeMessages,
   buildChatRows,
   avatarColorFor,
-  dayKey,
-  formatDayLabel,
   DELETE_DIRECT_CHAT_WARNING,
   DELETE_GROUP_CHAT_WARNING,
 } from "../utils/messaging";
@@ -1893,7 +1890,6 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const deleteOne = useDeleteNotificationMutation();
   const deleteAll = useDeleteAllNotificationsMutation();
 
-  const [filter, setFilter] = useState<"all" | "unread">("all");
   const [actionError, setActionError] = useState("");
   const [confirmClearAll, setConfirmClearAll] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -1906,270 +1902,176 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
   const handleOpen = (n: AppNotification) => {
     if (n.isRead) return;
-    markRead.mutate(n.id, { onError: (e) => fail(e, "Could not mark as read.") });
+    markRead.mutate(n.id, {
+      onError: (e) => fail(e, "Could not mark as read."),
+    });
   };
 
-  // Newest first, grouped under Today / Yesterday / date
-  const visible = [...items]
-    .filter((n) => (filter === "unread" ? !n.isRead : true))
-    .sort(
-      (a, b) =>
-        (new Date(b.createdAt).getTime() || 0) -
-        (new Date(a.createdAt).getTime() || 0),
-    );
-  const sections: { key: string; label: string; list: AppNotification[] }[] = [];
-  for (const n of visible) {
-    const key = dayKey(n.createdAt) || "unknown";
-    const last = sections[sections.length - 1];
-    if (last && last.key === key) last.list.push(n);
-    else
-      sections.push({
-        key,
-        label: formatDayLabel(n.createdAt) || "Earlier",
-        list: [n],
-      });
-  }
-
   return (
-    <div className="flex-1 flex flex-col bg-[#F5F6FF] overflow-y-auto">
-      {/* Header band */}
-      <div
-        className="shrink-0 px-5 sm:px-8 pt-10 pb-14"
-        style={{
-          background:
-            "linear-gradient(135deg, #1E1B4B 0%, #312E81 55%, #4C1D95 100%)",
-        }}
-      >
-        <div className="mx-auto w-full max-w-3xl">
+    <div className="flex-1 flex flex-col overflow-y-auto">
+      <div className="px-5 sm:px-8 pt-10 sm:pt-12 pb-4 bg-white border-b border-[#F1F3FB]">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => onNav("home")}
             aria-label="Back to home"
             title="Back to home"
-            className="w-10 h-10 -ml-1 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="w-10 h-10 rounded-full bg-[#F1F3FB] hover:bg-[#EEF2FF] flex items-center justify-center cursor-pointer transition-colors shrink-0"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </button>
-          <div className="mt-4">
-            <h2
-              style={{
-                fontFamily: "var(--font-family-display)",
-                fontWeight: 700,
-                fontSize: 28,
-                lineHeight: 1.1,
-              }}
-              className="text-white"
+          <h2
+            style={{
+              fontFamily: "var(--font-family-display)",
+              fontWeight: 700,
+              fontSize: 24,
+            }}
+            className="text-[#0D0F1C]"
+          >
+            Notifications
+          </h2>
+        </div>
+
+        {/* Status + actions in one tidy bar */}
+        <div className="mt-4 flex items-center justify-between gap-2 rounded-2xl bg-[#F8F9FD] border border-[#EEF0FA] pl-4 pr-1.5 py-1.5">
+          <div className="flex items-center gap-2 min-w-0 text-sm">
+            <span
+              className={`w-2 h-2 rounded-full shrink-0 ${
+                unread > 0 ? "bg-[#3730A3]" : "bg-[#D1D5DB]"
+              }`}
+              aria-hidden="true"
+            />
+            <span
+              className={`truncate ${
+                unread > 0 ? "font-semibold text-[#0D0F1C]" : "text-[#6B7280]"
+              }`}
             >
-              Notifications
-            </h2>
-            <p className="text-sm text-white/70 mt-1.5">
-              {isLoading
-                ? "Loading your updates"
-                : unread > 0
-                ? `${unread} unread ${unread === 1 ? "update" : "updates"}`
-                : "You're all caught up"}
-            </p>
+              {unread > 0 ? `${unread} unread` : "All caught up"}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() =>
+                markAll.mutate(undefined, {
+                  onError: (e) => fail(e, "Could not mark all as read."),
+                })
+              }
+              disabled={unread === 0 || markAll.isPending}
+              className="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#3730A3] hover:bg-white disabled:text-[#9CA3AF] disabled:hover:bg-transparent cursor-pointer disabled:cursor-default transition-colors"
+            >
+              Mark all read
+            </button>
+            {items.length > 0 && (
+              <button
+                onClick={() => setConfirmClearAll(true)}
+                className="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#DC2626] hover:bg-[#FEE2E2] cursor-pointer transition-colors"
+              >
+                Clear all
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Sheet */}
-      <div className="flex-1 -mt-7">
-        <div className="mx-auto w-full max-w-3xl min-h-full bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(30,27,75,0.12)]">
-          {/* Tabs + actions */}
-          <div className="flex items-center justify-between gap-2 px-5 pt-5 pb-3">
-            <div role="tablist" aria-label="Filter notifications" className="flex items-center gap-1.5">
-              {(
-                [
-                  { id: "all", label: "All", count: items.length },
-                  { id: "unread", label: "Unread", count: unread },
-                ] as const
-              ).map((tab) => {
-                const active = filter === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => setFilter(tab.id)}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3730A3] ${
-                      active
-                        ? "bg-[#3730A3] text-white font-semibold"
-                        : "text-[#6B7280] hover:bg-[#F5F6FF] hover:text-[#1E1B4B]"
-                    }`}
-                  >
-                    <span>{tab.label}</span>
-                    <span
-                      className={`text-[11px] font-semibold px-1.5 rounded-full ${
-                        active ? "bg-white/20 text-white" : "bg-[#EEF2FF] text-[#3730A3]"
-                      }`}
-                    >
-                      {tab.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+      {actionError && (
+        <div className="mx-4 mt-3 px-4 py-2 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
+          <span>{actionError}</span>
+          <button
+            onClick={() => setActionError("")}
+            className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
-            {items.length > 0 && (
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  onClick={() =>
-                    markAll.mutate(undefined, {
-                      onError: (e) => fail(e, "Could not mark all as read."),
-                    })
-                  }
-                  disabled={unread === 0 || markAll.isPending}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold text-[#3730A3] hover:bg-[#EEF2FF] disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer transition"
-                >
-                  <CheckCheck size={14} />
-                  <span>Mark all read</span>
-                </button>
-                <button
-                  onClick={() => setConfirmClearAll(true)}
-                  aria-label="Clear all notifications"
-                  title="Clear all"
-                  className="w-8 h-8 rounded-full text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] flex items-center justify-center cursor-pointer transition"
-                >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-            )}
+      <div className="flex-1 px-4 py-4 flex flex-col gap-2">
+        {isLoading ? (
+          [1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-20 rounded-2xl bg-[#F3F4F6] animate-pulse"
+            />
+          ))
+        ) : error ? (
+          <div className="p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
+            <span>Unable to load notifications.</span>
+            <button
+              onClick={() => refetch()}
+              className="font-semibold text-[#DC2626] hover:underline cursor-pointer"
+            >
+              Retry
+            </button>
           </div>
-
-          {actionError && (
-            <div className="mx-5 mb-2 px-4 py-2.5 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
-              <span>{actionError}</span>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-14 h-14 rounded-full bg-[#EEF2FF] flex items-center justify-center text-2xl mb-3">
+              🔔
+            </div>
+            <p className="font-semibold text-sm text-[#0D0F1C]">
+              No notifications yet
+            </p>
+            <p className="text-xs text-[#6B7280] mt-1">
+              Updates about your wallet, savings and messages will show here.
+            </p>
+          </div>
+        ) : (
+          items.map((n) => (
+            <div
+              key={n.id}
+              onClick={() => handleOpen(n)}
+              className={`flex items-start gap-4 p-4 rounded-2xl transition-colors cursor-pointer ${
+                n.isRead
+                  ? "bg-white border border-[#F1F3FB]"
+                  : "bg-[#EEF2FF] border border-[#C7D2FE]"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-full bg-[#3730A3]/10 flex items-center justify-center shrink-0 text-xl">
+                {notificationIcon(n.type)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-[#0D0F1C] truncate">
+                    {notificationTitle(n.type)}
+                  </span>
+                  {!n.isRead && (
+                    <div className="w-2 h-2 rounded-full bg-[#3730A3] shrink-0" />
+                  )}
+                </div>
+                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed wrap-break-word">
+                  {n.message}
+                </p>
+                <span className="text-xs text-[#9CA3AF] mt-1 block">
+                  {formatMessageTime(n.createdAt)}
+                </span>
+              </div>
               <button
-                onClick={() => setActionError("")}
-                className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmDeleteId(n.id);
+                }}
+                aria-label="Delete notification"
+                title="Delete notification"
+                className="p-1.5 text-[#9CA3AF] hover:text-[#DC2626] rounded cursor-pointer shrink-0"
               >
-                Dismiss
+                <Trash2 size={14} />
               </button>
             </div>
-          )}
-
-          <div className="pb-24 lg:pb-8">
-            {isLoading ? (
-              <div className="px-5 flex flex-col gap-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-[76px] rounded-2xl bg-[#F3F4FB] animate-pulse" />
-                ))}
-              </div>
-            ) : error ? (
-              <div className="mx-5 p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] flex items-center justify-between text-xs text-[#991B1B]">
-                <span>Couldn't load your notifications.</span>
-                <button
-                  onClick={() => refetch()}
-                  className="font-semibold text-[#DC2626] hover:underline cursor-pointer"
-                >
-                  Try again
-                </button>
-              </div>
-            ) : visible.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-[#EEF2FF] flex items-center justify-center text-3xl mb-4">
-                  {filter === "unread" ? "✅" : "🔔"}
-                </div>
-                <h3
-                  style={{ fontFamily: "var(--font-family-display)" }}
-                  className="font-bold text-lg text-[#1E1B4B]"
-                >
-                  {filter === "unread" ? "You're all caught up" : "No notifications yet"}
-                </h3>
-                <p className="text-sm text-[#6B7280] max-w-xs mt-1.5 leading-relaxed">
-                  {filter === "unread"
-                    ? "New updates will show up here."
-                    : "Updates about your wallet, savings and messages will show here."}
-                </p>
-              </div>
-            ) : (
-              sections.map((section) => (
-                <section key={section.key} className="mb-2">
-                  <h3 className="px-6 pt-3 pb-2 text-xs font-semibold text-[#6B7280]">
-                    {section.label}
-                  </h3>
-                  <ul className="px-3 flex flex-col gap-1">
-                    {section.list.map((n) => {
-                      const tint = notificationTint(n.type);
-                      return (
-                        <li key={n.id} className="group relative">
-                          <div
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => handleOpen(n)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                handleOpen(n);
-                              }
-                            }}
-                            className={`flex items-start gap-3.5 pl-3 pr-12 py-3 rounded-2xl transition-colors cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#3730A3] ${
-                              n.isRead
-                                ? "hover:bg-[#F5F6FF]"
-                                : "bg-[#F3F4FF] hover:bg-[#EEF0FF]"
-                            }`}
-                          >
-                            <div
-                              className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-xl"
-                              style={{ background: `${tint}1A` }}
-                              aria-hidden="true"
-                            >
-                              {notificationIcon(n.type)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-baseline justify-between gap-3">
-                                <span
-                                  style={{ fontFamily: "var(--font-family-display)" }}
-                                  className={`text-[15px] truncate ${
-                                    n.isRead
-                                      ? "font-semibold text-[#374151]"
-                                      : "font-bold text-[#1E1B4B]"
-                                  }`}
-                                >
-                                  {notificationTitle(n.type)}
-                                </span>
-                                <span className="flex items-center gap-1.5 shrink-0 text-xs text-[#9CA3AF] tabular-nums">
-                                  {!n.isRead && (
-                                    <span
-                                      className="w-2 h-2 rounded-full bg-[#3730A3]"
-                                      aria-label="Unread"
-                                    />
-                                  )}
-                                  {formatClock(n.createdAt)}
-                                </span>
-                              </div>
-                              <p className="text-[13px] text-[#6B7280] mt-0.5 leading-relaxed wrap-break-word">
-                                {n.message}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmDeleteId(n.id)}
-                            aria-label="Delete notification"
-                            title="Delete notification"
-                            className="absolute right-2 bottom-2 p-2 rounded-lg text-[#C4C7D4] hover:text-[#DC2626] hover:bg-[#FEE2E2] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              ))
-            )}
-          </div>
-        </div>
+          ))
+        )}
       </div>
 
       {(confirmClearAll || confirmDeleteId) && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-xs w-full p-5 shadow-xl">
             <h4 className="font-bold text-sm text-[#0D0F1C]">
-              {confirmClearAll ? "Clear all notifications?" : "Delete notification?"}
+              {confirmClearAll
+                ? "Clear all notifications?"
+                : "Delete notification?"}
             </h4>
-            <p className="text-xs text-[#6B7280] mt-1.5">This cannot be undone.</p>
+            <p className="text-xs text-[#6B7280] mt-1.5">
+              This cannot be undone.
+            </p>
             <div className="flex items-center gap-2 mt-4">
               <button
                 type="button"

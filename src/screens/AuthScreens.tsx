@@ -964,14 +964,18 @@ export function ForgotPasswordScreen({
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
-        <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
+        <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
           <button
             onClick={() => onNav("login")}
+            aria-label="Back to login"
             className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
           >
             <ArrowLeft size={18} />
           </button>
-          <Logo size="sm" />
+          <div className="flex items-center justify-center">
+            <Logo size="sm" />
+          </div>
+          <div aria-hidden="true" />
         </div>
 
         <div className="flex-1 flex flex-col">
