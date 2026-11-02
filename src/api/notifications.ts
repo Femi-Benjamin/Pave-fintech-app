@@ -82,6 +82,8 @@ export async function deleteAllNotifications(): Promise<void> {
   await api.delete("/api/v1/notifications/delete-all");
 }
 
+const ACRONYMS = new Set(["kyc", "nin", "otp", "bvn", "id", "sms"]);
+
 export function notificationTitle(type: string): string {
   const t = (type || "").trim();
   if (!t) return "Notification";
@@ -89,7 +91,9 @@ export function notificationTitle(type: string): string {
     .toLowerCase()
     .split(/[_\s-]+/)
     .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .map((w) =>
+      ACRONYMS.has(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1),
+    )
     .join(" ");
 }
 
@@ -102,4 +106,16 @@ export function notificationIcon(type: string): string {
   if (/MESSAGE|CHAT/.test(t)) return "💬";
   if (/ORDER|PRODUCT|PURCHASE|MARKET/.test(t)) return "📦";
   return "🔔";
+}
+
+/** Accent colour per notification category, so the list is easy to scan. */
+export function notificationTint(type: string): string {
+  const t = (type || "").toUpperCase();
+  if (/VEND|BILL|AIRTIME|DATA|ELECTRIC/.test(t)) return "#0F766E";
+  if (/TRANSFER|WALLET|CREDIT|DEBIT|FUND|WITHDRAW/.test(t)) return "#047857";
+  if (/SAV|CONTRIB|GOAL|AJO/.test(t)) return "#7C3AED";
+  if (/KYC|VERIF/.test(t)) return "#1D4ED8";
+  if (/MESSAGE|CHAT/.test(t)) return "#D97706";
+  if (/ORDER|PRODUCT|PURCHASE|MARKET/.test(t)) return "#BE185D";
+  return "#3730A3";
 }

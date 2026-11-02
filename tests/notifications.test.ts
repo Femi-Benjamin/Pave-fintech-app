@@ -71,5 +71,6 @@ test("Notification endpoints use the documented methods and URLs", async () => {
 test("Notification display helpers have safe defaults", () => {
   assert.equal(notificationTitle("VENDING_SUCCESS"), "Vending Success");
   assert.equal(notificationTitle(""), "Notification");
+  assert.equal(notificationTitle("KYC_APPROVED"), "KYC Approved");
   assert.equal(notificationIcon("SOMETHING_NEW"), "🔔");
 });

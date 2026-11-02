@@ -42,11 +42,11 @@ export function KYCContainer({
 
   return (
     <div
-      className="flex-1 w-full min-h-screen flex items-center justify-center overflow-x-hidden p-3 sm:p-6 md:p-10"
+      className="flex-1 w-full min-h-dvh sm:min-h-screen flex items-center justify-center overflow-x-hidden p-2 sm:p-6 md:p-10"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-[#F1F3FB] p-4 sm:p-10 flex flex-col min-h-0 sm:min-h-135">
-        <div className="flex items-center justify-between pb-6 border-b border-[#F1F3FB] mb-6">
+        <div className="flex items-center justify-between pb-3 sm:pb-6 border-b border-[#F1F3FB] mb-3 sm:mb-6">
           <div className="flex items-center gap-3">
             {onBack && (
               <button
@@ -58,13 +58,13 @@ export function KYCContainer({
             )}
             <div className="text-center">
               <h2
-                className="text-xl sm:text-2xl font-bold text-[#0D0F1C]"
+                className="text-lg sm:text-2xl font-bold text-[#0D0F1C] leading-tight"
                 style={{ fontFamily: "var(--font-family-display)" }}
               >
                 {title}
               </h2>
               {subtitle && (
-                <p className="text-xs sm:text-sm text-[#6B7280] mt-0.5">
+                <p className="text-[11px] sm:text-sm text-[#6B7280] mt-0.5 leading-snug">
                   {subtitle}
                 </p>
               )}
@@ -335,18 +335,18 @@ export function KYCIDUploadScreen({
       step={4}
       onBack={() => onNav("kyc-id-type")}
     >
-      <div className="flex flex-col gap-4 py-2">
-        <div className="flex items-center gap-3 bg-[#EEF2FF] rounded-2xl p-4">
-          <div className="w-10 h-10 rounded-full bg-[#3730A3] flex items-center justify-center shrink-0">
-            <span className="text-white text-xs font-bold">2/3</span>
+      <div className="flex flex-col gap-3 sm:gap-4 py-0 sm:py-2">
+        <div className="flex items-center gap-3 bg-[#EEF2FF] rounded-2xl p-3 sm:p-4">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#3730A3] flex items-center justify-center shrink-0">
+            <span className="text-white text-[11px] sm:text-xs font-bold">2/3</span>
           </div>
-          <p className="text-sm text-[#374151]">
+          <p className="text-xs sm:text-sm text-[#374151]">
             Upload clear photos of both the front and back of your selected
             document.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {(
             [
               {
@@ -380,12 +380,12 @@ export function KYCIDUploadScreen({
                 type="button"
                 onClick={() => inputRef.current?.click()}
                 disabled={verifyNinMutation.isPending}
-                className={`relative flex w-full flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer disabled:opacity-60 ${file ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
+                className={`relative flex w-full h-full flex-col items-center justify-center gap-1.5 sm:gap-3 p-4 sm:p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer disabled:opacity-60 ${file ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
               >
                 {file ? (
                   <>
-                    <CheckCircle size={36} className="text-[#059669]" />
-                    <span className="text-sm font-semibold text-[#059669]">
+                    <CheckCircle size={36} className="h-7 w-7 sm:h-9 sm:w-9 text-[#059669]" />
+                    <span className="text-xs sm:text-sm font-semibold text-[#059669]">
                       {label} selected
                     </span>
                     <span className="max-w-full truncate text-xs text-[#6B7280]">
@@ -394,11 +394,11 @@ export function KYCIDUploadScreen({
                   </>
                 ) : (
                   <>
-                    <Upload size={32} className="text-[#9CA3AF]" />
-                    <span className="text-sm font-semibold text-[#374151]">
+                    <Upload size={32} className="h-6 w-6 sm:h-8 sm:w-8 text-[#9CA3AF]" />
+                    <span className="text-xs sm:text-sm font-semibold text-[#374151]">
                       Upload {label}
                     </span>
-                    <span className="text-xs text-[#9CA3AF]">
+                    <span className="text-[11px] sm:text-xs text-[#9CA3AF]">
                       JPG, PNG up to 5MB
                     </span>
                   </>
@@ -407,7 +407,7 @@ export function KYCIDUploadScreen({
             </div>
           ))}
         </div>
-        <div className="rounded-xl border border-[#F1F3FB] bg-white p-4">
+        <div className="rounded-xl border border-[#F1F3FB] bg-white p-3 sm:p-4">
           <input
             ref={billInputRef}
             type="file"
@@ -418,21 +418,21 @@ export function KYCIDUploadScreen({
               event.currentTarget.value = "";
             }}
           />
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-[#0D0F1C]">
-                Proof of address: NEPA / Utility bill (optional)
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm font-semibold text-[#0D0F1C]">
+                Proof of address (optional)
               </p>
-              <p className="text-xs text-[#6B7280]">
+              <p className="text-[11px] sm:text-xs text-[#6B7280] truncate">
                 {billFileName ||
-                  "Upload a recent utility or NEPA electricity bill as proof of residence."}
+                  "Recent NEPA or utility bill."}
               </p>
             </div>
             <button
               type="button"
               onClick={() => billInputRef.current?.click()}
               disabled={uploadBillImageMutation.isPending}
-              className="rounded-lg border border-[#D1D5DB] px-3 py-2 text-sm font-medium text-[#3730A3] disabled:opacity-50"
+              className="shrink-0 rounded-lg border border-[#D1D5DB] px-3 py-2 text-xs sm:text-sm font-medium text-[#3730A3] disabled:opacity-50"
             >
               {uploadBillImageMutation.isPending
                 ? "Uploading..."
@@ -463,16 +463,15 @@ export function KYCIDUploadScreen({
           </p>
         )}
 
-        <div className="bg-[#FFFBEB] rounded-xl p-4 flex gap-3">
+        <div className="bg-[#FFFBEB] rounded-xl p-3 sm:p-4 flex gap-2.5 sm:gap-3">
           <AlertCircle size={16} className="text-[#D97706] shrink-0 mt-0.5" />
-          <p className="text-xs text-[#92400E]">
-            Ensure the document is well-lit, not blurry, and all text and photo
-            details are clearly visible.
+          <p className="text-[11px] sm:text-xs text-[#92400E]">
+            Use a well-lit, sharp photo with all text and details clearly visible.
           </p>
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#F1F3FB]">
+      <div className="pt-3 sm:pt-4 mt-3 sm:mt-0 border-t border-[#F1F3FB]">
         <PaveBtn
           onClick={doVerifyNin}
           disabled={

@@ -971,15 +971,7 @@ export function ForgotPasswordScreen({
           >
             <ArrowLeft size={18} />
           </button>
-          <div className="flex items-center gap-3">
-            <h2
-              className="text-lg sm:text-xl font-bold text-[#0D0F1C]"
-              style={{ fontFamily: "var(--font-family-display)" }}
-            >
-              Reset Password
-            </h2>
-            <Logo size="sm" />
-          </div>
+          <Logo size="sm" />
         </div>
 
         <div className="flex-1 flex flex-col">
