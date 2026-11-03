@@ -2151,9 +2151,6 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               ))}
             </div>
 
-            <p className="text-xs text-[#9CA3AF] mt-4">
-              These are the details currently supplied by the notifications service.
-            </p>
             <button
               type="button"
               onClick={() => setSelectedNotification(null)}
