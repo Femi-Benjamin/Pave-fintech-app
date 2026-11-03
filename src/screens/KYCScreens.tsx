@@ -346,7 +346,7 @@ export function KYCIDUploadScreen({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
           {(
             [
               {
@@ -380,7 +380,7 @@ export function KYCIDUploadScreen({
                 type="button"
                 onClick={() => inputRef.current?.click()}
                 disabled={verifyNinMutation.isPending}
-                className={`relative flex w-full min-h-[220px] sm:min-h-[240px] flex-col items-center justify-center gap-3 p-6 text-center rounded-2xl border-2 border-dashed transition-all cursor-pointer disabled:opacity-60 ${file ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
+                className={`relative flex w-full min-h-[150px] sm:min-h-[165px] flex-col items-center justify-center gap-2 p-4 sm:p-5 text-center rounded-2xl border-2 border-dashed transition-all cursor-pointer disabled:opacity-60 ${file ? "border-[#059669] bg-[#ECFDF5]" : "border-[#D1D5DB] bg-[#F9FAFB] hover:bg-[#F1F3FB]"}`}
               >
                 {file ? (
                   <>
