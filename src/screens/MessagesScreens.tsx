@@ -2031,47 +2031,41 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         ) : (
           items.map((n) => (
             <div
-              role="button"
-              tabIndex={0}
               key={n.id}
-              onClick={() => handleOpen(n)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  handleOpen(n);
-                }
-              }}
-              className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl transition-colors cursor-pointer ${
+              className={`flex items-start gap-2 p-4 rounded-2xl transition-colors ${
                 n.isRead
                   ? "bg-white border border-[#F1F3FB]"
                   : "bg-[#EEF2FF] border border-[#C7D2FE]"
               }`}
             >
-              <div className="w-10 h-10 rounded-full bg-[#3730A3]/10 flex items-center justify-center shrink-0 text-xl">
-                {notificationIcon(n.type)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-[#0D0F1C] truncate">
-                    {notificationTitle(n.type)}
-                  </span>
-                  {!n.isRead && (
-                    <div className="w-2 h-2 rounded-full bg-[#3730A3] shrink-0" />
-                  )}
-                </div>
-                <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed wrap-break-word">
-                  {n.message}
-                </p>
-                <span className="text-xs text-[#9CA3AF] mt-1 block">
-                  {formatMessageTime(n.createdAt)}
-                </span>
-              </div>
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setConfirmDeleteId(n.id);
-                }}
+                onClick={() => handleOpen(n)}
+                className="flex-1 min-w-0 text-left flex items-start gap-4 cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#3730A3]/10 flex items-center justify-center shrink-0 text-xl">
+                  {notificationIcon(n.type)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold text-[#0D0F1C] truncate">
+                      {notificationTitle(n.type)}
+                    </span>
+                    {!n.isRead && (
+                      <div className="w-2 h-2 rounded-full bg-[#3730A3] shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed wrap-break-word">
+                    {n.message}
+                  </p>
+                  <span className="text-xs text-[#9CA3AF] mt-1 block">
+                    {formatMessageTime(n.createdAt)}
+                  </span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteId(n.id)}
                 aria-label="Delete notification"
                 title="Delete notification"
                 className="p-1.5 text-[#9CA3AF] hover:text-[#DC2626] rounded cursor-pointer shrink-0"
@@ -2079,8 +2073,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 <Trash2 size={14} />
               </button>
             </div>
-          ))
-        )}
+          ))        )}
       </div>
 
       {selectedNotification && (
