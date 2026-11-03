@@ -2073,7 +2073,8 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 <Trash2 size={14} />
               </button>
             </div>
-          ))        )}
+          ))
+        )}
       </div>
 
       {selectedNotification && (
