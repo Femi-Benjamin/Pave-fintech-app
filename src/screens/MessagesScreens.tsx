@@ -27,6 +27,7 @@ import {
 import {
   notificationIcon,
   notificationTitle,
+  getNotificationDetailFields,
 } from "../api/notifications";
 import type { AppNotification } from "../api/notifications";
 import {
@@ -1893,6 +1894,8 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [actionError, setActionError] = useState("");
   const [confirmClearAll, setConfirmClearAll] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [selectedNotification, setSelectedNotification] =
+    useState<AppNotification | null>(null);
 
   const items = data?.items || [];
   const unread = data?.unreadCount ?? 0;
@@ -1901,11 +1904,17 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     setActionError(err?.response?.data?.message || err?.message || fallback);
 
   const handleOpen = (n: AppNotification) => {
-    if (n.isRead) return;
-    markRead.mutate(n.id, {
-      onError: (e) => fail(e, "Could not mark as read."),
-    });
+    setSelectedNotification(n);
+    if (!n.isRead) {
+      markRead.mutate(n.id, {
+        onError: (e) => fail(e, "Could not mark as read."),
+      });
+    }
   };
+
+  const selectedDetailFields = selectedNotification
+    ? getNotificationDetailFields(selectedNotification)
+    : [];
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto">
@@ -2016,10 +2025,11 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
         ) : (
           items.map((n) => (
-            <div
+            <button
+              type="button"
               key={n.id}
               onClick={() => handleOpen(n)}
-              className={`flex items-start gap-4 p-4 rounded-2xl transition-colors cursor-pointer ${
+              className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl transition-colors cursor-pointer ${
                 n.isRead
                   ? "bg-white border border-[#F1F3FB]"
                   : "bg-[#EEF2FF] border border-[#C7D2FE]"
@@ -2056,10 +2066,98 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               >
                 <Trash2 size={14} />
               </button>
-            </div>
+            </button>
           ))
         )}
       </div>
+
+      {selectedNotification && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4"
+          role="presentation"
+          onClick={() => setSelectedNotification(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notification-detail-title"
+            className="bg-white rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <h3
+                id="notification-detail-title"
+                className="font-bold text-base text-[#0D0F1C]"
+              >
+                Notification Details
+              </h3>
+              <button
+                type="button"
+                onClick={() => setSelectedNotification(null)}
+                aria-label="Close notification details"
+                className="w-8 h-8 rounded-full bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#3730A3]/10 flex items-center justify-center shrink-0 text-2xl">
+                {notificationIcon(selectedNotification.type)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold text-[#0D0F1C]">
+                  {notificationTitle(selectedNotification.type)}
+                </h4>
+                <p className="text-sm text-[#4B5563] mt-1 whitespace-pre-wrap break-words">
+                  {selectedNotification.message || "No message details were provided."}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-xl bg-[#F8F9FD] p-3 space-y-3">
+              <div className="flex items-start justify-between gap-4 text-sm">
+                <span className="text-[#6B7280]">Date and time</span>
+                <span className="text-[#111827] text-right">
+                  {selectedNotification.createdAt
+                    ? new Date(selectedNotification.createdAt).toLocaleString()
+                    : "Not provided"}
+                </span>
+              </div>
+              <div className="flex items-start justify-between gap-4 text-sm">
+                <span className="text-[#6B7280]">Status</span>
+                <span className="text-[#111827]">
+                  {selectedNotification.isRead ? "Read" : "Unread"}
+                </span>
+              </div>
+              {selectedDetailFields.map((field) => (
+                <div
+                  key={field.label}
+                  className="border-t border-[#E5E7EB] pt-3 flex flex-col gap-1"
+                >
+                  <span className="text-xs font-medium text-[#6B7280]">
+                    {field.label}
+                  </span>
+                  <span className="text-sm text-[#111827] break-words">
+                    {field.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-xs text-[#9CA3AF] mt-4">
+              These are the details currently supplied by the notifications service.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedNotification(null)}
+              className="w-full mt-4 py-2.5 rounded-xl bg-[#3730A3] text-white text-sm font-semibold cursor-pointer"
+            >
+              Close
+            </button>
+          </section>
+        </div>
+      )}
 
       {(confirmClearAll || confirmDeleteId) && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
