@@ -1904,10 +1904,15 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     setActionError(err?.response?.data?.message || err?.message || fallback);
 
   const handleOpen = (n: AppNotification) => {
-    setSelectedNotification(n);
+    setSelectedNotification(n.isRead ? n : { ...n, isRead: true });
     if (!n.isRead) {
       markRead.mutate(n.id, {
-        onError: (e) => fail(e, "Could not mark as read."),
+        onError: (e) => {
+          setSelectedNotification((current) =>
+            current?.id === n.id ? { ...current, isRead: false } : current,
+          );
+          fail(e, "Could not mark as read.");
+        },
       });
     }
   };
@@ -2025,10 +2030,17 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
         ) : (
           items.map((n) => (
-            <button
-              type="button"
+            <div
+              role="button"
+              tabIndex={0}
               key={n.id}
               onClick={() => handleOpen(n)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  handleOpen(n);
+                }
+              }}
               className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl transition-colors cursor-pointer ${
                 n.isRead
                   ? "bg-white border border-[#F1F3FB]"
@@ -2066,7 +2078,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               >
                 <Trash2 size={14} />
               </button>
-            </button>
+            </div>
           ))
         )}
       </div>
