@@ -1,3 +1,4 @@
+import axios from "axios";
 import { api } from "../lib/api-client";
 
 export interface AppNotification {
@@ -116,8 +117,17 @@ export function normalizeNotifications(raw: unknown): NotificationsResult {
 }
 
 export async function getUserNotifications(): Promise<NotificationsResult> {
-  const res = await api.get("/api/v1/notifications/getUserNotifications");
-  return normalizeNotifications(res.data);
+  try {
+    const res = await api.get("/api/v1/notifications/getUserNotifications");
+    return normalizeNotifications(res.data);
+  } catch (error) {
+    // The backend answers 404 ("no notifications found") when the list is
+    // empty, e.g. right after "Clear all". That is an empty inbox, not a failure.
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return { items: [], unreadCount: 0 };
+    }
+    throw error;
+  }
 }
 
 export async function markNotificationRead(id: string): Promise<void> {

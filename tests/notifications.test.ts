@@ -106,3 +106,20 @@ test("notification details omit core fields and empty optional values", () => {
   });
   assert.deepEqual(getNotificationDetailFields(r.items[0]), []);
 });
+
+test("getUserNotifications treats a 404 (no notifications) as an empty list", async () => {
+  const original = api.defaults.adapter;
+  (api.defaults as any).adapter = async (config: any) => {
+    const err: any = new Error("Request failed with status code 404");
+    err.isAxiosError = true;
+    err.config = config;
+    err.response = { status: 404, data: { message: "No notifications found" }, config, headers: {}, statusText: "Not Found" };
+    throw err;
+  };
+  try {
+    const r = await getUserNotifications();
+    assert.deepEqual(r, { items: [], unreadCount: 0 });
+  } finally {
+    (api.defaults as any).adapter = original;
+  }
+});
