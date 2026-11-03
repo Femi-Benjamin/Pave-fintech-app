@@ -10,6 +10,7 @@ import {
   deleteAllNotifications,
   notificationTitle,
   notificationIcon,
+  getNotificationDetailFields,
 } from "../src/api/notifications";
 
 test("normalizeNotifications: { data: { notifications } } with _id and counts", () => {
@@ -73,4 +74,35 @@ test("Notification display helpers have safe defaults", () => {
   assert.equal(notificationTitle(""), "Notification");
   assert.equal(notificationTitle("KYC_APPROVED"), "KYC Approved");
   assert.equal(notificationIcon("SOMETHING_NEW"), "🔔");
+});
+
+test("normalizeNotifications preserves backend detail fields", () => {
+  const r = normalizeNotifications({
+    data: {
+      notifications: [{
+        _id: "n-details",
+        type: "TRANSFER_SUCCESS",
+        message: "Transfer completed",
+        isRead: false,
+        createdAt: "2026-11-02T10:00:00.000Z",
+        amount: 2500,
+        reference: "TRX-123",
+        sender: { firstName: "Jane", lastName: "Doe" },
+      }],
+    },
+  });
+  assert.equal(r.items[0].amount, 2500);
+  assert.deepEqual(r.items[0].sender, { firstName: "Jane", lastName: "Doe" });
+  assert.deepEqual(getNotificationDetailFields(r.items[0]), [
+    { label: "Amount", value: "2500" },
+    { label: "Reference", value: "TRX-123" },
+    { label: "Sender", value: "First Name: Jane · Last Name: Doe" },
+  ]);
+});
+
+test("notification details omit core fields and empty optional values", () => {
+  const r = normalizeNotifications({
+    data: [{ id: "n-basic", type: "LOGIN", message: "Signed in", isRead: true, createdAt: "2026-11-02", optional: "" }],
+  });
+  assert.deepEqual(getNotificationDetailFields(r.items[0]), []);
 });
