@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import OnboardingLandingScreen from "./components/OnboardingScreen";
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
-import { Screen } from "./pave-data";
+import { Screen, KNOWN_SCREENS } from "./pave-data";
 import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
 import { NetworkStatusToast } from "./components/NetworkStatus";
 import { getToken, isTokenValid, subscribeToAuthLogout } from "./lib/authStorage";
@@ -58,6 +58,28 @@ import {
   ProfileScreen,
   SettingsScreen,
 } from "./screens/ProfileScreens";
+
+// Screens a signed-in user should never land on via the back button.
+const SIGNED_OUT_ONLY_SCREENS: Screen[] = [
+  "splash",
+  "onboarding",
+  "login",
+  "register",
+  "forgot-password",
+  "otp-verify",
+  "accept-invitation",
+];
+const PUBLIC_SCREENS: Screen[] = SIGNED_OUT_ONLY_SCREENS;
+// Bottom-nav destinations: switching between them replaces the history entry
+// so back goes to Home rather than stepping through every tab visited.
+const MAIN_TAB_SCREENS: Screen[] = [
+  "wallet",
+  "savings",
+  "group-savings",
+  "marketplace",
+  "messages",
+  "profile",
+];
 
 // ─── Main Web App (Full Desktop & Responsive Mobile Layout) ──────────────────
 function MobileApp({
@@ -120,7 +142,131 @@ function MobileApp({
   const isFixedIntroScreen =
     screen === "onboarding" || screen === "login" || screen === "register";
 
-  const nav = (s: Screen) => setScreen(s);
+  // ─── Browser / phone back-button support ──────────────────────────────────
+  // Screens are state based, so the browser has no history of them. We mirror
+  // every screen change into the History API so the phone's back button or
+  // swipe-back walks through the app's screens instead of leaving the site.
+  const screenRef = useRef<Screen>(screen);
+  const stackRef = useRef<Screen[]>([screen]);
+  const idxRef = useRef(0);
+  const guardRef = useRef({
+    isAuthenticated,
+    isAuthLoading,
+    selectedProduct,
+    selectedPurchaseId,
+    selectedSavingId,
+    selectedGroupSavingId,
+    activeChat,
+  });
+  guardRef.current = {
+    isAuthenticated,
+    isAuthLoading,
+    selectedProduct,
+    selectedPurchaseId,
+    selectedSavingId,
+    selectedGroupSavingId,
+    activeChat,
+  };
+
+  // Keep history in step when the screen is changed from somewhere other than
+  // nav() (initial screen, forced logout, ...).
+  useEffect(() => {
+    screenRef.current = screen;
+    const idx = idxRef.current;
+    if (stackRef.current[idx] !== screen) {
+      stackRef.current[idx] = screen;
+      try {
+        window.history.replaceState({ idx, screen }, "");
+      } catch {
+        /* history unavailable */
+      }
+    }
+  }, [screen]);
+
+  useEffect(() => {
+    try {
+      window.history.replaceState({ idx: 0, screen: screenRef.current }, "");
+    } catch {
+      /* history unavailable */
+    }
+    idxRef.current = 0;
+    stackRef.current = [screenRef.current];
+
+    const onPop = (e: PopStateEvent) => {
+      const st = e.state as { idx?: number; screen?: Screen } | null;
+      if (!st || typeof st.idx !== "number") return;
+      const g = guardRef.current;
+      let target = (stackRef.current[st.idx] ?? st.screen) as Screen | undefined;
+      if (!target || !KNOWN_SCREENS.includes(target)) target = "home";
+
+      if (!g.isAuthLoading) {
+        if (g.isAuthenticated && SIGNED_OUT_ONLY_SCREENS.includes(target)) {
+          target = "home";
+        } else if (
+          !g.isAuthenticated &&
+          !PUBLIC_SCREENS.includes(target) &&
+          !target.startsWith("kyc-")
+        ) {
+          target = "login";
+        }
+      }
+      // Detail screens need data that is lost on reload — fall back to home.
+      const missingData =
+        (target === "product-detail" && !g.selectedProduct) ||
+        (target === "payment-plan" && !g.selectedProduct) ||
+        (target === "purchase-detail" && !g.selectedPurchaseId) ||
+        (target === "savings-detail" && !g.selectedSavingId) ||
+        (target === "group-saving-detail" && !g.selectedGroupSavingId) ||
+        ((target === "chat" || target === "group-chat") && !g.activeChat);
+      if (missingData) target = "home";
+
+      idxRef.current = st.idx;
+      stackRef.current[st.idx] = target;
+      if (target !== st.screen) {
+        try {
+          window.history.replaceState({ idx: st.idx, screen: target }, "");
+        } catch {
+          /* ignore */
+        }
+      }
+      setScreen(target);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const nav = (s: Screen) => {
+    const cur = screenRef.current;
+    if (s === cur) return;
+    const idx = idxRef.current;
+    const stack = stackRef.current;
+
+    // Going "back" in the UI = going back in history, so the phone's back
+    // button never replays a screen the user just left.
+    if (idx > 0 && stack[idx - 1] === s) {
+      window.history.back();
+      return;
+    }
+
+    const replace =
+      (MAIN_TAB_SCREENS.includes(cur) && MAIN_TAB_SCREENS.includes(s)) ||
+      (PUBLIC_SCREENS.includes(cur) && !PUBLIC_SCREENS.includes(s));
+
+    try {
+      if (replace) {
+        stack[idx] = s;
+        window.history.replaceState({ idx, screen: s }, "");
+      } else {
+        stackRef.current = stack.slice(0, idx + 1).concat(s);
+        idxRef.current = idx + 1;
+        window.history.pushState({ idx: idx + 1, screen: s }, "");
+      }
+    } catch {
+      /* history unavailable — still change the screen */
+    }
+    screenRef.current = s;
+    setScreen(s);
+  };
   const dismissAjoSuccessNotice = useCallback(
     () => setAjoSuccessNotice(""),
     [],
