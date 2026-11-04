@@ -38,6 +38,10 @@ import {
   avatarColorFor,
   DELETE_DIRECT_CHAT_WARNING,
   DELETE_GROUP_CHAT_WARNING,
+  attachmentKindFor,
+  ATTACHMENT_PLACEHOLDER,
+  validateAttachment,
+  formatFileSize,
 } from "../utils/messaging";
 import { Screen } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
@@ -1037,6 +1041,49 @@ function NewChatModal({
 }
 
 // ─── ChatScreen ──────────────────────────────────────────────────────────────
+function MessageAttachment({
+  url,
+  type,
+  isMe,
+}: {
+  url: string;
+  type: string;
+  isMe: boolean;
+}) {
+  const kind = (type || "").toLowerCase();
+  if (kind === "image") {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="mb-1.5 block">
+        <img
+          src={url}
+          alt="Shared image"
+          loading="lazy"
+          className="max-h-64 w-full rounded-xl object-cover"
+        />
+      </a>
+    );
+  }
+  if (kind === "video") {
+    return <video src={url} controls className="mb-1.5 max-h-64 w-full rounded-xl" />;
+  }
+  if (kind === "audio") {
+    return <audio src={url} controls className="mb-1.5 w-full" />;
+  }
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`mb-1.5 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium underline-offset-2 hover:underline ${
+        isMe ? "bg-white/15 text-white" : "bg-[#EEF2FF] text-[#3730A3]"
+      }`}
+    >
+      <Paperclip size={14} /> Open attachment
+    </a>
+  );
+}
+
+
 export function ChatScreen({
   onNav,
   chat,
@@ -1048,6 +1095,9 @@ export function ChatScreen({
   const currentUserId = getCurrentUserId(authUser);
 
   const [inputMessage, setInputMessage] = useState("");
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [attachmentPreview, setAttachmentPreview] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
@@ -1175,10 +1225,41 @@ export function ChatScreen({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messagesList.length]);
 
+  // Image preview URL for the pending attachment
+  useEffect(() => {
+    if (attachment && attachmentKindFor(attachment) === "image") {
+      const url = URL.createObjectURL(attachment);
+      setAttachmentPreview(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setAttachmentPreview("");
+  }, [attachment]);
+
+  const handleAttachClick = () => {
+    if (isGroup) {
+      setErrorMessage("Attachments aren't supported in group chats yet.");
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
+  const handleFilePicked = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const problem = validateAttachment(file);
+    if (problem) {
+      setErrorMessage(problem);
+      return;
+    }
+    setErrorMessage("");
+    setAttachment(file);
+  };
+
   // Send message handler
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!inputMessage.trim() || isSending) return;
+    if ((!inputMessage.trim() && !attachment) || isSending) return;
 
     setErrorMessage("");
     const textToSend = inputMessage.trim();
@@ -1196,8 +1277,9 @@ export function ChatScreen({
         }
         const response = await sendOneOnOneMutation.mutateAsync({
           userId: recipientId,
-          message: textToSend,
-          messageType: "text",
+          message: textToSend || (attachment ? ATTACHMENT_PLACEHOLDER : ""),
+          messageType: attachment ? attachmentKindFor(attachment) : "text",
+          attachment: attachment ?? undefined,
         });
         const createdChatId = response?.data?.chat?.id;
         if (createdChatId) {
@@ -1205,6 +1287,7 @@ export function ChatScreen({
         }
       }
       setInputMessage("");
+      setAttachment(null);
     } catch (err: any) {
       setErrorMessage(
         err?.response?.data?.message ||
@@ -1526,7 +1609,15 @@ export function ChatScreen({
                             : "bg-white text-[#1E1B4B] border border-[#E7E9F7]"
                         }`}
                       >
-                        {m.message}
+                        {m.attachmentUrl && (
+                          <MessageAttachment
+                            url={m.attachmentUrl}
+                            type={m.messageType}
+                            isMe={isMe}
+                          />
+                        )}
+                        {!(m.attachmentUrl && m.message === ATTACHMENT_PLACEHOLDER) &&
+                          m.message}
                         {row.isLastInRun && (
                           <span
                             className={`ml-2 inline-flex items-center gap-1 align-bottom text-[10px] tabular-nums translate-y-0.5 ${
@@ -1558,18 +1649,56 @@ export function ChatScreen({
         onSubmit={handleSendMessage}
         className="shrink-0 px-3 sm:px-5 lg:px-8 pb-3 lg:pb-5 pt-2"
       >
+        {attachment && (
+          <div className="mx-auto mb-2 flex w-full max-w-4xl items-center gap-3 rounded-2xl border border-[#DDE0F5] bg-white p-2 pr-3 shadow-sm">
+            {attachmentPreview ? (
+              <img
+                src={attachmentPreview}
+                alt="Selected attachment"
+                className="h-12 w-12 shrink-0 rounded-xl object-cover"
+              />
+            ) : (
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#EEF2FF] text-[#3730A3]">
+                <Paperclip size={18} />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-medium text-[#1E1B4B]">
+                {attachment.name}
+              </div>
+              <div className="text-xs text-[#6B7280]">
+                {formatFileSize(attachment.size)}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAttachment(null)}
+              aria-label="Remove attachment"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1F3FB] text-[#6B7280] cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
         <div className="mx-auto w-full max-w-4xl flex items-center gap-1.5 bg-white rounded-full border border-[#DDE0F5] shadow-[0_4px_18px_rgba(30,27,75,0.08)] p-1.5 focus-within:border-[#3730A3] transition-colors">
           <button
             type="button"
-            onClick={() =>
-              setErrorMessage("File and media attachments are not supported yet.")
-            }
+            onClick={handleAttachClick}
             aria-label="Attach a file"
-            title="Attachments aren't available yet"
+            title={isGroup ? "Attachments aren't available in group chats" : "Attach a file (max 5MB)"}
             className="w-10 h-10 rounded-full text-[#6B7280] hover:text-[#3730A3] hover:bg-[#F5F6FF] flex items-center justify-center cursor-pointer transition shrink-0"
           >
             <Paperclip size={18} />
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"
+            onChange={handleFilePicked}
+            className="hidden"
+            aria-hidden="true"
+            tabIndex={-1}
+          />
 
           <input
             value={inputMessage}
@@ -1580,7 +1709,7 @@ export function ChatScreen({
                 handleSendMessage();
               }
             }}
-            placeholder="Write a message"
+            placeholder={attachment ? "Add a caption (optional)" : "Write a message"}
             aria-label="Message"
             disabled={isSending}
             className="flex-1 min-w-0 bg-transparent px-2 py-2 text-[16px] sm:text-sm text-[#1E1B4B] outline-none placeholder-[#9CA3AF] disabled:opacity-60"
@@ -1588,7 +1717,7 @@ export function ChatScreen({
 
           <button
             type="submit"
-            disabled={!inputMessage.trim() || isSending}
+            disabled={(!inputMessage.trim() && !attachment) || isSending}
             aria-label="Send message"
             className="w-10 h-10 rounded-full bg-[#3730A3] hover:bg-[#2E2882] active:scale-95 disabled:bg-[#C7CBEE] text-white flex items-center justify-center cursor-pointer transition shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3730A3]"
           >

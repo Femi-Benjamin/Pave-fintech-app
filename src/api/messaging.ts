@@ -126,8 +126,10 @@ export interface SendGroupMessagePayload {
 export interface OneOnOneChatPayload {
   userId: string;
   message?: string;
-  messageType?: "text" | "image" | "audio" | "video";
+  messageType?: "text" | "image" | "file" | "audio" | "video";
   attachmentUrl?: string;
+  /** A file to upload. Sent as multipart form-data in the `attachmentUrl` field. */
+  attachment?: File | Blob;
   replyToMessageId?: string;
 }
 
@@ -341,6 +343,27 @@ export async function createOneOnOneChat(
   if (!payload.userId || !payload.userId.trim()) {
     throw new Error("Target user ID is required");
   }
+  // With a file the backend expects multipart form-data, and the file itself
+  // goes in the `attachmentUrl` field. Text-only messages stay plain JSON.
+  if (payload.attachment) {
+    const form = new FormData();
+    form.append("userId", payload.userId.trim());
+    form.append("message", (payload.message ?? "").trim());
+    form.append("messageType", payload.messageType || "file");
+    form.append(
+      "attachmentUrl",
+      payload.attachment,
+      (payload.attachment as File).name || "attachment",
+    );
+    if (payload.replyToMessageId) {
+      form.append("replyToMessageId", payload.replyToMessageId);
+    }
+    const response = await api.post<
+      ApiResponse<{ chat: OneOnOneChat; message?: ChatMessageItem }>
+    >("/api/v1/message/createOneOnOneChat", form);
+    return response.data;
+  }
+
   const cleanPayload: Record<string, unknown> = {
     userId: payload.userId.trim(),
   };

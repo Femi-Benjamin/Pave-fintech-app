@@ -119,3 +119,33 @@ export function avatarColorFor(name: string): string {
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
+
+export const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // backend limit: 5MB
+
+/** Message text sent when a file is attached without a caption (hidden in the bubble). */
+export const ATTACHMENT_PLACEHOLDER = "Attachment";
+
+export type AttachmentKind = "image" | "video" | "audio" | "file";
+
+export function attachmentKindFor(file: { type?: string }): AttachmentKind {
+  const t = (file.type || "").toLowerCase();
+  if (t.startsWith("image/")) return "image";
+  if (t.startsWith("video/")) return "video";
+  if (t.startsWith("audio/")) return "audio";
+  return "file";
+}
+
+/** Returns an error message, or "" when the file may be sent. */
+export function validateAttachment(file: { size: number; name?: string }): string {
+  if (!file.size) return "That file is empty.";
+  if (file.size > MAX_ATTACHMENT_BYTES) {
+    return "File is too large. The maximum size is 5MB.";
+  }
+  return "";
+}
+
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
