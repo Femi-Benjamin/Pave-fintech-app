@@ -18,11 +18,7 @@ export const api = axios.create({
 });
 
 const isAuthEndpointUrl = (url?: string) =>
-  !!url &&
-  (url.includes("/login") ||
-    url.includes("/register") ||
-    url.includes("/forgot-password") ||
-    url.includes("/reset-password"));
+  !!url && /\/(login|register|forgot-?password|reset-?password)/i.test(url);
 
 // Request interceptor: attach token & validate expiry before sending
 api.interceptors.request.use((config) => {

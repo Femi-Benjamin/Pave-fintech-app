@@ -918,7 +918,7 @@ export function ForgotPasswordScreen({
 
   const handleResetPassword = async () => {
     if (!resetToken.trim()) {
-      setError("Please enter the reset token from your email.");
+      setError("Please enter the reset code we sent you.");
       return;
     }
 
@@ -1000,7 +1000,7 @@ export function ForgotPasswordScreen({
                 Forgot Password?
               </h2>
               <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-4">
-                Enter your registered email and we’ll send a secure reset link.
+                Enter your registered email and we’ll send you a secure reset code.
               </p>
               <Input
                 label="Email Address"
@@ -1020,7 +1020,7 @@ export function ForgotPasswordScreen({
                       <Loader size={16} className="animate-spin" /> Sending...
                     </>
                   ) : (
-                    "Send Reset Link"
+                    "Send Reset Code"
                   )}
                 </PaveBtn>
               </div>
@@ -1065,8 +1065,8 @@ export function ForgotPasswordScreen({
               )}
 
               <Input
-                label="Reset Token"
-                placeholder="Paste the token from your email"
+                label="Reset Code"
+                placeholder="Enter the code we sent you"
                 value={resetToken}
                 onChange={setResetToken}
                 icon={<Hash size={16} />}
