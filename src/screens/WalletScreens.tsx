@@ -23,6 +23,9 @@ import {
   BarChart2,
   RotateCw,
   Copy,
+  ChevronDown,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
 import { Screen, Transaction, fmt } from "../pave-data";
@@ -1268,6 +1271,10 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [variationCode, setVariationCode] = useState("");
+  const [planSheetOpen, setPlanSheetOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [planSearch, setPlanSearch] = useState("");
+  const [hideBalance, setHideBalance] = useState(false);
   const [purchase, setPurchase] = useState<{
     message: string;
     reference?: string;
@@ -1293,6 +1300,10 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const dataDetailsQuery = useDataDetailsQuery(serviceID, tab === "data");
   const variations = dataDetailsQuery.data?.data.content.variations ?? [];
   const walletBalance = Number(walletBalanceQuery.data?.balance ?? 0);
+  const selectedPlan = variations.find((v) => v.variation_code === variationCode);
+  const filteredPlans = variations.filter((v) =>
+    v.name.toLowerCase().includes(planSearch.trim().toLowerCase()),
+  );
   const purchaseMutation = tab === "airtime" ? airtimeMutation : dataMutation;
   const errorMessage = [
     walletBalanceQuery.isError
@@ -1385,7 +1396,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
     <div className="flex-1 flex flex-col">
       <ScreenHeader title="Airtime & Data" onBack={() => onNav("wallet")} />
       {!purchase ? (
-        <div className="flex-1 overflow-y-auto px-6 pt-6 flex flex-col gap-5">
+        <div className="flex-1 px-6 pt-6 flex flex-col gap-5">
           <div className="bg-[#F1F3FB] p-1 rounded-xl flex">
             {(["airtime", "data"] as const).map((t) => (
               <button
@@ -1464,24 +1475,47 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </div>
             </>
           ) : (
-            <div className="flex flex-col gap-2">
-              {variations.map((plan) => (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-[#374151]">
+                  Select a plan
+                </span>
                 <button
-                  key={plan.variation_code}
-                  onClick={() => {
-                    setAmount(plan.variation_amount);
-                    setVariationCode(plan.variation_code);
-                  }}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all cursor-pointer ${variationCode === plan.variation_code ? "border-[#3730A3] bg-[#EEF2FF]" : "border-[#E5E7EB] bg-white"}`}
+                  type="button"
+                  onClick={() => setHideBalance((v) => !v)}
+                  aria-label={hideBalance ? "Show balance" : "Hide balance"}
+                  className="flex items-center gap-2 rounded-full bg-[#F1F3FB] px-3 py-1.5 text-xs text-[#6B7280] cursor-pointer"
                 >
-                  <div className="text-left">
-                    <div className="font-semibold text-sm">{plan.name}</div>
-                  </div>
-                  <div className="font-semibold text-[#3730A3]">
-                    ₦{Number(plan.variation_amount).toLocaleString()}
-                  </div>
+                  <span>
+                    Bal:{" "}
+                    <span className="font-semibold text-[#0D0F1C]">
+                      {hideBalance ? "••••" : fmt(walletBalance)}
+                    </span>
+                  </span>
+                  {hideBalance ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
-              ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!network) return;
+                  setPlanSearch("");
+                  setPlanSheetOpen(true);
+                }}
+                disabled={!network}
+                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent bg-[#F1F3FB] px-5 py-4 text-left transition-colors hover:border-[#C7D2FE] disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
+              >
+                <span
+                  className={`text-sm ${selectedPlan ? "font-semibold text-[#0D0F1C]" : "text-[#9CA3AF]"}`}
+                >
+                  {selectedPlan
+                    ? selectedPlan.name
+                    : network
+                      ? "Select Data Plan"
+                      : "Select a network first"}
+                </span>
+                <ChevronDown size={18} className="shrink-0 text-[#6B7280]" />
+              </button>
               {dataDetailsQuery.isLoading && (
                 <p className="text-center text-sm text-[#6B7280]">
                   Loading available bundles...
@@ -1510,23 +1544,25 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               {errorMessage}
             </p>
           )}
-          <PaveBtn
-            onClick={handleBuy}
-            disabled={
-              !network ||
-              !phone ||
-              !amount ||
-              Number(amount.replace(/,/g, "")) <= 0 ||
-              Number(amount.replace(/,/g, "")) > walletBalance ||
-              (tab === "data" && !variationCode) ||
-              !walletBalanceQuery.data ||
-              purchaseMutation.isPending
-            }
-          >
-            {purchaseMutation.isPending
-              ? "Processing..."
-              : `Buy ${tab === "airtime" ? "Airtime" : "Data"}`}
-          </PaveBtn>
+          <div className="sticky bottom-[4.5rem] lg:bottom-0 z-10 -mx-6 mt-auto border-t border-[#F1F3FB] bg-white/95 px-6 pt-3 pb-4 backdrop-blur-md">
+            <PaveBtn
+              onClick={() => (tab === "data" ? setConfirmOpen(true) : handleBuy())}
+              disabled={
+                !network ||
+                !phone ||
+                !amount ||
+                Number(amount.replace(/,/g, "")) <= 0 ||
+                Number(amount.replace(/,/g, "")) > walletBalance ||
+                (tab === "data" && !variationCode) ||
+                !walletBalanceQuery.data ||
+                purchaseMutation.isPending
+              }
+            >
+              {purchaseMutation.isPending
+                ? "Processing..."
+                : tab === "airtime" ? "Buy Airtime" : "Proceed"}
+            </PaveBtn>
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6">
@@ -1573,6 +1609,156 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </PaveBtn>
         </div>
       )}
+      <AnimatePresence>
+        {planSheetOpen && (
+          <motion.div
+            key="plan-sheet"
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setPlanSheetOpen(false)}
+          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Select a data plan"
+              className="flex max-h-[85dvh] w-full max-w-lg flex-col rounded-t-3xl bg-white px-5 pb-4 pt-3 shadow-2xl"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 32, stiffness: 320 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#D1D5DB]" />
+              <div className="mb-3 flex items-center justify-between">
+                <h3
+                  style={{
+                    fontFamily: "var(--font-family-display)",
+                    fontWeight: 700,
+                    fontSize: 20,
+                  }}
+                >
+                  Select a Data Plan
+                </h3>
+                <button
+                  type="button"
+                  aria-label="Close"
+                  onClick={() => setPlanSheetOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F1F3FB] cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="mb-3 flex items-center gap-3 rounded-2xl bg-[#F1F3FB] px-4 py-3">
+                <Search size={16} className="text-[#9CA3AF]" />
+                <input
+                  value={planSearch}
+                  onChange={(e) => setPlanSearch(e.target.value)}
+                  placeholder="Search here..."
+                  className="w-full bg-transparent text-sm outline-none"
+                />
+              </div>
+              <div className="-mx-1 flex-1 overflow-y-auto px-1">
+                {dataDetailsQuery.isLoading && (
+                  <p className="py-6 text-center text-sm text-[#6B7280]">
+                    Loading available bundles...
+                  </p>
+                )}
+                {!dataDetailsQuery.isLoading && filteredPlans.length === 0 && (
+                  <p className="py-6 text-center text-sm text-[#6B7280]">
+                    No plans match your search.
+                  </p>
+                )}
+                <div className="flex flex-col gap-2 pb-2">
+                  {filteredPlans.map((plan) => {
+                    const active = variationCode === plan.variation_code;
+                    return (
+                      <button
+                        key={plan.variation_code}
+                        type="button"
+                        onClick={() => {
+                          setAmount(plan.variation_amount);
+                          setVariationCode(plan.variation_code);
+                          setPlanSheetOpen(false);
+                        }}
+                        className={`rounded-2xl border-2 px-4 py-3.5 text-left transition-colors cursor-pointer ${active ? "border-[#3730A3] bg-[#EEF2FF]" : "border-transparent bg-[#F8F9FD] hover:border-[#C7D2FE]"}`}
+                      >
+                        <div className="text-sm text-[#374151]">{plan.name}</div>
+                        <div className="mt-1.5 text-sm font-bold text-[#3730A3]">
+                          ₦{Number(plan.variation_amount).toLocaleString()}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {confirmOpen && selectedPlan && (
+          <motion.div
+            key="confirm-sheet"
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setConfirmOpen(false)}
+          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Confirm data purchase"
+              className="w-full max-w-lg rounded-t-3xl bg-white px-5 pb-6 pt-3 shadow-2xl"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 32, stiffness: 320 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[#D1D5DB]" />
+              <h3
+                className="mb-4"
+                style={{
+                  fontFamily: "var(--font-family-display)",
+                  fontWeight: 700,
+                  fontSize: 20,
+                }}
+              >
+                Confirm purchase
+              </h3>
+              <div className="mb-5 flex flex-col gap-3 rounded-2xl bg-[#F8F9FD] p-4 text-sm">
+                {[
+                  ["Network", networks.find((n) => n.id === network)?.label ?? ""],
+                  ["Phone number", phone],
+                  ["Plan", selectedPlan.name],
+                  ["Amount", fmt(Number(selectedPlan.variation_amount))],
+                ].map(([k, v]) => (
+                  <div key={k} className="flex justify-between gap-4">
+                    <span className="text-[#6B7280]">{k}</span>
+                    <span className="text-right font-semibold text-[#0D0F1C]">
+                      {v}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col gap-2">
+                <PaveBtn
+                  onClick={() => {
+                    setConfirmOpen(false);
+                    handleBuy();
+                  }}
+                >
+                  Confirm & Buy Data
+                </PaveBtn>
+                <PaveBtn variant="ghost" onClick={() => setConfirmOpen(false)}>
+                  Cancel
+                </PaveBtn>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
