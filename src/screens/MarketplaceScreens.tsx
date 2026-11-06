@@ -228,7 +228,7 @@ export function MarketplaceScreen({
           {/* Products Content Area */}
           <div className="px-4 pt-4 pb-8">
             {isProductsLoading ? (
-              <div className="grid grid-cols-2 gap-3 max-h-[360px] overflow-hidden">
+              <div className="grid grid-cols-2 gap-3 max-h-90 overflow-hidden">
                 {[1, 2].map((i) => (
                   <div
                     key={i}
@@ -604,7 +604,7 @@ export function ProductDetailScreen({
           alt={p.productName}
           className="w-full aspect-4/3 object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-black/20" />
 
         <button
           onClick={() => onNav(targetReturnScreen)}
@@ -926,7 +926,7 @@ export function PaymentPlanScreen({
                 >
                   <Minus size={14} />
                 </button>
-                <span className="font-bold text-base min-w-[24px] text-center">
+                <span className="font-bold text-base min-w-6 text-center">
                   {quantity}
                 </span>
                 <button
