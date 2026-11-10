@@ -871,6 +871,11 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     message: string;
     reference?: string;
     token?: string;
+    kind: "electricity" | "tv";
+    amount: number;
+    accountNumber: string;
+    phone: string;
+    at: Date;
   } | null>(null);
   const walletBalanceQuery = useWalletBalanceQuery();
   const tvDetailsQuery = useTvSubscriptionDetailsQuery(
@@ -972,6 +977,11 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         message: response.message,
         reference: response.data.reference,
         token: response.data.metadata?.content?.transactions?.token,
+        kind: selected === "tv" ? "tv" : "electricity",
+        amount: numericAmount,
+        accountNumber,
+        phone,
+        at: new Date(),
       });
 
     if (selected === "tv") {
@@ -1217,55 +1227,51 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           )}
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring" }}
-            className="w-24 h-24 bg-[#ECFDF5] rounded-full flex items-center justify-center"
-          >
-            <CheckCircle size={52} className="text-[#059669]" />
-          </motion.div>
-          <div>
-            <h2
-              style={{
-                fontFamily: "var(--font-family-display)",
-                fontWeight: 700,
-                fontSize: 24,
-              }}
-            >
-              Payment Successful
-            </h2>
-            <p className="text-[#6B7280] text-sm mt-2">{purchase.message}</p>
-            {purchase.reference && (
-              <p className="text-xs text-[#6B7280] mt-2">
-                Reference: {purchase.reference}
-              </p>
-            )}
-            {purchase.token && (
-              <p className="text-sm font-semibold text-[#3730A3] mt-3">
-                Electricity token: {purchase.token}
-              </p>
-            )}
-          </div>
-          <PaveBtn
-            onClick={() => {
-              setPurchase(null);
-              setSelected("");
-              setServiceID("");
-              setAccountNumber("");
-              setPhone("");
-              setAmount("");
-              setVariationCode("");
-              setLookupParams(null);
-            }}
-          >
-            Pay Another Bill
-          </PaveBtn>
-          <PaveBtn variant="ghost" onClick={() => onNav("wallet")}>
-            Back to Wallet
-          </PaveBtn>
-        </div>
+        <PurchaseSuccess
+          title={
+            purchase.kind === "tv" ? "Subscription paid" : "Electricity purchased"
+          }
+          message={purchase.message}
+          amount={purchase.amount}
+          rows={[
+            {
+              label: "Service",
+              value: purchase.kind === "tv" ? "TV subscription" : "Electricity",
+            },
+            {
+              label: purchase.kind === "tv" ? "Smartcard number" : "Meter number",
+              value: purchase.accountNumber,
+            },
+            ...(purchase.token
+              ? [{ label: "Electricity token", value: purchase.token }]
+              : []),
+            { label: "Phone", value: purchase.phone },
+            {
+              label: "Date",
+              value: purchase.at.toLocaleString("en-NG", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+            },
+          ]}
+          reference={purchase.reference}
+          primaryLabel="Pay Another Bill"
+          onPrimary={() => {
+            setPurchase(null);
+            setSelected("");
+            setServiceID("");
+            setAccountNumber("");
+            setPhone("");
+            setAmount("");
+            setVariationCode("");
+            setLookupParams(null);
+          }}
+          secondaryLabel="Done"
+          onSecondary={() => onNav("wallet")}
+        />
       )}
     </div>
   );
@@ -1943,37 +1949,49 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 className="overflow-hidden"
               >
                 <div className="px-3 pb-3">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <input
-              value={searchMeterNumber}
-              onChange={(event) => setSearchMeterNumber(event.target.value)}
-              placeholder="Meter number"
-              aria-label="Meter number"
-              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
-            />
-            <input
-              type="number"
-              min="0"
-              value={searchAmount}
-              onChange={(event) => setSearchAmount(event.target.value)}
-              placeholder="Amount"
-              aria-label="Transaction amount"
-              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
-            />
-            <input
-              type="date"
-              value={searchStartDate}
-              onChange={(event) => setSearchStartDate(event.target.value)}
-              aria-label="Search start date"
-              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
-            />
-            <input
-              type="date"
-              value={searchEndDate}
-              onChange={(event) => setSearchEndDate(event.target.value)}
-              aria-label="Search end date"
-              className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
-            />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-[#6B7280]">Meter number</span>
+              <input
+                value={searchMeterNumber}
+                onChange={(event) => setSearchMeterNumber(event.target.value)}
+                placeholder="Meter number"
+                aria-label="Meter number"
+                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-[#6B7280]">Amount (₦)</span>
+              <input
+                type="number"
+                min="0"
+                value={searchAmount}
+                onChange={(event) => setSearchAmount(event.target.value)}
+                placeholder="Amount"
+                aria-label="Transaction amount"
+                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-[#6B7280]">From date</span>
+              <input
+                type="date"
+                value={searchStartDate}
+                onChange={(event) => setSearchStartDate(event.target.value)}
+                aria-label="Search start date"
+                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-[#6B7280]">To date</span>
+              <input
+                type="date"
+                value={searchEndDate}
+                onChange={(event) => setSearchEndDate(event.target.value)}
+                aria-label="Search end date"
+                className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm"
+              />
+            </label>
           </div>
           {searchInputError && (
             <p role="alert" className="mt-2 text-xs text-red-600">

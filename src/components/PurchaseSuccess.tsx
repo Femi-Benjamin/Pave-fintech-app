@@ -6,7 +6,7 @@ import {
   useReducedMotion,
   useTransform,
 } from "motion/react";
-import { Check, Copy } from "lucide-react";
+import { Check, Clock, Copy } from "lucide-react";
 import { PaveBtn } from "./UI";
 
 export interface SuccessRow {
@@ -15,6 +15,8 @@ export interface SuccessRow {
 }
 
 interface PurchaseSuccessProps {
+  /** "pending" is for payments that are submitted but not yet confirmed. */
+  variant?: "success" | "pending";
   title?: string;
   message?: string;
   /** Amount in naira, counted up on screen. */
@@ -60,6 +62,7 @@ function CountUp({ value, reduced }: { value: number; reduced: boolean }) {
 }
 
 export function PurchaseSuccess({
+  variant = "success",
   title = "Payment successful",
   message,
   amount,
@@ -70,6 +73,7 @@ export function PurchaseSuccess({
   secondaryLabel,
   onSecondary,
 }: PurchaseSuccessProps) {
+  const pending = variant === "pending";
   const reduced = useReducedMotion() ?? false;
   const [copied, setCopied] = useState(false);
 
@@ -94,7 +98,7 @@ export function PurchaseSuccess({
         };
 
   return (
-    <div className="relative flex-1 overflow-y-auto scrollbar-hide bg-gradient-to-b from-[#EEF2FF] via-[#F8F9FD] to-white">
+    <div className={`relative flex-1 overflow-y-auto scrollbar-hide bg-gradient-to-b ${pending ? "from-[#FFFBEB]" : "from-[#EEF2FF]"} via-[#F8F9FD] to-white`}>
       <div className="mx-auto flex w-full max-w-md flex-col items-center px-6 pb-6 pt-4 sm:pt-10">
         {/* Animated badge */}
         <div className="relative flex h-32 w-32 items-center justify-center">
@@ -102,7 +106,7 @@ export function PurchaseSuccess({
             [0, 1].map((i) => (
               <motion.span
                 key={i}
-                className="absolute h-24 w-24 rounded-full border-2 border-[#10B981]/40"
+                className={`absolute h-24 w-24 rounded-full border-2 ${pending ? "border-amber-400/50" : "border-[#10B981]/40"}`}
                 initial={{ scale: 0.8, opacity: 0.7 }}
                 animate={{ scale: 1.9, opacity: 0 }}
                 transition={{
@@ -114,6 +118,7 @@ export function PurchaseSuccess({
               />
             ))}
           {!reduced &&
+            !pending &&
             CONFETTI.map((c, i) => (
               <motion.span
                 key={i}
@@ -139,8 +144,11 @@ export function PurchaseSuccess({
             initial={reduced ? false : { scale: 0, rotate: -20 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 220, damping: 14 }}
-            className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-[#10B981] to-[#059669] shadow-[0_18px_40px_-10px_rgba(5,150,105,0.55)]"
+            className={`flex h-24 w-24 items-center justify-center rounded-full ${pending ? "bg-gradient-to-br from-amber-400 to-amber-600 shadow-[0_18px_40px_-10px_rgba(217,119,6,0.55)]" : "bg-gradient-to-br from-[#10B981] to-[#059669] shadow-[0_18px_40px_-10px_rgba(5,150,105,0.55)]"}`}
           >
+            {pending ? (
+              <Clock size={44} className="text-white" strokeWidth={2.2} />
+            ) : (
             <svg viewBox="0 0 52 52" className="h-12 w-12" fill="none">
               <motion.path
                 d="M14 27 l9 9 l16 -18"
@@ -153,9 +161,18 @@ export function PurchaseSuccess({
                 transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
               />
             </svg>
+            )}
           </motion.div>
         </div>
 
+        {pending && (
+          <motion.span
+            {...fade(0.4)}
+            className="mt-1 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-800"
+          >
+            Pending
+          </motion.span>
+        )}
         <motion.h2
           {...fade(0.45)}
           className="mt-1 text-center text-[#0D0F1C]"

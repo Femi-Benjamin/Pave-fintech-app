@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { PaveBtn, ScreenHeader } from "../components/UI";
+import { PurchaseSuccess } from "../components/PurchaseSuccess";
 import { Screen, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { getAuthenticatedUserId } from "../api/auth";
@@ -74,6 +75,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
   // Review & execution state
   const [transferError, setTransferError] = useState("");
   const [initiatedTransaction, setInitiatedTransaction] = useState<TransferTransaction | null>(null);
+  const initiatedAt = useMemo(() => new Date(), [initiatedTransaction]);
 
   // API mutations
   const verifyMutation = useVerifyAccountNameMutation();
@@ -249,73 +251,35 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
       {/* Step 3: Transfer Initiated (Pending) */}
       {step === 3 && (
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center gap-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", damping: 12 }}
-            className="w-20 h-20 bg-amber-50 border border-amber-200 rounded-full flex items-center justify-center text-amber-600 shadow-sm"
-          >
-            <Clock size={40} />
-          </motion.div>
-
-          <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 uppercase tracking-wider mb-2">
-              Pending
-            </span>
-            <h2
-              className="text-2xl font-bold text-[#0D0F1C]"
-              style={{ fontFamily: "var(--font-family-display)" }}
-            >
-              Transfer initiated
-            </h2>
-            <p className="text-[#6B7280] text-xs mt-1.5 max-w-xs">
-              Your bank transfer has been submitted to the bank network and is currently pending final confirmation.
-            </p>
-          </div>
-
-          <div className="w-full bg-white rounded-2xl p-5 border border-[#E2E8F0] shadow-xs text-xs flex flex-col gap-3 text-left">
-            {initiatedTransaction?.reference && (
-              <div className="flex justify-between items-center py-1 border-b border-[#F1F5F9]">
-                <span className="text-[#64748B]">Reference</span>
-                <span className="font-mono font-semibold text-[#0F172A]">
-                  {initiatedTransaction.reference}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between items-center py-1 border-b border-[#F1F5F9]">
-              <span className="text-[#64748B]">Status</span>
-              <span className="font-semibold text-amber-700">Pending</span>
-            </div>
-            <div
-              className={`flex justify-between items-center py-1 ${
-                initiatedTransaction?.destination
-                  ? "border-b border-[#F1F5F9]"
-                  : ""
-              }`}
-            >
-              <span className="text-[#64748B]">Amount</span>
-              <span className="font-bold text-sm text-[#0F172A]">
-                {fmt(Number(initiatedTransaction?.amount || amount))}
-              </span>
-            </div>
-            {initiatedTransaction?.destination && (
-              <div className="flex justify-between items-center py-1">
-                <span className="text-[#64748B]">Destination</span>
-                <span className="font-medium text-[#0F172A] text-right truncate max-w-[180px]">
-                  {initiatedTransaction.destination}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="w-full flex flex-col gap-2.5 mt-auto">
-            <PaveBtn onClick={() => onNav("wallet")}>Back to Wallet</PaveBtn>
-            <PaveBtn variant="secondary" onClick={handleReset}>
-              Make Another Transfer
-            </PaveBtn>
-          </div>
-        </div>
+        <PurchaseSuccess
+          variant="pending"
+          title="Transfer initiated"
+          message="Your bank transfer has been submitted to the bank network and is awaiting final confirmation."
+          amount={Number(initiatedTransaction?.amount || amount)}
+          rows={[
+            ...(verifiedAccount?.account_name
+              ? [{ label: "Recipient", value: verifiedAccount.account_name }]
+              : []),
+            ...(selectedBank ? [{ label: "Bank", value: selectedBank.name }] : []),
+            ...(accountNumber ? [{ label: "Account number", value: accountNumber }] : []),
+            { label: "Status", value: "Pending" },
+            {
+              label: "Date",
+              value: initiatedAt.toLocaleString("en-NG", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+            },
+          ]}
+          reference={initiatedTransaction?.reference}
+          primaryLabel="Back to Wallet"
+          onPrimary={() => onNav("wallet")}
+          secondaryLabel="New Transfer"
+          onSecondary={handleReset}
+        />
       )}
 
       {/* Step 2: Review Screen */}
