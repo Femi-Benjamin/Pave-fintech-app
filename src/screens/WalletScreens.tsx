@@ -57,6 +57,7 @@ import {
   useVerifyTvAccountQuery,
   useWalletBalanceQuery,
 } from "../hooks/usePaveApi";
+import { normalizeTransactionStatus } from "../utils/transactionStatus";
 import type {
   TransactionRecord,
   UserTransactionSearchParams,
@@ -81,19 +82,18 @@ function toWalletTransaction(
     ? "savings"
     : categoryText.includes("bill") || categoryText.includes("electricity")
       ? "bills"
-      : categoryText.includes("airtime") || categoryText.includes("data")
+      : categoryText.includes("airtime") ||
+        categoryText.includes("airtie") ||
+        categoryText.includes("data")
         ? "airtime"
         : categoryText.includes("transfer")
           ? "transfer"
           : categoryText.includes("market") || categoryText.includes("purchase")
             ? "marketplace"
             : "wallet";
-  const normalizedStatus = transaction.status?.toLowerCase() ?? "";
-  const status: Transaction["status"] = normalizedStatus.includes("success")
-    ? "success"
-    : normalizedStatus.includes("pending")
-      ? "pending"
-      : "failed";
+  const status: Transaction["status"] = normalizeTransactionStatus(
+    transaction.status,
+  );
   const createdAt = transaction.createdAt;
   const parsedDate = createdAt ? new Date(createdAt) : undefined;
 
