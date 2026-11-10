@@ -1674,7 +1674,7 @@ export function GroupSavingDetailScreen({
 
                 {contributeMethod === "transfer" ? (
                   /* Admin Direct Bank Transfer Card */
-                  <div className="flex flex-col gap-3 rounded-xl bg-gradient-to-br from-[#F8FAFC] to-[#EEF2FF] border border-[#E0E7FF] p-4">
+                  <div className="flex flex-col gap-3 rounded-xl bg-linear-to-br from-[#F8FAFC] to-[#EEF2FF] border border-[#E0E7FF] p-4">
                     <div className="flex items-center gap-2 text-xs font-bold text-[#3730A3]">
                       <Landmark size={16} />
                       <span>AJO Admin Dedicated Bank Account</span>
@@ -2487,7 +2487,7 @@ export function GroupSavingDetailScreen({
             <div
               className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${
                 (groupProductsQuery.data ?? []).length > 2
-                  ? "max-h-[560px] overflow-y-auto pr-1 sm:max-h-[600px]"
+                  ? "max-h-140 overflow-y-auto pr-1 sm:max-h-150"
                   : ""
               }`}
             >
@@ -2519,7 +2519,7 @@ export function GroupSavingDetailScreen({
                     className="rounded-xl border border-[#E2E8F0] p-3 flex flex-col justify-between bg-white shadow-xs hover:shadow-md transition-all cursor-pointer outline-none focus:ring-2 focus:ring-[#3730A3]"
                   >
                     <div>
-                      <div className="aspect-16/9 rounded-lg overflow-hidden bg-gray-100 mb-2 relative">
+                      <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 mb-2 relative">
                         <ImageWithFallback
                           src={
                             prod.productImage ||
