@@ -11,6 +11,7 @@ import {
   Landmark,
   ArrowDownLeft,
   RotateCw,
+  MessageCircle,
 } from "lucide-react";
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import Logo, { BrandText } from "../components/Logo";
@@ -24,6 +25,7 @@ import {
   useWalletBalanceQuery,
 } from "../hooks/usePaveApi";
 import { useGroupSavingsQuery } from "../hooks/useGroupSavingApi";
+import { useNotificationsQuery } from "../hooks/useNotificationsApi";
 import type { TransactionRecord } from "../api/transactions";
 import type { Saving } from "../api/savings";
 import { isGroupSavingMember } from "../api/groupSaving";
@@ -113,6 +115,7 @@ export function HomeScreen({
   onSelectSaving: (savingId: string) => void;
 }) {
   const { authUser } = useLocalStore();
+  const unreadNotifications = useNotificationsQuery().data?.unreadCount ?? 0;
   const currentUserId = getAuthenticatedUserId(authUser);
   const userEmail = getAuthenticatedUserEmail(authUser);
   const walletBalanceQuery = useWalletBalanceQuery();
@@ -208,11 +211,25 @@ export function HomeScreen({
             <RotateCw size={16} />
           </button> */}
           <button
+            onClick={() => onNav("messages")}
+            className="relative w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#374151] hover:text-[#3730A3] transition-colors"
+            title="Messages"
+            aria-label="Messages"
+          >
+            <MessageCircle size={18} />
+          </button>
+          <button
             onClick={() => onNav("notifications")}
             className="relative w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB]"
+            title="Notifications"
+            aria-label="Notifications"
           >
             <Bell size={18} className="text-[#374151]" />
-            <div className="absolute top-2 right-2 w-2 h-2 bg-[#D97706] rounded-full" />
+            {unreadNotifications > 0 && (
+              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#D97706] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </div>
+            )}
           </button>
         </div>
       </div>

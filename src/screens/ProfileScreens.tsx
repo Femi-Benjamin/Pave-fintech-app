@@ -289,8 +289,18 @@ export function ProfileScreen({
               setAvatarPreview(previewUrl);
 
               uploadImageMutation.mutate(file, {
-                onSuccess: (data: any) => {
-                  const savedImg = extractImageUrl(data);
+                onSuccess: async (data: any) => {
+                  let savedImg = extractImageUrl(data);
+                  if (!savedImg) {
+                    // The upload reply only says "updated successfully" (no link).
+                    // Ask the server for the saved profile and read the link there.
+                    try {
+                      const refreshed = await profileQuery.refetch();
+                      savedImg = extractImageUrl(refreshed.data);
+                    } catch {
+                      savedImg = null;
+                    }
+                  }
                   if (savedImg) {
                     if (email) {
                       localStorage.setItem(`pave_avatar_${email}`, savedImg);

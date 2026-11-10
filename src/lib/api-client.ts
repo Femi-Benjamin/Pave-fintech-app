@@ -9,7 +9,7 @@ import {
 const rawBaseUrl =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_BASE_URL) ||
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
-  "https://pave-snowy.vercel.app";
+  "https://pave-uuh6.onrender.com";
 const baseURL = rawBaseUrl.replace(/\/api\/v1$/, "");
 
 export const api = axios.create({
@@ -18,11 +18,7 @@ export const api = axios.create({
 });
 
 const isAuthEndpointUrl = (url?: string) =>
-  !!url &&
-  (url.includes("/login") ||
-    url.includes("/register") ||
-    url.includes("/forgot-password") ||
-    url.includes("/reset-password"));
+  !!url && /\/(login|register|forgot-?password|reset-?password)/i.test(url);
 
 // Request interceptor: attach token & validate expiry before sending
 api.interceptors.request.use((config) => {
@@ -56,17 +52,47 @@ api.interceptors.request.use((config) => {
 // - Auth endpoints are skipped (a wrong password returns 401 and shouldn't redirect).
 // - If there is no token, the session is already cleared, so parallel requests
 //   that fail afterwards don't trigger another logout.
+let sessionCheck: Promise<boolean> | null = null;
+
+/**
+ * A 401 from one endpoint doesn't always mean the session is over — the
+ * backend can answer 401 for an action-specific reason. Before logging the
+ * user out, ask an endpoint that every signed-in user can call. Only a 401
+ * there ends the session; a network failure never does.
+ */
+function sessionStillValid(): Promise<boolean> {
+  if (!sessionCheck) {
+    sessionCheck = api
+      .get("/api/v1/transaction/getWalletBalance", {
+        __skipAuthLogout: true,
+      } as Record<string, unknown>)
+      .then(() => true)
+      .catch((e) => e?.response?.status !== 401)
+      .finally(() => {
+        sessionCheck = null;
+      });
+  }
+  return sessionCheck;
+}
+
 api.interceptors.response.use(
   (response) => {
     recordActivity();
     return response;
   },
-  (error) => {
+  async (error) => {
     const status = error?.response?.status;
     const url: string | undefined = error?.config?.url;
 
-    if (status === 401 && !isAuthEndpointUrl(url) && getToken()) {
-      triggerAuthLogout("unauthorized");
+    if (
+      status === 401 &&
+      !isAuthEndpointUrl(url) &&
+      !(error?.config as Record<string, unknown> | undefined)?.__skipAuthLogout &&
+      getToken()
+    ) {
+      if (!(await sessionStillValid())) {
+        triggerAuthLogout("unauthorized");
+      }
     }
 
     return Promise.reject(error);

@@ -18,6 +18,9 @@ import {
   Plus,
   Minus,
   Sparkles,
+  Trash2,
+  Loader,
+  X,
 } from "lucide-react";
 import Logo, { BrandText } from "../components/Logo";
 import {
@@ -36,12 +39,15 @@ import {
   usePurchaseQuery,
   useCreatePurchaseMutation,
   useContinueInstallmentMutation,
+  useDeleteProductMutation,
+  useUpdateProductMutation,
 } from "../hooks/useMarketApi";
 import { useWalletBalanceQuery } from "../hooks/usePaveApi";
 import { getAuthenticatedUserId } from "../api/auth";
-import { getMarketErrorMessage, stripGroupTag, isOwnProduct } from "../api/market";
+import { getMarketErrorMessage, stripGroupTag, isOwnProduct, withGroupTag } from "../api/market";
 import type { ProductItem, PurchaseItem } from "../api/market";
 import { resolveReturnScreen } from "../utils/navigation";
+import { validateProductImageFile } from "./GroupSaving";
 
 /**
  * Robust currency formatter for numbers and string values
@@ -283,7 +289,7 @@ export function MarketplaceScreen({
                 )}
               </div>
             ) : (
-              <div className={`grid grid-cols-2 gap-3 ${filteredProducts.length > 2 ? 'max-h-[520px] overflow-y-auto scrollbar-hide pr-1' : ''}`}>
+              <div className="grid grid-cols-2 gap-3">
                 {filteredProducts.map((p) => {
                   const priceNum =
                     typeof p.price === "number"
@@ -551,6 +557,20 @@ export function ProductDetailScreen({
   const categoryId = activeProduct?.categoryId;
   const { data: categoryData } = useCategoryQuery(categoryId);
 
+  // Owner actions. These hooks must stay above the early returns below.
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const deleteMutation = useDeleteProductMutation();
+  const updateMutation = useUpdateProductMutation();
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [editSuccess, setEditSuccess] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editQuantity, setEditQuantity] = useState("");
+  const [editImage, setEditImage] = useState<File | null>(null);
+
   if (isLoading && !activeProduct) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-6">
@@ -583,6 +603,64 @@ export function ProductDetailScreen({
   const p = activeProduct;
   const currentUserId = getAuthenticatedUserId();
   const isOwner = isOwnProduct(p, currentUserId);
+
+  const openEditModal = () => {
+    setEditError("");
+    setEditSuccess("");
+    setEditName(p.productName || "");
+    setEditDescription(stripGroupTag(p.description));
+    setEditPrice(String(p.price ?? ""));
+    setEditQuantity(String(p.quantity ?? 0));
+    setEditImage(null);
+    setShowEditModal(true);
+  };
+
+  const submitEdit = async () => {
+    setEditError("");
+    const name = editName.trim();
+    const priceValue = Number(editPrice);
+    const qtyValue = Number(editQuantity);
+    if (!name) return setEditError("Product name is required.");
+    if (!editPrice.trim() || Number.isNaN(priceValue) || priceValue <= 0) {
+      return setEditError("Enter a price greater than zero.");
+    }
+    if (
+      editQuantity.trim() === "" ||
+      Number.isNaN(qtyValue) ||
+      qtyValue < 0 ||
+      !Number.isInteger(qtyValue)
+    ) {
+      return setEditError("Quantity must be a whole number, 0 or more.");
+    }
+    if (editImage) {
+      const imageError = validateProductImageFile(editImage);
+      if (imageError) return setEditError(imageError);
+    }
+    // Backend requires "status" on update. Keep the current status; only flip a
+    // sold-out listing back to "available" when stock is added.
+    const currentStatus = String(p.status || "available");
+    const nextStatus =
+      currentStatus === "out-of-stock" && qtyValue > 0 ? "available" : currentStatus;
+    try {
+      await updateMutation.mutateAsync({
+        productId: p.id,
+        payload: {
+          status: nextStatus,
+          image: editImage,
+          productName: name,
+          description: withGroupTag(editDescription, p.description),
+          price: priceValue,
+          quantity: qtyValue,
+          groupId: p.groupId,
+        },
+        isProductOwner: true,
+      });
+      setShowEditModal(false);
+      setEditSuccess("Listing updated.");
+    } catch (err) {
+      setEditError(getMarketErrorMessage(err, "Unable to update this listing."));
+    }
+  };
   const priceNum =
     typeof p.price === "number" ? p.price : parseFloat(String(p.price || 0));
   const isAvailable = p.status === "available" && p.quantity > 0;
@@ -697,6 +775,33 @@ export function ProductDetailScreen({
                 {p.quantity ?? 0} units
               </span>
             </div>
+
+            {editSuccess && (
+              <p role="status" className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                {editSuccess}
+              </p>
+            )}
+
+            <div className="pt-2 border-t border-slate-200 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={openEditModal}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#3730A3] bg-[#EEF2FF] hover:bg-[#E0E7FF] border border-[#C7D2FE] transition-colors cursor-pointer"
+              >
+                <span>Edit listing</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteError("");
+                  setShowDeleteModal(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer"
+              >
+                <Trash2 size={14} />
+                <span>Delete this Listing</span>
+              </button>
+            </div>
           </div>
         ) : (
           /* Buyer Installment Plan Breakdown */
@@ -758,6 +863,208 @@ export function ProductDetailScreen({
           Back
         </PaveBtn>
       </div>
+
+      {/* Edit Listing Modal (owner only, text fields) */}
+      {showEditModal && isOwner && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edit listing"
+        >
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-[#F1F3FB]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Edit listing</h3>
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                disabled={updateMutation.isPending}
+                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 cursor-pointer disabled:opacity-50"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <label className="text-xs font-semibold text-gray-700">
+                Product name
+                <input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-[#3730A3]"
+                />
+              </label>
+              <label className="text-xs font-semibold text-gray-700">
+                Description
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={4}
+                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-[#3730A3]"
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="text-xs font-semibold text-gray-700">
+                  Price (₦)
+                  <input
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                    inputMode="decimal"
+                    className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-[#3730A3]"
+                  />
+                </label>
+                <label className="text-xs font-semibold text-gray-700">
+                  Quantity
+                  <input
+                    value={editQuantity}
+                    onChange={(e) => setEditQuantity(e.target.value)}
+                    inputMode="numeric"
+                    className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-[#3730A3]"
+                  />
+                </label>
+              </div>
+              <label className="text-xs font-semibold text-gray-700">
+                Change photo (optional)
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    if (file) {
+                      const err = validateProductImageFile(file);
+                      if (err) {
+                        setEditError(err);
+                        setEditImage(null);
+                        e.target.value = "";
+                        return;
+                      }
+                    }
+                    setEditError("");
+                    setEditImage(file);
+                  }}
+                  className="mt-1 block w-full text-xs text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#EEF2FF] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#3730A3]"
+                />
+              </label>
+              <p className="text-[11px] text-gray-500">
+                Leave empty to keep the current photo. JPEG, PNG or WebP, up to 2 MB.
+              </p>
+            </div>
+
+            {editError && (
+              <p role="alert" className="mt-3 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
+                {editError}
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-4 mt-4 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                disabled={updateMutation.isPending}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void submitEdit()}
+                disabled={updateMutation.isPending}
+                className="px-4 py-2.5 rounded-xl bg-[#3730A3] text-sm font-semibold text-white hover:bg-[#312E81] cursor-pointer disabled:opacity-60"
+              >
+                {updateMutation.isPending ? "Saving..." : "Save changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Product Confirmation Modal */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600 shrink-0">
+                <Trash2 size={22} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Delete Listing?
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Permanently remove this product
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteMutation.isPending}
+                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 cursor-pointer disabled:opacity-50"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+              Are you sure you want to delete <span className="font-bold text-gray-900">{p.productName}</span>? Members will no longer be able to purchase or initiate installment plans for this item.
+            </p>
+
+            {deleteError && (
+              <p role="alert" className="mb-4 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
+                {deleteError}
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteMutation.isPending}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setDeleteError("");
+                  try {
+                    await deleteMutation.mutateAsync({
+                      productId: p.id,
+                      inProgressPurchasesCount: 0,
+                      isProductOwner: true,
+                      groupId: p.groupId,
+                    });
+                    setShowDeleteModal(false);
+                    onNav(targetReturnScreen);
+                  } catch (err) {
+                    setDeleteError(getMarketErrorMessage(err, "Unable to delete product."));
+                  }
+                }}
+                disabled={deleteMutation.isPending}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 text-sm font-semibold text-white shadow-sm hover:bg-red-700 active:scale-95 cursor-pointer disabled:opacity-50"
+              >
+                {deleteMutation.isPending ? (
+                  <>
+                    <Loader size={16} className="animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    <span>Delete Listing</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

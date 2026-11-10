@@ -12,12 +12,13 @@ import {
   sanitizeUserRecord,
   sanitizePurchaseItem,
   isOwnProduct,
+  withGroupTag,
 } from "../src/api/market";
 import type { ProductItem, PurchaseItem } from "../api/market";
 import { api } from "../src/lib/api-client";
 
 // Report the base URL used for testing fixtures
-const TEST_BASE_URL = api.defaults.baseURL || "https://pave-snowy.vercel.app";
+const TEST_BASE_URL = api.defaults.baseURL || "https://pave-uuh6.onrender.com";
 console.log(`[TEST RUNNER] Using configured test base URL: ${TEST_BASE_URL}`);
 
 // Fixtures
@@ -410,3 +411,97 @@ test("AJO Marketplace: isOwnProduct correctly identifies product owner", () => {
   assert.equal(isOwnProduct({ userId: "user-123" }, ""), false);
 });
 
+test("AJO Marketplace: updateProduct sends text-only multipart with exact keys", async () => {
+  const originalPut = api.put;
+  let putUrl = "";
+  let putData: any = null;
+  (api as any).put = async (url: string, data: any) => {
+    putUrl = url;
+    putData = data;
+    return { data: { success: true, message: "ok", data: { id: "p1" } } };
+  };
+  try {
+    await updateProduct(
+      "p1",
+      {
+        productName: "  Solar Generator  ",
+        description: "Updated text [AJO:group-g1]",
+        price: "45000",
+        quantity: 7,
+        groupId: "group-g1",
+      },
+      true,
+    );
+    assert.equal(putUrl, "/api/v1/product/update-product/p1");
+    assert.ok(putData instanceof FormData);
+    const keys = Array.from(putData.keys()).sort();
+    assert.deepEqual(
+      keys,
+      ["description", "price", "productName", "productRating", "quantity"],
+    );
+    assert.equal(putData.get("productName"), "Solar Generator");
+    assert.equal(putData.get("price"), "45000");
+    assert.equal(putData.get("quantity"), "7");
+    assert.equal(putData.get("productRating"), "5");
+    assert.equal(putData.has("groupId"), false);
+    assert.equal(putData.has("images"), false);
+    assert.equal(putData.has("productImage"), false);
+  } finally {
+    (api as any).put = originalPut;
+  }
+});
+
+test("AJO Marketplace: updateProduct rejects invalid price, quantity, empty name", async () => {
+  await assert.rejects(() => updateProduct("p1", { price: 0 }), /positive amount/);
+  await assert.rejects(() => updateProduct("p1", { quantity: 1.5 }), /non-negative integer/);
+  await assert.rejects(() => updateProduct("p1", { quantity: -1 }), /non-negative integer/);
+  await assert.rejects(() => updateProduct("p1", { productName: "   " }), /name is required/);
+});
+
+test("AJO Marketplace: withGroupTag preserves the original group tag on edit", () => {
+  assert.equal(withGroupTag("New text", "Old text [AJO:group-g1]"), "New text [AJO:group-g1]");
+  assert.equal(withGroupTag("New [AJO:other]", "Old [AJO:group-g1]"), "New [AJO:group-g1]");
+  assert.equal(withGroupTag("New text", "Old text"), "New text");
+  assert.equal(withGroupTag("New text", undefined), "New text");
+});
+
+test("AJO Marketplace: updateProduct sends a new photo as productImage only when provided", async () => {
+  const originalPut = api.put;
+  let putData: any = null;
+  (api as any).put = async (_url: string, data: any) => {
+    putData = data;
+    return { data: { success: true, message: "ok", data: { id: "p1" } } };
+  };
+  try {
+    const file = new File([new Uint8Array([1, 2, 3])], "new.png", { type: "image/png" });
+    await updateProduct("p1", { productName: "Phone", image: file }, true);
+    assert.deepEqual(
+      Array.from(putData.keys()).sort(),
+      ["productImage", "productName", "productRating"],
+    );
+    assert.ok(putData.get("productImage") instanceof File);
+    assert.equal(putData.has("images"), false);
+
+    await updateProduct("p1", { productName: "Phone", image: null }, true);
+    assert.equal(putData.has("productImage"), false);
+  } finally {
+    (api as any).put = originalPut;
+  }
+});
+
+test("AJO Marketplace: updateProduct sends status when provided (backend requires it)", async () => {
+  const originalPut = api.put;
+  let putData: any = null;
+  (api as any).put = async (_url: string, data: any) => {
+    putData = data;
+    return { data: { success: true, message: "ok", data: { id: "p1" } } };
+  };
+  try {
+    await updateProduct("p1", { productName: "Phone", status: " available " }, true);
+    assert.equal(putData.get("status"), "available");
+    await updateProduct("p1", { productName: "Phone" }, true);
+    assert.equal(putData.has("status"), false);
+  } finally {
+    (api as any).put = originalPut;
+  }
+});

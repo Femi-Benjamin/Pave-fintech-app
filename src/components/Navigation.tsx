@@ -21,6 +21,7 @@ export const BOTTOM_NAV = [
   { screen: "savings" as Screen, icon: Target, label: "Savings" },
   { screen: "group-savings" as Screen, icon: PiggyBank, label: "Ajo" },
   { screen: "marketplace" as Screen, icon: ShoppingBag, label: "Shop" },
+  { screen: "messages" as Screen, icon: MessageCircle, label: "Messages" },
   { screen: "profile" as Screen, icon: User, label: "Profile" },
 ];
 
@@ -93,7 +94,7 @@ export function DesktopSidebar({
                 ["fund-wallet", "transfer", "bills", "airtime", "transactions"].includes(screen)) ||
               (item.screen === "marketplace" &&
                 ["product-detail", "cart", "checkout", "payment-plan"].includes(screen)) ||
-              (item.screen === "messages" && ["chat"].includes(screen)) ||
+              (item.screen === "messages" && ["chat", "group-chat"].includes(screen)) ||
               (item.screen === "profile" && ["settings"].includes(screen));
             return (
               <button

@@ -918,7 +918,7 @@ export function ForgotPasswordScreen({
 
   const handleResetPassword = async () => {
     if (!resetToken.trim()) {
-      setError("Please enter the reset token from your email.");
+      setError("Please enter the reset code we sent you.");
       return;
     }
 
@@ -964,22 +964,18 @@ export function ForgotPasswordScreen({
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
-        <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
+        <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
           <button
             onClick={() => onNav("login")}
+            aria-label="Back to login"
             className="w-9 h-9 rounded-full bg-[#F1F3FB] flex items-center justify-center cursor-pointer hover:bg-[#EEF2FF] transition-colors"
           >
             <ArrowLeft size={18} />
           </button>
-          <div className="flex items-center gap-3">
-            <h2
-              className="text-lg sm:text-xl font-bold text-[#0D0F1C]"
-              style={{ fontFamily: "var(--font-family-display)" }}
-            >
-              Reset Password
-            </h2>
+          <div className="flex items-center justify-center">
             <Logo size="sm" />
           </div>
+          <div aria-hidden="true" />
         </div>
 
         <div className="flex-1 flex flex-col">
@@ -1004,7 +1000,7 @@ export function ForgotPasswordScreen({
                 Forgot Password?
               </h2>
               <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-4">
-                Enter your registered email and we’ll send a secure reset link.
+                Enter your registered email and we’ll send you a secure reset code.
               </p>
               <Input
                 label="Email Address"
@@ -1024,7 +1020,7 @@ export function ForgotPasswordScreen({
                       <Loader size={16} className="animate-spin" /> Sending...
                     </>
                   ) : (
-                    "Send Reset Link"
+                    "Send Reset Code"
                   )}
                 </PaveBtn>
               </div>
@@ -1069,8 +1065,8 @@ export function ForgotPasswordScreen({
               )}
 
               <Input
-                label="Reset Token"
-                placeholder="Paste the token from your email"
+                label="Reset Code"
+                placeholder="Enter the code we sent you"
                 value={resetToken}
                 onChange={setResetToken}
                 icon={<Hash size={16} />}

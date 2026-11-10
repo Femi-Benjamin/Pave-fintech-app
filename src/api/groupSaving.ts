@@ -1,5 +1,6 @@
 import axios from "axios";
 import { api } from "../lib/api-client";
+import { normalizeNigerianPhone } from "../utils/phone";
 
 export type GroupSavingFrequency =
   | "daily"
@@ -546,9 +547,17 @@ export async function inviteMemberToGroup(
 ) {
   if (!groupId.trim()) throw new Error("A group ID is required.");
   const email = payload.email?.trim();
-  const phoneNumber = payload.phoneNumber?.trim();
-  if (!email && !phoneNumber) {
+  const rawPhone = payload.phoneNumber?.trim();
+  if (!email && !rawPhone) {
     throw new Error("Enter an email address or phone number to invite.");
+  }
+  let phoneNumber: string | undefined;
+  if (rawPhone) {
+    const normalized = normalizeNigerianPhone(rawPhone);
+    if (!normalized.valid) {
+      throw new Error("Enter a valid 11-digit phone number, e.g. 08012345678.");
+    }
+    phoneNumber = normalized.value;
   }
   const { data } = await api.post<GroupSavingActionResponse>(
     "/api/v1/group-saving/invite-member",

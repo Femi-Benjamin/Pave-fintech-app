@@ -24,6 +24,10 @@ import {
   ShoppingBag,
   Package,
   Share2,
+  LogOut,
+  AlertTriangle,
+  AlertCircle,
+  X,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { PaveBtn, ScreenHeader, ImageWithFallback } from "../components/UI";
@@ -92,6 +96,7 @@ import {
   getAuthenticatedUserId,
 } from "../api/auth";
 import { Skeleton } from "../components/Skeleton";
+import { normalizeNigerianPhone } from "../utils/phone";
 
 function amount(value: number | string) {
   return Number(value) || 0;
@@ -223,21 +228,21 @@ export function GroupSavingsScreen({
             )}
           </div>
         )}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={() => onNav("create-group-saving")}
-            className="flex min-h-20 items-center gap-3 rounded-2xl border border-[#E0E7FF] bg-[#EEF2FF] p-4 text-left transition-colors hover:bg-[#E0E7FF]"
+            className="flex flex-col sm:flex-row min-h-20 items-start sm:items-center gap-2 sm:gap-3 rounded-2xl border border-[#E0E7FF] bg-[#EEF2FF] p-3.5 sm:p-4 text-left transition-colors hover:bg-[#E0E7FF] cursor-pointer"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3730A3]">
-              <Plus size={20} className="text-white" />
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-[#3730A3]">
+              <Plus size={18} className="text-white sm:w-5 sm:h-5" />
             </div>
-            <span>
-              <span className="block text-sm font-semibold text-[#3730A3]">
+            <span className="min-w-0">
+              <span className="block text-xs sm:text-sm font-semibold text-[#3730A3] truncate">
                 Create AJO
               </span>
-              <span className="mt-1 block text-xs text-[#6B7280]">
-                Start a group and invite members
+              <span className="mt-0.5 sm:mt-1 block text-[10px] sm:text-xs text-[#6B7280] leading-tight">
+                Start a group & invite
               </span>
             </span>
           </button>
@@ -246,17 +251,17 @@ export function GroupSavingsScreen({
             onClick={() => setShowJoinForm((visible) => !visible)}
             aria-expanded={showJoinForm}
             aria-controls="ajo-invite-code-form"
-            className="flex min-h-20 items-center gap-3 rounded-2xl border border-[#FDE68A] bg-[#FFFBEB] p-4 text-left transition-colors hover:bg-[#FEF3C7]"
+            className="flex flex-col sm:flex-row min-h-20 items-start sm:items-center gap-2 sm:gap-3 rounded-2xl border border-[#FDE68A] bg-[#FFFBEB] p-3.5 sm:p-4 text-left transition-colors hover:bg-[#FEF3C7] cursor-pointer"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#D97706] text-white">
-              <ArrowLeft size={19} className="rotate-180" />
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-[#D97706] text-white">
+              <ArrowLeft size={18} className="rotate-180 sm:w-5 sm:h-5" />
             </div>
-            <span>
-              <span className="block text-sm font-semibold text-[#92400E]">
-                {showJoinForm ? "Close Join AJO" : "Join AJO"}
+            <span className="min-w-0">
+              <span className="block text-xs sm:text-sm font-semibold text-[#92400E] truncate">
+                {showJoinForm ? "Close Join" : "Join AJO"}
               </span>
-              <span className="mt-1 block text-xs text-[#6B7280]">
-                Enter the invitation code you received
+              <span className="mt-0.5 sm:mt-1 block text-[10px] sm:text-xs text-[#6B7280] leading-tight">
+                Enter invite code
               </span>
             </span>
           </button>
@@ -570,7 +575,7 @@ export function CreateGroupSavingScreen({
                   <button
                     type="button"
                     onClick={() => onNav("group-savings")}
-                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F3F4F6]"
+                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] bg-[#F3F4F6] transition hover:bg-[#E5E7EB]"
                   >
                     Cancel
                   </button>
@@ -664,7 +669,7 @@ export function CreateGroupSavingScreen({
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F3F4F6]"
+                    className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] bg-[#F3F4F6] transition hover:bg-[#E5E7EB]"
                   >
                     Back
                   </button>
@@ -883,6 +888,13 @@ export function GroupSavingDetailScreen({
   const [narration, setNarration] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [invitePhoneNumber, setInvitePhoneNumber] = useState("");
+  const isPhoneEntered = Boolean(invitePhoneNumber.trim());
+  const phoneValidation = isPhoneEntered
+    ? normalizeNigerianPhone(invitePhoneNumber.trim())
+    : null;
+  const isPhoneInvalid = Boolean(
+    isPhoneEntered && phoneValidation && !phoneValidation.valid,
+  );
   const [actionMessage, setActionMessage] = useState("");
   const [showInviteDropdown, setShowInviteDropdown] = useState(false);
   const [copiedInviteCode, setCopiedInviteCode] = useState(false);
@@ -891,6 +903,12 @@ export function GroupSavingDetailScreen({
   const [copiedNarration, setCopiedNarration] = useState(false);
   const [contributeMethod, setContributeMethod] = useState<"transfer" | "wallet">("transfer");
   const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null);
+  const [isGroupMembersOpen, setIsGroupMembersOpen] = useState(false);
+  const [showDeleteGroupModal, setShowDeleteGroupModal] = useState(false);
+  const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<ProductItem | null>(null);
+  const [productDeleteError, setProductDeleteError] = useState("");
+  const [productDeleteSuccess, setProductDeleteSuccess] = useState("");
 
   const currentMonthName = new Date().toLocaleString("en-US", { month: "long", year: "numeric" });
   const storageKey = `pave_ajo_contributions_${groupId}_${new Date().getFullYear()}_${new Date().getMonth() + 1}`;
@@ -1125,25 +1143,19 @@ export function GroupSavingDetailScreen({
         },
       });
 
-      const resAny = response as any;
-      const msg = response?.message?.trim();
-      const hasDeliveryInfo =
-        Boolean(resAny?.delivery) ||
-        Boolean(resAny?.delivered) ||
-        Boolean(resAny?.smsSent) ||
-        Boolean(resAny?.emailSent) ||
-        (msg && (msg.toLowerCase().includes("sms") || msg.toLowerCase().includes("email")));
-
-      if (msg && hasDeliveryInfo) {
-        setActionMessage(msg);
-      } else if (msg && !group?.inviteCode) {
-        setActionMessage(msg);
-      } else if (group?.inviteCode) {
-        setActionMessage(`Invitation request submitted. Invite code: ${group.inviteCode}`);
-      } else {
-        setActionMessage(msg || "Invitation request submitted.");
+      let successMsg = `${response?.message || "Invitation sent."}`;
+      if (group?.inviteCode) {
+        successMsg += ` Invite code: ${group.inviteCode}`;
+      }
+      const dataObj = response?.data as any;
+      if (dataObj?.smsSent === true) {
+        successMsg += " SMS delivered.";
+      }
+      if (dataObj?.emailSent === true) {
+        successMsg += " Email delivered.";
       }
 
+      setActionMessage(successMsg);
       setInviteEmail("");
       setInvitePhoneNumber("");
     } catch {
@@ -1239,35 +1251,43 @@ export function GroupSavingDetailScreen({
     }
   };
 
-  const handleDeleteProduct = async (productId: string) => {
-    if (!window.confirm("Remove this product from the group?")) return;
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+    setProductDeleteError("");
+    setProductDeleteSuccess("");
     try {
       await deleteProductMutation.mutateAsync({
-        productId,
+        productId: productToDelete.id,
         inProgressPurchasesCount: 0,
-        isProductOwner: isGroupOwner,
+        isProductOwner: true,
         groupId,
       });
+      setProductDeleteSuccess(
+        `"${productToDelete.productName}" was removed successfully.`,
+      );
+      setProductToDelete(null);
     } catch (err) {
-      alert(getMarketErrorMessage(err, "Unable to delete product."));
+      setProductDeleteError(
+        getMarketErrorMessage(err, "Unable to delete product."),
+      );
     }
   };
 
-  const deleteGroup = () => {
-    if (
-      !window.confirm("Delete this AJO group? This action cannot be undone.")
-    ) {
-      return;
-    }
+  const confirmDeleteGroup = () => {
     deleteMutation.mutate(groupId, {
-      onSuccess: () => onNav("group-savings"),
+      onSuccess: () => {
+        setShowDeleteGroupModal(false);
+        onNav("group-savings");
+      },
     });
   };
 
-  const leaveGroup = () => {
-    if (!window.confirm("Leave this AJO group?")) return;
+  const confirmLeaveGroup = () => {
     leaveMutation.mutate(groupId, {
-      onSuccess: () => onNav("group-savings"),
+      onSuccess: () => {
+        setShowLeaveGroupModal(false);
+        onNav("group-savings");
+      },
     });
   };
 
@@ -1434,28 +1454,17 @@ export function GroupSavingDetailScreen({
           </p>
         )}
 
-        {/* Management Buttons: Edit group & Delete group */}
+        {/* Owner Management: Edit group */}
         {isGroupOwner && (
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={openEditor}
-              disabled={busy}
-              className="flex items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#334155] shadow-xs transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <Pencil size={15} className="text-[#64748B]" />
-              <span>Edit group</span>
-            </button>
-            <button
-              type="button"
-              onClick={deleteGroup}
-              disabled={busy}
-              className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm font-semibold text-red-700 shadow-xs transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <Trash2 size={15} />
-              <span>Delete group</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={openEditor}
+            disabled={busy}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#334155] shadow-xs transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            <Pencil size={15} className="text-[#64748B]" />
+            <span>Edit group</span>
+          </button>
         )}
 
         {/* Collapsible Invite Member Dropdown */}
@@ -1565,12 +1574,18 @@ export function GroupSavingDetailScreen({
                   </label>
                   <input
                     type="tel"
+                    inputMode="tel"
                     value={invitePhoneNumber}
                     onChange={(event) => setInvitePhoneNumber(event.target.value)}
-                    placeholder="Enter member's phone number"
+                    placeholder="08012345678"
                     aria-label="Member phone number"
                     className="w-full rounded-xl bg-[#F1F3FB] px-4 py-2.5 text-sm outline-none border border-transparent focus:border-[#3730A3]"
                   />
+                  {isPhoneInvalid && (
+                    <p role="alert" className="mt-1 text-xs text-red-600">
+                      Enter a valid 11-digit phone number, e.g. 08012345678.
+                    </p>
+                  )}
                 </div>
 
                 <p className="text-[11px] text-[#6B7280]">
@@ -1589,21 +1604,16 @@ export function GroupSavingDetailScreen({
                 <PaveBtn
                   onClick={() => void submitInvite()}
                   disabled={
-                    busy || (!inviteEmail.trim() && !invitePhoneNumber.trim())
+                    busy || (!inviteEmail.trim() && !invitePhoneNumber.trim()) || isPhoneInvalid
                   }
                 >
-                  {inviteMutation.isPending ? "Sending Invitation..." : "Send Invitation"}
+                  {inviteMutation.isPending ? "Sending..." : "Send Invitation"}
                 </PaveBtn>
               </div>
             )}
           </section>
         )}
 
-        {!isGroupOwner && (
-          <PaveBtn variant="danger" onClick={leaveGroup} disabled={busy}>
-            {leaveMutation.isPending ? "Leaving..." : "Leave group"}
-          </PaveBtn>
-        )}
 
         {actionMessage && (
           <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
@@ -1802,7 +1812,7 @@ export function GroupSavingDetailScreen({
                         {busy ? "Processing Wallet Payment..." : `Pay ${fmt(amount(contributionAmount || group.contributionAmount))} from Wallet`}
                       </PaveBtn>
                       <PaveBtn
-                        variant="ghost"
+                        variant="secondary"
                         onClick={() => setActiveAction(null)}
                         disabled={busy}
                       >
@@ -1851,7 +1861,7 @@ export function GroupSavingDetailScreen({
                     {busy ? "Processing..." : "Confirm Withdrawal"}
                   </PaveBtn>
                   <PaveBtn
-                    variant="ghost"
+                    variant="secondary"
                     onClick={() => setActiveAction(null)}
                     disabled={busy}
                   >
@@ -2005,7 +2015,7 @@ export function GroupSavingDetailScreen({
                   {updateMutation.isPending ? "Saving..." : "Save changes"}
                 </PaveBtn>
                 <PaveBtn
-                  variant="ghost"
+                  variant="secondary"
                   onClick={() => setIsEditing(false)}
                   disabled={busy}
                 >
@@ -2016,168 +2026,185 @@ export function GroupSavingDetailScreen({
           </section>
         )}
 
-        {deleteMutation.isError && (
-          <p role="alert" className="text-sm text-red-600">
-            {getApiErrorMessage(
-              deleteMutation.error,
-              "Unable to delete this AJO group.",
-            )}
-          </p>
-        )}
-        {leaveMutation.isError && (
-          <p role="alert" className="text-sm text-red-600">
-            {getApiErrorMessage(
-              leaveMutation.error,
-              "Unable to leave this AJO group.",
-            )}
-          </p>
-        )}
-
-        <section className="rounded-2xl border border-[#F1F3FB] bg-white p-5 shadow-xs">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <div>
-              <h3 className="text-base font-bold text-[#0D0F1C]">
-                Group Members ({group.members?.length ?? group.currentMembers})
-              </h3>
-              <p className="text-xs text-[#6B7280]">
-                {isGroupAdmin
-                  ? "Admin view: Member contact details & monthly contribution verification"
-                  : "Members list for this AJO circle"}
-              </p>
+        {/* Collapsible Group Members Dropdown - styled like Invite a Member */}
+        <section className="rounded-2xl border border-[#F1F3FB] bg-white overflow-hidden shadow-xs">
+          <button
+            type="button"
+            onClick={() => setIsGroupMembersOpen((open) => !open)}
+            aria-expanded={isGroupMembersOpen}
+            aria-controls="group-members-dropdown-content"
+            className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[#F8FAFC] cursor-pointer gap-2"
+          >
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF2FF] text-[#3730A3] shrink-0">
+                <Users size={18} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  <h3 className="text-sm font-semibold text-[#0D0F1C] shrink-0">
+                    Group Members ({group.members?.length ?? group.currentMembers})
+                  </h3>
+                  <span className="text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                    {currentMonthName}
+                  </span>
+                </div>
+                <p className="hidden sm:block text-xs text-[#6B7280] leading-snug mt-0.5">
+                  {isGroupAdmin
+                    ? "Member contact details & monthly contribution verification"
+                    : "Members list for this AJO circle"}
+                </p>
+              </div>
             </div>
-            <span className="text-xs font-semibold text-[#059669] bg-[#ECFDF5] px-3 py-1 rounded-full">
-              {currentMonthName}
-            </span>
-          </div>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3730A3] shrink-0 ml-1">
+              <span>{isGroupMembersOpen ? "Hide" : "View"}</span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform duration-200 ${
+                  isGroupMembersOpen ? "rotate-180" : ""
+                }`}
+              />
+            </div>
+          </button>
 
-          <div className="flex flex-col divide-y divide-[#F1F3FB]">
-            {(group.members ?? []).map((member, index) => {
-              const memberKey = extractEntityId(member.userId ?? member.id) || `member-${index}`;
-              const isOwner = member.role === "owner" || member.userId === groupOwnerId;
-              const hasContributedThisMonth = Boolean(
-                confirmedContributions[memberKey] ||
-                confirmedContributions[member.id] ||
-                (member.userId && confirmedContributions[member.userId])
-              );
+          {isGroupMembersOpen && (
+            <div
+              id="group-members-dropdown-content"
+              className="p-4 pt-1 border-t border-[#F1F3FB] flex flex-col divide-y divide-[#F1F3FB]"
+            >
+              {(group.members ?? []).length === 0 ? (
+                <div className="py-6 text-center text-xs text-[#6B7280]">
+                  No members in this group yet.
+                </div>
+              ) : (
+                (group.members ?? []).map((member, index) => {
+                  const memberKey = extractEntityId(member.userId ?? member.id) || `member-${index}`;
+                  const isOwner = member.role === "owner" || member.userId === groupOwnerId;
+                  const hasContributedThisMonth = Boolean(
+                    confirmedContributions[memberKey] ||
+                    confirmedContributions[member.id] ||
+                    (member.userId && confirmedContributions[member.userId])
+                  );
 
-              // User details extraction
-              const userObj = member.User || (member as any).user || {};
-              const first = userObj.firstName || (member as any).firstName || "";
-              const last = userObj.lastName || (member as any).lastName || "";
-              const fullName = `${first} ${last}`.trim() || userObj.fullName || userObj.name || (member as any).name;
-              
-              let displayName = fullName;
-              if (!displayName) {
-                if (currentUserId && (member.userId === currentUserId || member.id === currentUserId)) {
-                  const myName = [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ");
-                  displayName = myName ? `${myName} (You)` : "You";
-                } else if (userObj.email || (member as any).email) {
-                  displayName = (userObj.email || (member as any).email).split("@")[0];
-                } else {
-                  displayName = `Member #${index + 1}`;
-                }
-              }
+                  // User details extraction
+                  const userObj = member.User || (member as any).user || {};
+                  const first = userObj.firstName || (member as any).firstName || "";
+                  const last = userObj.lastName || (member as any).lastName || "";
+                  const fullName = `${first} ${last}`.trim() || userObj.fullName || userObj.name || (member as any).name;
+                  
+                  let displayName = fullName;
+                  if (!displayName) {
+                    if (currentUserId && (member.userId === currentUserId || member.id === currentUserId)) {
+                      const myName = [authUser?.firstName, authUser?.lastName].filter(Boolean).join(" ");
+                      displayName = myName ? `${myName} (You)` : "You";
+                    } else if (userObj.email || (member as any).email) {
+                      displayName = (userObj.email || (member as any).email).split("@")[0];
+                    } else {
+                      displayName = `Member #${index + 1}`;
+                    }
+                  }
 
-              const memberEmail = userObj.email || (member as any).email || (member.userId === currentUserId ? authUser?.email : "") || "Not provided";
-              const memberPhone = userObj.phoneNumber || userObj.phone || (member as any).phoneNumber || (member as any).phone || (member.userId === currentUserId ? authUser?.phoneNumber : "") || "Not provided";
-              const isExpanded = expandedMemberId === memberKey;
+                  const memberEmail = userObj.email || (member as any).email || (member.userId === currentUserId ? authUser?.email : "") || "Not provided";
+                  const memberPhone = userObj.phoneNumber || userObj.phone || (member as any).phoneNumber || (member as any).phone || (member.userId === currentUserId ? authUser?.phoneNumber : "") || "Not provided";
+                  const isExpanded = expandedMemberId === memberKey;
 
-              return (
-                <div key={member.id || index} className="py-3.5 flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-sm font-bold text-[#3730A3]">
-                        {displayName.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate font-semibold text-sm text-[#0D0F1C]">
-                            {displayName}
+                  return (
+                    <div key={member.id || index} className="py-3.5 flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-sm font-bold text-[#3730A3]">
+                            {displayName.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="truncate font-semibold text-sm text-[#0D0F1C]">
+                                {displayName}
+                              </span>
+                              {isOwner && (
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] bg-[#FFFBEB] px-2 py-0.5 rounded-md">
+                                  Admin
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {hasContributedThisMonth ? (
+                                <span className="flex items-center gap-1 text-[11px] font-semibold text-[#059669]">
+                                  <CheckCircle2 size={12} />
+                                  <span>Contributed for {currentMonthName.split(" ")[0]}</span>
+                                </span>
+                              ) : (
+                                <span className="text-[11px] font-medium text-[#D97706]">
+                                  Pending for {currentMonthName.split(" ")[0]}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="font-semibold text-sm text-[#0D0F1C]">
+                            {fmt(amount(member.totalContribution))}
                           </span>
-                          {isOwner && (
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] bg-[#FFFBEB] px-2 py-0.5 rounded-md">
-                              Admin
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          {hasContributedThisMonth ? (
-                            <span className="flex items-center gap-1 text-[11px] font-semibold text-[#059669]">
-                              <CheckCircle2 size={12} />
-                              <span>Contributed for {currentMonthName.split(" ")[0]}</span>
-                            </span>
-                          ) : (
-                            <span className="text-[11px] font-medium text-[#D97706]">
-                              Pending for {currentMonthName.split(" ")[0]}
-                            </span>
+                          {isGroupAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedMemberId(isExpanded ? null : memberKey)}
+                              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#F1F3FB] text-[#6B7280] transition-colors cursor-pointer"
+                              aria-label={isExpanded ? "Collapse member details" : "Expand member details"}
+                            >
+                              <ChevronDown size={16} className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                            </button>
                           )}
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="font-semibold text-sm text-[#0D0F1C]">
-                        {fmt(amount(member.totalContribution))}
-                      </span>
-                      {isGroupAdmin && (
-                        <button
-                          type="button"
-                          onClick={() => setExpandedMemberId(isExpanded ? null : memberKey)}
-                          className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#F1F3FB] text-[#6B7280] transition-colors cursor-pointer"
-                          aria-label={isExpanded ? "Collapse member details" : "Expand member details"}
-                        >
-                          <ChevronDown size={16} className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
-                        </button>
+                      {/* Admin Details Dropdown */}
+                      {isGroupAdmin && isExpanded && (
+                        <div className="mt-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4 text-xs flex flex-col gap-2.5">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                            <div>
+                              <span className="text-[#64748B] block text-[11px] font-medium">Member's Name</span>
+                              <span className="font-semibold text-[#0F172A]">{displayName}</span>
+                            </div>
+                            <div>
+                              <span className="text-[#64748B] block text-[11px] font-medium">Phone Number</span>
+                              <span className="font-semibold text-[#0F172A]">{memberPhone}</span>
+                            </div>
+                            <div>
+                              <span className="text-[#64748B] block text-[11px] font-medium">Email Address</span>
+                              <span className="font-semibold text-[#0F172A]">{memberEmail}</span>
+                            </div>
+                            <div>
+                              <span className="text-[#64748B] block text-[11px] font-medium">groupSavingId</span>
+                              <span className="font-mono font-medium text-[#0F172A] truncate block">{groupId}</span>
+                            </div>
+                          </div>
+
+                          {/* Admin Payment Confirmation Action */}
+                          <div className="mt-2 pt-2.5 border-t border-[#E2E8F0] flex items-center justify-between flex-wrap gap-2">
+                            <div className="text-[11px] text-[#475569]">
+                              Monthly Status: <strong className={hasContributedThisMonth ? "text-[#059669]" : "text-[#D97706]"}>{hasContributedThisMonth ? "Payment Confirmed" : "Awaiting Payment"}</strong>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => toggleMemberContribution(memberKey)}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer ${
+                                hasContributedThisMonth
+                                  ? "bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100"
+                                  : "bg-[#059669] text-white hover:bg-[#047857]"
+                              }`}
+                            >
+                              <Check size={13} />
+                              <span>{hasContributedThisMonth ? "Mark as Pending" : `Confirm ${currentMonthName.split(" ")[0]} Payment`}</span>
+                            </button>
+                          </div>
+                        </div>
                       )}
                     </div>
-                  </div>
-
-                  {/* Admin Details Dropdown */}
-                  {isGroupAdmin && isExpanded && (
-                    <div className="mt-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4 text-xs flex flex-col gap-2.5">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                        <div>
-                          <span className="text-[#64748B] block text-[11px] font-medium">Member's Name</span>
-                          <span className="font-semibold text-[#0F172A]">{displayName}</span>
-                        </div>
-                        <div>
-                          <span className="text-[#64748B] block text-[11px] font-medium">Phone Number</span>
-                          <span className="font-semibold text-[#0F172A]">{memberPhone}</span>
-                        </div>
-                        <div>
-                          <span className="text-[#64748B] block text-[11px] font-medium">Email Address</span>
-                          <span className="font-semibold text-[#0F172A]">{memberEmail}</span>
-                        </div>
-                        <div>
-                          <span className="text-[#64748B] block text-[11px] font-medium">groupSavingId</span>
-                          <span className="font-mono font-medium text-[#0F172A] truncate block">{groupId}</span>
-                        </div>
-                      </div>
-
-                      {/* Admin Payment Confirmation Action */}
-                      <div className="mt-2 pt-2.5 border-t border-[#E2E8F0] flex items-center justify-between flex-wrap gap-2">
-                        <div className="text-[11px] text-[#475569]">
-                          Monthly Status: <strong className={hasContributedThisMonth ? "text-[#059669]" : "text-[#D97706]"}>{hasContributedThisMonth ? "Payment Confirmed" : "Awaiting Payment"}</strong>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => toggleMemberContribution(memberKey)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer ${
-                            hasContributedThisMonth
-                              ? "bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100"
-                              : "bg-[#059669] text-white hover:bg-[#047857]"
-                          }`}
-                        >
-                          <Check size={13} />
-                          <span>{hasContributedThisMonth ? "Mark as Pending" : `Confirm ${currentMonthName.split(" ")[0]} Payment`}</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })
+              )}
+            </div>
+          )}
         </section>
 
         {/* AJO Group Manager Marketplace Section */}
@@ -2223,6 +2250,47 @@ export function GroupSavingDetailScreen({
                 onClick={() => setProductFormSuccess("")}
                 className="text-xs text-green-700 hover:text-green-900 font-bold px-1 cursor-pointer"
                 aria-label="Dismiss success message"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          {/* Product deletion feedback banners */}
+          {productDeleteSuccess && (
+            <div
+              role="status"
+              className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between gap-2"
+            >
+              <div className="flex items-center gap-1.5 text-xs text-green-700 font-semibold">
+                <CheckCircle2 size={14} className="shrink-0" />
+                <span>{productDeleteSuccess}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProductDeleteSuccess("")}
+                className="text-xs text-green-700 hover:text-green-900 font-bold px-1 cursor-pointer"
+                aria-label="Dismiss success message"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          {productDeleteError && (
+            <div
+              role="alert"
+              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between gap-2"
+            >
+              <div className="flex items-center gap-1.5 text-xs text-red-700 font-semibold">
+                <AlertCircle size={14} className="shrink-0" />
+                <span>{productDeleteError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProductDeleteError("")}
+                className="text-xs text-red-700 hover:text-red-900 font-bold px-1 cursor-pointer"
+                aria-label="Dismiss error message"
               >
                 ×
               </button>
@@ -2377,7 +2445,7 @@ export function GroupSavingDetailScreen({
                 <button
                   type="button"
                   onClick={() => setShowProductForm(false)}
-                  className="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg border border-gray-300 bg-[#F3F4F6] text-gray-700 font-medium hover:bg-gray-200 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -2508,12 +2576,14 @@ export function GroupSavingDetailScreen({
                       </div>
 
                       <div className="flex items-center gap-1.5">
-                        {isGroupOwner && (
+                        {(isGroupAdmin || isGroupOwner || isOwner) && (
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              void handleDeleteProduct(prod.id);
+                              setProductDeleteError("");
+                              setProductDeleteSuccess("");
+                              setProductToDelete(prod);
                             }}
                             className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
                             title="Delete product"
@@ -2633,7 +2703,306 @@ export function GroupSavingDetailScreen({
             </p>
           )}
         </section>
+
+        {/* Bottom Danger Area: Delete group (owner) or Leave group (member) */}
+        {isGroupOwner ? (
+          <div className="mt-2 pt-6 border-t border-[#F1F3FB] flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowDeleteGroupModal(true)}
+              disabled={busy}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm font-semibold text-red-700 shadow-xs transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <Trash2 size={15} />
+              <span>Delete group</span>
+            </button>
+            <p className="text-center text-xs text-[#9CA3AF]">
+              Permanently delete this AJO group and all associated records.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-2 pt-6 border-t border-[#F1F3FB] flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowLeaveGroupModal(true)}
+              disabled={busy}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm font-semibold text-red-700 shadow-xs transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <LogOut size={15} />
+              <span>Leave group</span>
+            </button>
+            <p className="text-center text-xs text-[#9CA3AF]">
+              You will exit this AJO circle and forfeit your scheduled rotation.
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Warning UI Modal: Admin Delete Group */}
+      {showDeleteGroupModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-group-dialog-title"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600 shrink-0">
+                <AlertTriangle size={24} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 id="delete-group-dialog-title" className="text-lg font-bold text-gray-900">
+                  Delete AJO Group?
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Administrative action for group owner
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDeleteGroupModal(false)}
+                disabled={deleteMutation.isPending}
+                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 cursor-pointer disabled:opacity-50"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-red-100 bg-red-50/70 p-4 mb-4 text-xs text-red-900 flex flex-col gap-2">
+              <p className="font-semibold text-red-950">
+                Are you sure you want to delete <span className="font-bold underline decoration-red-400">{group.name}</span>?
+              </p>
+              <ul className="list-disc pl-4 space-y-1.5 text-red-800 leading-relaxed">
+                <li>This AJO circle will be closed permanently and cannot be restored.</li>
+                <li>All active member rotations, contribution records, and group marketplace items will be erased.</li>
+                <li>Members will immediately lose access to this savings circle.</li>
+              </ul>
+            </div>
+
+            {deleteMutation.isError && (
+              <p role="alert" className="mb-4 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
+                {getApiErrorMessage(
+                  deleteMutation.error,
+                  "Unable to delete this AJO group. Please try again.",
+                )}
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setShowDeleteGroupModal(false)}
+                disabled={deleteMutation.isPending}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-[#F3F4F6] text-sm font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer disabled:opacity-50"
+              >
+                Keep Group
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteGroup}
+                disabled={deleteMutation.isPending}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 text-sm font-semibold text-white shadow-sm hover:bg-red-700 active:scale-95 cursor-pointer disabled:opacity-50"
+              >
+                {deleteMutation.isPending ? (
+                  <>
+                    <Loader size={16} className="animate-spin" />
+                    <span>Deleting group...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    <span>Yes, Delete Group</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Warning UI Modal: Member Leave Group */}
+      {showLeaveGroupModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="leave-group-dialog-title"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 shrink-0">
+                <AlertCircle size={24} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 id="leave-group-dialog-title" className="text-lg font-bold text-gray-900">
+                  Leave AJO Group?
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Exit from rotation circle
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLeaveGroupModal(false)}
+                disabled={leaveMutation.isPending}
+                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 cursor-pointer disabled:opacity-50"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 mb-4 text-xs text-amber-900 flex flex-col gap-2">
+              <p className="font-semibold text-amber-950">
+                Are you sure you want to leave <span className="font-bold underline decoration-amber-400">{group.name}</span>?
+              </p>
+              <ul className="list-disc pl-4 space-y-1.5 text-amber-800 leading-relaxed">
+                <li>You will forfeit your current spot and rotation payout turn in this circle.</li>
+                <li>You will no longer receive monthly cycle reminders or notifications.</li>
+                <li>To rejoin in the future, you will need a new invite code from the group administrator.</li>
+              </ul>
+            </div>
+
+            {leaveMutation.isError && (
+              <p role="alert" className="mb-4 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
+                {getApiErrorMessage(
+                  leaveMutation.error,
+                  "Unable to leave this AJO group. Please try again.",
+                )}
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setShowLeaveGroupModal(false)}
+                disabled={leaveMutation.isPending}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-[#F3F4F6] text-sm font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer disabled:opacity-50"
+              >
+                Stay in Group
+              </button>
+              <button
+                type="button"
+                onClick={confirmLeaveGroup}
+                disabled={leaveMutation.isPending}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 text-sm font-semibold text-white shadow-sm hover:bg-red-700 active:scale-95 cursor-pointer disabled:opacity-50"
+              >
+                {leaveMutation.isPending ? (
+                  <>
+                    <Loader size={16} className="animate-spin" />
+                    <span>Leaving group...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogOut size={16} />
+                    <span>Yes, Leave Group</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Warning UI Modal: Delete Product Listing */}
+      {productToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-product-dialog-title"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600 shrink-0">
+                <Trash2 size={22} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 id="delete-product-dialog-title" className="text-lg font-bold text-gray-900">
+                  Remove Product Listing?
+                </h3>
+                <p className="text-xs text-gray-500">
+                  AJO Marketplace listing
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setProductToDelete(null);
+                  setProductDeleteError("");
+                }}
+                disabled={deleteProductMutation.isPending}
+                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 cursor-pointer disabled:opacity-50"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 mb-4 flex items-center gap-3">
+              {productToDelete.productImage && (
+                <img
+                  src={productToDelete.productImage}
+                  alt={productToDelete.productName}
+                  className="w-12 h-12 object-cover rounded-lg border border-gray-200 shrink-0"
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-sm text-gray-900 truncate">
+                  {productToDelete.productName}
+                </div>
+                <div className="text-xs text-gray-500 font-medium">
+                  {formatMoney(productToDelete.price)} · Stock: {productToDelete.quantity}
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+              Are you sure you want to remove this product from the group? Members will no longer be able to purchase or initiate installment plans for this item.
+            </p>
+
+            {productDeleteError && (
+              <p role="alert" className="mb-4 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200">
+                {productDeleteError}
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => {
+                  setProductToDelete(null);
+                  setProductDeleteError("");
+                }}
+                disabled={deleteProductMutation.isPending}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-[#F3F4F6] text-sm font-semibold text-gray-700 hover:bg-gray-200 cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteProduct}
+                disabled={deleteProductMutation.isPending}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 text-sm font-semibold text-white shadow-sm hover:bg-red-700 active:scale-95 cursor-pointer disabled:opacity-50"
+              >
+                {deleteProductMutation.isPending ? (
+                  <>
+                    <Loader size={16} className="animate-spin" />
+                    <span>Removing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    <span>Remove Product</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

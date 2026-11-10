@@ -503,7 +503,7 @@ export function CreateSavingScreen({
                   type="button"
                   onClick={() => onNav("savings")}
                   disabled={createMutation.isPending}
-                  className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] transition hover:bg-[#F3F4F6] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-xl px-6 py-3 text-sm font-semibold text-[#4B5563] bg-[#F3F4F6] transition hover:bg-[#E5E7EB] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -753,25 +753,16 @@ export function SavingsDetailScreen({
           </button>
         </div>
 
-        {/* Management Buttons: Edit Goal & Delete Goal */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Management Button: Edit Goal */}
+        <div>
           <button
             type="button"
             onClick={openEditor}
             disabled={busy}
-            className="flex items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#334155] shadow-xs transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-semibold text-[#334155] shadow-xs transition-all hover:bg-[#F8FAFC] hover:text-[#0F172A] active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <Pencil size={15} className="text-[#64748B]" />
             <span>Edit Goal</span>
-          </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={busy}
-            className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm font-semibold text-red-700 shadow-xs transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50 cursor-pointer"
-          >
-            <Trash2 size={15} />
-            <span>Delete Goal</span>
           </button>
         </div>
         {actionMessage && (
@@ -974,14 +965,6 @@ export function SavingsDetailScreen({
             </div>
           </section>
         )}
-        {deleteMutation.isError && (
-          <p role="alert" className="text-sm text-red-600">
-            {getApiErrorMessage(
-              deleteMutation.error,
-              "Unable to delete this savings goal.",
-            )}
-          </p>
-        )}
         <div className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
           <div className="grid grid-cols-3 gap-4 text-center">
             {[
@@ -1045,6 +1028,27 @@ export function SavingsDetailScreen({
             ));
           })()}
         </section>
+
+        {/* Destructive Action: Delete Goal */}
+        <div className="pt-4 border-t border-[#F1F5F9] pb-12">
+          {deleteMutation.isError && (
+            <p role="alert" className="mb-3 text-sm text-red-600 text-center">
+              {getApiErrorMessage(
+                deleteMutation.error,
+                "Unable to delete this savings goal.",
+              )}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={busy}
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/80 px-4 py-3.5 text-sm font-semibold text-red-700 shadow-xs transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            <Trash2 size={15} />
+            <span>Delete Goal</span>
+          </button>
+        </div>
       </div>
     </div>
   );

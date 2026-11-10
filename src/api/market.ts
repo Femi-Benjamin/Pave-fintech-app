@@ -78,6 +78,8 @@ export interface ContinueInstallmentPayload {
  * Known-good request confirmed in Postman uses exactly "productImage".
  */
 export const CREATE_PRODUCT_IMAGE_FIELD = "productImage";
+/** Confirmed by backend: update-product uses the same file field as create. */
+export const UPDATE_PRODUCT_IMAGE_FIELD = "productImage";
 
 export interface CreateProductPayload {
   productName: string;
@@ -94,7 +96,11 @@ export interface UpdateProductPayload {
   description?: string;
   price?: number | string;
   quantity?: number;
+  /** Backend validation requires "status" on update (e.g. "available"). */
+  status?: string;
+  /** Optional new photo; sent as "productImage". Omit to keep the current photo. */
   image?: File | null;
+  /** Used only to refresh the group's product list after an edit; never sent. */
   groupId?: string;
 }
 
@@ -144,6 +150,19 @@ const GROUP_TAG_REGEX = /\s*\[(?:AJO|GROUP):[^\]\s]+\]/g;
 
 export function stripGroupTag(text?: string | null): string {
   return (text ?? "").replace(GROUP_TAG_REGEX, "").trim();
+}
+
+/**
+ * Re-attaches the group tag from the original description to an edited one,
+ * so editing a listing never detaches it from its AJO group.
+ */
+export function withGroupTag(
+  newDescription: string,
+  originalDescription?: string | null,
+): string {
+  const clean = stripGroupTag(newDescription);
+  const match = (originalDescription ?? "").match(/\[(?:AJO|GROUP):[^\]\s]+\]/);
+  return match ? `${clean} ${match[0]}`.trim() : clean;
 }
 
 /**
@@ -549,8 +568,14 @@ export async function updateProduct(
   const cleanId = encodeURIComponent(productId.trim());
   const formData = new FormData();
 
-  if (payload.productName) {
-    formData.append("productName", payload.productName.trim());
+  // Contract (update-product): multipart with productName, description, price,
+  // productRating, quantity, status and an optional file in "productImage" (confirmed by
+  // backend; the old Postman "images" name was wrong). groupId is never sent
+  // (the group link lives in the description tag).
+  if (payload.productName !== undefined) {
+    const name = payload.productName.trim();
+    if (!name) throw new Error("Product name is required");
+    formData.append("productName", name);
   }
   if (payload.description !== undefined) {
     formData.append("description", payload.description.trim());
@@ -562,6 +587,7 @@ export async function updateProduct(
     }
     formData.append("price", String(price));
   }
+  formData.append("productRating", "5");
   if (payload.quantity !== undefined) {
     const qty = Number(payload.quantity);
     if (Number.isNaN(qty) || qty < 0 || !Number.isInteger(qty)) {
@@ -569,11 +595,11 @@ export async function updateProduct(
     }
     formData.append("quantity", String(qty));
   }
-  if (payload.image instanceof File) {
-    formData.append("images", payload.image);
+  if (payload.status !== undefined && payload.status.trim()) {
+    formData.append("status", payload.status.trim());
   }
-  if (payload.groupId) {
-    formData.append("groupId", payload.groupId.trim());
+  if (payload.image instanceof File) {
+    formData.append(UPDATE_PRODUCT_IMAGE_FIELD, payload.image);
   }
 
   const { data } = await api.put<MarketApiResponse<ProductItem>>(

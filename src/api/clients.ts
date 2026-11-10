@@ -7,7 +7,7 @@ import {
 } from "../lib/authStorage";
 
 const defaultBase =
-  import.meta.env.VITE_API_BASE_URL || "https://pave-snowy.vercel.app";
+  import.meta.env.VITE_API_BASE_URL || "https://pave-uuh6.onrender.com";
 const apiBase = defaultBase.endsWith("/api/v1")
   ? defaultBase
   : `${defaultBase}/api/v1`;

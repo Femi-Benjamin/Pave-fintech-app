@@ -421,16 +421,34 @@ export function useFundWalletMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: FundingWalletPayload) => fundWallet(payload),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: transactionQueryKeys.list() }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: transactionQueryKeys.list() });
+      queryClient.invalidateQueries({
+        queryKey: transactionQueryKeys.walletBalance,
+      });
+    },
   });
 }
+
+// Money can land at any moment (bank transfer into the virtual account is
+// credited by the backend via webhook), so balance and transaction list must
+// never sit on the app-wide 3 minute cache: refetch on mount, on returning to
+// the tab/app, on reconnect, and every 15s while the page is visible.
+const LIVE_MONEY_QUERY = {
+  staleTime: 0,
+  refetchOnMount: "always",
+  refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
+  refetchInterval: 15_000,
+  refetchIntervalInBackground: false,
+} as const;
 
 export function useWalletBalanceQuery(enabled = true) {
   return useQuery({
     queryKey: transactionQueryKeys.walletBalance,
     queryFn: getWalletBalance,
     enabled,
+    ...LIVE_MONEY_QUERY,
   });
 }
 
@@ -439,6 +457,7 @@ export function useAllTransactionsQuery(enabled = true) {
     queryKey: transactionQueryKeys.list(),
     queryFn: getAllTransactions,
     enabled,
+    ...LIVE_MONEY_QUERY,
   });
 }
 
