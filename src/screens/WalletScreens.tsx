@@ -1,3 +1,9 @@
+import {
+  parseDataPlans,
+  groupPlansByDuration,
+  availableCategories,
+  type PlanCategory,
+} from "../utils/dataPlans";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -1273,7 +1279,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [variationCode, setVariationCode] = useState("");
   const [planSheetOpen, setPlanSheetOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [planSearch, setPlanSearch] = useState("");
+  const [planTab, setPlanTab] = useState<PlanCategory | null>(null);
   const [hideBalance, setHideBalance] = useState(false);
   const [purchase, setPurchase] = useState<{
     message: string;
@@ -1301,9 +1307,13 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const variations = dataDetailsQuery.data?.data.content.variations ?? [];
   const walletBalance = Number(walletBalanceQuery.data?.balance ?? 0);
   const selectedPlan = variations.find((v) => v.variation_code === variationCode);
-  const filteredPlans = variations.filter((v) =>
-    v.name.toLowerCase().includes(planSearch.trim().toLowerCase()),
-  );
+  const parsedPlans = parseDataPlans(variations);
+  const planCategories = availableCategories(parsedPlans);
+  const activePlanTab: PlanCategory =
+    planTab && planCategories.some((c) => c.id === planTab)
+      ? planTab
+      : (planCategories[0]?.id ?? "daily");
+  const planGroups = groupPlansByDuration(parsedPlans, activePlanTab);
   const purchaseMutation = tab === "airtime" ? airtimeMutation : dataMutation;
   const errorMessage = [
     walletBalanceQuery.isError
@@ -1499,7 +1509,10 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 type="button"
                 onClick={() => {
                   if (!network) return;
-                  setPlanSearch("");
+                  const current = parsedPlans.find(
+                    (p) => p.plan.variation_code === variationCode,
+                  );
+                  setPlanTab(current ? current.category : null);
                   setPlanSheetOpen(true);
                 }}
                 disabled={!network}
@@ -1613,7 +1626,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
         {planSheetOpen && (
           <motion.div
             key="plan-sheet"
-            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40"
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 lg:items-center lg:p-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1623,75 +1636,106 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               role="dialog"
               aria-modal="true"
               aria-label="Select a data plan"
-              className="flex max-h-[85dvh] w-full max-w-lg flex-col rounded-t-3xl bg-white px-5 pb-4 pt-3 shadow-2xl"
+              className="flex max-h-[85dvh] w-full max-w-lg flex-col rounded-t-3xl bg-white px-5 pb-6 pt-3 shadow-2xl lg:min-h-[26rem] lg:max-h-[70dvh] lg:max-w-4xl lg:rounded-3xl lg:px-8 lg:pb-8 lg:pt-6"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 32, stiffness: 320 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[#D1D5DB]" />
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[#D1D5DB] lg:hidden" />
+              <div className="mb-4 flex items-center justify-between">
                 <h3
                   style={{
                     fontFamily: "var(--font-family-display)",
                     fontWeight: 700,
-                    fontSize: 20,
+                    fontSize: 24,
                   }}
                 >
-                  Select a Data Plan
+                  Select data plan
                 </h3>
                 <button
                   type="button"
                   aria-label="Close"
                   onClick={() => setPlanSheetOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F1F3FB] cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-[#F1F3FB] cursor-pointer"
                 >
-                  <X size={16} />
+                  <X size={20} />
                 </button>
               </div>
-              <div className="mb-3 flex items-center gap-3 rounded-2xl bg-[#F1F3FB] px-4 py-3">
-                <Search size={16} className="text-[#9CA3AF]" />
-                <input
-                  value={planSearch}
-                  onChange={(e) => setPlanSearch(e.target.value)}
-                  placeholder="Search here..."
-                  className="w-full bg-transparent text-sm outline-none"
-                />
-              </div>
-              <div className="-mx-1 flex-1 overflow-y-auto px-1">
+
+              {planCategories.length > 1 && (
+                <div
+                  role="tablist"
+                  className="mb-5 flex rounded-2xl border border-[#E5E7EB] bg-[#F1F3FB] p-1"
+                >
+                  {planCategories.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={activePlanTab === c.id}
+                      onClick={() => setPlanTab(c.id)}
+                      className={`flex-1 rounded-xl py-2.5 text-sm transition-colors cursor-pointer ${activePlanTab === c.id ? "bg-white font-semibold text-[#0D0F1C] shadow-sm" : "text-[#6B7280] hover:text-[#0D0F1C]"}`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex-1 overflow-y-auto">
                 {dataDetailsQuery.isLoading && (
-                  <p className="py-6 text-center text-sm text-[#6B7280]">
+                  <p className="py-8 text-center text-sm text-[#6B7280]">
                     Loading available bundles...
                   </p>
                 )}
-                {!dataDetailsQuery.isLoading && filteredPlans.length === 0 && (
-                  <p className="py-6 text-center text-sm text-[#6B7280]">
-                    No plans match your search.
+                {!dataDetailsQuery.isLoading && planGroups.length === 0 && (
+                  <p className="py-8 text-center text-sm text-[#6B7280]">
+                    No plans available.
                   </p>
                 )}
-                <div className="flex flex-col gap-2 pb-2">
-                  {filteredPlans.map((plan) => {
-                    const active = variationCode === plan.variation_code;
-                    return (
-                      <button
-                        key={plan.variation_code}
-                        type="button"
-                        onClick={() => {
-                          setAmount(plan.variation_amount);
-                          setVariationCode(plan.variation_code);
-                          setPlanSheetOpen(false);
-                        }}
-                        className={`rounded-2xl border-2 px-4 py-3.5 text-left transition-colors cursor-pointer ${active ? "border-[#3730A3] bg-[#EEF2FF]" : "border-transparent bg-[#F8F9FD] hover:border-[#C7D2FE]"}`}
-                      >
-                        <div className="text-sm text-[#374151]">{plan.name}</div>
-                        <div className="mt-1.5 text-sm font-bold text-[#3730A3]">
-                          ₦{Number(plan.variation_amount).toLocaleString()}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                {planGroups.map((group) => (
+                  <section key={group.title} className="mb-5">
+                    <h4 className="mb-2 text-xs font-semibold tracking-wide text-[#6B7280]">
+                      {group.title}
+                    </h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8">
+                      {group.items.map((item) => {
+                        const active =
+                          variationCode === item.plan.variation_code;
+                        return (
+                          <button
+                            key={item.plan.variation_code}
+                            type="button"
+                            role="radio"
+                            aria-checked={active}
+                            onClick={() => {
+                              setAmount(item.plan.variation_amount);
+                              setVariationCode(item.plan.variation_code);
+                              setPlanSheetOpen(false);
+                            }}
+                            className="flex items-center gap-3 rounded-xl px-1 py-3.5 text-left transition-colors hover:bg-[#F8F9FD] cursor-pointer"
+                          >
+                            <span
+                              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${active ? "border-[#3730A3]" : "border-[#6B7280]/70"}`}
+                            >
+                              {active && (
+                                <span className="h-3 w-3 rounded-full bg-[#3730A3]" />
+                              )}
+                            </span>
+                            <span className="min-w-0 flex-1 text-base text-[#0D0F1C]">
+                              {item.label}
+                            </span>
+                            <span className="shrink-0 text-base font-medium text-[#0D0F1C]">
+                              ₦{item.amount.toLocaleString()}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))}
               </div>
             </motion.div>
           </motion.div>
