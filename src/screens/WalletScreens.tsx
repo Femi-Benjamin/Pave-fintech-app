@@ -517,7 +517,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           {showVirtualAccount && (
             <div
               role="status"
-              className="mt-5 rounded-2xl border border-[#A5F3FC] bg-gradient-to-br from-[#ECFEFF] via-[#F0FDFA] to-[#EFF6FF] p-5 shadow-xs"
+              className="mt-5 rounded-2xl border border-[#A5F3FC] bg-linear-to-br from-[#ECFEFF] via-[#F0FDFA] to-[#EFF6FF] p-5 shadow-xs"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
