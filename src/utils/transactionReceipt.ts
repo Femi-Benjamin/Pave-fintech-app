@@ -12,8 +12,6 @@ export interface TransactionReceiptData {
   amount: number;
   rows: ReceiptRow[];
   reference?: string;
-  /** Everything else the backend sent, for support/debugging. */
-  technical: [string, string][];
 }
 
 const naira = (n: number) =>
@@ -67,12 +65,6 @@ function formatDateTime(value?: unknown): string | null {
   });
 }
 
-const SHOWN_KEYS = new Set([
-  "amount", "status", "type", "description", "destination", "reference",
-  "transactionType", "paymentMethod", "transactionFees", "vat", "balanceBefore",
-  "balanceAfter", "createdAt", "metadata",
-]);
-
 export function buildTransactionReceipt(
   record: Record<string, unknown>,
 ): TransactionReceiptData {
@@ -114,19 +106,6 @@ export function buildTransactionReceipt(
     add("Delivery", sentenceCase(delivery));
   }
 
-  const technical: [string, string][] = [];
-  for (const [k, v] of Object.entries(record)) {
-    if (v === null || v === undefined) continue;
-    if (SHOWN_KEYS.has(k) && k !== "metadata") continue;
-    technical.push([k, typeof v === "object" ? JSON.stringify(v) : String(v)]);
-  }
-  if (record.metadata !== null && record.metadata !== undefined) {
-    technical.push([
-      "metadata",
-      JSON.stringify(meta ?? record.metadata, null, 2),
-    ]);
-  }
-
   return {
     title: receiptTitle(record.description as string | undefined),
     status: normalizeTransactionStatus(record.status as string | undefined),
@@ -134,6 +113,5 @@ export function buildTransactionReceipt(
     amount: toNumber(record.amount) ?? 0,
     rows,
     reference: record.reference ? String(record.reference) : undefined,
-    technical,
   };
 }

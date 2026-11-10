@@ -25,11 +25,10 @@ test("builds a readable receipt from the raw record", () => {
   assert.equal(r.rows.find((x) => x.label === "Balance after")?.value, "₦0.90");
 });
 
-test("ids and raw metadata only appear under technical details", () => {
+test("ids and raw metadata are never shown to users", () => {
   const r = buildTransactionReceipt(sample);
-  assert.ok(!r.rows.some((x) => /^(id|userId)$/i.test(x.label)));
-  const keys = r.technical.map(([k]) => k);
-  assert.ok(keys.includes("id") && keys.includes("userId") && keys.includes("metadata"));
+  assert.ok(!r.rows.some((x) => /^(id|userId|metadata)$/i.test(x.label)));
+  assert.ok(!r.rows.some((x) => x.value.includes("{")));
 });
 
 test("funding is a credit; broken metadata does not throw", () => {

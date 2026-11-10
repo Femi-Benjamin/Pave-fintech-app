@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, ChevronDown, Clock, Copy, X, XCircle } from "lucide-react";
+import { Check, Clock, Copy, X, XCircle } from "lucide-react";
 import { buildTransactionReceipt } from "../utils/transactionReceipt";
 
 const STATUS_STYLE = {
@@ -17,7 +17,6 @@ export function TransactionReceipt({
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
-  const [showTech, setShowTech] = useState(false);
   const receipt = record ? buildTransactionReceipt(record) : null;
 
   const copy = async (text: string) => {
@@ -115,37 +114,6 @@ export function TransactionReceipt({
                   </button>
                 )}
               </div>
-
-              {receipt.technical.length > 0 && (
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowTech((v) => !v)}
-                    aria-expanded={showTech}
-                    className="flex w-full items-center justify-between rounded-xl px-1 py-2 text-xs font-medium text-[#6B7280] cursor-pointer"
-                  >
-                    Technical details
-                    <ChevronDown size={16} className={`transition-transform ${showTech ? "rotate-180" : ""}`} />
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {showTech && (
-                      <motion.dl
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden rounded-xl bg-[#F8F9FD] px-3 text-xs"
-                      >
-                        {receipt.technical.map(([k, v]) => (
-                          <div key={k} className="py-2">
-                            <dt className="text-[#9CA3AF]">{k}</dt>
-                            <dd className="whitespace-pre-wrap break-all font-mono text-[#374151]">{v}</dd>
-                          </div>
-                        ))}
-                      </motion.dl>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )}
 
               <button
                 type="button"
