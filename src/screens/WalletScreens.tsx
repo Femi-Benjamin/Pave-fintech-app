@@ -34,6 +34,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
+import { PurchaseSuccess } from "../components/PurchaseSuccess";
 import { Screen, Transaction, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { Skeleton } from "../components/Skeleton";
@@ -1284,6 +1285,12 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [purchase, setPurchase] = useState<{
     message: string;
     reference?: string;
+    kind: "airtime" | "data";
+    amount: number;
+    phone: string;
+    networkLabel: string;
+    planName?: string;
+    at: Date;
   } | null>(null);
   const airtimeMutation = useBuyAirtimeMutation();
   const dataMutation = useBuyDataMutation();
@@ -1381,6 +1388,11 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             setPurchase({
               message: response.message,
               reference: response.data.reference,
+              kind: "airtime",
+              amount: numericAmount,
+              phone,
+              networkLabel: networks.find((n) => n.id === network)?.label ?? "",
+              at: new Date(),
             }),
         },
       );
@@ -1397,6 +1409,12 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             setPurchase({
               message: response.message,
               reference: response.data.reference,
+              kind: "data",
+              amount: numericAmount,
+              phone,
+              networkLabel: networks.find((n) => n.id === network)?.label ?? "",
+              planName: selectedPlan?.name,
+              at: new Date(),
             }),
         },
       );
@@ -1578,49 +1596,40 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring" }}
-            className="w-24 h-24 bg-[#ECFDF5] rounded-full flex items-center justify-center"
-          >
-            <CheckCircle size={52} className="text-[#059669]" />
-          </motion.div>
-          <div>
-            <h2
-              style={{
-                fontFamily: "var(--font-family-display)",
-                fontWeight: 700,
-                fontSize: 24,
-              }}
-            >
-              Success! 🎉
-            </h2>
-            <p className="text-[#6B7280] text-sm mt-2">
-              {purchase.message} Sent to {phone}.
-            </p>
-            {purchase.reference && (
-              <p className="text-xs text-[#6B7280] mt-2">
-                Reference: {purchase.reference}
-              </p>
-            )}
-          </div>
-          <PaveBtn
-            onClick={() => {
-              setPurchase(null);
-              setAmount("");
-              setPhone("");
-              setVariationCode("");
-              setNetwork("");
-            }}
-          >
-            Buy More
-          </PaveBtn>
-          <PaveBtn variant="ghost" onClick={() => onNav("wallet")}>
-            Back to Wallet
-          </PaveBtn>
-        </div>
+        <PurchaseSuccess
+          title={purchase.kind === "airtime" ? "Airtime sent" : "Data purchased"}
+          message={purchase.message}
+          amount={purchase.amount}
+          rows={[
+            {
+              label: "Network",
+              value: `${purchase.networkLabel} ${purchase.kind === "airtime" ? "airtime" : "data"}`,
+            },
+            { label: "Recipient", value: purchase.phone },
+            ...(purchase.planName ? [{ label: "Plan", value: purchase.planName }] : []),
+            {
+              label: "Date",
+              value: purchase.at.toLocaleString("en-NG", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+            },
+          ]}
+          reference={purchase.reference}
+          primaryLabel="Buy More"
+          onPrimary={() => {
+            setPurchase(null);
+            setAmount("");
+            setPhone("");
+            setVariationCode("");
+            setNetwork("");
+          }}
+          secondaryLabel="Done"
+          onSecondary={() => onNav("wallet")}
+        />
       )}
       <AnimatePresence>
         {planSheetOpen && (
@@ -1684,7 +1693,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 </div>
               )}
 
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto scrollbar-hide">
                 {dataDetailsQuery.isLoading && (
                   <p className="py-8 text-center text-sm text-[#6B7280]">
                     Loading available bundles...
@@ -1809,6 +1818,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
 export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const transactionsQuery = useAllTransactionsQuery();
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchMeterNumber, setSearchMeterNumber] = useState("");
   const [searchAmount, setSearchAmount] = useState("");
   const [searchStartDate, setSearchStartDate] = useState("");
@@ -1896,10 +1906,43 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </button>
           ))}
         </div>
-        <section className="mt-4 rounded-xl bg-[#F7F8FF] p-3">
-          <h3 className="mb-2 text-sm font-semibold text-[#0D0F1C]">
-            Search transactions
-          </h3>
+        <section className="mt-4 rounded-xl bg-[#F7F8FF]">
+          <button
+            type="button"
+            onClick={() => setSearchOpen((v) => !v)}
+            aria-expanded={searchOpen || searchActive}
+            aria-controls="transaction-search-panel"
+            className="flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-left cursor-pointer"
+          >
+            <span className="flex items-center gap-2 text-sm font-semibold text-[#0D0F1C]">
+              <Search size={16} className="text-[#3730A3]" />
+              Search transactions
+              {searchActive && (
+                <span className="rounded-full bg-[#3730A3] px-2 py-0.5 text-[10px] font-medium text-white">
+                  Active
+                </span>
+              )}
+            </span>
+            <motion.span
+              animate={{ rotate: searchOpen || searchActive ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#3730A3] shadow-sm"
+            >
+              <ChevronDown size={16} />
+            </motion.span>
+          </button>
+          <AnimatePresence initial={false}>
+            {(searchOpen || searchActive) && (
+              <motion.div
+                id="transaction-search-panel"
+                key="search-panel"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="overflow-hidden"
+              >
+                <div className="px-3 pb-3">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <input
               value={searchMeterNumber}
@@ -1951,6 +1994,10 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </PaveBtn>
             )}
           </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
       </div>
       <div className="flex-1 px-4 py-4">
