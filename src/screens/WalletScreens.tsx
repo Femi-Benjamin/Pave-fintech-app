@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
 import { PurchaseSuccess } from "../components/PurchaseSuccess";
+import { TransactionReceipt } from "../components/TransactionReceipt";
 import { Screen, Transaction, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { Skeleton } from "../components/Skeleton";
@@ -2058,35 +2059,14 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             )}
           </p>
         )}
-        {transactionDetailQuery.data && (
-          <section className="mb-4 rounded-xl border border-[#C7D2FE] bg-white p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[#0D0F1C]">
-                Transaction details
-              </h3>
-              <button
-                onClick={() => setSelectedTransactionId("")}
-                className="text-xs font-medium text-[#3730A3]"
-              >
-                Close
-              </button>
-            </div>
-            <dl className="grid grid-cols-2 gap-2 text-sm">
-              {Object.entries(transactionDetailQuery.data.transaction)
-                .filter(([, value]) => value !== null && value !== undefined)
-                .map(([key, value]) => (
-                  <div key={key} className="min-w-0">
-                    <dt className="text-xs text-[#9CA3AF]">{key}</dt>
-                    <dd className="wrap-break-word font-medium text-[#0D0F1C]">
-                      {typeof value === "object"
-                        ? JSON.stringify(value)
-                        : String(value)}
-                    </dd>
-                  </div>
-                ))}
-            </dl>
-          </section>
-        )}
+        <TransactionReceipt
+          record={
+            transactionDetailQuery.data
+              ? (transactionDetailQuery.data.transaction as unknown as Record<string, unknown>)
+              : null
+          }
+          onClose={() => setSelectedTransactionId("")}
+        />
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-12 gap-3">
             <BarChart2 size={40} className="text-[#E5E7EB]" />
