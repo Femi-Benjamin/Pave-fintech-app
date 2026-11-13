@@ -104,13 +104,8 @@ function getInitialStore(): LocalStoreData {
     if (item) {
       const parsed = JSON.parse(item);
       partialStore = {
-        walletBalance:
-          typeof parsed.walletBalance === "number"
-            ? parsed.walletBalance
-            : DEFAULT_STORE.walletBalance,
-        transactions: Array.isArray(parsed.transactions)
-          ? parsed.transactions
-          : DEFAULT_STORE.transactions,
+        // Money data (balance, transactions) is never restored from the
+        // browser - the live API is the only source of truth for it.
         products: Array.isArray(parsed.products)
           ? parsed.products
           : DEFAULT_STORE.products,
@@ -165,10 +160,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     null,
   );
 
-  // Sync wallet & mockup data with localStorage (excluding auth credentials)
+  // Sync non-sensitive mock data with localStorage (no auth, no balance/transactions)
   useEffect(() => {
     try {
-      const { authUser, ...persistable } = store;
+      // Never persist auth credentials or money data to localStorage.
+      const { authUser, walletBalance, transactions, ...persistable } = store;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     } catch (e) {
       console.error("Error writing to localStorage:", e);

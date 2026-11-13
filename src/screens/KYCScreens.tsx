@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { validateImageUpload } from "../utils/imageUpload";
 import { motion } from "motion/react";
 import {
   ArrowLeft,
@@ -291,6 +292,13 @@ export function KYCIDUploadScreen({
   const uploadBillImage = (file?: File) => {
     if (!file) return;
 
+    const invalid = validateImageUpload(file);
+    if (invalid) {
+      setBillUploadError(invalid);
+      setBillUploadSuccess("");
+      return;
+    }
+
     setBillUploadError("");
     setBillUploadSuccess("");
     setBillFileName("");
@@ -367,10 +375,19 @@ export function KYCIDUploadScreen({
               <input
                 ref={inputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png"
                 className="hidden"
                 onChange={(event) => {
                   const file = event.currentTarget.files?.[0] ?? null;
+                  if (file) {
+                    const invalid = validateImageUpload(file);
+                    if (invalid) {
+                      setVerifyError(invalid);
+                      event.currentTarget.value = "";
+                      return;
+                    }
+                    setVerifyError("");
+                  }
                   if (side === "front") setFrontFile(file);
                   else setBackFile(file);
                   event.currentTarget.value = "";
@@ -415,7 +432,7 @@ export function KYCIDUploadScreen({
           <input
             ref={billInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png"
             className="hidden"
             onChange={(event) => {
               uploadBillImage(event.currentTarget.files?.[0]);

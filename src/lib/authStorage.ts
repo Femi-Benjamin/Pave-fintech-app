@@ -9,6 +9,36 @@ export const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 const AUTH_LOGOUT_EVENT = "pave_auth_logout";
 
 /**
+ * "Returning user" cookie. Holds no secret and no identity - it only tells the
+ * app that this browser has signed in before, so a logged-out visitor is taken
+ * straight to the Login screen instead of the marketing website.
+ */
+export const RETURNING_USER_COOKIE = "pave_returning";
+const RETURNING_USER_MAX_AGE_S = 60 * 60 * 24 * 365; // 1 year
+
+export function markReturningUser(): void {
+  if (typeof document === "undefined") return;
+  try {
+    const secure =
+      typeof location !== "undefined" && location.protocol === "https:"
+        ? "; Secure"
+        : "";
+    document.cookie = `${RETURNING_USER_COOKIE}=1; Max-Age=${RETURNING_USER_MAX_AGE_S}; Path=/; SameSite=Lax${secure}`;
+  } catch {}
+}
+
+export function isReturningUser(): boolean {
+  if (typeof document === "undefined") return false;
+  try {
+    return document.cookie
+      .split(";")
+      .some((c) => c.trim().startsWith(`${RETURNING_USER_COOKIE}=1`));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Safely decodes base64url or standard base64 string
  */
 function base64UrlDecode(str: string): string {
@@ -147,6 +177,7 @@ export function setToken(token: string, expiresAt?: number): void {
   }
 
   recordActivity();
+  markReturningUser();
 
   // Clear any legacy localStorage tokens
   try {

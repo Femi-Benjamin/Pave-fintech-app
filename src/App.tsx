@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import OnboardingLandingScreen from "./components/OnboardingScreen";
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen, KNOWN_SCREENS } from "./pave-data";
 import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
 import { NetworkStatusToast } from "./components/NetworkStatus";
-import { getToken, isTokenValid, subscribeToAuthLogout } from "./lib/authStorage";
+import { getToken, isReturningUser, isTokenValid, subscribeToAuthLogout } from "./lib/authStorage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 import {
@@ -552,11 +552,14 @@ export default function App() {
       }),
   );
   const hasSession = Boolean(getToken() && isTokenValid(getToken()));
+  // Anyone who has signed in on this browser before goes straight to Login
+  // (not the marketing website) when they come back or get logged out.
+  const returning = useMemo(() => isReturningUser(), []);
   const [view, setView] = useState<"onboarding" | "app">(
-    hasSession ? "app" : "onboarding",
+    hasSession || returning ? "app" : "onboarding",
   );
   const [targetAuth, setTargetAuth] = useState<"login" | "register">(
-    "register",
+    returning ? "login" : "register",
   );
 
   const handleNavigateFromOnboarding = (screen: "signup" | "login") => {

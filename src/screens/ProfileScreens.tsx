@@ -510,8 +510,7 @@ export function ProfileScreen({
         <button
           onClick={() => {
             logout();
-            if (onBackToWebsite) onBackToWebsite();
-            else onNav("login");
+            onNav("login");
           }}
           className="flex items-center gap-4 p-4 bg-[#FEF2F2] rounded-xl border border-[#FCA5A5] mt-2 hover:bg-[#FEE2E2] transition-colors cursor-pointer"
         >
