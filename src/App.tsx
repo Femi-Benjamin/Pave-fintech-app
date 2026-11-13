@@ -3,6 +3,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const OnboardingLandingScreen = lazy(() => import("./components/OnboardingScreen"));
 const loadWalletScreens = () => import("./screens/WalletScreens");
 const loadMarketplaceScreens = () => import("./screens/MarketplaceScreens");
+const loadSavingsScreens = () => import("./screens/SavingsScreens");
+const loadGroupSavingScreens = () => import("./screens/GroupSaving");
+const loadMessagesScreens = () => import("./screens/MessagesScreens");
+const loadProfileScreens = () => import("./screens/ProfileScreens");
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen, KNOWN_SCREENS } from "./pave-data";
 import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
@@ -104,29 +108,33 @@ function MobileApp({
   const [kycNin, setKycNin] = useState("");
   const { isAuthenticated, isAuthLoading } = useLocalStore();
 
-  // Warm the two most-used feature bundles after the first paint so lazy loading
+  // Warm the feature bundles after the first paint so lazy loading
   // does not introduce a noticeable delay when users open Wallet or Marketplace.
   useEffect(() => {
     if (!isAuthenticated) return;
     let cancelled = false;
     const preload = () => {
       if (cancelled) return;
-      void Promise.all([loadWalletScreens(), loadMarketplaceScreens()]);
+      // Wallet and Marketplace first (most used), then the other tabs, so every
+      // main tab is already downloaded before the user taps it.
+      void Promise.all([loadWalletScreens(), loadMarketplaceScreens()]).then(
+        () =>
+          Promise.all([
+            loadSavingsScreens(),
+            loadGroupSavingScreens(),
+            loadMessagesScreens(),
+            loadProfileScreens(),
+          ]),
+      );
     };
-    const idleWindow = window as Window & {
-      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
-      cancelIdleCallback?: (handle: number) => void;
-    };
-    const handle = idleWindow.requestIdleCallback
-      ? idleWindow.requestIdleCallback(preload, { timeout: 1800 })
+    const hasIdle = typeof window.requestIdleCallback === "function";
+    const handle = hasIdle
+      ? window.requestIdleCallback(preload, { timeout: 1800 })
       : window.setTimeout(preload, 700);
     return () => {
       cancelled = true;
-      if (idleWindow.cancelIdleCallback && idleWindow.requestIdleCallback) {
-        idleWindow.cancelIdleCallback(handle);
-      } else {
-        window.clearTimeout(handle);
-      }
+      if (hasIdle) window.cancelIdleCallback(handle);
+      else window.clearTimeout(handle);
     };
   }, [isAuthenticated]);
 
@@ -598,7 +606,8 @@ export default function App() {
     hasSession || returning ? "app" : "onboarding",
   );
   const [targetAuth, setTargetAuth] = useState<"login" | "register">(
-    returning ? "login" : "register",
+    // A signed-in user must never be forced onto Login (e.g. on reload).
+    returning && !hasSession ? "login" : "register",
   );
 
   const handleNavigateFromOnboarding = (screen: "signup" | "login") => {
