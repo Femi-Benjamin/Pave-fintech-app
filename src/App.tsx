@@ -93,6 +93,17 @@ function MobileApp({
 }) {
   const [screen, setScreen] = useState<Screen>(initialScreen);
 
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedPurchaseId, setSelectedPurchaseId] = useState("");
+  const [selectedSavingId, setSelectedSavingId] = useState("");
+  const [selectedGroupSavingId, setSelectedGroupSavingId] = useState("");
+  const [productReturnScreen, setProductReturnScreen] = useState<Screen>("marketplace");
+  const [ajoSuccessNotice, setAjoSuccessNotice] = useState("");
+  const [savingsSuccessNotice, setSavingsSuccessNotice] = useState("");
+  const [activeChat, setActiveChat] = useState<any>(null);
+  const [kycNin, setKycNin] = useState("");
+  const { isAuthenticated, isAuthLoading } = useLocalStore();
+
   // Warm the two most-used feature bundles after the first paint so lazy loading
   // does not introduce a noticeable delay when users open Wallet or Marketplace.
   useEffect(() => {
@@ -118,16 +129,6 @@ function MobileApp({
       }
     };
   }, [isAuthenticated]);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [selectedPurchaseId, setSelectedPurchaseId] = useState("");
-  const [selectedSavingId, setSelectedSavingId] = useState("");
-  const [selectedGroupSavingId, setSelectedGroupSavingId] = useState("");
-  const [productReturnScreen, setProductReturnScreen] = useState<Screen>("marketplace");
-  const [ajoSuccessNotice, setAjoSuccessNotice] = useState("");
-  const [savingsSuccessNotice, setSavingsSuccessNotice] = useState("");
-  const [activeChat, setActiveChat] = useState<any>(null);
-  const [kycNin, setKycNin] = useState("");
-  const { isAuthenticated, isAuthLoading } = useLocalStore();
 
   useEffect(() => {
     const unsub = subscribeToAuthLogout(() => {
