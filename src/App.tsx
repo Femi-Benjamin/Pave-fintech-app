@@ -1,6 +1,8 @@
 import React, { Suspense, lazy, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const OnboardingLandingScreen = lazy(() => import("./components/OnboardingScreen"));
+const loadWalletScreens = () => import("./screens/WalletScreens");
+const loadMarketplaceScreens = () => import("./screens/MarketplaceScreens");
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen, KNOWN_SCREENS } from "./pave-data";
 import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
@@ -24,22 +26,22 @@ const KYCSelfieScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({
 const KYCPendingScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCPendingScreen })));
 const KYCApprovedScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCApprovedScreen })));
 import { HomeScreen } from "./screens/HomeScreen";
-const WalletScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.WalletScreen })));
-const FundWalletScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.FundWalletScreen })));
-const TransferScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.TransferScreen })));
-const BillsScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.BillsScreen })));
-const AirtimeScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.AirtimeScreen })));
-const TransactionsScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.TransactionsScreen })));
+const WalletScreen = lazy(() => loadWalletScreens().then((m) => ({ default: m.WalletScreen })));
+const FundWalletScreen = lazy(() => loadWalletScreens().then((m) => ({ default: m.FundWalletScreen })));
+const TransferScreen = lazy(() => loadWalletScreens().then((m) => ({ default: m.TransferScreen })));
+const BillsScreen = lazy(() => loadWalletScreens().then((m) => ({ default: m.BillsScreen })));
+const AirtimeScreen = lazy(() => loadWalletScreens().then((m) => ({ default: m.AirtimeScreen })));
+const TransactionsScreen = lazy(() => loadWalletScreens().then((m) => ({ default: m.TransactionsScreen })));
 const GroupSavingsScreen = lazy(() => import("./screens/GroupSaving").then((m) => ({ default: m.GroupSavingsScreen })));
 const CreateGroupSavingScreen = lazy(() => import("./screens/GroupSaving").then((m) => ({ default: m.CreateGroupSavingScreen })));
 const GroupSavingDetailScreen = lazy(() => import("./screens/GroupSaving").then((m) => ({ default: m.GroupSavingDetailScreen })));
 const PersonalSavingsScreen = lazy(() => import("./screens/SavingsScreens").then((m) => ({ default: m.PersonalSavingsScreen })));
 const CreateSavingScreen = lazy(() => import("./screens/SavingsScreens").then((m) => ({ default: m.CreateSavingScreen })));
 const SavingsDetailScreen = lazy(() => import("./screens/SavingsScreens").then((m) => ({ default: m.SavingsDetailScreen })));
-const MarketplaceScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.MarketplaceScreen })));
-const ProductDetailScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.ProductDetailScreen })));
-const PaymentPlanScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.PaymentPlanScreen })));
-const PurchaseDetailScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.PurchaseDetailScreen })));
+const MarketplaceScreen = lazy(() => loadMarketplaceScreens().then((m) => ({ default: m.MarketplaceScreen })));
+const ProductDetailScreen = lazy(() => loadMarketplaceScreens().then((m) => ({ default: m.ProductDetailScreen })));
+const PaymentPlanScreen = lazy(() => loadMarketplaceScreens().then((m) => ({ default: m.PaymentPlanScreen })));
+const PurchaseDetailScreen = lazy(() => loadMarketplaceScreens().then((m) => ({ default: m.PurchaseDetailScreen })));
 const MessagesWorkspace = lazy(() => import("./screens/MessagesScreens").then((m) => ({ default: m.MessagesWorkspace })));
 const NotificationsScreen = lazy(() => import("./screens/MessagesScreens").then((m) => ({ default: m.NotificationsScreen })));
 const ProfileScreen = lazy(() => import("./screens/ProfileScreens").then((m) => ({ default: m.ProfileScreen })));
@@ -90,6 +92,32 @@ function MobileApp({
   onBackToWebsite?: () => void;
 }) {
   const [screen, setScreen] = useState<Screen>(initialScreen);
+
+  // Warm the two most-used feature bundles after the first paint so lazy loading
+  // does not introduce a noticeable delay when users open Wallet or Marketplace.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let cancelled = false;
+    const preload = () => {
+      if (cancelled) return;
+      void Promise.all([loadWalletScreens(), loadMarketplaceScreens()]);
+    };
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const handle = idleWindow.requestIdleCallback
+      ? idleWindow.requestIdleCallback(preload, { timeout: 1800 })
+      : window.setTimeout(preload, 700);
+    return () => {
+      cancelled = true;
+      if (idleWindow.cancelIdleCallback && idleWindow.requestIdleCallback) {
+        idleWindow.cancelIdleCallback(handle);
+      } else {
+        window.clearTimeout(handle);
+      }
+    };
+  }, [isAuthenticated]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedPurchaseId, setSelectedPurchaseId] = useState("");
   const [selectedSavingId, setSelectedSavingId] = useState("");
@@ -169,6 +197,9 @@ function MobileApp({
   // Keep history in step when the screen is changed from somewhere other than
   // nav() (initial screen, forced logout, ...).
   useEffect(() => {
+    if (isAuthenticated && MAIN_TAB_SCREENS.includes(screen)) {
+      try { sessionStorage.setItem("pave_last_main_screen", screen); } catch {}
+    }
     screenRef.current = screen;
     const idx = idxRef.current;
     if (stackRef.current[idx] !== screen) {
@@ -552,6 +583,13 @@ export default function App() {
       }),
   );
   const hasSession = Boolean(getToken() && isTokenValid(getToken()));
+  const restoredScreen = (() => {
+    if (!hasSession || typeof window === "undefined") return "home" as Screen;
+    try {
+      const saved = sessionStorage.getItem("pave_last_main_screen") as Screen | null;
+      return saved && MAIN_TAB_SCREENS.includes(saved) ? saved : "home";
+    } catch { return "home" as Screen; }
+  })();
   // Anyone who has signed in on this browser before goes straight to Login
   // (not the marketing website) when they come back or get logged out.
   const returning = useMemo(() => isReturningUser(), []);
@@ -580,7 +618,7 @@ export default function App() {
           /* Full Desktop/Laptop Web Application (with mobile responsiveness) */
           <div className="w-full bg-[#F7F8FF] dark:bg-[#0A0B18] flex flex-col transition-colors">
             <MobileApp
-              initialScreen={hasSession ? "home" : targetAuth === "login" ? "login" : "splash"}
+              initialScreen={hasSession ? restoredScreen : targetAuth === "login" ? "login" : "splash"}
               targetAuth={targetAuth}
               onBackToWebsite={() => setView("onboarding")}
             />

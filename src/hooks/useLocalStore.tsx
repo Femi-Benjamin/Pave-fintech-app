@@ -228,6 +228,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     };
   }, [logout]);
 
+  // Treat a deliberate reload/navigation as activity. This prevents the
+  // persisted inactivity timestamp from expiring between the browser's unload
+  // and the next React mount, while retaining the existing 15-minute timeout.
+  useEffect(() => {
+    const recordBeforeUnload = () => {
+      if (getToken()) recordActivity();
+    };
+    window.addEventListener("pagehide", recordBeforeUnload);
+    window.addEventListener("beforeunload", recordBeforeUnload);
+    return () => {
+      window.removeEventListener("pagehide", recordBeforeUnload);
+      window.removeEventListener("beforeunload", recordBeforeUnload);
+    };
+  }, []);
+
   // 15-Minute Inactivity Tracker
   useEffect(() => {
     if (!store.authUser) return;
