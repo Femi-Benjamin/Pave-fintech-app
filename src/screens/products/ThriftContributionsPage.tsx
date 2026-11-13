@@ -16,7 +16,7 @@ import {
   Smartphone,
   HelpCircle,
 } from "lucide-react";
-import thriftHeroImg from "../../assets/images/thrift_contributions_hero_1791561150195.jpg";
+import thriftHeroImg from "../../assets/images/thrift_contributions_hero_1791561150195.webp";
 
 interface PageProps {
   onOpenApp: (action?: "login" | "signup") => void;

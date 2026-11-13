@@ -11,7 +11,7 @@ import {
   HelpCircle,
   TrendingUp,
 } from "lucide-react";
-import rotatingHeroImg from "../../assets/images/rotating_savings_hero_1791561125967.jpg";
+import rotatingHeroImg from "../../assets/images/rotating_savings_hero_1791561125967.webp";
 
 interface PageProps {
   onOpenApp: (action?: "login" | "signup") => void;

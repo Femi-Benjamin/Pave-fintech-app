@@ -135,7 +135,7 @@ function parseExistingAccountMessage(
   let bankName = "Wema Bank";
   if (!/wema/i.test(msg)) {
     const afterNumber = msg.slice((numMatch.index ?? 0) + numMatch[0].length);
-    const bankMatch = afterNumber.match(/^\s*,\s*([A-Za-z0-9 &.\-]+)/);
+    const bankMatch = afterNumber.match(/^\s*,\s*([A-Za-z0-9 &.-]+)/);
     const candidate = bankMatch?.[1]?.trim().replace(/\.$/, "");
     if (candidate && candidate.length < 30) {
       bankName = candidate;

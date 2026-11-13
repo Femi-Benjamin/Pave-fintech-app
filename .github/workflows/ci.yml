@@ -1,9 +1,13 @@
 name: CI
 
+# Manual for now (GitHub account billing lock). To run on every push again,
+# replace the trigger below with:
+#   on:
+#     push:
+#       branches: [main]
+#     pull_request:
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   verify:

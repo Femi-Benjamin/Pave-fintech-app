@@ -16,6 +16,9 @@ export default class ErrorBoundary extends React.Component<
   componentDidCatch(error: unknown) {
     // Keep details in the console only; never show them to the user.
     console.error("Unhandled UI error:", error);
+    import("@sentry/react")
+      .then((Sentry) => Sentry.captureException(error))
+      .catch(() => {});
   }
 
   render() {

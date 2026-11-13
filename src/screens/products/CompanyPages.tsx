@@ -9,9 +9,9 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
-import jonaExecPhoto from "../../assets/images/jona_israel_exec_1791565384913.jpg";
-import chidinmaExecPhoto from "../../assets/images/chidinma_nwosu_exec_1791565400528.jpg";
-import babajideExecPhoto from "../../assets/images/babajide_alabi_exec_1791565416324.jpg";
+import jonaExecPhoto from "../../assets/images/jona_israel_exec_1791565384913.webp";
+import chidinmaExecPhoto from "../../assets/images/chidinma_nwosu_exec_1791565400528.webp";
+import babajideExecPhoto from "../../assets/images/babajide_alabi_exec_1791565416324.webp";
 
 interface PageProps {
   onOpenApp: (action?: "login" | "signup") => void;

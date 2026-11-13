@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, { Suspense, lazy, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import OnboardingLandingScreen from "./components/OnboardingScreen";
+const OnboardingLandingScreen = lazy(() => import("./components/OnboardingScreen"));
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen, KNOWN_SCREENS } from "./pave-data";
 import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
@@ -16,48 +16,46 @@ import {
   ForgotPasswordScreen,
   AcceptInvitationScreen,
 } from "./screens/AuthScreens";
-import {
-  KYCWelcomeScreen,
-  KYCNINScreen,
-  KYCIDTypeScreen,
-  KYCIDUploadScreen,
-  KYCSelfieScreen,
-  KYCPendingScreen,
-  KYCApprovedScreen,
-} from "./screens/KYCScreens";
+const KYCWelcomeScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCWelcomeScreen })));
+const KYCNINScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCNINScreen })));
+const KYCIDTypeScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCIDTypeScreen })));
+const KYCIDUploadScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCIDUploadScreen })));
+const KYCSelfieScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCSelfieScreen })));
+const KYCPendingScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCPendingScreen })));
+const KYCApprovedScreen = lazy(() => import("./screens/KYCScreens").then((m) => ({ default: m.KYCApprovedScreen })));
 import { HomeScreen } from "./screens/HomeScreen";
-import {
-  WalletScreen,
-  FundWalletScreen,
-  TransferScreen,
-  BillsScreen,
-  AirtimeScreen,
-  TransactionsScreen,
-} from "./screens/WalletScreens";
-import {
-  GroupSavingsScreen,
-  CreateGroupSavingScreen,
-  GroupSavingDetailScreen,
-} from "./screens/GroupSaving";
-import {
-  PersonalSavingsScreen,
-  CreateSavingScreen,
-  SavingsDetailScreen,
-} from "./screens/SavingsScreens";
-import {
-  MarketplaceScreen,
-  ProductDetailScreen,
-  PaymentPlanScreen,
-  PurchaseDetailScreen,
-} from "./screens/MarketplaceScreens";
-import {
-  MessagesWorkspace,
-  NotificationsScreen,
-} from "./screens/MessagesScreens";
-import {
-  ProfileScreen,
-  SettingsScreen,
-} from "./screens/ProfileScreens";
+const WalletScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.WalletScreen })));
+const FundWalletScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.FundWalletScreen })));
+const TransferScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.TransferScreen })));
+const BillsScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.BillsScreen })));
+const AirtimeScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.AirtimeScreen })));
+const TransactionsScreen = lazy(() => import("./screens/WalletScreens").then((m) => ({ default: m.TransactionsScreen })));
+const GroupSavingsScreen = lazy(() => import("./screens/GroupSaving").then((m) => ({ default: m.GroupSavingsScreen })));
+const CreateGroupSavingScreen = lazy(() => import("./screens/GroupSaving").then((m) => ({ default: m.CreateGroupSavingScreen })));
+const GroupSavingDetailScreen = lazy(() => import("./screens/GroupSaving").then((m) => ({ default: m.GroupSavingDetailScreen })));
+const PersonalSavingsScreen = lazy(() => import("./screens/SavingsScreens").then((m) => ({ default: m.PersonalSavingsScreen })));
+const CreateSavingScreen = lazy(() => import("./screens/SavingsScreens").then((m) => ({ default: m.CreateSavingScreen })));
+const SavingsDetailScreen = lazy(() => import("./screens/SavingsScreens").then((m) => ({ default: m.SavingsDetailScreen })));
+const MarketplaceScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.MarketplaceScreen })));
+const ProductDetailScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.ProductDetailScreen })));
+const PaymentPlanScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.PaymentPlanScreen })));
+const PurchaseDetailScreen = lazy(() => import("./screens/MarketplaceScreens").then((m) => ({ default: m.PurchaseDetailScreen })));
+const MessagesWorkspace = lazy(() => import("./screens/MessagesScreens").then((m) => ({ default: m.MessagesWorkspace })));
+const NotificationsScreen = lazy(() => import("./screens/MessagesScreens").then((m) => ({ default: m.NotificationsScreen })));
+const ProfileScreen = lazy(() => import("./screens/ProfileScreens").then((m) => ({ default: m.ProfileScreen })));
+const SettingsScreen = lazy(() => import("./screens/ProfileScreens").then((m) => ({ default: m.SettingsScreen })));
+
+function ScreenFallback() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading"
+      className="flex-1 min-h-[60vh] flex items-center justify-center"
+    >
+      <div className="h-8 w-8 rounded-full border-4 border-[#E2E8F0] border-t-[#2D3EF2] animate-spin" />
+    </div>
+  );
+}
 
 // Screens a signed-in user should never land on via the back button.
 const SIGNED_OUT_ONLY_SCREENS: Screen[] = [
@@ -471,13 +469,15 @@ function MobileApp({
         <div
           className={`flex-1 flex flex-col ${!showNav ? "min-h-full" : ""}`}
         >
-          {authOrIntroScreens.includes(screen) ? (
-            renderScreen()
-          ) : (
-            <ProtectedRoute onNav={nav} currentScreen={screen}>
-              {renderScreen()}
-            </ProtectedRoute>
-          )}
+          <Suspense fallback={<ScreenFallback />}>
+            {authOrIntroScreens.includes(screen) ? (
+              renderScreen()
+            ) : (
+              <ProtectedRoute onNav={nav} currentScreen={screen}>
+                {renderScreen()}
+              </ProtectedRoute>
+            )}
+          </Suspense>
         </div>
 
         {/* Mobile Bottom Navigation (sticky/fixed to viewport bottom on mobile < lg) */}
@@ -573,7 +573,9 @@ export default function App() {
         <NetworkStatusToast />
         {view === "onboarding" ? (
           /* 1. OnboardingScreen.tsx is the first thing seen */
-          <OnboardingLandingScreen onNavigate={handleNavigateFromOnboarding} />
+          <Suspense fallback={<ScreenFallback />}>
+            <OnboardingLandingScreen onNavigate={handleNavigateFromOnboarding} />
+          </Suspense>
         ) : (
           /* Full Desktop/Laptop Web Application (with mobile responsiveness) */
           <div className="w-full bg-[#F7F8FF] dark:bg-[#0A0B18] flex flex-col transition-colors">

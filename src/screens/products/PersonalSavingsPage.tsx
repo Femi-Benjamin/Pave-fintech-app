@@ -11,7 +11,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import personalHeroImg from "../../assets/images/personal_savings_hero_1791561136749.jpg";
+import personalHeroImg from "../../assets/images/personal_savings_hero_1791561136749.webp";
 
 interface PageProps {
   onOpenApp: (action?: "login" | "signup") => void;

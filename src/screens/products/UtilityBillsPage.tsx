@@ -13,7 +13,7 @@ import {
   HelpCircle,
   Download,
 } from "lucide-react";
-import billsHeroImg from "../../assets/images/bills_utilities_hero_1791561186311.jpg";
+import billsHeroImg from "../../assets/images/bills_utilities_hero_1791561186311.webp";
 
 interface PageProps {
   onOpenApp: (action?: "login" | "signup") => void;

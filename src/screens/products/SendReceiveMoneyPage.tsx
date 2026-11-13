@@ -17,7 +17,7 @@ import {
   Search,
   Clock,
 } from "lucide-react";
-import sendReceiveHeroImg from "../../assets/images/send_receive_hero_1791561176083.jpg";
+import sendReceiveHeroImg from "../../assets/images/send_receive_hero_1791561176083.webp";
 
 interface PageProps {
   onOpenApp: (action?: "login" | "signup") => void;

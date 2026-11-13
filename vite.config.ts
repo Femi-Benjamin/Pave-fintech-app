@@ -9,6 +9,17 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          query: ['@tanstack/react-query', 'axios'],
+          motion: ['motion', 'framer-motion'],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       'recharts': path.resolve(__dirname, './src/recharts.tsx'),

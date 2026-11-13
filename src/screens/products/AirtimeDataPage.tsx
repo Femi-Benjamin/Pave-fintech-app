@@ -15,7 +15,7 @@ import {
   HelpCircle,
   TrendingUp,
 } from "lucide-react";
-import airtimeHeroImg from "../../assets/images/airtime_data_hero_1791561848661.jpg";
+import airtimeHeroImg from "../../assets/images/airtime_data_hero_1791561848661.webp";
 
 interface PageProps {
   onOpenApp: (action?: "login" | "signup") => void;
