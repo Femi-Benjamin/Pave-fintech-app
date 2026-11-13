@@ -16,3 +16,17 @@ test("Navigation Return Helper: resolveReturnScreen returns valid screen or fall
   assert.equal(resolveReturnScreen(null), "marketplace");
   assert.equal(resolveReturnScreen(undefined), "marketplace");
 });
+
+
+test("reload restores Wallet and Marketplace for an authenticated session", async () => {
+  const { resolveRestoredMainScreen } = await import("../src/utils/navigation");
+  assert.equal(resolveRestoredMainScreen("wallet", true), "wallet");
+  assert.equal(resolveRestoredMainScreen("marketplace", true), "marketplace");
+});
+
+test("reload does not restore a protected screen without a valid session", async () => {
+  const { resolveRestoredMainScreen } = await import("../src/utils/navigation");
+  assert.equal(resolveRestoredMainScreen("wallet", false), "home");
+  assert.equal(resolveRestoredMainScreen("marketplace", false), "home");
+  assert.equal(resolveRestoredMainScreen("product-detail", true), "home");
+});

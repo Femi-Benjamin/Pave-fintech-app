@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import {
-  CheckCircle,
   ExternalLink,
   Lock,
   ShieldCheck,
@@ -17,6 +16,16 @@ import {
 import { formatAmountInput, parseAmountInput } from "../utils/amountInput";
 
 const PRESETS = [5000, 10000, 20000, 50000, 100000];
+
+function getSecurePaymentUrl(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
 
 const STEPS = [
   "Enter the amount you want to add",
@@ -35,6 +44,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     : NaN;
   const balance = Number.isFinite(rawBalance) ? rawBalance : null;
   const isPending = fundingMutation.isPending;
+  const paymentUrl = getSecurePaymentUrl(fundingMutation.data?.paystackLink);
 
   const handleFund = () => {
     if (value > 0 && !isPending) {
@@ -46,7 +56,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
     <div className="flex-1 flex flex-col">
       <ScreenHeader title="Fund Wallet" onBack={() => onNav("wallet")} />
 
-      {!fundingMutation.isSuccess ? (
+      {!paymentUrl ? (
         <>
           <div className="flex-1 overflow-y-auto px-6 pt-5 pb-6 flex flex-col gap-5 w-full max-w-xl mx-auto">
             {/* Balance hero */}
@@ -134,15 +144,17 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </div>
             </div>
 
-            {fundingMutation.isError && (
+            {(fundingMutation.isError || fundingMutation.isSuccess) && (
               <p
                 role="alert"
                 className="rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] px-4 py-3 text-sm text-[#B91C1C]"
               >
-                {getApiErrorMessage(
-                  fundingMutation.error,
-                  "Unable to start wallet funding.",
-                )}
+                {fundingMutation.isError
+                  ? getApiErrorMessage(
+                      fundingMutation.error,
+                      "Unable to start wallet funding.",
+                    )
+                  : "We couldn't generate a valid secure payment link. Please try again or contact support if the problem continues."}
               </p>
             )}
 
@@ -205,9 +217,9 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring" }}
-            className="w-24 h-24 bg-[#ECFDF5] rounded-full flex items-center justify-center"
+            className="w-24 h-24 bg-[#EEF2FF] rounded-full flex items-center justify-center"
           >
-            <CheckCircle size={52} className="text-[#059669]" />
+            <ExternalLink size={48} className="text-[#3730A3]" />
           </motion.div>
           <div>
             <h2
@@ -217,18 +229,18 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 fontSize: 24,
               }}
             >
-              Complete your {fmt(value)} funding
+              Your payment link is ready
             </h2>
             <p className="text-[#6B7280] text-sm mt-2">
-              {fundingMutation.data.message}
+              {fundingMutation.data?.message || "Continue to Paystack to complete your wallet funding."}
             </p>
             <p className="text-[#6B7280] text-xs mt-3">
-              Your balance updates automatically once the payment is confirmed.
+              Your wallet balance will update only after Paystack confirms the payment.
             </p>
           </div>
-          {fundingMutation.data.paystackLink && (
+          {paymentUrl && (
             <a
-              href={fundingMutation.data.paystackLink}
+              href={paymentUrl}
               target="_blank"
               rel="noreferrer"
               className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#3730A3] px-5 py-4 text-center text-sm font-semibold text-white"

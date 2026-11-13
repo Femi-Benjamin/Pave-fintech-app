@@ -10,3 +10,25 @@ export function resolveReturnScreen(value?: string | null): Screen {
   }
   return "marketplace";
 }
+
+
+/**
+ * Restores only top-level destinations after a full page reload. Detail routes
+ * depend on transient in-memory selections and must fall back to Home.
+ */
+export function resolveRestoredMainScreen(
+  value: string | null,
+  hasSession: boolean,
+): Screen {
+  const mainTabs: readonly string[] = [
+    "wallet",
+    "savings",
+    "group-savings",
+    "marketplace",
+    "messages",
+    "profile",
+  ];
+  return hasSession && value && mainTabs.includes(value)
+    ? (value as Screen)
+    : "home";
+}
