@@ -559,6 +559,17 @@ export function LoginScreen({
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
+            {onBackToWebsite && (
+              <div className="flex justify-end mb-2">
+                <button
+                  type="button"
+                  onClick={onBackToWebsite}
+                  className="text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
+                >
+                  Website
+                </button>
+              </div>
+            )}
             <div className="mb-4 sm:mb-6">
               <h1
                 style={{

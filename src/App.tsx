@@ -77,6 +77,8 @@ const MAIN_TAB_SCREENS: Screen[] = [
   "profile",
 ];
 
+const VIEW_KEY = "pave_view";
+
 // ─── Main Web App (Full Desktop & Responsive Mobile Layout) ──────────────────
 function MobileApp({
   initialScreen = "splash",
@@ -593,14 +595,35 @@ export default function App() {
   })();
   // Anyone who has signed in on this browser before goes straight to Login
   // (not the marketing website) when they come back or get logged out.
+  // But if they are deliberately on the website in this tab, a refresh must
+  // keep them on the website, so the chosen view is remembered per tab.
   const returning = useMemo(() => isReturningUser(), []);
-  const [view, setView] = useState<"onboarding" | "app">(
-    hasSession || returning ? "app" : "onboarding",
-  );
+  const initialView = useMemo<"onboarding" | "app">(() => {
+    if (hasSession) return "app";
+    let saved: string | null = null;
+    try {
+      saved = sessionStorage.getItem(VIEW_KEY);
+    } catch {
+      /* storage unavailable */
+    }
+    if (saved === "website") return "onboarding";
+    if (saved === "app") return "app";
+    return returning ? "app" : "onboarding";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const [view, setView] = useState<"onboarding" | "app">(initialView);
   const [targetAuth, setTargetAuth] = useState<"login" | "register">(
     // A signed-in user must never be forced onto Login (e.g. on reload).
-    returning && !hasSession ? "login" : "register",
+    initialView === "app" && returning && !hasSession ? "login" : "register",
   );
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(VIEW_KEY, view === "onboarding" ? "website" : "app");
+    } catch {
+      /* storage unavailable */
+    }
+  }, [view]);
 
   const handleNavigateFromOnboarding = (screen: "signup" | "login") => {
     setTargetAuth(screen === "signup" ? "register" : "login");
