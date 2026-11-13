@@ -1,18 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
-/** Eases toward 92% while loading; the bar is removed once the content is ready. */
-function useSimulatedProgress() {
-  const [progress, setProgress] = useState(6);
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setProgress((p) => p + (92 - p) * 0.07);
-    }, 120);
-    return () => window.clearInterval(id);
-  }, []);
-  return progress;
-}
-
 export function ProgressLoader({
   title = "Loading",
   subtitle = "Just a moment, this won't take long",
@@ -22,7 +10,6 @@ export function ProgressLoader({
   subtitle?: string;
   fullPage?: boolean;
 }) {
-  const progress = useSimulatedProgress();
   const [slow, setSlow] = useState(false);
   useEffect(() => {
     const id = window.setTimeout(() => setSlow(true), 6000);
@@ -48,14 +35,12 @@ export function ProgressLoader({
           className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[#E5E7F6]"
           role="progressbar"
           aria-label={title}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(progress)}
+          aria-valuetext="Loading"
         >
           <motion.div
-            className="h-full rounded-full bg-linear-to-r from-[#3730A3] to-[#6366F1]"
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="h-full w-1/3 rounded-full bg-linear-to-r from-[#3730A3] to-[#6366F1]"
+            animate={{ x: ["-110%", "310%"] }}
+            transition={{ duration: 1.35, ease: "easeInOut", repeat: Infinity }}
           />
         </div>
         <p className="mt-3 text-xs text-[#6B7280]">
