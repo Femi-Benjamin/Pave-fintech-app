@@ -164,8 +164,27 @@ function MobileApp({
     screen !== "group-chat";
   // Chat screens hide the phone bottom nav, but desktop keeps its sidebar
   const isChatScreen = screen === "chat" || screen === "group-chat";
+  // Auth screens are pinned to the visible viewport (position: fixed) so the
+  // card stays centred and the page can never scroll, even while a phone's
+  // browser toolbar shows or hides.
   const isFixedIntroScreen =
-    screen === "onboarding" || screen === "login" || screen === "register";
+    screen === "onboarding" ||
+    screen === "login" ||
+    screen === "register" ||
+    screen === "forgot-password";
+
+  useEffect(() => {
+    if (!isFixedIntroScreen) return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = [html.style.overflow, body.style.overflow];
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prev[0];
+      body.style.overflow = prev[1];
+    };
+  }, [isFixedIntroScreen]);
 
   // ─── Browser / phone back-button support ──────────────────────────────────
   // Screens are state based, so the browser has no history of them. We mirror
@@ -480,7 +499,7 @@ function MobileApp({
 
   return (
     <div
-      className={`flex w-full ${showNav ? "min-h-screen" : isFixedIntroScreen ? "h-dvh max-h-dvh overflow-hidden" : "h-screen max-h-screen overflow-hidden"} bg-[#F7F8FF]`}
+      className={`flex w-full ${showNav ? "min-h-screen" : isFixedIntroScreen ? "fixed inset-0 overflow-hidden" : "h-screen max-h-screen overflow-hidden"} bg-[#F7F8FF]`}
       style={{ fontFamily: "var(--font-family-body)" }}
     >
       {/* Desktop Sidebar (visible on large screens for authenticated main app) */}
@@ -494,7 +513,7 @@ function MobileApp({
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : isFixedIntroScreen ? "h-dvh max-h-dvh overflow-hidden" : "h-screen max-h-screen overflow-y-auto"} relative`}
+        className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : isFixedIntroScreen ? "h-full max-h-full overflow-hidden" : "h-screen max-h-screen overflow-y-auto"} relative`}
       >
         <div
           className={`flex-1 flex flex-col ${!showNav ? "min-h-full" : ""}`}

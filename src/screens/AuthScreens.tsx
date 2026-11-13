@@ -248,7 +248,7 @@ export function SlideOnboardingScreen({
 
   return (
     <div
-      className="flex-1 w-full h-dvh max-h-dvh flex items-center justify-center p-2 sm:p-5 lg:p-6 overflow-hidden select-none"
+      className="flex-1 w-full h-full max-h-full flex items-center justify-center p-2 sm:p-5 lg:p-6 overflow-hidden select-none"
       style={{ background: "#F7F8FF" }}
       onWheel={handleWheel}
     >
@@ -548,7 +548,7 @@ export function LoginScreen({
 
   return (
     <div
-      className="flex-1 w-full h-dvh max-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
+      className="flex-1 w-full h-full max-h-full flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
@@ -559,17 +559,6 @@ export function LoginScreen({
 
         <div className="flex-1 md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between md:h-full md:overflow-y-auto scrollbar-hide">
           <div>
-            {onBackToWebsite && (
-              <div className="flex justify-end mb-2">
-                <button
-                  type="button"
-                  onClick={onBackToWebsite}
-                  className="text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
-                >
-                  Website
-                </button>
-              </div>
-            )}
             <div className="mb-4 sm:mb-6">
               <h1
                 style={{
@@ -725,7 +714,7 @@ export function RegisterScreen({
 
   return (
     <div
-      className="flex-1 w-full h-dvh max-h-dvh md:h-screen md:max-h-screen flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
+      className="flex-1 w-full h-full max-h-full flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
@@ -971,7 +960,7 @@ export function ForgotPasswordScreen({
 
   return (
     <div
-      className="flex-1 w-full h-screen max-h-screen flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+      className="flex-1 w-full h-full max-h-full flex items-center justify-center p-3 sm:p-5 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
       <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
