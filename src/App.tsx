@@ -13,6 +13,8 @@ import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
 import { NetworkStatusToast } from "./components/NetworkStatus";
 import { getToken, isReturningUser, isTokenValid, subscribeToAuthLogout } from "./lib/authStorage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ProgressLoader } from "./components/ProgressLoader";
+import { loadingLabelFor } from "./utils/loadingLabels";
 
 import {
   SplashScreen,
@@ -51,16 +53,9 @@ const NotificationsScreen = lazy(() => import("./screens/MessagesScreens").then(
 const ProfileScreen = lazy(() => import("./screens/ProfileScreens").then((m) => ({ default: m.ProfileScreen })));
 const SettingsScreen = lazy(() => import("./screens/ProfileScreens").then((m) => ({ default: m.SettingsScreen })));
 
-function ScreenFallback() {
-  return (
-    <div
-      role="status"
-      aria-label="Loading"
-      className="flex-1 min-h-[60vh] flex items-center justify-center"
-    >
-      <div className="h-8 w-8 rounded-full border-4 border-[#E2E8F0] border-t-[#2D3EF2] animate-spin" />
-    </div>
-  );
+function ScreenFallback({ screen }: { screen?: Screen }) {
+  const { title, subtitle } = loadingLabelFor(screen);
+  return <ProgressLoader title={title} subtitle={subtitle} />;
 }
 
 // Screens a signed-in user should never land on via the back button.
@@ -509,7 +504,7 @@ function MobileApp({
         <div
           className={`flex-1 flex flex-col ${!showNav ? "min-h-full" : ""}`}
         >
-          <Suspense fallback={<ScreenFallback />}>
+          <Suspense fallback={<ScreenFallback screen={screen} />}>
             {authOrIntroScreens.includes(screen) ? (
               renderScreen()
             ) : (
