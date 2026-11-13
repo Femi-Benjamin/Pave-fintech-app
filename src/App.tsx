@@ -3,10 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const OnboardingLandingScreen = lazy(() => import("./components/OnboardingScreen"));
 const loadWalletScreens = () => import("./screens/WalletScreens");
 const loadMarketplaceScreens = () => import("./screens/MarketplaceScreens");
-const loadSavingsScreens = () => import("./screens/SavingsScreens");
-const loadGroupSavingScreens = () => import("./screens/GroupSaving");
-const loadMessagesScreens = () => import("./screens/MessagesScreens");
-const loadProfileScreens = () => import("./screens/ProfileScreens");
 import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen, KNOWN_SCREENS } from "./pave-data";
 import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
@@ -15,6 +11,7 @@ import { getToken, isReturningUser, isTokenValid, subscribeToAuthLogout } from "
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ProgressLoader } from "./components/ProgressLoader";
 import { loadingLabelFor } from "./utils/loadingLabels";
+import { resolveRestoredMainScreen } from "./utils/navigation";
 
 import {
   SplashScreen,
@@ -110,16 +107,12 @@ function MobileApp({
     let cancelled = false;
     const preload = () => {
       if (cancelled) return;
-      // Wallet and Marketplace first (most used), then the other tabs, so every
-      // main tab is already downloaded before the user taps it.
-      void Promise.all([loadWalletScreens(), loadMarketplaceScreens()]).then(
-        () =>
-          Promise.all([
-            loadSavingsScreens(),
-            loadGroupSavingScreens(),
-            loadMessagesScreens(),
-            loadProfileScreens(),
-          ]),
+      // Preload only the two highest-traffic areas. Other feature bundles
+      // load on demand, avoiding unnecessary network contention on mobile.
+      void Promise.all([loadWalletScreens(), loadMarketplaceScreens()]).catch(
+        () => {
+          // React.lazy retries the import when the user opens that screen.
+        },
       );
     };
     const hasIdle = typeof window.requestIdleCallback === "function";
@@ -590,9 +583,13 @@ export default function App() {
   const restoredScreen = (() => {
     if (!hasSession || typeof window === "undefined") return "home" as Screen;
     try {
-      const saved = sessionStorage.getItem("pave_last_main_screen") as Screen | null;
-      return saved && MAIN_TAB_SCREENS.includes(saved) ? saved : "home";
-    } catch { return "home" as Screen; }
+      return resolveRestoredMainScreen(
+        sessionStorage.getItem("pave_last_main_screen"),
+        hasSession,
+      );
+    } catch {
+      return "home" as Screen;
+    }
   })();
   // Anyone who has signed in on this browser before goes straight to Login
   // (not the marketing website) when they come back or get logged out.
