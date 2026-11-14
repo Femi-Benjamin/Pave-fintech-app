@@ -144,10 +144,13 @@ export async function buyTvSubscription(
 export async function verifyElectricityAccountNumber(
   payload: VerifyElectricityAccountPayload,
 ) {
-  const { data } = await api.get<BillAccountVerificationResponse>(
-    `${billsPath}/verify-nepa-account-number`,
-    { params: payload },
-  );
+  // The current Postman collection documents this GET endpoint with a JSON
+  // request body (serviceID, meterNumber, type), not query parameters.
+  const { data } = await api.request<BillAccountVerificationResponse>({
+    method: "GET",
+    url: `${billsPath}/verify-nepa-account-number`,
+    data: payload,
+  });
   if (data.data?.code !== "000") {
     throw new Error(data.message || "Unable to verify this meter.");
   }
