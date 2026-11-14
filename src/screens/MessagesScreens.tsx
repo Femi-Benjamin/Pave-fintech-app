@@ -915,7 +915,7 @@ function NewChatModal({
               <div className="bg-[#F8F9FD] rounded-xl px-3.5 py-2 flex items-center gap-2 border border-[#E5E7EB]">
                 <Search size={16} className="text-[#9CA3AF]" />
                 <input
-                  placeholder="Search registered users by name or email..."
+                  placeholder="Search AJO group members by name or email..."
                   value={recipientSearch}
                   onChange={(e) => setRecipientSearch(e.target.value)}
                   className="flex-1 bg-transparent text-xs text-[#0D0F1C] outline-none placeholder-[#9CA3AF]"
@@ -925,7 +925,7 @@ function NewChatModal({
               {isRecipientsLoading ? (
                 <div className="py-8 flex flex-col items-center justify-center text-xs text-[#6B7280] gap-2">
                   <Loader2 size={20} className="animate-spin text-[#3730A3]" />
-                  <span>Loading eligible users...</span>
+                  <span>Loading your AJO group members...</span>
                 </div>
               ) : recipientsError ? (
                 <div className="p-3 bg-[#FEF2F2] border border-[#FCA5A5] rounded-xl text-xs text-[#991B1B]">
@@ -933,7 +933,7 @@ function NewChatModal({
                 </div>
               ) : filteredRecipients.length === 0 ? (
                 <div className="py-8 text-center text-xs text-[#6B7280]">
-                  No eligible recipients found.
+                  No members from your AJO groups are available to message.
                 </div>
               ) : (
                 <div className="divide-y divide-[#F3F4F6] max-h-64 overflow-y-auto">
