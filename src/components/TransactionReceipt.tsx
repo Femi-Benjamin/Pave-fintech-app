@@ -11,13 +11,15 @@ const STATUS_STYLE = {
 
 export function TransactionReceipt({
   record,
+  balanceOverride,
   onClose,
 }: {
   record: Record<string, unknown> | null;
+  balanceOverride?: { before: number; after: number } | null;
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
-  const receipt = record ? buildTransactionReceipt(record) : null;
+  const receipt = record ? buildTransactionReceipt(record, balanceOverride) : null;
 
   const copy = async (text: string) => {
     try {
@@ -83,7 +85,7 @@ export function TransactionReceipt({
                   {receipt.direction === "credit" ? "+" : "-"}₦
                   {receipt.amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
-                <p className="mt-1 text-sm text-[#374151]">{receipt.title}</p>
+                <p className="mt-1 max-w-full break-words px-2 text-center text-sm text-[#374151]">{receipt.title}</p>
                 <span className={`mt-2 rounded-full px-3 py-1 text-xs font-semibold ${style.pill}`}>
                   {style.label}
                 </span>

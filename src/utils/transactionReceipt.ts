@@ -36,6 +36,34 @@ function tryParseObject(v: unknown): Record<string, unknown> | null {
   return null;
 }
 
+/** credit (money in) or debit (money out), same rule everywhere in the app. */
+export function transactionDirection(
+  record: Record<string, unknown>,
+): "credit" | "debit" {
+  const kind = `${record.transactionType ?? ""} ${record.type ?? ""}`.toLowerCase();
+  return kind.includes("credit") ||
+    kind.includes("fund") ||
+    kind.includes("deposit")
+    ? "credit"
+    : "debit";
+}
+
+/** Bank narrations like "6423078517/9817600139/PACEPLOYTLTD/AD" are not readable titles. */
+export function isBankNarration(text?: string): boolean {
+  const t = (text ?? "").trim();
+  return (/^\d{6,}\//.test(t) || (t.includes("/") && !/\s/.test(t) && t.length > 20));
+}
+
+export function friendlyTransactionTitle(
+  description: string | undefined,
+  direction: "credit" | "debit",
+): string {
+  if (isBankNarration(description)) {
+    return direction === "credit" ? "Bank transfer received" : "Bank transfer sent";
+  }
+  return receiptTitle(description);
+}
+
 export function sentenceCase(text: string): string {
   const t = text.trim().toLowerCase();
   return t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
@@ -67,12 +95,9 @@ function formatDateTime(value?: unknown): string | null {
 
 export function buildTransactionReceipt(
   record: Record<string, unknown>,
+  balanceOverride?: { before: number; after: number } | null,
 ): TransactionReceiptData {
-  const kind = `${record.transactionType ?? ""} ${record.type ?? ""}`.toLowerCase();
-  const direction: "credit" | "debit" =
-    kind.includes("credit") || kind.includes("fund") || kind.includes("deposit")
-      ? "credit"
-      : "debit";
+  const direction = transactionDirection(record);
 
   const rows: ReceiptRow[] = [];
   const add = (label: string, value: string | null | undefined) => {
@@ -81,6 +106,9 @@ export function buildTransactionReceipt(
 
   if (typeof record.transactionType === "string") {
     add("Type", record.transactionType);
+  }
+  if (isBankNarration(record.description as string | undefined)) {
+    add("Narration", String(record.description));
   }
   if (record.destination) add("Recipient", String(record.destination));
   add("Date & time", formatDateTime(record.createdAt));
@@ -91,8 +119,8 @@ export function buildTransactionReceipt(
   const vat = toNumber(record.vat);
   if (vat && vat > 0) add("VAT", naira(vat));
 
-  const before = toNumber(record.balanceBefore);
-  const after = toNumber(record.balanceAfter);
+  const before = balanceOverride ? balanceOverride.before : toNumber(record.balanceBefore);
+  const after = balanceOverride ? balanceOverride.after : toNumber(record.balanceAfter);
   if (before !== null) add("Balance before", naira(before));
   if (after !== null) add("Balance after", naira(after));
 
@@ -107,7 +135,7 @@ export function buildTransactionReceipt(
   }
 
   return {
-    title: receiptTitle(record.description as string | undefined),
+    title: friendlyTransactionTitle(record.description as string | undefined, direction),
     status: normalizeTransactionStatus(record.status as string | undefined),
     direction,
     amount: toNumber(record.amount) ?? 0,

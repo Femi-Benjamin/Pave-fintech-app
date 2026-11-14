@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { friendlyTransactionTitle } from "../utils/transactionReceipt";
 import { motion } from "motion/react";
 import {
   ArrowUpRight,
@@ -582,7 +583,7 @@ export function HomeScreen({
                   key={t.id}
                   className="p-3.5 rounded-xl flex items-center justify-between hover:bg-[#F7F8FF] transition-colors border border-transparent hover:border-[#F1F3FB]"
                 >
-                  <div className="flex items-center gap-3.5">
+                  <div className="flex min-w-0 flex-1 items-center gap-3.5">
                     <div
                       className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${t.type === "credit" ? "bg-[#ECFDF5]" : "bg-[#F3F4F6]"}`}
                     >
@@ -592,9 +593,9 @@ export function HomeScreen({
                         <ArrowUpRight size={18} className="text-[#6B7280]" />
                       )}
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-[#0D0F1C]">
-                        {t.desc}
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-[#0D0F1C] line-clamp-2 break-words">
+                        {friendlyTransactionTitle(t.desc, t.type === "credit" ? "credit" : "debit")}
                       </div>
                       <div className="text-xs text-[#9CA3AF]">
                         {t.date} • {t.category}
@@ -602,7 +603,7 @@ export function HomeScreen({
                     </div>
                   </div>
                   <div
-                    className={`text-sm font-bold ${t.type === "credit" ? "text-[#059669]" : "text-[#0D0F1C]"}`}
+                    className={`ml-3 shrink-0 text-sm font-bold ${t.type === "credit" ? "text-[#059669]" : "text-[#0D0F1C]"}`}
                   >
                     {t.type === "credit" ? "+" : "-"}
                     {fmt(t.amount)}

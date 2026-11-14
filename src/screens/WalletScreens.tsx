@@ -4,7 +4,7 @@ import {
   availableCategories,
   type PlanCategory,
 } from "../utils/dataPlans";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   MoreHorizontal,
@@ -36,6 +36,9 @@ import {
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
 import { PurchaseSuccess } from "../components/PurchaseSuccess";
 import { TransactionReceipt } from "../components/TransactionReceipt";
+import { ProgressLoader } from "../components/ProgressLoader";
+import { friendlyTransactionTitle } from "../utils/transactionReceipt";
+import { reconcileBalances } from "../utils/transactionBalances";
 import { Screen, Transaction, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { Skeleton } from "../components/Skeleton";
@@ -63,6 +66,10 @@ import type {
   TransactionRecord,
   UserTransactionSearchParams,
 } from "../api/transactions";
+
+function displayTitle(t: Transaction): string {
+  return friendlyTransactionTitle(t.desc, t.type);
+}
 
 function toWalletTransaction(
   transaction: TransactionRecord,
@@ -718,8 +725,8 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-[#0D0F1C] truncate">
-                    {t.desc}
+                  <div className="text-sm font-medium text-[#0D0F1C] line-clamp-2 break-words">
+                    {displayTitle(t)}
                   </div>
                   <div className="text-xs text-[#9CA3AF]">
                     {t.date} · {t.category}
@@ -1267,8 +1274,11 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
       logo: "/logos/9mobile.png",
     },
   ];
+  const submittingRef = useRef(false);
   const handleBuy = () => {
     const numericAmount = Number(amount.replace(/,/g, ""));
+    // Never let a double tap send the same purchase twice.
+    if (submittingRef.current || purchaseMutation.isPending) return;
     if (
       !network ||
       !phone.trim() ||
@@ -1279,9 +1289,13 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
       return;
     }
     if (tab === "airtime") {
+      submittingRef.current = true;
       airtimeMutation.mutate(
         { serviceID, phone, amount: numericAmount },
         {
+          onSettled: () => {
+            submittingRef.current = false;
+          },
           onSuccess: (response) =>
             setPurchase({
               message: response.message,
@@ -1295,6 +1309,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
         },
       );
     } else if (variationCode) {
+      submittingRef.current = true;
       dataMutation.mutate(
         {
           serviceID,
@@ -1303,6 +1318,9 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
           variation_code: variationCode,
         },
         {
+          onSettled: () => {
+            submittingRef.current = false;
+          },
           onSuccess: (response) =>
             setPurchase({
               message: response.message,
@@ -1475,7 +1493,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
           )}
           <div className="sticky bottom-[4.5rem] lg:bottom-0 z-10 -mx-6 mt-auto border-t border-[#F1F3FB] bg-white/95 px-6 pt-3 pb-4 backdrop-blur-md">
             <PaveBtn
-              onClick={() => (tab === "data" ? setConfirmOpen(true) : handleBuy())}
+              onClick={() => setConfirmOpen(true)}
               disabled={
                 !network ||
                 !phone ||
@@ -1647,7 +1665,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </motion.div>
           </motion.div>
         )}
-        {confirmOpen && selectedPlan && (
+        {confirmOpen && (tab === "airtime" || selectedPlan) && (
           <motion.div
             key="confirm-sheet"
             className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40"
@@ -1659,7 +1677,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             <motion.div
               role="dialog"
               aria-modal="true"
-              aria-label="Confirm data purchase"
+              aria-label={tab === "airtime" ? "Confirm airtime purchase" : "Confirm data purchase"}
               className="w-full max-w-lg rounded-t-3xl bg-white px-5 pb-6 pt-3 shadow-2xl"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -1679,12 +1697,25 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 Confirm purchase
               </h3>
               <div className="mb-5 flex flex-col gap-3 rounded-2xl bg-[#F8F9FD] p-4 text-sm">
-                {[
-                  ["Network", networks.find((n) => n.id === network)?.label ?? ""],
-                  ["Phone number", phone],
-                  ["Plan", selectedPlan.name],
-                  ["Amount", fmt(Number(selectedPlan.variation_amount))],
-                ].map(([k, v]) => (
+                {(tab === "airtime"
+                  ? [
+                      ["Type", "Airtime"],
+                      ["Network", networks.find((n) => n.id === network)?.label ?? ""],
+                      ["Phone number", phone],
+                      ["Amount", fmt(Number(amount.replace(/,/g, "")))],
+                      [
+                        "Wallet balance after",
+                        fmt(walletBalance - Number(amount.replace(/,/g, ""))),
+                      ],
+                    ]
+                  : [
+                      ["Type", "Data"],
+                      ["Network", networks.find((n) => n.id === network)?.label ?? ""],
+                      ["Phone number", phone],
+                      ["Plan", selectedPlan?.name ?? ""],
+                      ["Amount", fmt(Number(selectedPlan?.variation_amount ?? 0))],
+                    ]
+                ).map(([k, v]) => (
                   <div key={k} className="flex justify-between gap-4">
                     <span className="text-[#6B7280]">{k}</span>
                     <span className="text-right font-semibold text-[#0D0F1C]">
@@ -1693,14 +1724,19 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   </div>
                 ))}
               </div>
+              <p className="mb-4 text-xs text-[#6B7280]">
+                Please check the phone number carefully. Airtime and data
+                purchases cannot be reversed once sent.
+              </p>
               <div className="flex flex-col gap-2">
                 <PaveBtn
+                  disabled={purchaseMutation.isPending}
                   onClick={() => {
                     setConfirmOpen(false);
                     handleBuy();
                   }}
                 >
-                  Confirm & Buy Data
+                  {tab === "airtime" ? "Confirm & Buy Airtime" : "Confirm & Buy Data"}
                 </PaveBtn>
                 <PaveBtn variant="ghost" onClick={() => setConfirmOpen(false)}>
                   Cancel
@@ -1735,6 +1771,19 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     ? (searchQuery.data?.data ?? [])
     : (transactionsQuery.data?.transactions ?? []);
   const transactions = records.map(toWalletTransaction);
+  const liveBalanceQuery = useWalletBalanceQuery();
+  // Correct balance before/after using the live balance (search results are
+  // only a slice of the history, so they are never reconciled).
+  const balanceCorrections = useMemo(
+    () =>
+      searchActive || !liveBalanceQuery.data
+        ? new Map()
+        : reconcileBalances(
+            records as unknown as Record<string, unknown>[],
+            Number(liveBalanceQuery.data.balance),
+          ),
+    [searchActive, records, liveBalanceQuery.data],
+  );
   const transactionDetailQuery = useTransactionByIdQuery(
     selectedTransactionId,
     Boolean(selectedTransactionId),
@@ -1938,9 +1987,11 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </p>
         )}
         {transactionDetailQuery.isLoading && (
-          <p role="status" className="mb-3 text-sm text-[#6B7280]">
-            Loading transaction details...
-          </p>
+          <ProgressLoader
+            fullPage={false}
+            title="Loading transaction details"
+            subtitle="Fetching the full receipt"
+          />
         )}
         {transactionDetailQuery.isError && (
           <p role="alert" className="mb-3 text-sm text-red-600">
@@ -1956,6 +2007,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               ? (transactionDetailQuery.data.transaction as unknown as Record<string, unknown>)
               : null
           }
+          balanceOverride={balanceCorrections.get(selectedTransactionId) ?? null}
           onClose={() => setSelectedTransactionId("")}
         />
         {filtered.length === 0 ? (
@@ -1999,8 +2051,8 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-[#0D0F1C]">
-                    {t.desc}
+                  <div className="text-sm font-medium text-[#0D0F1C] line-clamp-2 break-words">
+                    {displayTitle(t)}
                   </div>
                   <div className="text-xs text-[#9CA3AF] flex items-center gap-1.5">
                     {t.date}
