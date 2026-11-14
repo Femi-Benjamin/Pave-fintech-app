@@ -578,7 +578,7 @@ export function HomeScreen({
               </button>
             </div>
             <div className="flex flex-col gap-2">
-              {transactions.slice(0, 5).map((t) => (
+              {transactions.slice(0, 3).map((t) => (
                 <div
                   key={t.id}
                   className="p-3.5 rounded-xl flex items-center justify-between hover:bg-[#F7F8FF] transition-colors border border-transparent hover:border-[#F1F3FB]"

@@ -35,10 +35,8 @@ import {
 } from "lucide-react";
 import { PaveBtn, Input, Badge, ScreenHeader, Avatar } from "../components/UI";
 import { PurchaseSuccess } from "../components/PurchaseSuccess";
-import { TransactionReceipt } from "../components/TransactionReceipt";
-import { ProgressLoader } from "../components/ProgressLoader";
+import { TransactionReceiptHost } from "../components/TransactionReceiptHost";
 import { friendlyTransactionTitle } from "../utils/transactionReceipt";
-import { reconcileBalances } from "../utils/transactionBalances";
 import { Screen, Transaction, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { Skeleton } from "../components/Skeleton";
@@ -56,7 +54,6 @@ import {
   useFundWalletMutation,
   useSearchUserTransactionsQuery,
   useTvSubscriptionDetailsQuery,
-  useTransactionByIdQuery,
   useVerifyElectricityAccountQuery,
   useVerifyTvAccountQuery,
   useWalletBalanceQuery,
@@ -135,6 +132,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const transactionsQuery = useAllTransactionsQuery();
   const transactions =
     transactionsQuery.data?.transactions.map(toWalletTransaction) ?? [];
+  const [selectedTransactionId, setSelectedTransactionId] = useState("");
   const displayedBalance = walletBalanceQuery.data
     ? Number(walletBalanceQuery.data.balance)
     : null;
@@ -709,11 +707,31 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             !transactionsQuery.isError && (
               <p className="text-sm text-[#6B7280]">No transactions found.</p>
             )}
-          <div className="flex flex-col gap-2">
+          <TransactionReceiptHost
+            records={
+              (transactionsQuery.data?.transactions ??
+                []) as unknown as Record<string, unknown>[]
+            }
+            selectedId={selectedTransactionId}
+            onClose={() => setSelectedTransactionId("")}
+          />
+          {/* Scrolls inside its own box so a long history never makes the page endless */}
+          <div
+            className="flex max-h-[min(62vh,34rem)] flex-col gap-2 overflow-y-auto overscroll-contain scrollbar-hide"
+            aria-label="Transaction history"
+          >
             {transactions.map((t) => (
-              <div
+              <button
+                type="button"
                 key={t.id}
-                className="bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB]"
+                onClick={() => {
+                  const record = transactionsQuery.data?.transactions.find(
+                    (c) => c.id === t.id || c._id === t.id,
+                  );
+                  const id = record?.id ?? record?._id;
+                  if (id) setSelectedTransactionId(String(id));
+                }}
+                className="w-full shrink-0 cursor-pointer text-left bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB] transition-colors hover:bg-[#F7F8FF] active:scale-[0.99]"
               >
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === "credit" ? "bg-[#ECFDF5]" : "bg-[#F9FAFB]"}`}
@@ -738,7 +756,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   {t.type === "credit" ? "+" : "-"}
                   {fmt(t.amount)}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -1771,23 +1789,6 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     ? (searchQuery.data?.data ?? [])
     : (transactionsQuery.data?.transactions ?? []);
   const transactions = records.map(toWalletTransaction);
-  const liveBalanceQuery = useWalletBalanceQuery();
-  // Correct balance before/after using the live balance (search results are
-  // only a slice of the history, so they are never reconciled).
-  const balanceCorrections = useMemo(
-    () =>
-      searchActive || !liveBalanceQuery.data
-        ? new Map()
-        : reconcileBalances(
-            records as unknown as Record<string, unknown>[],
-            Number(liveBalanceQuery.data.balance),
-          ),
-    [searchActive, records, liveBalanceQuery.data],
-  );
-  const transactionDetailQuery = useTransactionByIdQuery(
-    selectedTransactionId,
-    Boolean(selectedTransactionId),
-  );
   const [filter, setFilter] = useState("All");
   const filters = ["All", "Credit", "Debit", "Savings", "Bills"];
   const filtered = transactions.filter(
@@ -1986,28 +1987,10 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             )}
           </p>
         )}
-        {transactionDetailQuery.isLoading && (
-          <ProgressLoader
-            fullPage={false}
-            title="Loading transaction details"
-            subtitle="Fetching the full receipt"
-          />
-        )}
-        {transactionDetailQuery.isError && (
-          <p role="alert" className="mb-3 text-sm text-red-600">
-            {getApiErrorMessage(
-              transactionDetailQuery.error,
-              "Unable to load transaction details.",
-            )}
-          </p>
-        )}
-        <TransactionReceipt
-          record={
-            transactionDetailQuery.data
-              ? (transactionDetailQuery.data.transaction as unknown as Record<string, unknown>)
-              : null
-          }
-          balanceOverride={balanceCorrections.get(selectedTransactionId) ?? null}
+        <TransactionReceiptHost
+          records={records as unknown as Record<string, unknown>[]}
+          selectedId={selectedTransactionId}
+          reconcile={!searchActive}
           onClose={() => setSelectedTransactionId("")}
         />
         {filtered.length === 0 ? (
