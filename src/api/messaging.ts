@@ -381,24 +381,75 @@ export async function createOneOnOneChat(
 }
 
 /**
- * 9. Get All Recipients eligible for One-on-One Chat
- * GET /api/v1/message/getAllUserChat
+ * 9. Get members available for One-on-One Chat
+ * GET /api/v1/message/getAllGroupChatMembers
+ *
+ * This endpoint is intentionally called without query parameters or a body.
+ * The authenticated backend response is normalized because the documented
+ * response example does not currently define a response schema.
  */
-export async function getAllUserChat(): Promise<RecipientUser[]> {
-  const response = await api.get<
-    ApiResponse<{ count: number; rows: RecipientUser[] }>
-  >("/api/v1/message/getAllUserChat");
+export function normalizeGroupChatRecipients(resData: unknown): RecipientUser[] {
+  const findRows = (value: unknown): unknown[] => {
+    if (Array.isArray(value)) return value;
+    if (!value || typeof value !== "object") return [];
 
-  const raw = response.data;
-  if (raw && typeof raw === "object") {
-    if (Array.isArray((raw as any).data?.rows)) {
-      return (raw as any).data.rows;
+    const record = value as Record<string, unknown>;
+    for (const key of ["rows", "members", "users"]) {
+      if (Array.isArray(record[key])) return record[key] as unknown[];
     }
-    if (Array.isArray((raw as any).rows)) {
-      return (raw as any).rows;
+    for (const key of ["data", "result"]) {
+      if (record[key] !== undefined) {
+        const nested = findRows(record[key]);
+        if (nested.length) return nested;
+      }
     }
+    return [];
+  };
+
+  const rows = findRows(resData);
+  const currentUserId = getCurrentUserId();
+  const recipients = new Map<string, RecipientUser>();
+
+  for (const value of rows) {
+    if (!value || typeof value !== "object") continue;
+    const row = value as Record<string, unknown>;
+    const nestedUser =
+      row.user && typeof row.user === "object"
+        ? (row.user as Record<string, unknown>)
+        : row.member && typeof row.member === "object"
+          ? (row.member as Record<string, unknown>)
+          : row;
+
+    const idValue = nestedUser.id ?? nestedUser.userId ?? row.userId ?? row.id;
+    if (idValue === undefined || idValue === null) continue;
+    const id = String(idValue).trim();
+    if (!id || (currentUserId && id === currentUserId)) continue;
+
+    const firstName = String(nestedUser.firstName ?? row.firstName ?? "").trim();
+    const lastName = String(nestedUser.lastName ?? row.lastName ?? "").trim();
+    const email = String(nestedUser.email ?? row.email ?? "").trim();
+    const imageValue =
+      nestedUser.image ?? nestedUser.profileImage ?? nestedUser.avatar ?? row.image;
+    const existing = recipients.get(id);
+
+    recipients.set(id, {
+      id,
+      firstName: firstName || existing?.firstName || "",
+      lastName: lastName || existing?.lastName || "",
+      email: email || existing?.email || "",
+      image:
+        (typeof imageValue === "string" && imageValue) ||
+        existing?.image ||
+        null,
+    });
   }
-  return normalizeList<RecipientUser>(raw);
+
+  return Array.from(recipients.values());
+}
+
+export async function getAllGroupChatMembers(): Promise<RecipientUser[]> {
+  const response = await api.get("/api/v1/message/getAllGroupChatMembers");
+  return normalizeGroupChatRecipients(response.data);
 }
 
 /**
