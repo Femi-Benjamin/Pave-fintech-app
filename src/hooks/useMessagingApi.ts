@@ -8,7 +8,7 @@ import {
   sendGroupChatMessage,
   getGroupChatMessages,
   createOneOnOneChat,
-  getAllUserChat,
+  getAllGroupChatMembers,
   getOneOnOneChats,
   deleteOneOnOneMessage,
   deleteOneOnOneChat,
@@ -96,7 +96,7 @@ export function useOneOnOneMessagesQuery(
 export function useChatRecipientsQuery(enabled = true) {
   return useQuery({
     queryKey: messagingQueryKeys.recipients(),
-    queryFn: getAllUserChat,
+    queryFn: getAllGroupChatMembers,
     enabled,
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
