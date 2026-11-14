@@ -436,7 +436,6 @@ export function AuthBrandPanel({
 
         <div className="mt-6 flex flex-col gap-3">
           {[
-            "CBN Licensed & Bank-Grade Security",
             "Automated Individual & Cooperative Thrift",
             "Flexible BNPL Marketplace Installments",
           ].map((item) => (
