@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, Clock, Copy, X, XCircle } from "lucide-react";
-import { buildTransactionReceipt } from "../utils/transactionReceipt";
+import { Check, Clock, Copy, Info, X, XCircle } from "lucide-react";
+import { buildTransactionReceipt, pendingNotice } from "../utils/transactionReceipt";
 
 const STATUS_STYLE = {
   success: { label: "Successful", icon: Check, bg: "from-[#10B981] to-[#059669]", pill: "bg-[#ECFDF5] text-[#047857]" },
@@ -90,6 +90,32 @@ export function TransactionReceipt({
                   {style.label}
                 </span>
               </div>
+
+              {receipt.status === "pending" && (() => {
+                const notice = pendingNotice(receipt.createdAt);
+                return (
+                  <div
+                    role="status"
+                    className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
+                  >
+                    <div className="flex items-center gap-2 font-semibold">
+                      <Info size={16} className="shrink-0" />
+                      {notice.title}
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-amber-800">{notice.body}</p>
+                    {notice.stale && receipt.reference && (
+                      <button
+                        type="button"
+                        onClick={() => copy(receipt.reference!)}
+                        className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#3730A3] shadow-sm"
+                      >
+                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                        {copied ? "Reference copied" : "Copy reference for support"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
 
               <div className="mt-5 flex flex-col divide-y divide-[#F1F3FB] rounded-2xl bg-[#F8F9FD] px-4">
                 {receipt.rows.map((r) => (

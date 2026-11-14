@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { reconcileBalances } from "../src/utils/transactionBalances";
 import {
+  pendingNotice,
   friendlyTransactionTitle,
   isBankNarration,
   buildTransactionReceipt,
@@ -65,4 +66,15 @@ test("receipt uses corrected balances when given", () => {
   const rec = buildTransactionReceipt(history()[1] as any, { before: 0.9, after: 5000.9 });
   assert.ok(rec.rows.some((r) => r.label === "Balance before" && r.value.includes("0.90")));
   assert.ok(rec.rows.some((r) => r.label === "Balance after" && r.value.includes("5,000.90")));
+});
+
+test("pending notice is gentle at first and tells the user to contact support after 10 minutes", () => {
+  const now = Date.parse("2026-11-14T17:20:00Z");
+  const fresh = pendingNotice("2026-11-14T17:15:00Z", now);
+  assert.equal(fresh.stale, false);
+  assert.match(fresh.body, /few minutes/);
+  const old = pendingNotice("2026-11-14T17:05:00Z", now);
+  assert.equal(old.stale, true);
+  assert.match(old.body, /contact support/);
+  assert.equal(pendingNotice(undefined, now).stale, false);
 });

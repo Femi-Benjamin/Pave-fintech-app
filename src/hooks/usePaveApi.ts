@@ -469,6 +469,9 @@ export function useTransactionByIdQuery(
     queryKey: transactionQueryKeys.detail(transactionId),
     queryFn: () => getTransactionById(transactionId),
     enabled: enabled && Boolean(transactionId.trim()),
+    // An open receipt re-checks every 15s so a pending payment flips to
+    // Success/Failed on screen without closing and reopening it.
+    ...LIVE_MONEY_QUERY,
   });
 }
 

@@ -12,6 +12,37 @@ export interface TransactionReceiptData {
   amount: number;
   rows: ReceiptRow[];
   reference?: string;
+  createdAt?: string;
+}
+
+export const PENDING_STALE_MINUTES = 10;
+
+export interface PendingNotice {
+  title: string;
+  body: string;
+  /** true once it has been pending long enough that the user should contact support */
+  stale: boolean;
+}
+
+/** Explains a pending transaction, and escalates to "contact support" after 10 minutes. */
+export function pendingNotice(
+  createdAt: string | undefined,
+  now: number = Date.now(),
+): PendingNotice {
+  const started = createdAt ? Date.parse(createdAt) : NaN;
+  const minutes = Number.isFinite(started) ? (now - started) / 60000 : 0;
+  if (minutes >= PENDING_STALE_MINUTES) {
+    return {
+      title: "Still pending",
+      body: "This is taking longer than usual. Please do not repeat it. If it stays pending, contact support and share the reference below.",
+      stale: true,
+    };
+  }
+  return {
+    title: "Being processed",
+    body: "Transfers and payments can take a few minutes to confirm. This page updates automatically once it is done.",
+    stale: false,
+  };
 }
 
 const naira = (n: number) =>
@@ -141,5 +172,6 @@ export function buildTransactionReceipt(
     amount: toNumber(record.amount) ?? 0,
     rows,
     reference: record.reference ? String(record.reference) : undefined,
+    createdAt: typeof record.createdAt === "string" ? record.createdAt : undefined,
   };
 }
