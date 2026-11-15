@@ -9,7 +9,7 @@ import {
   sendGroupChatMessage,
   getGroupChatMessages,
   createOneOnOneChat,
-  getAllUserChat,
+  getAllGroupChatMembers,
   getOneOnOneChats,
   deleteOneOnOneMessage,
   deleteOneOnOneChat,
@@ -32,7 +32,7 @@ describe("Messaging Integration API & Logic Suite", () => {
     assert.equal(typeof sendGroupChatMessage, "function");
     assert.equal(typeof getGroupChatMessages, "function");
     assert.equal(typeof createOneOnOneChat, "function");
-    assert.equal(typeof getAllUserChat, "function");
+    assert.equal(typeof getAllGroupChatMembers, "function");
     assert.equal(typeof getOneOnOneChats, "function");
     assert.equal(typeof deleteOneOnOneMessage, "function");
     assert.equal(typeof deleteOneOnOneChat, "function");
