@@ -64,6 +64,8 @@ import type {
   UserTransactionSearchParams,
 } from "../api/transactions";
 
+const WALLET_HISTORY_LIMIT = 10;
+
 function displayTitle(t: Transaction): string {
   return friendlyTransactionTitle(t.desc, t.type);
 }
@@ -715,12 +717,10 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             selectedId={selectedTransactionId}
             onClose={() => setSelectedTransactionId("")}
           />
-          {/* Scrolls inside its own box so a long history never makes the page endless */}
-          <div
-            className="flex max-h-[min(62vh,34rem)] flex-col gap-2 overflow-y-auto overscroll-contain scrollbar-hide"
-            aria-label="Transaction history"
-          >
-            {transactions.map((t) => (
+          {/* Normal page scrolling; only the latest few are listed here so a long
+              history never makes this page endless. The full list is one tap away. */}
+          <div className="flex flex-col gap-2" aria-label="Transaction history">
+            {transactions.slice(0, WALLET_HISTORY_LIMIT).map((t) => (
               <button
                 type="button"
                 key={t.id}
@@ -759,6 +759,15 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </button>
             ))}
           </div>
+          {transactions.length > WALLET_HISTORY_LIMIT && (
+            <button
+              type="button"
+              onClick={() => onNav("transactions")}
+              className="mt-3 w-full cursor-pointer rounded-xl border border-[#E0E7FF] bg-white py-3 text-sm font-semibold text-[#3730A3] transition-colors hover:bg-[#EEF2FF]"
+            >
+              See all {transactions.length} transactions
+            </button>
+          )}
         </div>
       </div>
     </div>
