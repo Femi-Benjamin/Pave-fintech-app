@@ -21,6 +21,7 @@ export function resolveRestoredMainScreen(
   hasSession: boolean,
 ): Screen {
   const mainTabs: readonly string[] = [
+    "home",
     "wallet",
     "savings",
     "group-savings",

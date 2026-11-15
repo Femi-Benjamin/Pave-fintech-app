@@ -30,3 +30,10 @@ test("reload does not restore a protected screen without a valid session", async
   assert.equal(resolveRestoredMainScreen("marketplace", false), "home");
   assert.equal(resolveRestoredMainScreen("product-detail", true), "home");
 });
+
+test("reload restores Home explicitly and ignores unknown values", async () => {
+  const { resolveRestoredMainScreen } = await import("../src/utils/navigation");
+  assert.equal(resolveRestoredMainScreen("home", true), "home");
+  assert.equal(resolveRestoredMainScreen("product-detail", true), "home");
+  assert.equal(resolveRestoredMainScreen(null, true), "home");
+});

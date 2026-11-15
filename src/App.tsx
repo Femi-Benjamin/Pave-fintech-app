@@ -215,7 +215,12 @@ function MobileApp({
   // Keep history in step when the screen is changed from somewhere other than
   // nav() (initial screen, forced logout, ...).
   useEffect(() => {
-    if (isAuthenticated && MAIN_TAB_SCREENS.includes(screen)) {
+    // Home counts too — otherwise a refresh on Home would restore whichever
+    // tab was visited before it (e.g. Marketplace or Profile).
+    if (
+      isAuthenticated &&
+      (screen === "home" || MAIN_TAB_SCREENS.includes(screen))
+    ) {
       try { sessionStorage.setItem("pave_last_main_screen", screen); } catch {}
     }
     screenRef.current = screen;
@@ -228,7 +233,7 @@ function MobileApp({
         /* history unavailable */
       }
     }
-  }, [screen]);
+  }, [screen, isAuthenticated]);
 
   useEffect(() => {
     try {
