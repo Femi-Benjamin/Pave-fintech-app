@@ -5,22 +5,10 @@ import App from "./App.tsx";
 import "./index.css";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { initMonitoring } from "./lib/monitoring";
+import { PwaProvider } from "./pwa/PwaProvider";
 
 initMonitoring();
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } } });
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </QueryClientProvider>,
+  <PwaProvider><QueryClientProvider client={queryClient}><ErrorBoundary><App /></ErrorBoundary></QueryClientProvider></PwaProvider>,
 );

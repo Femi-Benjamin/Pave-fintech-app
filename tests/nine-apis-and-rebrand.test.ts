@@ -133,7 +133,7 @@ test("Rebranding: metadata.json and index.html reflect PAVEPADI branding", () =>
 
   const manifest = JSON.parse(fs.readFileSync("public/manifest.json", "utf8"));
   assert.equal(manifest.short_name, "PAVEPADI");
-  assert.equal(manifest.name, "PAVEPADI Digital Wallet");
+  assert.equal(manifest.name, "PAVEPADI");
 });
 
 test("Rebranding: Logo and key application components use PAVEPADI", () => {

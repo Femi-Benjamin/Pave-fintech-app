@@ -1,3 +1,4 @@
+import { InstallAppButton } from "../pwa/InstallExperience";
 import React, { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -1133,6 +1134,7 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     <div className="flex-1 flex flex-col overflow-y-auto">
       <ScreenHeader title="Settings" onBack={() => onNav("profile")} />
       <div className="flex-1 px-6 py-5 flex flex-col gap-4">
+        <InstallAppButton />
         {[
           {
             label: "Push Notifications",

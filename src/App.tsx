@@ -7,6 +7,8 @@ import { DesktopSidebar, BOTTOM_NAV } from "./components/Navigation";
 import { Screen, KNOWN_SCREENS } from "./pave-data";
 import { StoreProvider, useLocalStore } from "./hooks/useLocalStore";
 import { NetworkStatusToast } from "./components/NetworkStatus";
+import { InstallExperience } from "./pwa/InstallExperience";
+import { ServiceWorkerUpdateNotice } from "./pwa/InstallExperience";
 import { getToken, isReturningUser, isTokenValid, subscribeToAuthLogout } from "./lib/authStorage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ProgressLoader } from "./components/ProgressLoader";
@@ -657,7 +659,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <StoreProvider>
-        <NetworkStatusToast />
+        <NetworkStatusToast /><InstallExperience /><ServiceWorkerUpdateNotice />
         {view === "onboarding" ? (
           /* 1. OnboardingScreen.tsx is the first thing seen */
           <Suspense fallback={<ScreenFallback />}>

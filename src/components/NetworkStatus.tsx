@@ -1,17 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { WifiOff, Wifi, RefreshCw } from "lucide-react";
+
+export async function probeConnectivity(
+  fetcher: typeof fetch = fetch,
+  timeoutMs = 4000,
+): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetcher(`/favicon.svg?connectivity=${Date.now()}`, {
+      method: "HEAD", cache: "no-store", signal: controller.signal,
+    });
+    return response.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 export function useNetworkStatus() {
   const [isOnline, setIsOnline] = useState<boolean>(
     typeof navigator !== "undefined" ? navigator.onLine : true,
   );
   const [wasOffline, setWasOffline] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const checkInFlight = useRef(false);
+  const lastCheck = useRef(0);
+
+  const checkConnection = useCallback(async () => {
+    if (checkInFlight.current || Date.now() - lastCheck.current < 1500) return false;
+    checkInFlight.current = true;
+    lastCheck.current = Date.now();
+    setIsChecking(true);
+    try {
+      if (!(await probeConnectivity())) {
+        setIsOnline(false);
+        setWasOffline(true);
+        return false;
+      }
+      setIsOnline(true);
+      return true;
+    } catch {
+      setIsOnline(false);
+      setWasOffline(true);
+      return false;
+    } finally {
+      checkInFlight.current = false;
+      setIsChecking(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-    };
+    const handleOnline = () => { void checkConnection(); };
 
     const handleOffline = () => {
       setIsOnline(false);
@@ -25,13 +67,13 @@ export function useNetworkStatus() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, []);
+  }, [checkConnection]);
 
-  return { isOnline, wasOffline, setWasOffline };
+  return { isOnline, wasOffline, setWasOffline, isChecking, checkConnection };
 }
 
 export function NetworkStatusToast() {
-  const { isOnline, wasOffline, setWasOffline } = useNetworkStatus();
+  const { isOnline, wasOffline, setWasOffline, isChecking, checkConnection } = useNetworkStatus();
   const [showRestored, setShowRestored] = useState(false);
 
   useEffect(() => {
@@ -45,12 +87,9 @@ export function NetworkStatusToast() {
     }
   }, [isOnline, wasOffline, setWasOffline]);
 
-  const handleCheckConnection = () => {
-    if (typeof navigator !== "undefined") {
-      if (navigator.onLine) {
-        setShowRestored(true);
-        setTimeout(() => setShowRestored(false), 3000);
-      }
+  const handleCheckConnection = async () => {
+    if (await checkConnection()) {
+      setWasOffline(true);
     }
   };
 
@@ -72,14 +111,15 @@ export function NetworkStatusToast() {
             <div className="flex-1 min-w-0">
               <div className="text-xs font-bold text-white">You're offline</div>
               <div className="text-[11px] text-gray-300 truncate">
-                Viewing cached data. Sync will resume online.
+                Previously loaded financial information may be out of date. Financial actions need a connection.
               </div>
             </div>
             <button
               onClick={handleCheckConnection}
-              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-medium transition-colors cursor-pointer shrink-0"
+              disabled={isChecking}
+              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-medium transition-colors cursor-pointer shrink-0 disabled:opacity-60"
             >
-              Retry
+              {isChecking ? "Checking…" : "Retry"}
             </button>
           </motion.div>
         )}

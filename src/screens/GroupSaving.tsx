@@ -1058,6 +1058,7 @@ export function GroupSavingDetailScreen({
   };
 
   const submitContribution = async () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) { setActionMessage("Connect to the internet before submitting this contribution."); return; }
     const amountValue = Number(contributionAmount);
     if (amountValue <= 0) return;
     setActionMessage("");
@@ -1075,6 +1076,7 @@ export function GroupSavingDetailScreen({
   };
 
   const submitWithdrawal = async () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) { setActionMessage("Connect to the internet before submitting this withdrawal."); return; }
     const amountValue = Number(withdrawalAmount);
     if (amountValue <= 0 || !narration.trim()) return;
     setActionMessage("");

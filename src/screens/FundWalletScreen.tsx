@@ -47,6 +47,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const paymentUrl = getSecurePaymentUrl(fundingMutation.data?.paystackLink);
 
   const handleFund = () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
     if (value > 0 && !isPending) {
       fundingMutation.mutate({ amount: String(value) });
     }

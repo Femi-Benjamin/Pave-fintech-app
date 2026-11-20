@@ -882,6 +882,7 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
     setVariationCode("");
   };
   const buyBill = () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) return;
     const numericAmount = Number(amount.replace(/,/g, ""));
     if (
       !isVerified ||
@@ -1305,7 +1306,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const handleBuy = () => {
     const numericAmount = Number(amount.replace(/,/g, ""));
     // Never let a double tap send the same purchase twice.
-    if (submittingRef.current || purchaseMutation.isPending) return;
+    if (submittingRef.current || purchaseMutation.isPending || (typeof navigator !== "undefined" && !navigator.onLine)) return;
     if (
       !network ||
       !phone.trim() ||

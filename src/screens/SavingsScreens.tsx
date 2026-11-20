@@ -576,6 +576,7 @@ export function SavingsDetailScreen({
   };
 
   const submitContribution = async () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) { setActionMessage("Connect to the internet before submitting this savings action."); return; }
     const payload: SavingContributionPayload = {
       amount: Number(contributionAmount.replace(/,/g, "")),
       remarks: remarks.trim(),

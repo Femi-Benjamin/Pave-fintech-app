@@ -121,6 +121,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
   // Trigger account name verification
   const handleVerifyAccount = async () => {
     setVerifyError("");
+    if (typeof navigator !== "undefined" && !navigator.onLine) { setVerifyError("Connect to the internet before verifying account details."); return; }
     if (!selectedBank) {
       setVerifyError("Please choose a recipient bank.");
       return;
@@ -167,6 +168,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
   // Submit transfer
   const handleConfirmTransfer = async () => {
     setTransferError("");
+    if (typeof navigator !== "undefined" && !navigator.onLine) { setTransferError("Connect to the internet before submitting this transfer."); return; }
     if (!selectedBank || !verifiedAccount) return;
 
     try {
