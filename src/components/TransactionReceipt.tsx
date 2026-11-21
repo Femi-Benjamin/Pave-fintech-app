@@ -120,7 +120,7 @@ export function TransactionReceipt({
               <div className="mt-5 flex flex-col divide-y divide-[#F1F3FB] rounded-2xl bg-[#F8F9FD] px-4">
                 {receipt.rows.map((r) => (
                   <div key={r.label} className="flex items-start justify-between gap-4 py-3 text-sm">
-                    <span className="text-[#6B7280]">{r.label}</span>
+                    <span className="text-[#4B5563]">{r.label}</span>
                     <span className="min-w-0 break-words text-right font-semibold text-[#0D0F1C]">{r.value}</span>
                   </div>
                 ))}
@@ -132,7 +132,7 @@ export function TransactionReceipt({
                     className="flex items-center justify-between gap-3 py-3 text-left text-sm cursor-pointer"
                   >
                     <span className="min-w-0">
-                      <span className="block text-[#6B7280]">Reference</span>
+                      <span className="block text-[#4B5563]">Reference</span>
                       <span className="block truncate font-semibold text-[#0D0F1C]">{receipt.reference}</span>
                     </span>
                     <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#3730A3] shadow-sm">

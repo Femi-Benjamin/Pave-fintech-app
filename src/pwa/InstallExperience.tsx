@@ -32,7 +32,7 @@ export function InstallAppButton() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-[#0D0F1C]">PAVEPADI app</h3>
-          <p className="mt-1 text-xs text-[#6B7280]">
+          <p className="mt-1 text-xs text-[#4B5563]">
             {installed
               ? "PAVEPADI is installed on this device."
               : "Install PAVEPADI for quick access from your home screen."}
@@ -100,7 +100,7 @@ export function InstallExperience() {
         <p className="text-sm font-bold text-[#111827]">
           Take PAVEPADI with you
         </p>
-        <p className="mt-1 text-xs text-[#6B7280]">
+        <p className="mt-1 text-xs text-[#4B5563]">
           Install the app for convenient access from your home screen.
         </p>
         {help && (
@@ -121,7 +121,7 @@ export function InstallExperience() {
         type="button"
         aria-label="Dismiss install invitation"
         onClick={dismiss}
-        className="rounded-lg p-1 text-[#6B7280]"
+        className="rounded-lg p-1 text-[#4B5563]"
       >
         <X size={18} />
       </button>
@@ -143,7 +143,7 @@ export function ServiceWorkerUpdateNotice() {
         <p className="text-sm font-bold text-[#111827]">
           PAVEPADI update ready
         </p>
-        <p className="mt-1 text-xs text-[#6B7280]">
+        <p className="mt-1 text-xs text-[#4B5563]">
           {isAuthenticated
             ? "A new version is available. Finish any active financial operation before updating."
             : "A new version of PAVEPADI is available."}
@@ -160,7 +160,7 @@ export function ServiceWorkerUpdateNotice() {
         type="button"
         aria-label="Dismiss update notice"
         onClick={dismissUpdate}
-        className="rounded-lg p-1 text-[#6B7280]"
+        className="rounded-lg p-1 text-[#4B5563]"
       >
         <X size={18} />
       </button>

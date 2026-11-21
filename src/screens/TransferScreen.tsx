@@ -223,7 +223,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <h2 className="text-lg font-bold text-[#0D0F1C] mb-2">
             AJO Admin Access Required
           </h2>
-          <p className="text-xs text-[#6B7280] max-w-xs mb-6 leading-relaxed">
+          <p className="text-xs text-[#4B5563] max-w-xs mb-6 leading-relaxed">
             Transfer to Bank is exclusively available for AJO group administrators to withdraw money from their PAVEPADI wallet to their verified Nigerian bank accounts.
           </p>
           <PaveBtn onClick={() => onNav("wallet")}>Back to Wallet</PaveBtn>
@@ -327,7 +327,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </span>
             </div>
 
-            <div className="flex justify-between items-center pt-1 text-[11px] text-[#64748B]">
+            <div className="flex justify-between items-center pt-1 text-xs text-[#64748B]">
               <span>Wallet Balance After</span>
               <span className="font-semibold text-[#0F172A]">
                 {fmt(Math.max(0, walletBalance - Number(amount)))}
@@ -378,7 +378,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
         <div className="flex-1 flex flex-col px-6 py-5 gap-5">
           {/* Wallet Balance Banner */}
           <div className="rounded-2xl bg-gradient-to-r from-[#059669] to-[#047857] p-4 text-white shadow-xs">
-            <div className="text-[11px] text-emerald-100 uppercase tracking-wider font-semibold">
+            <div className="text-xs text-emerald-100 uppercase tracking-wider font-semibold">
               Available Wallet Balance
             </div>
             <div
@@ -469,7 +469,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
                     <span>Account Verified</span>
                   </div>
-                  <span className="text-[10px] text-emerald-700 uppercase font-semibold">
+                  <span className="text-[11px] text-emerald-700 uppercase font-semibold">
                     {selectedBank?.name}
                   </span>
                 </div>
@@ -500,7 +500,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 <button
                   type="button"
                   onClick={() => setAmount(String(walletBalance))}
-                  className="text-[11px] font-semibold text-[#059669] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#059669] hover:underline cursor-pointer"
                 >
                   Use Full Balance ({fmt(walletBalance)})
                 </button>
@@ -528,7 +528,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
               <label className="text-xs font-semibold text-[#374151]">
                 4. Reason / Narration *
               </label>
-              <span className="text-[10px] text-[#64748B]">
+              <span className="text-[11px] text-[#64748B]">
                 {reason.length}/100
               </span>
             </div>
@@ -563,13 +563,13 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
             aria-modal="true"
             aria-label="Select Bank"
           >
-            <div className="w-full max-w-md h-[80vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-[#F1F3FB] overflow-hidden">
+            <div className="w-full max-w-md h-[80vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-[#E2E6F3] overflow-hidden">
               <div className="p-4 border-b border-[#F1F5F9] flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-[#0D0F1C]">
                     Select Destination Bank
                   </h3>
-                  <p className="text-[11px] text-[#64748B]">
+                  <p className="text-xs text-[#64748B]">
                     Choose from {banks.length} supported Nigerian banks
                   </p>
                 </div>
@@ -632,7 +632,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
                       <span className="text-xs font-semibold text-[#0F172A]">
                         {b.name}
                       </span>
-                      <span className="text-[10px] font-mono text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded">
+                      <span className="text-[11px] font-mono text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded">
                         {b.code}
                       </span>
                     </button>

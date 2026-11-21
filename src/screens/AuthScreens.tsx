@@ -256,7 +256,7 @@ export function SlideOnboardingScreen({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-full max-h-full md:max-h-[calc(100vh-24px)] lg:max-h-190 touch-pan-y"
+        className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#E2E6F3] overflow-hidden flex flex-col md:flex-row h-full max-h-full md:max-h-[calc(100vh-24px)] lg:max-h-190 touch-pan-y"
       >
         {/* Top / Left Half: Interactive Draggable Card & Visual Showcase */}
         <div
@@ -333,7 +333,7 @@ export function SlideOnboardingScreen({
 
         {/* Bottom / Right Half: Step Text & Navigation Actions */}
         <div className="md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between h-full bg-white">
-          <div className="flex justify-between items-center text-xs sm:text-sm text-[#9CA3AF] font-bold uppercase tracking-wider">
+          <div className="flex justify-between items-center text-xs sm:text-sm text-[#6B7280] font-bold uppercase tracking-wider">
             <span>
               Step {slide + 1} of {slides.length}
             </span>
@@ -363,7 +363,7 @@ export function SlideOnboardingScreen({
                   {s.title}
                 </h2>
                 <p
-                  className="text-[#6B7280] mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg leading-relaxed"
+                  className="text-[#4B5563] mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg leading-relaxed"
                   style={{ fontFamily: "var(--font-family-body)" }}
                 >
                   {s.desc}
@@ -372,7 +372,7 @@ export function SlideOnboardingScreen({
             </AnimatePresence>
           </div>
 
-          <div className="flex flex-col gap-3 pt-4 border-t border-[#F1F3FB]">
+          <div className="flex flex-col gap-3 pt-4 border-t border-[#E2E6F3]">
             {slide < slides.length - 1 ? (
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
@@ -452,7 +452,7 @@ export function AuthBrandPanel({
         </div>
       </div>
 
-      <div className="relative z-10 pt-4 border-t border-white/15 flex items-center justify-between text-xs text-white/70">
+      <div className="relative z-10 pt-4 border-t border-white/15 flex items-center justify-between text-xs text-white/85">
         <span>Trusted by 2000+ Nigerians</span>
         {/* <span className="font-bold text-white text-xs sm:text-sm">
           ₦2.4B+ Saved
@@ -550,7 +550,7 @@ export function LoginScreen({
       className="flex-1 w-full h-full max-h-full flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
-      <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
+      <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#E2E6F3] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
         <AuthBrandPanel
           title={<>Welcome Back to <BrandText variant="light" /></>}
           subtitle="Access your virtual account, savings circles, and installment orders seamlessly."
@@ -568,8 +568,8 @@ export function LoginScreen({
               >
                 Welcome back 👋
               </h1>
-              <p className="text-[#6B7280] text-xs sm:text-sm mt-1">
-                Sign in to your <BrandText className="text-[11px] sm:text-xs" /> account to continue
+              <p className="text-[#4B5563] text-xs sm:text-sm mt-1">
+                Sign in to your <BrandText className="text-xs sm:text-xs" /> account to continue
               </p>
             </div>
 
@@ -624,7 +624,7 @@ export function LoginScreen({
             </div>
           </div>
 
-          <div className="pt-4 text-center text-xs sm:text-sm text-[#6B7280]">
+          <div className="pt-4 text-center text-xs sm:text-sm text-[#4B5563]">
             Don't have an account?{" "}
             <button
               onClick={() => onNav("register")}
@@ -716,7 +716,7 @@ export function RegisterScreen({
       className="flex-1 w-full h-full max-h-full flex items-center justify-center p-3 sm:p-5 lg:p-6 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
-      <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#F1F3FB] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
+      <div className="w-full max-w-6xl bg-white rounded-2xl sm:rounded-4xl shadow-2xl border border-[#E2E6F3] overflow-hidden flex flex-col md:flex-row h-auto md:h-full md:max-h-[calc(100vh-24px)] lg:max-h-190">
         <AuthBrandPanel
           title={<>Start Building Wealth Today with <BrandText variant="light" /></>}
           subtitle="Join Nigeria's smart cooperative community with automated savings and verified accountability."
@@ -758,7 +758,7 @@ export function RegisterScreen({
                 </button>
               )}
             </div>
-            <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-3 sm:mb-4 text-center md:text-left">
+            <p className="text-[#4B5563] text-xs sm:text-sm mt-1 mb-3 sm:mb-4 text-center md:text-left">
               Fill in your personal details and create a secure password.
             </p>
 
@@ -827,13 +827,13 @@ export function RegisterScreen({
                       <div
                         key={label}
                         className={`flex items-center gap-2 text-xs ${
-                          met ? "text-[#059669]" : "text-[#6B7280]"
+                          met ? "text-[#059669]" : "text-[#4B5563]"
                         }`}
                       >
                         {met ? (
                           <Check size={12} className="text-[#059669]" />
                         ) : (
-                          <Circle size={12} className="text-[#9CA3AF]" />
+                          <Circle size={12} className="text-[#6B7280]" />
                         )}
                         {label}
                       </div>
@@ -859,7 +859,7 @@ export function RegisterScreen({
             </div>
           </div>
 
-          <div className="pt-3 text-center text-xs sm:text-sm text-[#6B7280]">
+          <div className="pt-3 text-center text-xs sm:text-sm text-[#4B5563]">
             Already have an account?{" "}
             <button
               onClick={() => onNav("login")}
@@ -962,8 +962,8 @@ export function ForgotPasswordScreen({
       className="flex-1 w-full h-full max-h-full flex items-center justify-center p-3 sm:p-5 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
-      <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
-        <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
+      <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#E2E6F3] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
+        <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center pb-4 sm:pb-6 border-b border-[#E2E6F3] mb-4 sm:mb-6">
           <button
             onClick={() => onNav("login")}
             aria-label="Back to login"
@@ -998,7 +998,7 @@ export function ForgotPasswordScreen({
               >
                 Forgot Password?
               </h2>
-              <p className="text-[#6B7280] text-xs sm:text-sm mt-1 mb-4">
+              <p className="text-[#4B5563] text-xs sm:text-sm mt-1 mb-4">
                 Enter your registered email and we’ll send you a secure reset code.
               </p>
               <Input
@@ -1044,7 +1044,7 @@ export function ForgotPasswordScreen({
                 >
                   Check Your Email
                 </h2>
-                <p className="text-[#6B7280] text-xs sm:text-sm">
+                <p className="text-[#4B5563] text-xs sm:text-sm">
                   {sentMessage || (
                     <>
                       We sent a reset token to{" "}
@@ -1132,8 +1132,8 @@ export function AcceptInvitationScreen({
       className="flex-1 w-full h-screen max-h-screen flex items-center justify-center p-3 sm:p-5 overflow-hidden"
       style={{ background: "#F7F8FF" }}
     >
-      <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#F1F3FB] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
-        <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center pb-4 sm:pb-6 border-b border-[#F1F3FB] mb-4 sm:mb-6">
+      <div className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-[#E2E6F3] p-5 sm:p-8 flex flex-col max-h-[92vh] overflow-y-auto scrollbar-hide">
+        <div className="grid grid-cols-[2.25rem_1fr_2.25rem] items-center pb-4 sm:pb-6 border-b border-[#E2E6F3] mb-4 sm:mb-6">
           <button
             onClick={() => onNav("login")}
             aria-label="Back to login"
@@ -1162,7 +1162,7 @@ export function AcceptInvitationScreen({
               >
                 Enter Invitation Code
               </h2>
-              <p className="text-[#6B7280] text-sm mt-2 mb-6">
+              <p className="text-[#4B5563] text-sm mt-2 mb-6">
                 Got an invite from your thrift group admin? Enter the code below
                 to join.
               </p>
@@ -1207,19 +1207,19 @@ export function AcceptInvitationScreen({
               </div>
               <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 flex flex-col gap-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Admin</span>
+                  <span className="text-[#4B5563]">Admin</span>
                   <span className="font-medium">Chibuike Okonkwo</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Group Type</span>
+                  <span className="text-[#4B5563]">Group Type</span>
                   <span className="font-medium">Community Thrift</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Members</span>
+                  <span className="text-[#4B5563]">Members</span>
                   <span className="font-medium">24 members</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Monthly Target</span>
+                  <span className="text-[#4B5563]">Monthly Target</span>
                   <span className="font-medium">₦50,000</span>
                 </div>
               </div>

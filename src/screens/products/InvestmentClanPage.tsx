@@ -149,7 +149,7 @@ export default function InvestmentClanPage({ onOpenApp }: PageProps) {
             >
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <span className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-[11px] font-extrabold uppercase border border-amber-300 dark:border-amber-700/60">
+                  <span className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-xs font-extrabold uppercase border border-amber-300 dark:border-amber-700/60">
                     {c.status}
                   </span>
                   <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-[#3730A3] dark:text-[#818CF8] text-xs font-bold border border-indigo-200/60 dark:border-indigo-800/50">

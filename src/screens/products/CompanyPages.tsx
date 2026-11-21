@@ -167,7 +167,7 @@ export default function CompanyPages({
                       className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
                     />
                     <div className="absolute top-3 right-3">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/90 dark:bg-black/80 backdrop-blur-md text-slate-800 dark:text-white border border-black/10 dark:border-white/10 shadow-xs">
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/90 dark:bg-black/80 backdrop-blur-md text-slate-800 dark:text-white border border-black/10 dark:border-white/10 shadow-xs">
                         {l.tag}
                       </span>
                     </div>

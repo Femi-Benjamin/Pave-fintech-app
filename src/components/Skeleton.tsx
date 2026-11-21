@@ -8,7 +8,7 @@ export function Skeleton({
   return (
     <div
       className={`skeleton-shimmer rounded-lg ${
-        dark ? "bg-white/15" : "bg-[#E5E7EB]/70"
+        dark ? "bg-white/20" : "bg-[#DDE1EE]"
       } ${className}`}
       {...props}
     />
@@ -40,7 +40,7 @@ export function CoreScreenSkeleton() {
             {[1, 2].map((item) => (
               <div
                 key={item}
-                className="bg-white rounded-2xl p-5 border border-[#F1F3FB]"
+                className="bg-white rounded-2xl p-5 border border-[#E2E6F3]"
               >
                 <Skeleton className="h-5 w-32 rounded-md mb-4" />
                 <Skeleton className="h-4 w-full rounded-md mb-2" />
@@ -48,7 +48,7 @@ export function CoreScreenSkeleton() {
               </div>
             ))}
           </div>
-          <div className="bg-white rounded-2xl p-5 border border-[#F1F3FB]">
+          <div className="bg-white rounded-2xl p-5 border border-[#E2E6F3]">
             <Skeleton className="h-5 w-40 rounded-md mb-5" />
             <div className="flex flex-col gap-4">
               {[1, 2, 3].map((item) => (
@@ -65,7 +65,7 @@ export function CoreScreenSkeleton() {
           </div>
         </div>
         <div className="hidden lg:flex lg:col-span-4 flex-col gap-6">
-          <div className="bg-white rounded-2xl p-5 border border-[#F1F3FB]">
+          <div className="bg-white rounded-2xl p-5 border border-[#E2E6F3]">
             <Skeleton className="h-5 w-36 rounded-md mb-5" />
             <Skeleton className="h-40 w-full rounded-xl" />
           </div>
@@ -105,7 +105,7 @@ export function ProfileScreenSkeleton() {
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="flex items-center justify-between p-3.5 bg-white rounded-xl border border-[#F1F3FB]"
+            className="flex items-center justify-between p-3.5 bg-white rounded-xl border border-[#E2E6F3]"
           >
             <div className="flex items-center gap-3">
               <Skeleton className="w-8 h-8 rounded-lg" />

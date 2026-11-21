@@ -43,7 +43,7 @@ export function ProgressLoader({
             transition={{ duration: 1.35, ease: "easeInOut", repeat: Infinity }}
           />
         </div>
-        <p className="mt-3 text-xs text-[#6B7280]">
+        <p className="mt-3 text-xs text-[#4B5563]">
           {slow
             ? "Taking a little longer than usual. Please check your connection."
             : subtitle}

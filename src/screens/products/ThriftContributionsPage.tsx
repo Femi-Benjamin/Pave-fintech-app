@@ -141,7 +141,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               />
               <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 text-white">
-                <div className="inline-block px-3 py-1 rounded-full bg-amber-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
+                <div className="inline-block px-3 py-1 rounded-full bg-amber-600/90 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-2">
                   Daily Alajo Micro-Vault
                 </div>
                 <div className="text-xl font-bold">

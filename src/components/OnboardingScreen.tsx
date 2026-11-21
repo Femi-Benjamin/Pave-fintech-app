@@ -350,10 +350,10 @@ export default function OnboardingScreen({
                           <div className="flex items-center gap-2.5">
                             <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
                             <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                              <BrandText variant="light" className="text-[10px]" /> Vault Balance
+                              <BrandText variant="light" className="text-[11px]" /> Vault Balance
                             </span>
                           </div>
-                          <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 text-white border border-white/10">
+                          <span className="text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-white/10 text-white border border-white/10">
                             Tier 3 Verified
                           </span>
                         </div>
@@ -450,7 +450,7 @@ export default function OnboardingScreen({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 mb-0.5">
-                            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
+                            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/40">
                               Next Payout
                             </span>
                             <span className="text-xs text-slate-400 font-medium">
@@ -460,7 +460,7 @@ export default function OnboardingScreen({
                           <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
                             ₦1,200,000 incoming
                           </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
                             <Clock
                               size={12}
                               className="text-slate-400 shrink-0"
@@ -482,7 +482,7 @@ export default function OnboardingScreen({
                               Auto Round-ups Active
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             +₦34,200 saved this week
                           </p>
                         </div>
@@ -540,7 +540,7 @@ export default function OnboardingScreen({
                         />
                         <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/15 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                          <span className="inline-flex rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur-md">
+                          <span className="inline-flex rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white backdrop-blur-md">
                             {card.tag}
                           </span>
                           <h3 className="mt-3 text-xl font-extrabold tracking-tight text-white sm:text-2xl">
@@ -620,7 +620,7 @@ export default function OnboardingScreen({
 
                 {/* Pillar 2: Modern Ajo / Esusu Pools */}
                 <div className="bg-white dark:bg-slate-900/80 rounded-3xl p-7 sm:p-8 border border-slate-200/80 dark:border-white/10 shadow-sm hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                  <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-xl">
                     Popular
                   </div>
                   <div>
@@ -816,13 +816,13 @@ export default function OnboardingScreen({
                         {[1, 2, 3, 4].map((i) => (
                           <div
                             key={`comp-${i}`}
-                            className="h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs flex items-center justify-center text-white text-[11px] font-bold"
+                            className="h-10 rounded-xl bg-linear-to-r from-emerald-500 to-teal-400 shadow-xs flex items-center justify-center text-white text-xs font-bold"
                           >
                             ✓
                           </div>
                         ))}
                         {/* Active Cycle */}
-                        <div className="h-10 rounded-xl bg-[#4F39F6] text-white flex items-center justify-center text-[10px] font-extrabold animate-pulse ring-2 ring-[#4F39F6]/50">
+                        <div className="h-10 rounded-xl bg-[#4F39F6] text-white flex items-center justify-center text-[11px] font-extrabold animate-pulse ring-2 ring-[#4F39F6]/50">
                           NOW
                         </div>
                         {/* 7 Remaining Cycles */}
@@ -957,7 +957,7 @@ export default function OnboardingScreen({
 
                   {/* PAVEPADI Card */}
                   <div className="bg-linear-to-br from-[#1E1B4B] via-[#2B217A] to-[#4F39F6] text-white p-8 rounded-3xl border-2 border-indigo-400/50 shadow-2xl flex flex-col justify-between relative overflow-hidden">
-                    <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
+                    <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
                       Up to 4x Better
                     </div>
                     <div>
@@ -1470,7 +1470,7 @@ export default function OnboardingScreen({
                     size={78}
                     className="text-slate-900 dark:text-white"
                   />
-                  <span className="text-[9px] font-bold text-[#4F39F6] tracking-tight mt-0.5">
+                  <span className="text-[11px] font-bold text-[#4F39F6] tracking-tight mt-0.5">
                     SCAN ME
                   </span>
                 </div>
@@ -1517,7 +1517,7 @@ export default function OnboardingScreen({
                     <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.59-7.71-11.66-14-5.87-9.08-10.37-19.12-13.5-30.1-3.13-11.03-4.7-21.2-4.7-30.5 0-14.18 3.52-25.77 10.56-34.78 7.04-9 15.86-13.62 26.47-13.87 4.79 0 10.22 1.25 16.29 3.75 6.06 2.5 10.15 3.78 12.26 3.84 1.74 0 6.01-1.34 12.82-4.02 6.81-2.68 12.44-3.9 16.89-3.66 12.63.74 22.84 5.38 30.63 13.92-11.03 6.67-16.42 15.79-16.18 27.35.24 9.08 3.75 16.74 10.53 22.97 6.78 6.23 14.88 9.77 24.31 10.63-2.07 6.1-4.47 12.28-7.22 18.55zM119.22 31.84c0-7.39 2.66-14.19 7.97-20.41 5.32-6.22 11.89-10.3 19.72-12.23.47 2.12.71 4.25.71 6.38 0 7.39-2.77 14.32-8.32 20.79-5.55 6.47-12.21 10.39-19.98 11.75-.14-1.98-.1-4.07-.1-6.28z" />
                   </svg>
                   <div className="text-left">
-                    <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">
+                    <span className="block text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">
                       Download on
                     </span>
                     <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-none">
@@ -1558,7 +1558,7 @@ export default function OnboardingScreen({
                     />
                   </svg>
                   <div className="text-left">
-                    <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">
+                    <span className="block text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-none mb-0.5">
                       Get it on
                     </span>
                     <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-none">

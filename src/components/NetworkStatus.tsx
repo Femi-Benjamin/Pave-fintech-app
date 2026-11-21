@@ -110,14 +110,14 @@ export function NetworkStatusToast() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-bold text-white">You're offline</div>
-              <div className="text-[11px] text-gray-300 truncate">
+              <div className="text-xs text-gray-300 truncate">
                 Previously loaded financial information may be out of date. Financial actions need a connection.
               </div>
             </div>
             <button
               onClick={handleCheckConnection}
               disabled={isChecking}
-              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-medium transition-colors cursor-pointer shrink-0 disabled:opacity-60"
+              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium transition-colors cursor-pointer shrink-0 disabled:opacity-60"
             >
               {isChecking ? "Checking…" : "Retry"}
             </button>
@@ -138,7 +138,7 @@ export function NetworkStatusToast() {
             </div>
             <div className="flex-1">
               <div className="text-xs font-bold text-white">Back online</div>
-              <div className="text-[11px] text-emerald-100">
+              <div className="text-xs text-emerald-100">
                 Connected to network
               </div>
             </div>
@@ -163,7 +163,7 @@ export function NetworkStatusBarIcon({
   return (
     <div
       title="You are currently offline"
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/25 ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/25 ${className}`}
     >
       <WifiOff size={12} className="animate-pulse shrink-0" />
       <span>Offline</span>

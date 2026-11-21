@@ -144,7 +144,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
               />
               <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 text-white">
-                <div className="inline-block px-3 py-1 rounded-full bg-rose-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
+                <div className="inline-block px-3 py-1 rounded-full bg-rose-600/90 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-2">
                   Prepaid Power Active
                 </div>
                 <div className="text-xl font-bold">
@@ -232,7 +232,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                           <div className="text-sm font-bold text-slate-950 dark:text-white">
                             {d.id}
                           </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {d.loc}
                           </div>
                         </button>
@@ -364,7 +364,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Bill Settlement Summary
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-800/60">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/60">
                     Live DISCO Gateway
                   </span>
                 </div>
@@ -444,7 +444,7 @@ export default function UtilityBillsPage({ onOpenApp }: PageProps) {
                         )}
                       </button>
                     </div>
-                    <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
+                    <p className="text-xs text-emerald-800 dark:text-emerald-300">
                       Type this 20-digit token into your CIU meter keypad and
                       press Enter. SMS also dispatched.
                     </p>

@@ -146,7 +146,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
               />
               <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/25 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 text-white">
-                <div className="inline-block px-3 py-1 rounded-full bg-blue-600/90 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider mb-2">
+                <div className="inline-block px-3 py-1 rounded-full bg-blue-600/90 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-2">
                   5G Ultra Bundle Active
                 </div>
                 <div className="text-xl font-bold">
@@ -205,7 +205,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                           className="w-3.5 h-3.5 rounded-full"
                           style={{ backgroundColor: net.color }}
                         />
-                        <span className="text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-1.5 py-0.5 rounded">
+                        <span className="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-1.5 py-0.5 rounded">
                           3% Back
                         </span>
                       </div>
@@ -294,7 +294,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                           <span className="text-slate-950 dark:text-white">
                             ₦{dp.price.toLocaleString()}
                           </span>
-                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[11px]">
                             {dp.bonus}
                           </span>
                         </div>
@@ -334,7 +334,7 @@ export default function AirtimeDataPage({ onOpenApp }: PageProps) {
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Recharge Summary
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-800/60">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/60">
                     Active Promotion
                   </span>
                 </div>

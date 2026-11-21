@@ -60,11 +60,13 @@ export const AreaChart = ({
     }
   });
 
-  const width = 500;
-  const height = 120;
-  const padX = 25;
-  const padTop = 15;
-  const padBottom = 22;
+  // Layout is expressed in percentages so the line scales with its card while
+  // dots and labels stay real HTML (crisp, round, and legible at any size).
+  const width = 100;
+  const height = 100;
+  const padX = 7;
+  const padTop = 14;
+  const padBottom = 6;
 
   const values = data.map((d) => Number(d[dataKey]) || 0);
   const maxVal = Math.max(...values, 1000);
@@ -102,73 +104,103 @@ export const AreaChart = ({
     areaD = `${pathD} L ${points[points.length - 1].x} ${bottomY} L ${points[0].x} ${bottomY} Z`;
   }
 
-  return (
-    <div className="w-full h-full relative select-none">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-full overflow-visible"
-        preserveAspectRatio="none"
-      >
-        {defsNode}
-        {areaD && <path d={areaD} fill={fillColor} />}
-        {pathD && (
-          <path d={pathD} fill="none" stroke={strokeColor} strokeWidth={2.5} />
-        )}
+  const columnWidth = data.length > 0 ? 100 / data.length : 100;
 
-        {/* Data dots */}
-        {points.map((p, i) => (
-          <g key={i}>
-            <circle
-              cx={p.x}
-              cy={p.y}
-              r={hoverIndex === i ? 5 : 3.5}
-              fill="white"
+  return (
+    <div className="w-full h-full relative select-none flex flex-col">
+      <div className="relative flex-1 min-h-0">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="absolute inset-0 w-full h-full overflow-visible"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          {defsNode}
+          {/* Baseline */}
+          <line
+            x1={0}
+            x2={width}
+            y1={height - padBottom}
+            y2={height - padBottom}
+            stroke="#E2E6F3"
+            strokeWidth={1}
+            vectorEffect="non-scaling-stroke"
+          />
+          {areaD && <path d={areaD} fill={fillColor} />}
+          {pathD && (
+            <path
+              d={pathD}
+              fill="none"
               stroke={strokeColor}
-              strokeWidth={2}
-              className="transition-all duration-150 cursor-pointer"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
             />
-            {/* Invisible hover trigger */}
-            <rect
-              x={p.x - 20}
-              y={0}
-              width={40}
-              height={height}
-              fill="transparent"
-              className="cursor-pointer"
+          )}
+        </svg>
+
+        {/* Data dots + hover/focus targets */}
+        {points.map((p, i) => (
+          <React.Fragment key={i}>
+            <span
+              aria-hidden="true"
+              className="absolute rounded-full bg-white pointer-events-none transition-all duration-150"
+              style={{
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                width: hoverIndex === i ? 12 : 8,
+                height: hoverIndex === i ? 12 : 8,
+                transform: "translate(-50%, -50%)",
+                border: `2px solid ${strokeColor}`,
+              }}
+            />
+            <button
+              type="button"
+              aria-label={`${p.data.day || p.data.name || ""}: ₦${Number(p.data[dataKey]).toLocaleString()}`}
+              className="absolute top-0 h-full cursor-pointer bg-transparent focus-visible:outline-offset-[-2px]"
+              style={{
+                left: `${p.x}%`,
+                width: `${columnWidth}%`,
+                transform: "translateX(-50%)",
+              }}
               onMouseEnter={() => setHoverIndex(i)}
               onMouseLeave={() => setHoverIndex(null)}
+              onFocus={() => setHoverIndex(i)}
+              onBlur={() => setHoverIndex(null)}
+              onClick={() => setHoverIndex(hoverIndex === i ? null : i)}
             />
-          </g>
+          </React.Fragment>
         ))}
+      </div>
 
-        {/* X Axis Labels */}
+      {/* X Axis Labels (HTML, so they stay a readable size) */}
+      <div className="relative h-6 mt-1">
         {points.map((p, i) => (
-          <text
+          <span
             key={i}
-            x={p.x}
-            y={height - 4}
-            textAnchor="middle"
-            fontSize={10}
-            fill="#9CA3AF"
-            fontWeight={hoverIndex === i ? 600 : 400}
-            fontFamily="var(--font-family-body)"
+            className={`absolute top-0 -translate-x-1/2 text-xs whitespace-nowrap transition-colors ${
+              hoverIndex === i
+                ? "font-bold text-[#312E81]"
+                : "font-medium text-[#4B5563]"
+            }`}
+            style={{ left: `${p.x}%`, fontFamily: "var(--font-family-body)" }}
           >
             {p.data.day || p.data.name || ""}
-          </text>
+          </span>
         ))}
-      </svg>
+      </div>
 
       {/* Tooltip */}
       {hoverIndex !== null && points[hoverIndex] && (
         <div
-          className="absolute z-20 pointer-events-none transform -translate-x-1/2 -translate-y-full px-3 py-1.5 rounded-xl shadow-lg text-xs font-semibold whitespace-nowrap bg-white text-[#0D0F1C] border border-black/5"
+          className="absolute z-20 pointer-events-none transform -translate-x-1/2 -translate-y-full px-3 py-1.5 rounded-xl shadow-lg text-xs font-semibold whitespace-nowrap bg-white text-[#0D0F1C] border border-[#E2E6F3] animate-scale-in"
           style={{
-            left: `${(points[hoverIndex].x / width) * 100}%`,
-            top: `${(points[hoverIndex].y / height) * 100 - 8}%`,
+            left: `${points[hoverIndex].x}%`,
+            top: `calc((100% - 1.75rem) * ${points[hoverIndex].y / 100} - 8px)`,
             ...tooltipStyle,
           }}
         >
-          <div className="text-[10px] text-[#9CA3AF] font-normal">
+          <div className="text-xs text-[#4B5563] font-medium">
             {points[hoverIndex].data.day}
           </div>
           <div>
