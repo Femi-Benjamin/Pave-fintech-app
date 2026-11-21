@@ -54,7 +54,7 @@ export function SplashScreen({ onNext }: { onNext: () => void }) {
         className="flex flex-col items-center gap-4 relative z-10"
       >
         <Logo size="2xl" layout="horizontal" variant="light" />
-        <p className="text-white/80 text-sm sm:text-base mt-2 font-normal text-center">
+        <p className="text-white/90 text-base sm:text-lg mt-2 font-medium text-center">
           Your Path to Financial Freedom
         </p>
       </motion.div>
@@ -68,14 +68,14 @@ export function SplashScreen({ onNext }: { onNext: () => void }) {
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              animate={{ opacity: [0.3, 1, 0.3] }}
+              animate={{ opacity: [0.45, 1, 0.45] }}
               transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.2 }}
-              className="w-2.5 h-2.5 rounded-full bg-white/60"
+              className="w-2.5 h-2.5 rounded-full bg-white"
             />
           ))}
         </div>
-        <span className="text-white/40 text-xs font-mono tracking-wider uppercase mt-2">
-          Click anywhere to continue
+        <span className="text-white/85 text-sm font-semibold tracking-wide mt-2 rounded-full bg-white/10 ring-1 ring-inset ring-white/20 px-4 py-1.5">
+          Tap anywhere to continue
         </span>
       </motion.div>
     </div>
@@ -317,7 +317,7 @@ export function SlideOnboardingScreen({
                 className="h-2.5 rounded-full transition-all duration-300 cursor-pointer p-1 -m-1"
                 style={{
                   width: i === slide ? 32 : 9,
-                  background: i === slide ? s.color : "#D1D5DB",
+                  background: i === slide ? s.color : "#8B93A7",
                 }}
                 aria-label={`Go to slide ${i + 1}`}
               />
@@ -333,7 +333,7 @@ export function SlideOnboardingScreen({
 
         {/* Bottom / Right Half: Step Text & Navigation Actions */}
         <div className="md:w-1/2 p-4 sm:p-8 lg:p-10 flex flex-col justify-between h-full bg-white">
-          <div className="flex justify-between items-center text-xs sm:text-sm text-[#6B7280] font-bold uppercase tracking-wider">
+          <div className="flex justify-between items-center text-xs sm:text-sm text-[#4B5563] font-bold uppercase tracking-wider">
             <span>
               Step {slide + 1} of {slides.length}
             </span>
@@ -363,7 +363,7 @@ export function SlideOnboardingScreen({
                   {s.title}
                 </h2>
                 <p
-                  className="text-[#4B5563] mt-3 sm:mt-4 text-sm sm:text-base lg:text-lg leading-relaxed"
+                  className="text-[#374151] mt-3 sm:mt-4 text-[15px] sm:text-base lg:text-lg leading-relaxed"
                   style={{ fontFamily: "var(--font-family-body)" }}
                 >
                   {s.desc}
@@ -430,21 +430,21 @@ export function AuthBrandPanel({
         >
           {title}
         </h2>
-        <p className="text-white/80 text-sm sm:text-base mt-3 leading-relaxed font-normal">
+        <p className="text-white/90 text-base sm:text-lg mt-4 leading-relaxed font-normal max-w-md">
           {subtitle}
         </p>
 
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-8 flex flex-col gap-3 stagger">
           {[
             "Automated Individual & Cooperative Thrift",
             "Flexible BNPL Marketplace Installments",
           ].map((item) => (
             <div
               key={item}
-              className="flex items-center gap-2.5 text-xs sm:text-sm text-white/90 font-medium"
+              className="flex items-center gap-3 rounded-xl bg-white/10 ring-1 ring-inset ring-white/15 px-4 py-3 text-sm sm:text-base text-white font-medium backdrop-blur-sm transition-colors hover:bg-white/15"
             >
-              <div className="w-5 h-5 rounded-full bg-[#059669] flex items-center justify-center shrink-0 shadow-xs">
-                <Check size={12} className="text-white" />
+              <div className="w-6 h-6 rounded-full bg-[#10B981] flex items-center justify-center shrink-0 shadow-sm">
+                <Check size={14} className="text-white" strokeWidth={3} />
               </div>
               <span>{item}</span>
             </div>
@@ -452,7 +452,7 @@ export function AuthBrandPanel({
         </div>
       </div>
 
-      <div className="relative z-10 pt-4 border-t border-white/15 flex items-center justify-between text-xs text-white/85">
+      <div className="relative z-10 pt-4 border-t border-white/25 flex items-center justify-between text-sm text-white/90 font-medium">
         <span>Trusted by 2000+ Nigerians</span>
         {/* <span className="font-bold text-white text-xs sm:text-sm">
           ₦2.4B+ Saved
@@ -568,12 +568,12 @@ export function LoginScreen({
               >
                 Welcome back 👋
               </h1>
-              <p className="text-[#4B5563] text-xs sm:text-sm mt-1">
-                Sign in to your <BrandText className="text-xs sm:text-xs" /> account to continue
+              <p className="text-[#4B5563] text-sm sm:text-[15px] mt-1">
+                Sign in to your <BrandText className="text-sm" /> account to continue
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:gap-3.5">
+            <div className="flex flex-col gap-3 sm:gap-3.5 stagger">
               <Input
                 label="Email or Username"
                 placeholder="you@example.com"
@@ -591,14 +591,14 @@ export function LoginScreen({
               />
               <button
                 onClick={() => onNav("forgot-password")}
-                className="text-right text-xs sm:text-sm text-[#3730A3] font-semibold hover:underline cursor-pointer"
+                className="text-right text-sm sm:text-[15px] text-[#3730A3] font-semibold hover:underline cursor-pointer"
               >
                 Forgot password?
               </button>
               {error && (
                 <div
                   role="alert"
-                  className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700"
+                  className="rounded-xl border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-800 animate-scale-in"
                 >
                   {error}
                 </div>
@@ -617,14 +617,14 @@ export function LoginScreen({
 
               <button
                 onClick={() => onNav("accept-invitation")}
-                className="w-full py-3 rounded-xl border-2 border-[#E5E7EB] flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold text-[#374151] cursor-pointer hover:bg-[#F1F3FB] transition-colors"
+                className="w-full py-3 rounded-xl border-2 border-[#CBD5E1] flex items-center justify-center gap-2 text-sm sm:text-[15px] font-semibold text-[#1F2937] cursor-pointer hover:bg-[#EEF2FF] hover:border-[#A5B4FC] active:scale-[0.98] transition-all duration-200"
               >
                 <Hash size={16} /> Join with Invitation Code
               </button>
             </div>
           </div>
 
-          <div className="pt-4 text-center text-xs sm:text-sm text-[#4B5563]">
+          <div className="pt-4 text-center text-sm sm:text-[15px] text-[#4B5563]">
             Don't have an account?{" "}
             <button
               onClick={() => onNav("register")}
@@ -730,7 +730,7 @@ export function RegisterScreen({
                 <button
                   type="button"
                   onClick={onBackToWebsite}
-                  className="text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline"
+                  className="text-sm sm:text-[15px] text-[#3730A3] font-bold cursor-pointer hover:underline"
                 >
                   Website
                 </button>
@@ -752,19 +752,19 @@ export function RegisterScreen({
                 <button
                   type="button"
                   onClick={onBackToWebsite}
-                  className="hidden md:flex items-center text-xs sm:text-sm text-[#3730A3] font-bold cursor-pointer hover:underline shrink-0"
+                  className="hidden md:flex items-center text-sm sm:text-[15px] text-[#3730A3] font-bold cursor-pointer hover:underline shrink-0"
                 >
                   Website
                 </button>
               )}
             </div>
-            <p className="text-[#4B5563] text-xs sm:text-sm mt-1 mb-3 sm:mb-4 text-center md:text-left">
+            <p className="text-[#4B5563] text-sm sm:text-[15px] mt-1 mb-3 sm:mb-4 text-center md:text-left">
               Fill in your personal details and create a secure password.
             </p>
 
             <div className="flex flex-col gap-2.5 sm:gap-3">
               {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                <div className="rounded-xl border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-800 animate-scale-in">
                   {error}
                 </div>
               )}
@@ -859,7 +859,7 @@ export function RegisterScreen({
             </div>
           </div>
 
-          <div className="pt-3 text-center text-xs sm:text-sm text-[#4B5563]">
+          <div className="pt-3 text-center text-sm sm:text-[15px] text-[#4B5563]">
             Already have an account?{" "}
             <button
               onClick={() => onNav("login")}
@@ -979,7 +979,7 @@ export function ForgotPasswordScreen({
 
         <div className="flex-1 flex flex-col">
           {error && (
-            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm font-medium text-red-800 animate-scale-in">
               {error}
             </div>
           )}
@@ -998,7 +998,7 @@ export function ForgotPasswordScreen({
               >
                 Forgot Password?
               </h2>
-              <p className="text-[#4B5563] text-xs sm:text-sm mt-1 mb-4">
+              <p className="text-[#4B5563] text-sm sm:text-[15px] mt-1 mb-4">
                 Enter your registered email and we’ll send you a secure reset code.
               </p>
               <Input
@@ -1044,7 +1044,7 @@ export function ForgotPasswordScreen({
                 >
                   Check Your Email
                 </h2>
-                <p className="text-[#4B5563] text-xs sm:text-sm">
+                <p className="text-[#4B5563] text-sm sm:text-[15px]">
                   {sentMessage || (
                     <>
                       We sent a reset token to{" "}

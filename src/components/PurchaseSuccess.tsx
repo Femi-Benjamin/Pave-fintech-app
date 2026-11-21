@@ -156,8 +156,10 @@ export function PurchaseSuccess({
                 strokeWidth={5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                initial={reduced ? false : { pathLength: 0 }}
-                animate={{ pathLength: 1 }}
+                // pathLength is valid for motion.path; the cast works around a
+                // typings mismatch in the installed motion version.
+                initial={reduced ? false : ({ pathLength: 0 } as any)}
+                animate={{ pathLength: 1 } as any}
                 transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
               />
             </svg>
