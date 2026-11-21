@@ -46,8 +46,8 @@ export function KYCContainer({
       className="flex-1 w-full min-h-dvh sm:min-h-screen flex items-center justify-center overflow-x-hidden p-2 sm:p-6 md:p-10"
       style={{ background: "#F7F8FF" }}
     >
-      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-[#F1F3FB] p-4 sm:p-10 flex flex-col min-h-0 sm:min-h-135">
-        <div className="flex items-center justify-between pb-3 sm:pb-6 border-b border-[#F1F3FB] mb-3 sm:mb-6">
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-[#E2E6F3] p-4 sm:p-10 flex flex-col min-h-0 sm:min-h-135">
+        <div className="flex items-center justify-between pb-3 sm:pb-6 border-b border-[#E2E6F3] mb-3 sm:mb-6">
           <div className="flex items-center gap-3">
             {onBack && (
               <button
@@ -65,7 +65,7 @@ export function KYCContainer({
                 {title}
               </h2>
               {subtitle && (
-                <p className="text-[11px] sm:text-sm text-[#6B7280] mt-0.5 leading-snug">
+                <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 leading-snug">
                   {subtitle}
                 </p>
               )}
@@ -77,7 +77,7 @@ export function KYCContainer({
               {steps.map((s, i) => (
                 <div key={s.num} className="flex items-center">
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s.num ? "bg-[#3730A3] text-white" : "bg-[#F1F3FB] text-[#9CA3AF]"}`}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s.num ? "bg-[#3730A3] text-white" : "bg-[#F1F3FB] text-[#6B7280]"}`}
                   >
                     {step > s.num ? <Check size={14} /> : s.num}
                   </div>
@@ -112,7 +112,7 @@ export function KYCWelcomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
         >
           🔐
         </div>
-        <p className="text-[#6B7280] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+        <p className="text-[#4B5563] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
           We need to verify your identity to protect your funds and comply with
           Central Bank of Nigeria regulations. This takes about 3 minutes.
         </p>
@@ -132,14 +132,14 @@ export function KYCWelcomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </div>
               <div>
                 <div className="text-sm font-bold text-[#0D0F1C]">{t}</div>
-                <div className="text-xs text-[#6B7280] mt-1">{d}</div>
+                <div className="text-xs text-[#4B5563] mt-1">{d}</div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 pt-3 sm:pt-4 border-t border-[#F1F3FB]">
+      <div className="flex flex-col sm:flex-row gap-3 pt-3 sm:pt-4 border-t border-[#E2E6F3]">
         <div className="flex-1">
           <PaveBtn onClick={() => onNav("kyc-nin")}>Start Verification</PaveBtn>
         </div>
@@ -199,7 +199,7 @@ export function KYCNINScreen({
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#F1F3FB]">
+      <div className="pt-4 border-t border-[#E2E6F3]">
         <PaveBtn
           onClick={() => onNav("kyc-id-type")}
           disabled={nin.length !== 11}
@@ -261,7 +261,7 @@ export function KYCIDTypeScreen({ onNav }: { onNav: (s: Screen) => void }) {
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#F1F3FB]">
+      <div className="pt-4 border-t border-[#E2E6F3]">
         <PaveBtn onClick={() => onNav("kyc-id-upload")} disabled={!selected}>
           Continue to Document Upload
         </PaveBtn>
@@ -346,7 +346,7 @@ export function KYCIDUploadScreen({
       <div className="flex flex-col gap-3 sm:gap-4 py-0 sm:py-2">
         <div className="flex items-center gap-3 bg-[#EEF2FF] rounded-2xl p-3 sm:p-4">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#3730A3] flex items-center justify-center shrink-0">
-            <span className="text-white text-[11px] sm:text-xs font-bold">2/3</span>
+            <span className="text-white text-xs sm:text-xs font-bold">2/3</span>
           </div>
           <p className="text-xs sm:text-sm text-[#374151]">
             Upload clear photos of both the front and back of your selected
@@ -406,19 +406,19 @@ export function KYCIDUploadScreen({
                       <span className="text-sm font-semibold text-[#059669]">
                         {label} selected
                       </span>
-                      <span className="max-w-full truncate text-xs text-[#6B7280]">
+                      <span className="max-w-full truncate text-xs text-[#4B5563]">
                         {file.name}
                       </span>
                     </span>
                   </>
                 ) : (
                   <>
-                    <Upload size={32} className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 text-[#9CA3AF]" />
+                    <Upload size={32} className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 text-[#6B7280]" />
                     <span className="flex min-w-0 flex-col sm:items-center">
                       <span className="text-sm font-semibold text-[#374151]">
                         Upload {label}
                       </span>
-                      <span className="text-xs text-[#9CA3AF]">
+                      <span className="text-xs text-[#6B7280]">
                         JPG, PNG up to 5MB
                       </span>
                     </span>
@@ -428,7 +428,7 @@ export function KYCIDUploadScreen({
             </div>
           ))}
         </div>
-        <div className="rounded-xl border border-[#F1F3FB] bg-white p-3 sm:p-4">
+        <div className="rounded-xl border border-[#E2E6F3] bg-white p-3 sm:p-4">
           <input
             ref={billInputRef}
             type="file"
@@ -444,7 +444,7 @@ export function KYCIDUploadScreen({
               <p className="text-xs sm:text-sm font-semibold text-[#0D0F1C]">
                 Proof of address (optional)
               </p>
-              <p className="text-[11px] sm:text-xs text-[#6B7280] truncate">
+              <p className="text-xs sm:text-xs text-[#4B5563] truncate">
                 {billFileName ||
                   "Recent NEPA or utility bill."}
               </p>
@@ -463,7 +463,7 @@ export function KYCIDUploadScreen({
             </button>
           </div>
           {uploadBillImageMutation.isPending && (
-            <p className="mt-2 text-xs text-[#6B7280]" role="status">
+            <p className="mt-2 text-xs text-[#4B5563]" role="status">
               Uploading utility bill document...
             </p>
           )}
@@ -486,13 +486,13 @@ export function KYCIDUploadScreen({
 
         <div className="bg-[#FFFBEB] rounded-xl p-3 sm:p-4 flex gap-2.5 sm:gap-3">
           <AlertCircle size={16} className="text-[#D97706] shrink-0 mt-0.5" />
-          <p className="text-[11px] sm:text-xs text-[#92400E]">
+          <p className="text-xs sm:text-xs text-[#92400E]">
             Use a well-lit, sharp photo with all text and details clearly visible.
           </p>
         </div>
       </div>
 
-      <div className="pt-3 sm:pt-4 mt-3 sm:mt-0 border-t border-[#F1F3FB]">
+      <div className="pt-3 sm:pt-4 mt-3 sm:mt-0 border-t border-[#E2E6F3]">
         <PaveBtn
           onClick={doVerifyNin}
           disabled={
@@ -543,7 +543,7 @@ export function KYCSelfieScreen({ onNav }: { onNav: (s: Screen) => void }) {
           {taken ? (
             <CheckCircle size={64} className="text-[#059669]" />
           ) : (
-            <Camera size={48} className="text-[#9CA3AF]" />
+            <Camera size={48} className="text-[#6B7280]" />
           )}
         </div>
 
@@ -561,7 +561,7 @@ export function KYCSelfieScreen({ onNav }: { onNav: (s: Screen) => void }) {
           ].map((tip) => (
             <div
               key={tip}
-              className="flex items-center gap-2.5 text-xs sm:text-sm text-[#6B7280]"
+              className="flex items-center gap-2.5 text-xs sm:text-sm text-[#4B5563]"
             >
               <Check size={14} className="text-[#059669] shrink-0" />
               <span>{tip}</span>
@@ -582,7 +582,7 @@ export function KYCSelfieScreen({ onNav }: { onNav: (s: Screen) => void }) {
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#F1F3FB]">
+      <div className="pt-4 border-t border-[#E2E6F3]">
         <PaveBtn onClick={doSubmit} disabled={!taken || loading}>
           {loading ? (
             <>
@@ -613,32 +613,32 @@ export function KYCPendingScreen({ onNav }: { onNav: (s: Screen) => void }) {
         >
           ⏳
         </motion.div>
-        <p className="text-[#6B7280] text-sm max-w-md mx-auto leading-relaxed">
+        <p className="text-[#4B5563] text-sm max-w-md mx-auto leading-relaxed">
           Your KYC documents are currently being processed by our compliance
           team. Review usually completes within 1–24 hours.
         </p>
 
         <div className="w-full max-w-md bg-[#F1F3FB] rounded-2xl p-5 flex flex-col gap-3.5 my-6">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[#6B7280]">NIN Verification</span>
+            <span className="text-[#4B5563]">NIN Verification</span>
             <Badge color="green">Done</Badge>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[#6B7280]">ID Upload</span>
+            <span className="text-[#4B5563]">ID Upload</span>
             <Badge color="green">Done</Badge>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[#6B7280]">Selfie Check</span>
+            <span className="text-[#4B5563]">Selfie Check</span>
             <Badge color="green">Done</Badge>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[#6B7280]">Admin Review</span>
+            <span className="text-[#4B5563]">Admin Review</span>
             <Badge color="gold">In Progress</Badge>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#F1F3FB]">
+      <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#E2E6F3]">
         <div className="flex-1">
           <PaveBtn onClick={() => onNav("home")}>Go to Dashboard</PaveBtn>
         </div>
@@ -670,7 +670,7 @@ export function KYCApprovedScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </div>
         </motion.div>
 
-        <p className="text-[#6B7280] text-sm max-w-md mx-auto leading-relaxed">
+        <p className="text-[#4B5563] text-sm max-w-md mx-auto leading-relaxed">
           Your identity has been verified. You can now participate in community
           thrift rounds, request marketplace installment plans, and withdraw
           without limits.
@@ -681,7 +681,7 @@ export function KYCApprovedScreen({ onNav }: { onNav: (s: Screen) => void }) {
             <Avatar name="Joe " size={48} color="#3730A3" />
             <div className="text-left">
               <div className="font-semibold text-[#0D0F1C]">Joe Adeyemi</div>
-              <div className="text-xs text-[#6B7280]">
+              <div className="text-xs text-[#4B5563]">
                 joe@email.com • Member ID: PAV-20240614
               </div>
               <div className="mt-1">
@@ -692,7 +692,7 @@ export function KYCApprovedScreen({ onNav }: { onNav: (s: Screen) => void }) {
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#F1F3FB]">
+      <div className="pt-4 border-t border-[#E2E6F3]">
         <PaveBtn onClick={() => onNav("home")} variant="green">
           Start Using PAVEPADI Dashboard
         </PaveBtn>

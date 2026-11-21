@@ -50,10 +50,10 @@ export function DesktopSidebar({
         ? "Verified Account"
         : "Account Member";
   const memberStatusColor = authUser?.isKycVerified
-    ? "#059669"
+    ? "#047857"
     : authUser?.kycStatus?.toLowerCase() === "pending"
-      ? "#D97706"
-      : "#059669";
+      ? "#B45309"
+      : "#047857";
 
   const navItems = [
     { screen: "home" as Screen, icon: Home, label: "Home" },
@@ -70,19 +70,19 @@ export function DesktopSidebar({
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#F1F3FB] p-6 justify-between shrink-0 min-h-screen sticky top-0 h-screen">
+    <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-[#E2E6F3] shadow-[1px_0_12px_rgba(55,48,163,0.04)] p-6 justify-between shrink-0 min-h-screen sticky top-0 h-screen">
       <div>
         <div className="flex items-center justify-between mb-8">
           <Logo size="md" />
           <div className="flex items-center gap-2">
             <NetworkStatusBarIcon />
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+            <span className="text-[11px] uppercase font-bold tracking-widest text-[#047857] bg-[#ECFDF5] ring-1 ring-inset ring-[#A7F3D0] px-2 py-0.5 rounded-full">
               Web
             </span>
           </div>
         </div>
 
-        <nav className="flex flex-col gap-1.5">
+        <nav aria-label="Main navigation" className="flex flex-col gap-1.5">
           {navItems.map((item) => {
             const active =
               screen === item.screen ||
@@ -100,13 +100,14 @@ export function DesktopSidebar({
               <button
                 key={item.screen}
                 onClick={() => onNav(item.screen)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all cursor-pointer ${
+                aria-current={active ? "page" : undefined}
+                className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-[15px] transition-all duration-200 cursor-pointer ${
                   active
-                    ? "bg-[#3730A3] text-white shadow-md shadow-[#3730A3]/20"
-                    : "text-[#6B7280] hover:text-[#0D0F1C] hover:bg-[#F1F3FB]"
+                    ? "bg-[#3730A3] text-white shadow-md shadow-[#3730A3]/25"
+                    : "text-[#374151] hover:text-[#312E81] hover:bg-[#EEF2FF] hover:translate-x-0.5"
                 }`}
               >
-                <item.icon size={19} />
+                <item.icon size={20} className="transition-transform duration-200 group-hover:scale-110" />
                 <span>{item.label}</span>
               </button>
             );
@@ -114,8 +115,8 @@ export function DesktopSidebar({
         </nav>
       </div>
 
-      <div className="pt-6 border-t border-[#F1F3FB] flex flex-col gap-3">
-        <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#F7F8FF] border border-[#F1F3FB]">
+      <div className="pt-6 border-t border-[#E2E6F3] flex flex-col gap-3">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#F7F8FF] border border-[#E2E6F3]">
           <Avatar
             name={fullName}
             size={38}
@@ -123,11 +124,11 @@ export function DesktopSidebar({
             src={(authUser as any)?.image || (authUser as any)?.face || (authUser as any)?.profileImage}
           />
           <div className="flex-1 overflow-hidden">
-            <div className="text-xs font-bold text-[#0D0F1C] truncate">
+            <div className="text-sm font-bold text-[#0D0F1C] truncate">
               {fullName}
             </div>
             <div
-              className="text-[10px] font-semibold"
+              className="text-xs font-semibold"
               style={{ color: memberStatusColor }}
             >
               {memberStatus}

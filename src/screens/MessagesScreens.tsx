@@ -390,7 +390,7 @@ export function MessagesScreen({
               >
                 Messages
               </h2>
-              <p className="text-sm text-white/70 mt-1.5">
+              <p className="text-sm text-white/85 mt-1.5">
                 Talk to people and your savings groups
               </p>
             </div>
@@ -404,7 +404,7 @@ export function MessagesScreen({
           </div>
 
           <div className="mt-5 flex items-center gap-2.5 rounded-2xl bg-white/10 border border-white/15 px-4 py-3 focus-within:bg-white/15 focus-within:border-white/40 transition-colors">
-            <Search size={17} className="text-white/60 shrink-0" />
+            <Search size={17} className="text-white/80 shrink-0" />
             <input
               placeholder="Search by name or email"
               aria-label="Search conversations"
@@ -416,7 +416,7 @@ export function MessagesScreen({
               <button
                 onClick={() => setSearch("")}
                 aria-label="Clear search"
-                className="text-white/70 hover:text-white cursor-pointer"
+                className="text-white/85 hover:text-white cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -445,12 +445,12 @@ export function MessagesScreen({
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3730A3] ${
                     active
                       ? "bg-[#3730A3] text-white font-semibold"
-                      : "text-[#6B7280] hover:bg-[#F5F6FF] hover:text-[#1E1B4B]"
+                      : "text-[#4B5563] hover:bg-[#F5F6FF] hover:text-[#1E1B4B]"
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span
-                    className={`text-[11px] font-semibold px-1.5 rounded-full ${
+                    className={`text-xs font-semibold px-1.5 rounded-full ${
                       active ? "bg-white/20 text-white" : "bg-[#EEF2FF] text-[#3730A3]"
                     }`}
                   >
@@ -467,7 +467,7 @@ export function MessagesScreen({
                 <span>{listError}</span>
                 <button
                   onClick={() => setListError("")}
-                  className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#DC2626] hover:underline cursor-pointer"
                 >
                   Dismiss
                 </button>
@@ -533,7 +533,7 @@ export function MessagesScreen({
                 >
                   {search ? "No matches" : "Nothing here yet"}
                 </h3>
-                <p className="text-sm text-[#6B7280] max-w-xs mt-1.5 leading-relaxed">
+                <p className="text-sm text-[#4B5563] max-w-xs mt-1.5 leading-relaxed">
                   {search
                     ? `No conversation matches "${search}". Try a different name or email.`
                     : activeTab === "groups"
@@ -586,7 +586,7 @@ export function MessagesScreen({
                               {item.name}
                             </span>
                             {item.time && (
-                              <span className="text-xs text-[#9CA3AF] shrink-0 tabular-nums">
+                              <span className="text-xs text-[#6B7280] shrink-0 tabular-nums">
                                 {item.time}
                               </span>
                             )}
@@ -599,7 +599,7 @@ export function MessagesScreen({
                                 size={20}
                               />
                             )}
-                            <span className="text-[13px] text-[#6B7280] truncate">
+                            <span className="text-[13px] text-[#4B5563] truncate">
                               {item.type === "group"
                                 ? `${item.memberCount || 0} member${item.memberCount === 1 ? "" : "s"}${
                                     item.subtitle && !/^\d+ members$/.test(item.subtitle)
@@ -618,7 +618,7 @@ export function MessagesScreen({
                           onClick={() => setConfirmDeleteChat(item)}
                           aria-label={`Delete conversation with ${item.name}`}
                           title="Delete conversation"
-                          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg text-[#6B7280] hover:text-[#DC2626] hover:bg-[#FEE2E2] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -672,7 +672,7 @@ export function MessagesScreen({
             <h4 className="text-center font-bold text-base text-[#0D0F1C]">
               Delete Conversation?
             </h4>
-            <p className="text-center text-xs text-[#6B7280] mt-2 leading-relaxed">
+            <p className="text-center text-xs text-[#4B5563] mt-2 leading-relaxed">
               <strong className="text-[#0D0F1C]">
                 {confirmDeleteChat.name}
               </strong>
@@ -784,7 +784,7 @@ export function MessagesWorkspace({
             >
               Pick a conversation
             </h3>
-            <p className="mt-2 max-w-xs text-sm text-[#6B7280] leading-relaxed">
+            <p className="mt-2 max-w-xs text-sm text-[#4B5563] leading-relaxed">
               Choose a person or group on the left, or start a new chat.
             </p>
           </div>
@@ -872,26 +872,26 @@ function NewChatModal({
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#F1F3FB] flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-[#E2E6F3] flex items-center justify-between">
           <h3 className="font-bold text-base text-[#0D0F1C]">
             New Conversation
           </h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#F3F4F6] text-[#4B5563] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Tab selection */}
-        <div className="flex border-b border-[#F1F3FB] px-6 pt-3">
+        <div className="flex border-b border-[#E2E6F3] px-6 pt-3">
           <button
             onClick={() => setTab("direct")}
             className={`pb-3 text-xs font-semibold px-4 border-b-2 cursor-pointer transition-colors ${
               tab === "direct"
                 ? "border-[#3730A3] text-[#3730A3]"
-                : "border-transparent text-[#6B7280] hover:text-[#0D0F1C]"
+                : "border-transparent text-[#4B5563] hover:text-[#0D0F1C]"
             }`}
           >
             Direct Message
@@ -901,7 +901,7 @@ function NewChatModal({
             className={`pb-3 text-xs font-semibold px-4 border-b-2 cursor-pointer transition-colors ${
               tab === "group"
                 ? "border-[#3730A3] text-[#3730A3]"
-                : "border-transparent text-[#6B7280] hover:text-[#0D0F1C]"
+                : "border-transparent text-[#4B5563] hover:text-[#0D0F1C]"
             }`}
           >
             Create Group Chat
@@ -913,7 +913,7 @@ function NewChatModal({
           {tab === "direct" ? (
             <div className="flex flex-col gap-4">
               <div className="bg-[#F8F9FD] rounded-xl px-3.5 py-2 flex items-center gap-2 border border-[#E5E7EB]">
-                <Search size={16} className="text-[#9CA3AF]" />
+                <Search size={16} className="text-[#6B7280]" />
                 <input
                   placeholder="Search AJO group members by name or email..."
                   value={recipientSearch}
@@ -923,7 +923,7 @@ function NewChatModal({
               </div>
 
               {isRecipientsLoading ? (
-                <div className="py-8 flex flex-col items-center justify-center text-xs text-[#6B7280] gap-2">
+                <div className="py-8 flex flex-col items-center justify-center text-xs text-[#4B5563] gap-2">
                   <Loader2 size={20} className="animate-spin text-[#3730A3]" />
                   <span>Loading your AJO group members...</span>
                 </div>
@@ -932,7 +932,7 @@ function NewChatModal({
                   Unable to load recipient list from backend.
                 </div>
               ) : filteredRecipients.length === 0 ? (
-                <div className="py-8 text-center text-xs text-[#6B7280]">
+                <div className="py-8 text-center text-xs text-[#4B5563]">
                   No members from your AJO groups are available to message.
                 </div>
               ) : (
@@ -951,7 +951,7 @@ function NewChatModal({
                           <div className="font-semibold text-xs text-[#0D0F1C] truncate">
                             {name}
                           </div>
-                          <div className="text-[11px] text-[#6B7280] truncate mt-0.5">
+                          <div className="text-xs text-[#4B5563] truncate mt-0.5">
                             {rec.email}
                           </div>
                         </div>
@@ -1008,7 +1008,7 @@ function NewChatModal({
                   placeholder="user1@example.com, user2@example.com"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#D1D5DB] text-xs text-[#0D0F1C] outline-none focus:border-[#3730A3] resize-none"
                 />
-                <span className="text-[11px] text-[#6B7280] mt-1 block">
+                <span className="text-xs text-[#4B5563] mt-1 block">
                   Only registered users on PAVEPADI can be added.
                 </span>
               </div>
@@ -1382,7 +1382,7 @@ export function ChatScreen({
             >
               {chatName}
             </div>
-            <div className="mt-1 flex items-center gap-2 min-w-0 text-xs text-[#6B7280]">
+            <div className="mt-1 flex items-center gap-2 min-w-0 text-xs text-[#4B5563]">
               {isGroup ? (
                 <>
                   {groupPeople.length > 0 && (
@@ -1411,7 +1411,7 @@ export function ChatScreen({
               onClick={() => setShowInfoModal(true)}
               aria-label="Group info"
               title="Group info"
-              className="w-10 h-10 rounded-full text-[#6B7280] hover:text-[#3730A3] hover:bg-[#EEF2FF] flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#3730A3]"
+              className="w-10 h-10 rounded-full text-[#4B5563] hover:text-[#3730A3] hover:bg-[#EEF2FF] flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#3730A3]"
             >
               <Info size={19} />
             </button>
@@ -1422,7 +1422,7 @@ export function ChatScreen({
               onClick={() => setConfirmDeleteChat(true)}
               aria-label="Delete conversation"
               title="Delete conversation"
-              className="w-10 h-10 rounded-full text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#DC2626]"
+              className="w-10 h-10 rounded-full text-[#6B7280] hover:text-[#DC2626] hover:bg-[#FEE2E2] flex items-center justify-center cursor-pointer transition focus-visible:outline-2 focus-visible:outline-[#DC2626]"
             >
               <Trash2 size={18} />
             </button>
@@ -1440,7 +1440,7 @@ export function ChatScreen({
             </div>
             <button
               onClick={() => setErrorMessage("")}
-              className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+              className="text-xs font-semibold text-[#DC2626] hover:underline cursor-pointer"
             >
               Dismiss
             </button>
@@ -1496,7 +1496,7 @@ export function ChatScreen({
               >
                 {isGroup ? `Start chatting in ${chatName}` : `Say hello to ${firstName}`}
               </h3>
-              <p className="mt-1.5 max-w-xs text-sm text-[#6B7280] leading-relaxed">
+              <p className="mt-1.5 max-w-xs text-sm text-[#4B5563] leading-relaxed">
                 Your messages will appear here. Pick one below or write your own.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -1529,7 +1529,7 @@ export function ChatScreen({
                 if (row.kind === "day") {
                   return (
                     <div key={row.key} className="flex justify-center my-3">
-                      <span className="text-[11px] font-semibold text-[#6B7280] bg-white/90 border border-[#E7E9F7] rounded-full px-3 py-1">
+                      <span className="text-xs font-semibold text-[#4B5563] bg-white/90 border border-[#E7E9F7] rounded-full px-3 py-1">
                         {row.label}
                       </span>
                     </div>
@@ -1582,7 +1582,7 @@ export function ChatScreen({
                         onClick={() => setDeleteMessageTarget(m)}
                         aria-label="Delete message"
                         title="Delete message"
-                        className={`self-center p-1.5 rounded-full text-[#9CA3AF] hover:text-[#DC2626] hover:bg-[#FEE2E2] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer ${
+                        className={`self-center p-1.5 rounded-full text-[#6B7280] hover:text-[#DC2626] hover:bg-[#FEE2E2] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer ${
                           selectedMessageId === m.id ? "" : "max-sm:hidden"
                         }`}
                       >
@@ -1620,8 +1620,8 @@ export function ChatScreen({
                           m.message}
                         {row.isLastInRun && (
                           <span
-                            className={`ml-2 inline-flex items-center gap-1 align-bottom text-[10px] tabular-nums translate-y-0.5 ${
-                              isMe ? "text-white/70" : "text-[#9CA3AF]"
+                            className={`ml-2 inline-flex items-center gap-1 align-bottom text-[11px] tabular-nums translate-y-0.5 ${
+                              isMe ? "text-white/85" : "text-[#6B7280]"
                             }`}
                           >
                             {formatClock(m.createdAt)}
@@ -1666,7 +1666,7 @@ export function ChatScreen({
               <div className="truncate text-sm font-medium text-[#1E1B4B]">
                 {attachment.name}
               </div>
-              <div className="text-xs text-[#6B7280]">
+              <div className="text-xs text-[#4B5563]">
                 {formatFileSize(attachment.size)}
               </div>
             </div>
@@ -1674,7 +1674,7 @@ export function ChatScreen({
               type="button"
               onClick={() => setAttachment(null)}
               aria-label="Remove attachment"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1F3FB] text-[#6B7280] cursor-pointer"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F1F3FB] text-[#4B5563] cursor-pointer"
             >
               <X size={14} />
             </button>
@@ -1686,7 +1686,7 @@ export function ChatScreen({
             onClick={handleAttachClick}
             aria-label="Attach a file"
             title={isGroup ? "Attachments aren't available in group chats" : "Attach a file (max 5MB)"}
-            className="w-10 h-10 rounded-full text-[#6B7280] hover:text-[#3730A3] hover:bg-[#F5F6FF] flex items-center justify-center cursor-pointer transition shrink-0"
+            className="w-10 h-10 rounded-full text-[#4B5563] hover:text-[#3730A3] hover:bg-[#F5F6FF] flex items-center justify-center cursor-pointer transition shrink-0"
           >
             <Paperclip size={18} />
           </button>
@@ -1746,7 +1746,7 @@ export function ChatScreen({
             <h4 className="font-bold text-sm text-[#0D0F1C]">
               Delete message?
             </h4>
-            <p className="text-xs text-[#6B7280] mt-1.5">
+            <p className="text-xs text-[#4B5563] mt-1.5">
               This message will be removed from the conversation.
             </p>
             <div className="flex items-center gap-2 mt-4">
@@ -1783,7 +1783,7 @@ export function ChatScreen({
             <h4 className="text-center font-bold text-base text-[#0D0F1C]">
               Delete Conversation?
             </h4>
-            <p className="text-center text-xs text-[#6B7280] mt-2 leading-relaxed">
+            <p className="text-center text-xs text-[#4B5563] mt-2 leading-relaxed">
               {isGroup ? DELETE_GROUP_CHAT_WARNING : DELETE_DIRECT_CHAT_WARNING}
             </p>
             <div className="flex items-center gap-3 mt-6">
@@ -1880,23 +1880,23 @@ function GroupDetailsModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95">
-        <div className="flex items-center justify-between pb-3 border-b border-[#F1F3FB]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E2E6F3]">
           <h4 className="font-bold text-sm text-[#0D0F1C]">Group Info</h4>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-[#F3F4F6] text-[#6B7280] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer"
+            className="w-7 h-7 rounded-full bg-[#F3F4F6] text-[#4B5563] hover:text-[#0D0F1C] flex items-center justify-center cursor-pointer"
           >
             <X size={14} />
           </button>
         </div>
 
         {isLoading ? (
-          <div className="py-8 flex flex-col items-center justify-center text-xs text-[#6B7280] gap-2">
+          <div className="py-8 flex flex-col items-center justify-center text-xs text-[#4B5563] gap-2">
             <Loader2 size={20} className="animate-spin text-[#3730A3]" />
             <span>Loading group details...</span>
           </div>
         ) : !group ? (
-          <div className="py-8 text-center text-xs text-[#6B7280]">
+          <div className="py-8 text-center text-xs text-[#4B5563]">
             Group details unavailable.
           </div>
         ) : (
@@ -1909,7 +1909,7 @@ function GroupDetailsModal({
                 {group.groupName}
               </h3>
               {group.description && (
-                <p className="text-xs text-[#6B7280] mt-1">
+                <p className="text-xs text-[#4B5563] mt-1">
                   {group.description}
                 </p>
               )}
@@ -1931,7 +1931,7 @@ function GroupDetailsModal({
                     className="flex flex-col gap-2 mt-2"
                   >
                     {editError && (
-                      <div className="text-[11px] text-[#DC2626]">
+                      <div className="text-xs text-[#DC2626]">
                         {editError}
                       </div>
                     )}
@@ -1954,7 +1954,7 @@ function GroupDetailsModal({
                       <button
                         type="button"
                         onClick={() => setIsEditing(false)}
-                        className="flex-1 py-1 text-xs text-[#6B7280] border border-[#D1D5DB] rounded-lg"
+                        className="flex-1 py-1 text-xs text-[#4B5563] border border-[#D1D5DB] rounded-lg"
                       >
                         Cancel
                       </button>
@@ -1996,7 +1996,7 @@ function GroupDetailsModal({
                         </span>
                       </div>
                       {isUserAdmin && (
-                        <span className="text-[10px] px-1.5 py-0.5 bg-[#FEF3C7] text-[#D97706] rounded font-semibold">
+                        <span className="text-[11px] px-1.5 py-0.5 bg-[#FEF3C7] text-[#D97706] rounded font-semibold">
                           Admin
                         </span>
                       )}
@@ -2052,7 +2052,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto">
-      <div className="px-5 sm:px-8 pt-10 sm:pt-12 pb-4 bg-white border-b border-[#F1F3FB]">
+      <div className="px-5 sm:px-8 pt-10 sm:pt-12 pb-4 bg-white border-b border-[#E2E6F3]">
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNav("home")}
@@ -2085,7 +2085,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             />
             <span
               className={`truncate ${
-                unread > 0 ? "font-semibold text-[#0D0F1C]" : "text-[#6B7280]"
+                unread > 0 ? "font-semibold text-[#0D0F1C]" : "text-[#4B5563]"
               }`}
             >
               {unread > 0 ? `${unread} unread` : "All caught up"}
@@ -2099,7 +2099,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 })
               }
               disabled={unread === 0 || markAll.isPending}
-              className="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#3730A3] hover:bg-white disabled:text-[#9CA3AF] disabled:hover:bg-transparent cursor-pointer disabled:cursor-default transition-colors"
+              className="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-[#3730A3] hover:bg-white disabled:text-[#6B7280] disabled:hover:bg-transparent cursor-pointer disabled:cursor-default transition-colors"
             >
               Mark all read
             </button>
@@ -2120,7 +2120,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <span>{actionError}</span>
           <button
             onClick={() => setActionError("")}
-            className="text-[11px] font-semibold text-[#DC2626] hover:underline cursor-pointer"
+            className="text-xs font-semibold text-[#DC2626] hover:underline cursor-pointer"
           >
             Dismiss
           </button>
@@ -2153,7 +2153,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             <p className="font-semibold text-sm text-[#0D0F1C]">
               No notifications yet
             </p>
-            <p className="text-xs text-[#6B7280] mt-1">
+            <p className="text-xs text-[#4B5563] mt-1">
               Updates about your wallet, savings and messages will show here.
             </p>
           </div>
@@ -2163,7 +2163,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               key={n.id}
               className={`flex items-start gap-2 p-4 rounded-2xl transition-colors ${
                 n.isRead
-                  ? "bg-white border border-[#F1F3FB]"
+                  ? "bg-white border border-[#E2E6F3]"
                   : "bg-[#EEF2FF] border border-[#C7D2FE]"
               }`}
             >
@@ -2184,10 +2184,10 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                       <div className="w-2 h-2 rounded-full bg-[#3730A3] shrink-0" />
                     )}
                   </div>
-                  <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed wrap-break-word">
+                  <p className="text-xs text-[#4B5563] mt-0.5 leading-relaxed wrap-break-word">
                     {n.message}
                   </p>
-                  <span className="text-xs text-[#9CA3AF] mt-1 block">
+                  <span className="text-xs text-[#6B7280] mt-1 block">
                     {formatMessageTime(n.createdAt)}
                   </span>
                 </div>
@@ -2197,7 +2197,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 onClick={() => setConfirmDeleteId(n.id)}
                 aria-label="Delete notification"
                 title="Delete notification"
-                className="p-1.5 text-[#9CA3AF] hover:text-[#DC2626] rounded cursor-pointer shrink-0"
+                className="p-1.5 text-[#6B7280] hover:text-[#DC2626] rounded cursor-pointer shrink-0"
               >
                 <Trash2 size={14} />
               </button>
@@ -2230,7 +2230,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 type="button"
                 onClick={() => setSelectedNotification(null)}
                 aria-label="Close notification details"
-                className="w-8 h-8 rounded-full bg-[#F3F4F6] text-[#6B7280] flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[#F3F4F6] text-[#4B5563] flex items-center justify-center cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -2252,7 +2252,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
             <div className="mt-5 rounded-xl bg-[#F8F9FD] p-3 space-y-3">
               <div className="flex items-start justify-between gap-4 text-sm">
-                <span className="text-[#6B7280]">Date and time</span>
+                <span className="text-[#4B5563]">Date and time</span>
                 <span className="text-[#111827] text-right">
                   {selectedNotification.createdAt
                     ? new Date(selectedNotification.createdAt).toLocaleString()
@@ -2260,7 +2260,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 </span>
               </div>
               <div className="flex items-start justify-between gap-4 text-sm">
-                <span className="text-[#6B7280]">Status</span>
+                <span className="text-[#4B5563]">Status</span>
                 <span className="text-[#111827]">
                   {selectedNotification.isRead ? "Read" : "Unread"}
                 </span>
@@ -2270,7 +2270,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   key={field.label}
                   className="border-t border-[#E5E7EB] pt-3 flex flex-col gap-1"
                 >
-                  <span className="text-xs font-medium text-[#6B7280]">
+                  <span className="text-xs font-medium text-[#4B5563]">
                     {field.label}
                   </span>
                   <span className="text-sm text-[#111827] break-words">
@@ -2299,7 +2299,7 @@ export function NotificationsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 ? "Clear all notifications?"
                 : "Delete notification?"}
             </h4>
-            <p className="text-xs text-[#6B7280] mt-1.5">
+            <p className="text-xs text-[#4B5563] mt-1.5">
               This cannot be undone.
             </p>
             <div className="flex items-center gap-2 mt-4">

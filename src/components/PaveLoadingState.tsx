@@ -17,7 +17,7 @@ export function PaveLoadingState({
       <div
         role="status"
         aria-live="polite"
-        className="flex flex-col gap-3 rounded-2xl border border-[#F1F3FB] bg-white p-5 animate-pulse"
+        className="flex flex-col gap-3 rounded-2xl border border-[#E2E6F3] bg-white p-5 animate-pulse"
       >
         <div className="flex items-center justify-between">
           <div className="h-4 w-32 rounded-md bg-[#E2E8F0]" />
@@ -76,7 +76,7 @@ export function PaveLoadingState({
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-semibold text-[#1E1B4B]">{title}</span>
-            <span className="text-[11px] text-[#6B7280]">{subtitle}</span>
+            <span className="text-xs text-[#4B5563]">{subtitle}</span>
           </div>
         </div>
 
@@ -87,13 +87,13 @@ export function PaveLoadingState({
         </div>
 
         {/* Detail rows skeleton */}
-        <div className="rounded-2xl border border-[#F1F3FB] bg-white p-5 flex flex-col gap-3 shadow-xs">
+        <div className="rounded-2xl border border-[#E2E6F3] bg-white p-5 flex flex-col gap-3 shadow-xs">
           <div className="h-4 w-32 rounded-md bg-[#E2E8F0] mb-2 animate-pulse" />
-          <div className="flex justify-between py-2 border-b border-[#F1F3FB]">
+          <div className="flex justify-between py-2 border-b border-[#E2E6F3]">
             <div className="h-3 w-24 rounded-md bg-[#F1F5F9] animate-pulse" />
             <div className="h-3 w-20 rounded-md bg-[#E2E8F0] animate-pulse" />
           </div>
-          <div className="flex justify-between py-2 border-b border-[#F1F3FB]">
+          <div className="flex justify-between py-2 border-b border-[#E2E6F3]">
             <div className="h-3 w-28 rounded-md bg-[#F1F5F9] animate-pulse" />
             <div className="h-3 w-24 rounded-md bg-[#E2E8F0] animate-pulse" />
           </div>
@@ -104,12 +104,12 @@ export function PaveLoadingState({
         </div>
 
         {/* Member/Transactions list skeleton */}
-        <div className="rounded-2xl border border-[#F1F3FB] bg-white p-5 flex flex-col gap-3 shadow-xs">
+        <div className="rounded-2xl border border-[#E2E6F3] bg-white p-5 flex flex-col gap-3 shadow-xs">
           <div className="h-4 w-36 rounded-md bg-[#E2E8F0] mb-1 animate-pulse" />
           {[1, 2].map((idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between py-2.5 border-b border-[#F1F3FB] last:border-0"
+              className="flex items-center justify-between py-2.5 border-b border-[#E2E6F3] last:border-0"
             >
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-full bg-[#E2E8F0] animate-pulse" />

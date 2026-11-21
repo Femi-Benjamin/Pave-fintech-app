@@ -25,11 +25,11 @@ export default class ErrorBoundary extends React.Component<
     if (!this.state.hasError) return this.props.children;
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F8FF] p-6">
-        <div className="max-w-sm w-full rounded-2xl bg-white p-8 text-center shadow-sm border border-[#F1F3FB]">
+        <div className="max-w-sm w-full rounded-2xl bg-white p-8 text-center shadow-sm border border-[#E2E6F3]">
           <h1 className="text-lg font-bold text-[#0D0F1C]">
             Something went wrong
           </h1>
-          <p className="mt-2 text-sm text-[#6B7280]">
+          <p className="mt-2 text-sm text-[#4B5563]">
             Don't worry, your money and account are safe. Please reload the
             page to continue.
           </p>

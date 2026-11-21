@@ -190,7 +190,7 @@ export function MarketplaceScreen({
           >
             <span>My Purchases</span>
             {activePurchasesCount > 0 && (
-              <span className="bg-[#EF4444] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+              <span className="bg-[#EF4444] text-white text-[11px] px-1.5 py-0.5 rounded-full font-bold">
                 {activePurchasesCount}
               </span>
             )}
@@ -199,7 +199,7 @@ export function MarketplaceScreen({
 
         {tab === "products" && (
           <div className="bg-white/15 rounded-xl px-4 py-2.5 flex items-center gap-2 backdrop-blur-sm border border-white/20">
-            <Search size={16} className="text-white/70" />
+            <Search size={16} className="text-white/85" />
             <input
               placeholder="Search products or brands..."
               value={search}
@@ -238,7 +238,7 @@ export function MarketplaceScreen({
                 {[1, 2].map((i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-2xl p-3 border border-[#F1F3FB] animate-pulse flex flex-col gap-2"
+                    className="bg-white rounded-2xl p-3 border border-[#E2E6F3] animate-pulse flex flex-col gap-2"
                   >
                     <div className="aspect-4/3 bg-gray-200 rounded-xl" />
                     <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -307,7 +307,7 @@ export function MarketplaceScreen({
                         setSelectedProduct(p);
                         onNav("product-detail");
                       }}
-                      className="bg-white rounded-2xl overflow-hidden border border-[#F1F3FB] shadow-xs hover:shadow-md transition-all text-left flex flex-col cursor-pointer group"
+                      className="bg-white rounded-2xl overflow-hidden border border-[#E2E6F3] shadow-xs hover:shadow-md transition-all text-left flex flex-col cursor-pointer group"
                     >
                       <div className="relative aspect-4/3 overflow-hidden bg-[#F8F9FE]">
                         <ImageWithFallback
@@ -320,13 +320,13 @@ export function MarketplaceScreen({
                         />
                         {!isAvailable && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
-                            <span className="text-white text-[11px] font-semibold bg-red-600/90 px-2 py-0.5 rounded-full">
+                            <span className="text-white text-xs font-semibold bg-red-600/90 px-2 py-0.5 rounded-full">
                               Out of Stock
                             </span>
                           </div>
                         )}
                         {p.productRating > 0 && (
-                          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium px-1.5 py-0.5 rounded-full flex items-center gap-1">
                             <Star
                               size={10}
                               className="text-amber-400 fill-amber-400"
@@ -357,7 +357,7 @@ export function MarketplaceScreen({
                             {formatMoney(priceNum)}
                           </div>
                           <span
-                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
                               isAvailable
                                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 : "bg-red-50 text-red-700 border border-red-200"
@@ -395,7 +395,7 @@ export function MarketplaceScreen({
               {[1, 2].map((i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl p-4 border border-[#F1F3FB] animate-pulse h-28"
+                  className="bg-white rounded-2xl p-4 border border-[#E2E6F3] animate-pulse h-28"
                 />
               ))}
             </div>
@@ -416,7 +416,7 @@ export function MarketplaceScreen({
               </button>
             </div>
           ) : purchases.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 border border-[#F1F3FB] text-center flex flex-col items-center gap-3">
+            <div className="bg-white rounded-2xl p-8 border border-[#E2E6F3] text-center flex flex-col items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-[#7C3AED]">
                 <Package size={24} />
               </div>
@@ -455,11 +455,11 @@ export function MarketplaceScreen({
                 return (
                   <div
                     key={purchase.id}
-                    className="bg-white rounded-2xl p-4 border border-[#F1F3FB] shadow-xs flex flex-col gap-3"
+                    className="bg-white rounded-2xl p-4 border border-[#E2E6F3] shadow-xs flex flex-col gap-3"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <div className="text-[11px] text-gray-400">
+                        <div className="text-xs text-gray-400">
                           Ref: #{purchase.id.slice(0, 8)}
                         </div>
                         <h4 className="text-sm font-semibold text-gray-900 leading-tight">
@@ -493,7 +493,7 @@ export function MarketplaceScreen({
 
                     <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                       <div>
-                        <div className="text-[11px] text-gray-400">
+                        <div className="text-xs text-gray-400">
                           Outstanding Balance
                         </div>
                         <div className="text-xs font-bold text-gray-900">
@@ -706,7 +706,7 @@ export function ProductDetailScreen({
                   {p.productRating}
                 </span>
                 {Number(p.reviews) > 0 && (
-                  <span className="text-xs text-[#9CA3AF]">
+                  <span className="text-xs text-[#6B7280]">
                     ({p.reviews} reviews)
                   </span>
                 )}
@@ -815,19 +815,19 @@ export function ProductDetailScreen({
               </div>
               <div className="flex flex-col gap-2.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Full Price</span>
+                  <span className="text-[#4B5563]">Full Price</span>
                   <span className="font-bold text-[#0D0F1C]">
                     {formatMoney(priceNum)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Secure by paying small small</span>
+                  <span className="text-[#4B5563]">Secure by paying small small</span>
                   <span className="font-bold text-[#7C3AED]">
                     {formatMoney(priceNum * 0.5)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#6B7280]">Balance on Delivery</span>
+                  <span className="text-[#4B5563]">Balance on Delivery</span>
                   <span className="font-medium text-[#0D0F1C]">
                     {formatMoney(priceNum * 0.5)}
                   </span>
@@ -872,7 +872,7 @@ export function ProductDetailScreen({
           aria-modal="true"
           aria-label="Edit listing"
         >
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-[#F1F3FB]">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-[#E2E6F3]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-gray-900">Edit listing</h3>
               <button
@@ -946,7 +946,7 @@ export function ProductDetailScreen({
                   className="mt-1 block w-full text-xs text-gray-600 file:mr-3 file:rounded-lg file:border-0 file:bg-[#EEF2FF] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#3730A3]"
                 />
               </label>
-              <p className="text-[11px] text-gray-500">
+              <p className="text-xs text-gray-500">
                 Leave empty to keep the current photo. JPEG, PNG or WebP, up to 2 MB.
               </p>
             </div>
@@ -986,7 +986,7 @@ export function ProductDetailScreen({
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#E2E6F3]">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600 shrink-0">
                 <Trash2 size={22} />
@@ -1218,7 +1218,7 @@ export function PaymentPlanScreen({
           </div>
 
           {/* Quantity Selector */}
-          <div className="bg-white rounded-2xl border border-[#F1F3FB] p-4">
+          <div className="bg-white rounded-2xl border border-[#E2E6F3] p-4">
             <label className="text-xs font-semibold text-gray-700 block mb-2">
               Select Quantity
             </label>
@@ -1271,7 +1271,7 @@ export function PaymentPlanScreen({
                 }`}
               >
                 <div className="text-xs font-semibold">50% Down</div>
-                <div className="text-[11px] mt-0.5">{formatMoney(default50Percent)}</div>
+                <div className="text-xs mt-0.5">{formatMoney(default50Percent)}</div>
               </button>
 
               <button
@@ -1284,7 +1284,7 @@ export function PaymentPlanScreen({
                 }`}
               >
                 <div className="text-xs font-semibold">Full (100%)</div>
-                <div className="text-[11px] mt-0.5">{formatMoney(totalPrice)}</div>
+                <div className="text-xs mt-0.5">{formatMoney(totalPrice)}</div>
               </button>
 
               <button
@@ -1300,7 +1300,7 @@ export function PaymentPlanScreen({
                 }`}
               >
                 <div className="text-xs font-semibold">Custom</div>
-                <div className="text-[11px] mt-0.5">Any amount</div>
+                <div className="text-xs mt-0.5">Any amount</div>
               </button>
             </div>
 
@@ -1323,7 +1323,7 @@ export function PaymentPlanScreen({
           </div>
 
           {/* Installment Breakdown Summary */}
-          <div className="bg-white rounded-2xl border border-[#F1F3FB] p-5 flex flex-col gap-2.5">
+          <div className="bg-white rounded-2xl border border-[#E2E6F3] p-5 flex flex-col gap-2.5">
             <div className="text-xs font-bold text-gray-900 mb-1">
               Order Breakdown
             </div>
@@ -1624,7 +1624,7 @@ export function PurchaseDetailScreen({
 
       <div className="px-5 py-5 flex flex-col gap-5">
         {/* Product Info Card */}
-        <div className="bg-white rounded-2xl p-4 border border-[#F1F3FB] shadow-xs flex items-center gap-3">
+        <div className="bg-white rounded-2xl p-4 border border-[#E2E6F3] shadow-xs flex items-center gap-3">
           <div className="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center text-[#7C3AED] shrink-0 overflow-hidden">
             <ImageWithFallback
               src={
@@ -1637,7 +1637,7 @@ export function PurchaseDetailScreen({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-gray-400 font-mono">
+              <span className="text-xs text-gray-400 font-mono">
                 #{purchase.id.slice(0, 8)}
               </span>
               <Badge color={isCompleted ? "green" : "indigo"}>
@@ -1707,7 +1707,7 @@ export function PurchaseDetailScreen({
 
         {/* If In Progress: Continue Installment Payment Form */}
         {!isCompleted && dueAmount > 0 ? (
-          <div className="bg-white rounded-2xl p-5 border border-[#F1F3FB] shadow-xs flex flex-col gap-4">
+          <div className="bg-white rounded-2xl p-5 border border-[#E2E6F3] shadow-xs flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <CreditCard size={18} className="text-[#7C3AED]" />
               <h4 className="font-bold text-sm text-gray-900">

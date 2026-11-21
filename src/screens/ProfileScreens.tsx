@@ -375,7 +375,7 @@ export function ProfileScreen({
         >
           {fullName}
         </h2>
-        <p className="text-white/70 text-sm">{profileEmail}</p>
+        <p className="text-white/85 text-sm">{profileEmail}</p>
         {profileQuery.isError && (
           <p role="alert" className="mt-2 text-center text-xs text-red-200">
             Profile refresh failed:{" "}
@@ -407,7 +407,7 @@ export function ProfileScreen({
           ].map(([k, v]) => (
             <div key={k} className="text-center">
               <div className="text-white font-bold text-xl">{v}</div>
-              <div className="text-white/60 text-xs">{k}</div>
+              <div className="text-white/80 text-xs">{k}</div>
             </div>
           ))}
         </div>
@@ -494,7 +494,7 @@ export function ProfileScreen({
                 if (item.panel === "bank") void accountDetailsQuery.refetch();
               }
             }}
-            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-[#F1F3FB] hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-[#E2E6F3] hover:bg-[#F9FAFB] transition-colors cursor-pointer"
           >
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
@@ -562,7 +562,7 @@ export function ProfileScreen({
                     >
                       {panelTitles[activePanel]}
                     </h2>
-                    <p className="text-xs text-[#6B7280]">
+                    <p className="text-xs text-[#4B5563]">
                       {panelDescriptions[activePanel]}
                     </p>
                   </div>
@@ -581,13 +581,13 @@ export function ProfileScreen({
                 {activePanel === "personal" && (
                   <div className="space-y-5">
                     <div className="rounded-2xl border border-[#E8EAF4] bg-white p-5">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">
                         Account details
                       </p>
                       <p className="mt-2 font-semibold text-[#0D0F1C]">
                         {fullName}
                       </p>
-                      <p className="mt-1 text-sm text-[#6B7280]">
+                      <p className="mt-1 text-sm text-[#4B5563]">
                         {profileEmail}
                       </p>
                     </div>
@@ -663,7 +663,7 @@ export function ProfileScreen({
                           )}
                         </div>
                         <div>
-                          <p className="text-xs text-[#6B7280]">
+                          <p className="text-xs text-[#4B5563]">
                             Verification status
                           </p>
                           <p className="mt-0.5 font-bold text-[#0D0F1C]">
@@ -671,7 +671,7 @@ export function ProfileScreen({
                           </p>
                         </div>
                       </div>
-                      <p className="mt-4 text-sm leading-relaxed text-[#6B7280]">
+                      <p className="mt-4 text-sm leading-relaxed text-[#4B5563]">
                         Identity verification helps protect your account and
                         unlocks access to PAVEPADI services that require verified
                         details.
@@ -722,13 +722,13 @@ export function ProfileScreen({
                         <h3 className="font-bold text-[#0D0F1C]">
                           PAVEPADI account
                         </h3>
-                        <p className="text-xs text-[#6B7280]">
+                        <p className="text-xs text-[#4B5563]">
                           Account details for transfers
                         </p>
                       </div>
                     </div>
                     {accountDetailsQuery.isFetching && (
-                      <p role="status" className="text-sm text-[#6B7280]">
+                      <p role="status" className="text-sm text-[#4B5563]">
                         Loading account details...
                       </p>
                     )}
@@ -743,7 +743,7 @@ export function ProfileScreen({
                     {accountDetailsQuery.data && (
                       <dl className="divide-y divide-[#F1F3FB]">
                         <div className="flex justify-between gap-4 py-3">
-                          <dt className="text-sm text-[#6B7280]">
+                          <dt className="text-sm text-[#4B5563]">
                             Account name
                           </dt>
                           <dd className="text-right text-sm font-semibold text-[#0D0F1C]">
@@ -752,7 +752,7 @@ export function ProfileScreen({
                           </dd>
                         </div>
                         <div className="flex justify-between gap-4 py-3">
-                          <dt className="text-sm text-[#6B7280]">
+                          <dt className="text-sm text-[#4B5563]">
                             Account number
                           </dt>
                           <dd className="text-right font-mono text-sm font-semibold text-[#0D0F1C]">
@@ -765,7 +765,7 @@ export function ProfileScreen({
                     {!accountDetailsQuery.isFetching &&
                       !accountDetailsQuery.isError &&
                       !accountDetailsQuery.data && (
-                        <p className="text-sm text-[#6B7280]">
+                        <p className="text-sm text-[#4B5563]">
                           No account details are available yet.
                         </p>
                       )}
@@ -814,7 +814,7 @@ export function ProfileScreen({
                           <h3 className="text-sm font-semibold text-[#0D0F1C]">
                             {setting.label}
                           </h3>
-                          <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
+                          <p className="mt-1 text-xs leading-relaxed text-[#4B5563]">
                             {setting.description}
                           </p>
                         </div>
@@ -836,7 +836,7 @@ export function ProfileScreen({
                         </button>
                       </div>
                     ))}
-                    <p className="px-1 text-xs leading-relaxed text-[#6B7280]">
+                    <p className="px-1 text-xs leading-relaxed text-[#4B5563]">
                       These preferences are saved on this device.
                     </p>
                   </div>
@@ -853,7 +853,7 @@ export function ProfileScreen({
                           <h3 className="text-sm font-semibold text-[#0D0F1C]">
                             Password
                           </h3>
-                          <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
+                          <p className="mt-1 text-xs leading-relaxed text-[#4B5563]">
                             Reset your password using the email associated with
                             your account.
                           </p>
@@ -901,7 +901,7 @@ export function ProfileScreen({
                         {helpTopics.map((topic, index) => (
                           <div
                             key={topic.question}
-                            className="border-b border-[#F1F3FB] last:border-0"
+                            className="border-b border-[#E2E6F3] last:border-0"
                           >
                             <button
                               type="button"
@@ -916,13 +916,13 @@ export function ProfileScreen({
                               {topic.question}
                               <ChevronRight
                                 size={16}
-                                className={`shrink-0 text-[#9CA3AF] transition-transform ${
+                                className={`shrink-0 text-[#6B7280] transition-transform ${
                                   openHelpTopic === index ? "rotate-90" : ""
                                 }`}
                               />
                             </button>
                             {openHelpTopic === index && (
-                              <p className="px-4 pb-4 text-sm leading-relaxed text-[#6B7280]">
+                              <p className="px-4 pb-4 text-sm leading-relaxed text-[#4B5563]">
                                 {topic.answer}
                               </p>
                             )}
@@ -935,7 +935,7 @@ export function ProfileScreen({
                         size={18}
                         className="mt-0.5 shrink-0 text-[#3730A3]"
                       />
-                      <p className="text-xs leading-relaxed text-[#6B7280]">
+                      <p className="text-xs leading-relaxed text-[#4B5563]">
                         For account-specific support, use the official support
                         contact provided by PAVEPADI. PAVEPADI will never ask you to
                         share your password or one-time codes.
@@ -974,7 +974,7 @@ export function ProfileScreen({
                       {legalTopics.map((topic, index) => (
                         <div
                           key={topic.title}
-                          className="border-b border-[#F1F3FB] last:border-0"
+                          className="border-b border-[#E2E6F3] last:border-0"
                         >
                           <button
                             type="button"
@@ -989,13 +989,13 @@ export function ProfileScreen({
                             {topic.title}
                             <ChevronRight
                               size={16}
-                              className={`shrink-0 text-[#9CA3AF] transition-transform ${
+                              className={`shrink-0 text-[#6B7280] transition-transform ${
                                 openLegalTopic === index ? "rotate-90" : ""
                               }`}
                             />
                           </button>
                           {openLegalTopic === index && (
-                            <p className="px-4 pb-4 text-sm leading-relaxed text-[#6B7280]">
+                            <p className="px-4 pb-4 text-sm leading-relaxed text-[#4B5563]">
                               {topic.description}
                             </p>
                           )}
@@ -1006,7 +1006,7 @@ export function ProfileScreen({
                       <h3 className="text-sm font-semibold text-[#0D0F1C]">
                         Need more detail?
                       </h3>
-                      <p className="mt-1 text-xs leading-relaxed text-[#6B7280]">
+                      <p className="mt-1 text-xs leading-relaxed text-[#4B5563]">
                         Refer to the official PAVEPADI terms and privacy notice
                         provided for your account and the relevant financial
                         service.
@@ -1151,13 +1151,13 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         ].map((s) => (
           <div
             key={s.label}
-            className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#F1F3FB]"
+            className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#E2E6F3]"
           >
             <div>
               <div className="text-sm font-medium text-[#0D0F1C]">
                 {s.label}
               </div>
-              <div className="text-xs text-[#9CA3AF]">{s.desc}</div>
+              <div className="text-xs text-[#6B7280]">{s.desc}</div>
             </div>
             <button
               onClick={() => {
@@ -1179,7 +1179,7 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </button>
           </div>
         ))}
-        <div className="bg-white rounded-xl border border-[#F1F3FB] overflow-hidden">
+        <div className="bg-white rounded-xl border border-[#E2E6F3] overflow-hidden">
           {[
             ["Change PIN", "#3730A3"],
             ["Change Password", "#3730A3"],
@@ -1212,11 +1212,11 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           ))}
         </div>
         {mfaOpen && (
-          <section className="rounded-xl border border-[#F1F3FB] bg-white p-4">
+          <section className="rounded-xl border border-[#E2E6F3] bg-white p-4">
             <h3 className="mb-1 text-sm font-semibold text-[#0D0F1C]">
               Verify MFA token
             </h3>
-            <p className="mb-3 text-xs text-[#6B7280]">
+            <p className="mb-3 text-xs text-[#4B5563]">
               Enter the TOTP code from your authenticator app.
             </p>
             <Input
@@ -1256,11 +1256,11 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </section>
         )}
         {securityAnswerOpen && (
-          <section className="rounded-xl border border-[#F1F3FB] bg-white p-4">
+          <section className="rounded-xl border border-[#E2E6F3] bg-white p-4">
             <h3 className="mb-1 text-sm font-semibold text-[#0D0F1C]">
               Verify security answer
             </h3>
-            <p className="mb-3 text-xs text-[#6B7280]">
+            <p className="mb-3 text-xs text-[#4B5563]">
               Enter the answer to the security question on your account.
             </p>
             <Input
@@ -1312,7 +1312,7 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           <h3 className="mb-1 text-sm font-semibold text-red-700">
             Deactivate account
           </h3>
-          <p className="mb-3 text-xs text-[#6B7280]">
+          <p className="mb-3 text-xs text-[#4B5563]">
             Submitting this request deactivates and blocks your PAVEPADI account on the server, halting active sessions and wallet access.
           </p>
           {deleteAccountError && (
@@ -1335,7 +1335,7 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             )}
           </PaveBtn>
         </section>
-        <div className="bg-[#F1F3FB] rounded-xl p-3 text-center text-xs text-[#9CA3AF]">
+        <div className="bg-[#F1F3FB] rounded-xl p-3 text-center text-xs text-[#6B7280]">
           PAVEPADI v2.0.1 · Member ID: PAV-20240614
         </div>
       </div>

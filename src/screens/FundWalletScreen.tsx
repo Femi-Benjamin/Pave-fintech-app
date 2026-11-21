@@ -69,7 +69,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             >
               <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/10" />
               <div className="absolute -right-2 top-16 h-20 w-20 rounded-full bg-white/5" />
-              <div className="relative flex items-center gap-2 text-xs text-white/70">
+              <div className="relative flex items-center gap-2 text-xs text-white/85">
                 <Wallet size={14} />
                 Current balance
               </div>
@@ -90,7 +90,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </div>
 
             {/* Amount entry */}
-            <div className="rounded-3xl bg-white p-5 shadow-xs border border-[#F1F3FB]">
+            <div className="rounded-3xl bg-white p-5 shadow-xs border border-[#E2E6F3]">
               <label
                 htmlFor="fund-amount"
                 className="text-sm font-medium text-[#374151]"
@@ -99,7 +99,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               </label>
               <div className="mt-3 flex items-center gap-2 rounded-2xl border-2 border-transparent bg-[#F1F3FB] px-4 py-3 transition-colors focus-within:border-[#3730A3] focus-within:bg-white">
                 <span
-                  className="text-2xl text-[#6B7280]"
+                  className="text-2xl text-[#4B5563]"
                   style={{ fontFamily: "var(--font-family-display)" }}
                 >
                   ₦
@@ -120,7 +120,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 />
               </div>
 
-              <p className="mt-4 text-xs font-medium text-[#6B7280]">
+              <p className="mt-4 text-xs font-medium text-[#4B5563]">
                 Quick amounts
               </p>
               <div className="mt-2 grid grid-cols-3 gap-2">
@@ -174,7 +174,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                       }}
                     />
                   </div>
-                  <p className="mt-1.5 text-center text-xs text-[#6B7280]">
+                  <p className="mt-1.5 text-center text-xs text-[#4B5563]">
                     Creating your secure payment link...
                   </p>
                 </div>
@@ -190,7 +190,7 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </div>
 
             {/* How it works */}
-            <div className="rounded-3xl bg-white p-5 shadow-xs border border-[#F1F3FB]">
+            <div className="rounded-3xl bg-white p-5 shadow-xs border border-[#E2E6F3]">
               <p className="text-sm font-semibold text-[#0D0F1C]">
                 How it works
               </p>
@@ -232,10 +232,10 @@ export function FundWalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             >
               Your payment link is ready
             </h2>
-            <p className="text-[#6B7280] text-sm mt-2">
+            <p className="text-[#4B5563] text-sm mt-2">
               {fundingMutation.data?.message || "Continue to Paystack to complete your wallet funding."}
             </p>
-            <p className="text-[#6B7280] text-xs mt-3">
+            <p className="text-[#4B5563] text-xs mt-3">
               Your wallet balance will update only after Paystack confirms the payment.
             </p>
           </div>

@@ -18,12 +18,15 @@
   --secondary: #EEF2FF;
   --secondary-foreground: #312E81;
   --muted: #F1F3FB;
-  --muted-foreground: #6B7280;
+  --muted-foreground: #4B5563;
   --accent: #059669;
   --accent-foreground: #FFFFFF;
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
-  --border: rgba(55, 48, 163, 0.1);
+  --border: rgba(55, 48, 163, 0.16);
+  --shadow-card: 0 1px 2px rgba(17, 24, 39, 0.05), 0 4px 14px rgba(55, 48, 163, 0.07);
+  --shadow-card-hover: 0 2px 4px rgba(17, 24, 39, 0.06), 0 10px 28px rgba(55, 48, 163, 0.13);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --input: transparent;
   --input-background: #F1F3FB;
   --switch-background: #CBD5E1;
@@ -64,7 +67,7 @@
   --secondary: #1E2140;
   --secondary-foreground: #C7D2FE;
   --muted: #161830;
-  --muted-foreground: #94A3B8;
+  --muted-foreground: #A9B4C7;
   --accent: #10B981;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
@@ -150,9 +153,45 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-family-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.25);
+  }
+
+  /* Clear, consistent keyboard focus everywhere */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #6B7280;
+    opacity: 1;
+  }
+
+  button:not(:disabled),
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -281,7 +320,152 @@
   animation: audienceMarquee 60s linear infinite;
 }
 
+/* ---------- Polish: surfaces & motion ---------- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Screen entrance: applied once per screen mount */
+.animate-screen-in {
+  animation: fadeInUp 0.38s var(--ease-out-expo) backwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out backwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.28s var(--ease-out-expo) backwards;
+}
+
+.animate-pop-in {
+  animation: popIn 0.35s var(--ease-out-expo) backwards;
+}
+
+/* Staggered children: add .stagger to the parent */
+.stagger > * {
+  animation: fadeInUp 0.42s var(--ease-out-expo) backwards;
+}
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 50ms; }
+.stagger > *:nth-child(3) { animation-delay: 100ms; }
+.stagger > *:nth-child(4) { animation-delay: 150ms; }
+.stagger > *:nth-child(5) { animation-delay: 200ms; }
+.stagger > *:nth-child(6) { animation-delay: 250ms; }
+.stagger > *:nth-child(n + 7) { animation-delay: 300ms; }
+
+/* Card surface: visible edge + soft depth, lifts on hover */
+.pave-card {
+  background: var(--card);
+  border: 1px solid #E2E6F3;
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-card);
+  transition:
+    box-shadow 0.25s var(--ease-out-expo),
+    transform 0.25s var(--ease-out-expo),
+    border-color 0.2s ease;
+}
+
+.pave-card-interactive:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+  border-color: #C7D2FE;
+}
+
+.pave-card-interactive:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.dark .pave-card {
+  border-color: rgba(129, 140, 248, 0.22);
+  box-shadow: none;
+}
+
+/* Bell / badge attention pulse */
+@keyframes badgePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(217, 119, 6, 0);
+  }
+}
+
+.animate-badge-pulse {
+  animation: badgePulse 2.2s ease-out infinite;
+}
+
+/* Smooth press feedback for any tappable element */
+.tap-feedback {
+  transition: transform 0.15s ease;
+}
+.tap-feedback:active {
+  transform: scale(0.97);
+}
+
+/* Slimmer, friendlier scrollbars on desktop */
+@media (hover: hover) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #C7D2FE transparent;
+  }
+}
+
+/* Respect users who prefer less motion */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   .animate-audience-marquee {
     animation: none;
   }

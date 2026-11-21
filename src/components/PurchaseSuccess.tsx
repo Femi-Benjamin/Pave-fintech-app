@@ -181,7 +181,7 @@ export function PurchaseSuccess({
           {title}
         </motion.h2>
         {message && (
-          <motion.p {...fade(0.55)} className="mt-2 text-center text-sm text-[#6B7280]">
+          <motion.p {...fade(0.55)} className="mt-2 text-center text-sm text-[#4B5563]">
             {message}
           </motion.p>
         )}
@@ -209,7 +209,7 @@ export function PurchaseSuccess({
                 transition={{ delay: 0.9 + i * 0.07 }}
                 className="flex items-start justify-between gap-4 py-2.5 text-sm"
               >
-                <span className="text-[#6B7280]">{r.label}</span>
+                <span className="text-[#4B5563]">{r.label}</span>
                 <span className="text-right font-semibold text-[#0D0F1C] break-words min-w-0">
                   {r.value}
                 </span>
@@ -230,7 +230,7 @@ export function PurchaseSuccess({
                 aria-label="Copy reference"
               >
                 <span className="min-w-0">
-                  <span className="block text-xs text-[#6B7280]">Reference</span>
+                  <span className="block text-xs text-[#4B5563]">Reference</span>
                   <span className="block truncate text-sm font-semibold text-[#0D0F1C]">
                     {reference}
                   </span>

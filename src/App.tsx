@@ -525,7 +525,8 @@ function MobileApp({
         className={`flex-1 flex flex-col min-w-0 ${showNav ? "min-h-screen overflow-y-auto pb-22 lg:pb-0" : isFixedIntroScreen ? "h-full max-h-full overflow-hidden" : "h-screen max-h-screen overflow-y-auto"} relative`}
       >
         <div
-          className={`flex-1 flex flex-col ${!showNav ? "min-h-full" : ""}`}
+          key={screen}
+          className={`flex-1 flex flex-col animate-screen-in ${!showNav ? "min-h-full" : ""}`}
         >
           <Suspense fallback={<ScreenFallback screen={screen} />}>
             {authOrIntroScreens.includes(screen) ? (
@@ -542,7 +543,7 @@ function MobileApp({
         {showNav && (
           <nav
             aria-label="Bottom Navigation"
-            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[#F1F3FB] shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-[#D5DAEE] shadow-[0_-6px_24px_rgba(55,48,163,0.10)]"
           >
             <div className="flex max-w-md mx-auto">
               {BOTTOM_NAV.map((item) => {
@@ -562,26 +563,29 @@ function MobileApp({
                   <button
                     key={item.screen}
                     onClick={() => nav(item.screen)}
-                    className="flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-colors cursor-pointer select-none active:scale-95"
+                    aria-current={active ? "page" : undefined}
+                    className="flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-colors cursor-pointer select-none active:scale-95"
                   >
-                    <item.icon
-                      size={20}
-                      style={{
-                        color: active ? "#3730A3" : "#9CA3AF",
-                        strokeWidth: active ? 2.2 : 1.6,
-                      }}
-                    />
                     <span
-                      className="text-[10px] sm:text-xs font-semibold"
-                      style={{ color: active ? "#3730A3" : "#9CA3AF" }}
+                      className={`flex items-center justify-center w-12 h-7 rounded-full transition-all duration-300 ease-out ${
+                        active ? "bg-[#E0E7FF]" : "bg-transparent"
+                      }`}
+                    >
+                      <item.icon
+                        size={20}
+                        className={`transition-transform duration-300 ${active ? "scale-110" : ""}`}
+                        style={{
+                          color: active ? "#312E81" : "#4B5563",
+                          strokeWidth: active ? 2.3 : 1.8,
+                        }}
+                      />
+                    </span>
+                    <span
+                      className="text-[11px] sm:text-xs font-semibold"
+                      style={{ color: active ? "#312E81" : "#4B5563" }}
                     >
                       {item.label}
                     </span>
-                    {active ? (
-                      <div className="w-1 h-1 rounded-full bg-[#3730A3] mt-0.5" />
-                    ) : (
-                      <div className="w-1 h-1 rounded-full mt-0.5 opacity-0" />
-                    )}
                   </button>
                 );
               })}

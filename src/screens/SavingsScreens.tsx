@@ -93,7 +93,7 @@ export function PersonalSavingsScreen({
         </h1>
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl border border-white/20 bg-white/15 p-4 backdrop-blur-sm">
-            <div className="mb-1 text-xs text-white/70">Total Saved</div>
+            <div className="mb-1 text-xs text-white/85">Total Saved</div>
             <div
               className="text-[22px] font-bold text-white"
               style={{ fontFamily: "var(--font-family-display)" }}
@@ -104,12 +104,12 @@ export function PersonalSavingsScreen({
                 fmt(totalSaved)
               )}
             </div>
-            <div className="mt-1 text-xs text-white/60">
+            <div className="mt-1 text-xs text-white/80">
               Across {savings.length} goals
             </div>
           </div>
           <div className="rounded-2xl border border-white/20 bg-white/15 p-4 backdrop-blur-sm">
-            <div className="mb-1 text-xs text-white/70">Active Goals</div>
+            <div className="mb-1 text-xs text-white/85">Active Goals</div>
             <div
               className="text-[22px] font-bold text-white"
               style={{ fontFamily: "var(--font-family-display)" }}
@@ -120,7 +120,7 @@ export function PersonalSavingsScreen({
                 activeGoals
               )}
             </div>
-            <div className="mt-1 text-xs text-white/60">Personal savings</div>
+            <div className="mt-1 text-xs text-white/80">Personal savings</div>
           </div>
         </div>
       </div>
@@ -174,7 +174,7 @@ export function PersonalSavingsScreen({
           [1, 2].map((item) => (
             <div
               key={item}
-              className="rounded-2xl border border-[#F1F3FB] bg-white p-5"
+              className="rounded-2xl border border-[#E2E6F3] bg-white p-5"
             >
               <Skeleton className="mb-4 h-5 w-36 rounded-md" />
               <Skeleton className="mb-5 h-3 w-28 rounded-md" />
@@ -182,7 +182,7 @@ export function PersonalSavingsScreen({
             </div>
           ))}
         {savingsQuery.isSuccess && savings.length === 0 && (
-          <div className="rounded-2xl border border-[#F1F3FB] bg-white p-5 text-sm text-[#6B7280]">
+          <div className="rounded-2xl border border-[#E2E6F3] bg-white p-5 text-sm text-[#4B5563]">
             You don't have any personal savings goals yet.
           </div>
         )}
@@ -197,7 +197,7 @@ export function PersonalSavingsScreen({
                 onSelectSaving(saving.id);
                 onNav("savings-detail");
               }}
-              className="cursor-pointer rounded-2xl border border-[#F1F3FB] bg-white p-5 text-left shadow-sm"
+              className="cursor-pointer rounded-2xl border border-[#E2E6F3] bg-white p-5 text-left shadow-sm"
             >
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
@@ -211,7 +211,7 @@ export function PersonalSavingsScreen({
                     <div className="truncate font-semibold text-[#0D0F1C]">
                       {saving.name}
                     </div>
-                    <div className="text-xs capitalize text-[#9CA3AF]">
+                    <div className="text-xs capitalize text-[#6B7280]">
                       {saving.frequency}
                       {saving.status ? ` · ${saving.status}` : ""}
                     </div>
@@ -221,7 +221,7 @@ export function PersonalSavingsScreen({
                   <div className="font-semibold text-[#0D0F1C]">
                     {fmt(saved)}
                   </div>
-                  <div className="text-xs text-[#9CA3AF]">
+                  <div className="text-xs text-[#6B7280]">
                     {progress}% saved
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export function PersonalSavingsScreen({
                   style={{ background: savingColor(index) }}
                 />
               </div>
-              <div className="mt-2 flex justify-between text-xs text-[#9CA3AF]">
+              <div className="mt-2 flex justify-between text-xs text-[#6B7280]">
                 <span>Goal: {fmt(target)}</span>
                 <span>{fmt(Math.max(0, target - saved))} remaining</span>
               </div>
@@ -305,7 +305,7 @@ export function CreateSavingScreen({
             <h1 className="text-xl font-bold text-[#0D0F1C] sm:text-2xl">
               Give your savings a clear plan
             </h1>
-            <p className="mt-1 text-sm leading-6 text-[#6B7280]">
+            <p className="mt-1 text-sm leading-6 text-[#4B5563]">
               Set a target and schedule that works for you. You can update your
               goal later.
             </p>
@@ -314,11 +314,11 @@ export function CreateSavingScreen({
             onSubmit={(event) => void submit(event)}
             className="rounded-2xl border border-[#E9ECF5] bg-white p-5 shadow-sm sm:p-7"
           >
-            <div className="mb-6 border-b border-[#F1F3FB] pb-4">
+            <div className="mb-6 border-b border-[#E2E6F3] pb-4">
               <h2 className="text-base font-semibold text-[#0D0F1C]">
                 Goal details
               </h2>
-              <p className="mt-1 text-xs text-[#6B7280]">
+              <p className="mt-1 text-xs text-[#4B5563]">
                 Fields marked <span className="text-red-600">*</span> are
                 required.
               </p>
@@ -339,7 +339,7 @@ export function CreateSavingScreen({
                   }
                   maxLength={100}
                   placeholder="e.g. House rent"
-                  className="w-full rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#9CA3AF] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
+                  className="w-full rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#6B7280] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
                 />
               </label>
               <label className="flex flex-col gap-2 text-sm font-medium text-[#374151]">
@@ -355,9 +355,9 @@ export function CreateSavingScreen({
                   rows={3}
                   maxLength={500}
                   placeholder="Add a note about what you’re saving for (optional)"
-                  className="w-full resize-y rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#9CA3AF] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
+                  className="w-full resize-y rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#6B7280] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
                 />
-                <span className="text-xs font-normal text-[#9CA3AF]">
+                <span className="text-xs font-normal text-[#6B7280]">
                   {form.description.length}/500 characters
                 </span>
               </label>
@@ -367,7 +367,7 @@ export function CreateSavingScreen({
                     Target amount <span className="text-red-600">*</span>
                   </span>
                   <div className="flex items-center overflow-hidden rounded-xl border border-[#E5E7EB] bg-white transition focus-within:border-[#3730A3] focus-within:ring-4 focus-within:ring-[#3730A3]/10 hover:border-[#C7D2FE]">
-                    <span className="border-r border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm text-[#6B7280]">
+                    <span className="border-r border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm text-[#4B5563]">
                       NGN
                     </span>
                     <input
@@ -383,7 +383,7 @@ export function CreateSavingScreen({
                         }))
                       }
                       placeholder="120000"
-                      className="w-full px-4 py-3 text-sm text-[#0D0F1C] outline-none placeholder:text-[#9CA3AF]"
+                      className="w-full px-4 py-3 text-sm text-[#0D0F1C] outline-none placeholder:text-[#6B7280]"
                     />
                   </div>
                 </label>
@@ -481,7 +481,7 @@ export function CreateSavingScreen({
                   <span className="block text-sm font-medium text-[#374151]">
                     Enable automatic debit
                   </span>
-                  <span className="mt-1 block text-xs leading-5 text-[#6B7280]">
+                  <span className="mt-1 block text-xs leading-5 text-[#4B5563]">
                     Allow scheduled contributions from your wallet based on your
                     selected frequency.
                   </span>
@@ -498,7 +498,7 @@ export function CreateSavingScreen({
                   )}
                 </p>
               )}
-              <div className="flex flex-col-reverse gap-3 border-t border-[#F1F3FB] pt-5 sm:flex-row sm:justify-end">
+              <div className="flex flex-col-reverse gap-3 border-t border-[#E2E6F3] pt-5 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => onNav("savings")}
@@ -702,12 +702,12 @@ export function SavingsDetailScreen({
         >
           {saving.name}
         </h2>
-        <div className="text-white/70 text-xs mb-6">
+        <div className="text-white/85 text-xs mb-6">
           {saving.frequency} contributions ·{" "}
           {saving.status ?? "Status unavailable"}
         </div>
         <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
-          <div className="text-white/70 text-xs mb-1">Saved so far</div>
+          <div className="text-white/85 text-xs mb-1">Saved so far</div>
           <div className="text-white mb-3 text-3xl font-bold">{fmt(saved)}</div>
           <div className="h-3 bg-white/20 rounded-full overflow-hidden">
             <motion.div
@@ -717,7 +717,7 @@ export function SavingsDetailScreen({
               className="h-full rounded-full bg-white"
             />
           </div>
-          <div className="flex justify-between mt-2 text-white/70 text-xs">
+          <div className="flex justify-between mt-2 text-white/85 text-xs">
             <span>
               {progress}% of {fmt(target)}
             </span>
@@ -772,7 +772,7 @@ export function SavingsDetailScreen({
           </p>
         )}
         {activeAction && (
-          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+          <section className="rounded-2xl border border-[#E2E6F3] bg-white p-4">
             <h3 className="mb-1 text-sm font-semibold text-[#0D0F1C]">
               {activeAction === "withdraw"
                 ? "Withdraw contribution"
@@ -780,7 +780,7 @@ export function SavingsDetailScreen({
             </h3>
             {activeAction === "contribute" && (
               <>
-                <p className="mb-3 text-xs text-[#6B7280]">
+                <p className="mb-3 text-xs text-[#4B5563]">
                   Wallet balance:{" "}
                   {walletBalanceQuery.data
                     ? fmt(amount(walletBalanceQuery.data.balance))
@@ -849,7 +849,7 @@ export function SavingsDetailScreen({
           </section>
         )}
         {isEditing && (
-          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+          <section className="rounded-2xl border border-[#E2E6F3] bg-white p-4">
             <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
               Edit savings goal
             </h3>
@@ -906,7 +906,7 @@ export function SavingsDetailScreen({
                   ),
                 )}
               </select>
-              <label className="text-xs text-[#6B7280]">
+              <label className="text-xs text-[#4B5563]">
                 Start date
                 <input
                   type="date"
@@ -920,7 +920,7 @@ export function SavingsDetailScreen({
                   className="mt-1 w-full bg-[#F1F3FB] rounded-xl px-4 py-3 text-sm"
                 />
               </label>
-              <label className="text-xs text-[#6B7280]">
+              <label className="text-xs text-[#4B5563]">
                 Target date
                 <input
                   type="date"
@@ -966,7 +966,7 @@ export function SavingsDetailScreen({
             </div>
           </section>
         )}
-        <div className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+        <div className="rounded-2xl border border-[#E2E6F3] bg-white p-4">
           <div className="grid grid-cols-3 gap-4 text-center">
             {[
               ["Target", fmt(target)],
@@ -974,7 +974,7 @@ export function SavingsDetailScreen({
               ["Remaining", fmt(Math.max(0, target - saved))],
             ].map(([label, value]) => (
               <div key={label}>
-                <div className="text-xs text-[#9CA3AF]">{label}</div>
+                <div className="text-xs text-[#6B7280]">{label}</div>
                 <div className="text-sm font-semibold text-[#0D0F1C]">
                   {value}
                 </div>
@@ -988,7 +988,7 @@ export function SavingsDetailScreen({
               Contribution History
             </h3>
             {contributionsQuery.isFetching && (
-              <span className="text-[11px] text-[#3730A3] flex items-center gap-1">
+              <span className="text-xs text-[#3730A3] flex items-center gap-1">
                 <Loader size={12} className="animate-spin" /> Updating...
               </span>
             )}
@@ -1001,7 +1001,7 @@ export function SavingsDetailScreen({
 
             if (displayedContributions.length === 0) {
               return (
-                <p className="rounded-xl bg-white p-4 text-sm text-[#6B7280]">
+                <p className="rounded-xl bg-white p-4 text-sm text-[#4B5563]">
                   No contributions recorded for this goal yet.
                 </p>
               );
@@ -1010,13 +1010,13 @@ export function SavingsDetailScreen({
             return displayedContributions.map((contribution) => (
               <div
                 key={contribution.id || contribution.reference || Math.random().toString()}
-                className="flex items-center justify-between gap-3 border-b border-[#F1F3FB] py-3 bg-white px-3 rounded-lg mb-1.5"
+                className="flex items-center justify-between gap-3 border-b border-[#E2E6F3] py-3 bg-white px-3 rounded-lg mb-1.5"
               >
                 <div>
                   <div className="text-sm font-medium text-[#0D0F1C]">
                     {contribution.remarks || "Contribution"}
                   </div>
-                  <div className="text-xs text-[#9CA3AF]">
+                  <div className="text-xs text-[#6B7280]">
                     {contribution.paidAt
                       ? new Date(contribution.paidAt).toLocaleDateString()
                       : (contribution.status ?? "Completed")}

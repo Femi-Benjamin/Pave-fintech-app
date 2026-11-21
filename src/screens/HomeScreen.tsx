@@ -197,7 +197,7 @@ export function HomeScreen({
             >
               {`Welcome, ${firstName} 👋`}
             </h1>
-            {/* <p className="hidden sm:block text-sm text-[#6B7280]">
+            {/* <p className="hidden sm:block text-sm text-[#4B5563]">
               Here's what's happening with your finances today.
             </p> */}
           </div>
@@ -206,19 +206,19 @@ export function HomeScreen({
           {/* <button
             onClick={handleRefresh}
             title="Refresh finances"
-            className="hidden sm:flex w-10 h-10 rounded-full bg-white border border-[#E5E7EB] items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#6B7280] hover:text-[#3730A3] transition-colors"
+            className="hidden sm:flex w-10 h-10 rounded-full bg-white border border-[#E5E7EB] items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB] text-[#4B5563] hover:text-[#3730A3] transition-colors"
           >
             <RotateCw size={16} />
           </button> */}
           <button
             onClick={() => onNav("notifications")}
-            className="relative w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center cursor-pointer shadow-xs hover:bg-[#F9FAFB]"
+            className="relative w-11 h-11 rounded-full bg-white border border-[#D5DAEE] flex items-center justify-center cursor-pointer shadow-sm hover:bg-[#EEF2FF] hover:border-[#A5B4FC] active:scale-95 transition-all duration-200"
             title="Notifications"
             aria-label="Notifications"
           >
-            <Bell size={18} className="text-[#374151]" />
+            <Bell size={19} className="text-[#1F2937]" />
             {unreadNotifications > 0 && (
-              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#D97706] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <div className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#B45309] text-white text-[11px] font-bold rounded-full flex items-center justify-center animate-badge-pulse">
                 {unreadNotifications > 9 ? "9+" : unreadNotifications}
               </div>
             )}
@@ -229,31 +229,41 @@ export function HomeScreen({
       {/* Main Grid: 2 columns on lg (8 cols and 4 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (8 cols): Balance + Quick Actions + Savings + Recent Activity */}
-        <div className="lg:col-span-8 flex flex-col gap-6">
+        <div className="lg:col-span-8 flex flex-col gap-6 stagger">
           {/* Wallet Balance Card */}
           <div
             style={{
               background: "linear-gradient(145deg, #1E1B4B 0%, #3730A3 100%)",
             }}
-            className="p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden"
+            className="p-6 sm:p-8 rounded-3xl text-white shadow-xl shadow-[#3730A3]/30 relative overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-white/70 text-sm font-medium">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#6366F1]/30 blur-3xl"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-24 -left-10 h-48 w-48 rounded-full bg-[#10B981]/15 blur-3xl"
+            />
+            <div className="relative flex items-center justify-between mb-2">
+              <span className="text-white/90 text-sm font-semibold">
                 Total Wallet Balance
               </span>
               <button
+                type="button"
                 onClick={() => setBalVisible(!balVisible)}
-                className="text-white/70 hover:text-white cursor-pointer"
+                aria-label={balVisible ? "Hide balance" : "Show balance"}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/90 transition-all hover:bg-white/20 hover:text-white active:scale-90 cursor-pointer"
               >
                 {balVisible ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             <div
-              className="text-white mb-6"
+              className="relative text-white mb-6 tabular-nums"
               style={{
                 fontFamily: "var(--font-family-display)",
                 fontWeight: 800,
-                fontSize: 36,
+                fontSize: 40,
                 letterSpacing: "-0.5px",
               }}
             >
@@ -278,23 +288,23 @@ export function HomeScreen({
               </p>
             )}
 
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/15">
+            <div className="relative flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/25">
               <div className="flex items-center gap-2">
-                <Landmark size={16} className="text-white/70" />
-                <span className="text-white/70 text-xs">Virtual Account:</span>
-                <p className="text-white text-xs font-mono font-bold">
+                <Landmark size={16} className="text-white/85" />
+                <span className="text-white/90 text-sm">Virtual Account:</span>
+                <p className="text-white text-sm font-semibold">
                   View details in Wallet
                 </p>
               </div>
-              <span className="text-xs text-white/80 bg-white/10 px-3 py-1 rounded-full flex items-center gap-1.5">
-                Wema Bank • <BrandText variant="light" className="text-[10px]" />
+              <span className="text-xs text-white bg-white/15 ring-1 ring-inset ring-white/20 px-3 py-1 rounded-full flex items-center gap-1.5">
+                Wema Bank • <BrandText variant="light" className="text-[11px]" />
               </span>
             </div>
           </div>
 
           {/* Quick Actions Grid */}
-          <div className="bg-white rounded-2xl p-5 shadow-xs border border-[#F1F3FB]">
-            <div className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] mb-4">
+          <div className="pave-card p-5">
+            <div className="text-xs font-bold uppercase tracking-wider text-[#374151] mb-4">
               Quick Financial Actions
             </div>
             <div className="grid grid-cols-4 gap-3 sm:gap-4">
@@ -304,21 +314,21 @@ export function HomeScreen({
                   onClick={() => onNav(a.screen as Screen)}
                   disabled={a.disabled}
                   aria-disabled={a.disabled || undefined}
-                  className={`flex flex-col items-center gap-2 p-2 rounded-xl transition-colors ${
+                  className={`group flex flex-col items-center gap-2 p-2 rounded-xl transition-all duration-200 ${
                     a.disabled
-                      ? "cursor-not-allowed opacity-50"
-                      : "hover:bg-[#F9FAFB] cursor-pointer"
+                      ? "cursor-not-allowed opacity-60"
+                      : "hover:bg-[#F5F6FD] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                   }`}
                 >
                   <div
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-transform ${
-                      a.disabled ? "" : "hover:scale-105"
+                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center ring-1 ring-black/5 shadow-sm transition-transform duration-200 ${
+                      a.disabled ? "" : "group-hover:scale-110"
                     }`}
                     style={{ background: a.bg, color: a.color }}
                   >
                     {a.icon}
                   </div>
-                  <span className="text-xs sm:text-sm text-[#374151] font-semibold">
+                  <span className="text-sm text-[#1F2937] font-semibold">
                     {a.label}
                   </span>
                 </button>
@@ -327,7 +337,7 @@ export function HomeScreen({
           </div>
 
           {/* Personal Savings Goals */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-[#F1F3FB]">
+          <div className="pave-card p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3
@@ -336,13 +346,13 @@ export function HomeScreen({
                 >
                   My Savings Goals
                 </h3>
-                <p className="text-xs text-[#6B7280]">
+                <p className="text-sm text-[#4B5563]">
                   Your personal savings progress
                 </p>
               </div>
               <button
                 onClick={() => onNav("savings")}
-                className="text-xs text-[#3730A3] font-bold hover:underline cursor-pointer"
+                className="text-sm text-[#3730A3] font-bold hover:underline underline-offset-4 cursor-pointer"
               >
                 View all ({savings.length})
               </button>
@@ -355,7 +365,7 @@ export function HomeScreen({
                     onSelectSaving(saving.id);
                     onNav("savings-detail");
                   }}
-                  className="bg-white rounded-2xl p-4 border border-[#CBD5E1] hover:border-[#3730A3]/30 transition-all text-left cursor-pointer flex flex-col justify-between shadow-2xs hover:shadow-md"
+                  className="pave-card pave-card-interactive !rounded-2xl p-4 text-left cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between mb-3 gap-3">
                     <div className="min-w-0">
@@ -393,7 +403,7 @@ export function HomeScreen({
                     />
                   </div>
                   <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-[#334155]">
-                    <span className="font-bold text-[#059669]">
+                    <span className="font-bold text-[#047857]">
                       {Number(saving.targetAmount) > 0
                         ? pct(
                             Number(saving.totalSaved),
@@ -402,7 +412,7 @@ export function HomeScreen({
                         : 0}
                       % saved
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[11px] font-bold capitalize">
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-xs font-bold capitalize">
                       {saving.status ?? "active"}
                     </span>
                   </div>
@@ -412,7 +422,7 @@ export function HomeScreen({
                 [1, 2].map((item) => (
                   <div
                     key={item}
-                    className="rounded-2xl border border-[#F1F3FB] p-4"
+                    className="rounded-2xl border border-[#E2E6F3] p-4"
                   >
                     <Skeleton className="mb-3 h-4 w-2/3 rounded-md" />
                     <Skeleton className="mb-4 h-3 w-1/2 rounded-md" />
@@ -430,7 +440,7 @@ export function HomeScreen({
               {!savingsQuery.isLoading &&
                 !savingsQuery.isError &&
                 savings.length === 0 && (
-                  <p className="text-sm text-[#6B7280]">
+                  <p className="text-sm text-[#4B5563]">
                     You don't have any savings goals yet.
                   </p>
                 )}
@@ -438,7 +448,7 @@ export function HomeScreen({
           </div>
 
           {/* My AJO Groups */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-[#F1F3FB]">
+          <div className="pave-card p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3
@@ -447,13 +457,13 @@ export function HomeScreen({
                 >
                   My AJO Groups
                 </h3>
-                <p className="text-xs text-[#6B7280]">
+                <p className="text-sm text-[#4B5563]">
                   Group balances and progress
                 </p>
               </div>
               <button
                 onClick={() => onNav("group-savings")}
-                className="text-xs text-[#3730A3] font-bold hover:underline cursor-pointer"
+                className="text-sm text-[#3730A3] font-bold hover:underline underline-offset-4 cursor-pointer"
               >
                 View all ({groupSavings.length})
               </button>
@@ -466,7 +476,7 @@ export function HomeScreen({
                     onSelectGroup(s.id);
                     onNav("group-saving-detail");
                   }}
-                  className="bg-white rounded-2xl p-4 border border-[#CBD5E1] hover:border-[#3730A3]/30 transition-all text-left cursor-pointer flex flex-col justify-between shadow-2xs hover:shadow-md"
+                  className="pave-card pave-card-interactive !rounded-2xl p-4 text-left cursor-pointer flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -491,7 +501,7 @@ export function HomeScreen({
                       </div>
                     </div>
                   </div>
-                  <div className="h-2 bg-white rounded-full overflow-hidden mb-2">
+                  <div className="mb-2 h-2.5 overflow-hidden rounded-full bg-[#E2E8F0]">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{
@@ -516,7 +526,7 @@ export function HomeScreen({
                         : 0}
                       % reached
                     </span>
-                    <span className="px-2 py-0.5 bg-indigo-50 text-[#3730A3] border border-[#C7D2FE] rounded-md text-[11px] font-bold capitalize">
+                    <span className="px-2 py-0.5 bg-indigo-50 text-[#3730A3] border border-[#C7D2FE] rounded-md text-xs font-bold capitalize">
                       {s.status ?? "active"}
                     </span>
                   </div>
@@ -526,7 +536,7 @@ export function HomeScreen({
                 [1, 2].map((item) => (
                   <div
                     key={item}
-                    className="rounded-2xl border border-[#F1F3FB] p-4"
+                    className="rounded-2xl border border-[#E2E6F3] p-4"
                   >
                     <Skeleton className="h-4 w-2/3 rounded-md mb-3" />
                     <Skeleton className="h-3 w-1/2 rounded-md mb-4" />
@@ -544,7 +554,7 @@ export function HomeScreen({
               {!groupSavingsQuery.isLoading &&
                 !groupSavingsQuery.isError &&
                 groupSavings.length === 0 && (
-                  <p className="text-sm text-[#6B7280]">
+                  <p className="text-sm text-[#4B5563]">
                     You haven't joined any AJO groups yet. Join with an
                     invitation code to see your groups here.
                   </p>
@@ -553,7 +563,7 @@ export function HomeScreen({
           </div>
 
           {/* Recent Activity List */}
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-[#F1F3FB]">
+          <div className="pave-card p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h3
                 className="text-lg font-bold text-[#0D0F1C]"
@@ -563,7 +573,7 @@ export function HomeScreen({
               </h3>
               <button
                 onClick={() => onNav("transactions")}
-                className="text-xs text-[#3730A3] font-bold hover:underline cursor-pointer"
+                className="text-sm text-[#3730A3] font-bold hover:underline underline-offset-4 cursor-pointer"
               >
                 See all activity
               </button>
@@ -572,29 +582,29 @@ export function HomeScreen({
               {transactions.slice(0, 3).map((t) => (
                 <div
                   key={t.id}
-                  className="p-3.5 rounded-xl flex items-center justify-between hover:bg-[#F7F8FF] transition-colors border border-transparent hover:border-[#F1F3FB]"
+                  className="p-3.5 rounded-xl flex items-center justify-between bg-[#FAFBFF] border border-[#EDF0FA] hover:bg-[#F1F3FF] hover:border-[#C7D2FE] transition-all duration-200"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3.5">
                     <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${t.type === "credit" ? "bg-[#ECFDF5]" : "bg-[#F3F4F6]"}`}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${t.type === "credit" ? "bg-[#D1FAE5]" : "bg-[#EEF0F8]"}`}
                     >
                       {t.type === "credit" ? (
-                        <ArrowDownLeft size={18} className="text-[#059669]" />
+                        <ArrowDownLeft size={18} className="text-[#047857]" />
                       ) : (
-                        <ArrowUpRight size={18} className="text-[#6B7280]" />
+                        <ArrowUpRight size={18} className="text-[#4B5563]" />
                       )}
                     </div>
                     <div className="min-w-0">
                       <div className="text-sm font-semibold text-[#0D0F1C] line-clamp-2 break-words">
                         {friendlyTransactionTitle(t.desc, t.type === "credit" ? "credit" : "debit")}
                       </div>
-                      <div className="text-xs text-[#9CA3AF]">
+                      <div className="text-[13px] text-[#4B5563]">
                         {t.date} • {t.category}
                       </div>
                     </div>
                   </div>
                   <div
-                    className={`ml-3 shrink-0 text-sm font-bold ${t.type === "credit" ? "text-[#059669]" : "text-[#0D0F1C]"}`}
+                    className={`ml-3 shrink-0 text-sm font-bold tabular-nums ${t.type === "credit" ? "text-[#047857]" : "text-[#0D0F1C]"}`}
                   >
                     {t.type === "credit" ? "+" : "-"}
                     {fmt(t.amount)}
@@ -623,7 +633,7 @@ export function HomeScreen({
               {!transactionsQuery.isLoading &&
                 !transactionsQuery.isError &&
                 transactions.length === 0 && (
-                  <p className="text-sm text-[#6B7280]">
+                  <p className="text-sm text-[#4B5563]">
                     No recent transactions.
                   </p>
                 )}
@@ -632,9 +642,9 @@ export function HomeScreen({
         </div>
 
         {/* Right Column (4 cols on lg): Spending Chart + Marketplace */}
-        <div className="lg:col-span-4 flex flex-col gap-6">
+        <div className="lg:col-span-4 flex flex-col gap-6 stagger">
           {/* Spending Analysis Chart Card */}
-          <div className="bg-white rounded-2xl p-5 shadow-xs border border-[#F1F3FB]">
+          <div className="pave-card p-5">
             <div className="flex items-center justify-between mb-4">
               <h3
                 className="font-bold text-base text-[#0D0F1C]"
@@ -646,7 +656,7 @@ export function HomeScreen({
             </div>
             {transactionsQuery.isLoading ? (
               <div
-                className="flex h-40 items-center justify-center text-sm text-[#6B7280]"
+                className="flex h-40 items-center justify-center text-sm text-[#4B5563]"
                 role="status"
               >
                 Loading spending...
@@ -672,7 +682,7 @@ export function HomeScreen({
                   </defs>
                   <XAxis
                     dataKey="day"
-                    tick={{ fontSize: 11, fill: "#9CA3AF" }}
+                    tick={{ fontSize: 12, fill: "#4B5563" }}
                     axisLine={false}
                     tickLine={false}
                   />
@@ -682,9 +692,9 @@ export function HomeScreen({
                     }
                     contentStyle={{
                       borderRadius: 12,
-                      border: "none",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                      fontSize: 12,
+                      border: "1px solid #E2E6F3",
+                      boxShadow: "0 8px 24px rgba(55,48,163,0.14)",
+                      fontSize: 13,
                     }}
                   />
                   <Area
@@ -697,7 +707,7 @@ export function HomeScreen({
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex h-40 items-center justify-center text-center text-sm text-[#6B7280]">
+              <div className="flex h-40 items-center justify-center text-center text-sm text-[#4B5563]">
                 No successful spending in the last 7 days.
               </div>
             )}
@@ -705,12 +715,12 @@ export function HomeScreen({
 
           {/* Marketplace Promo Card */}
           <div
-            className="rounded-2xl p-5 text-white shadow-md"
+            className="rounded-2xl p-5 text-white shadow-lg shadow-[#3730A3]/25 transition-transform duration-300 hover:-translate-y-0.5"
             style={{
               background: "linear-gradient(145deg, #3730A3 0%, #1E1B4B 100%)",
             }}
           >
-            <div className="text-xs uppercase tracking-wider text-white/70 font-semibold mb-1">
+            <div className="text-xs uppercase tracking-wider text-white/90 font-bold mb-1">
               BNPL Marketplace
             </div>
             <div
@@ -719,13 +729,13 @@ export function HomeScreen({
             >
               Secure by paying small small
             </div>
-            <p className="text-xs text-white/80 leading-relaxed mb-4">
+            <p className="text-sm text-white/90 leading-relaxed mb-4">
               Get top electronics, home essentials, and fashion with flexible
               installments.
             </p>
             <button
               onClick={() => onNav("marketplace")}
-              className="bg-white text-[#3730A3] font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-white/90 transition-colors cursor-pointer"
+              className="bg-white text-[#312E81] font-bold text-sm px-4 py-2.5 rounded-xl shadow-sm hover:bg-[#EEF2FF] hover:shadow-md active:scale-95 transition-all duration-200 cursor-pointer"
             >
               Explore Marketplace →
             </button>

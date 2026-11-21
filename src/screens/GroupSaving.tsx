@@ -175,7 +175,7 @@ export function GroupSavingsScreen({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
-            <div className="text-white/70 text-md mb-1">Total Saved</div>
+            <div className="text-white/85 text-md mb-1">Total Saved</div>
             <div
               className="text-white font-bold"
               style={{ fontFamily: "var(--font-family-display)", fontSize: 22 }}
@@ -186,14 +186,14 @@ export function GroupSavingsScreen({
                 fmt(totalSaved)
               )}
             </div>
-            <div className="text-white/60 text-xs mt-1">
+            <div className="text-white/80 text-xs mt-1">
               {savingsQuery.isLoading
                 ? "Loading goals..."
                 : `Across ${savings.length} Ajo groups`}
             </div>
           </div>
           <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/20">
-            <div className="text-white/70 text-md mb-1">Active AJO</div>
+            <div className="text-white/85 text-md mb-1">Active AJO</div>
             <div
               className="text-white font-bold"
               style={{ fontFamily: "var(--font-family-display)", fontSize: 22 }}
@@ -204,7 +204,7 @@ export function GroupSavingsScreen({
                 savings.filter((saving) => saving.status === "active").length
               )}
             </div>
-            <div className="text-white/60 text-xs mt-1">From AJO Savings</div>
+            <div className="text-white/80 text-xs mt-1">From AJO Savings</div>
           </div>
         </div>
       </div>
@@ -241,7 +241,7 @@ export function GroupSavingsScreen({
               <span className="block text-xs sm:text-sm font-semibold text-[#3730A3] truncate">
                 Create AJO
               </span>
-              <span className="mt-0.5 sm:mt-1 block text-[10px] sm:text-xs text-[#6B7280] leading-tight">
+              <span className="mt-0.5 sm:mt-1 block text-[11px] sm:text-xs text-[#4B5563] leading-tight">
                 Start a group & invite
               </span>
             </span>
@@ -260,7 +260,7 @@ export function GroupSavingsScreen({
               <span className="block text-xs sm:text-sm font-semibold text-[#92400E] truncate">
                 {showJoinForm ? "Close Join" : "Join AJO"}
               </span>
-              <span className="mt-0.5 sm:mt-1 block text-[10px] sm:text-xs text-[#6B7280] leading-tight">
+              <span className="mt-0.5 sm:mt-1 block text-[11px] sm:text-xs text-[#4B5563] leading-tight">
                 Enter invite code
               </span>
             </span>
@@ -269,12 +269,12 @@ export function GroupSavingsScreen({
         {showJoinForm && (
           <section
             id="ajo-invite-code-form"
-            className="rounded-2xl border border-[#F1F3FB] bg-white p-4"
+            className="rounded-2xl border border-[#E2E6F3] bg-white p-4"
           >
             <h3 className="mb-1 text-sm font-semibold text-[#0D0F1C]">
               Join a specific AJO
             </h3>
-            <p className="mb-3 text-xs text-[#6B7280]">
+            <p className="mb-3 text-xs text-[#4B5563]">
               AJO groups are private. You can only join with an invitation code
               from a group admin.
             </p>
@@ -348,7 +348,7 @@ export function GroupSavingsScreen({
         {!savingsQuery.isLoading &&
           !savingsQuery.isError &&
           savings.length === 0 && (
-            <div className="rounded-2xl bg-white p-5 text-sm text-[#6B7280]">
+            <div className="rounded-2xl bg-white p-5 text-sm text-[#4B5563]">
               <p>
                 You are not a member of any AJO groups yet. Create a group or
                 enter an invitation code to join one.
@@ -359,7 +359,7 @@ export function GroupSavingsScreen({
           [1, 2].map((item) => (
             <div
               key={item}
-              className="bg-white rounded-2xl p-5 border border-[#F1F3FB]"
+              className="bg-white rounded-2xl p-5 border border-[#E2E6F3]"
             >
               <Skeleton className="h-5 w-36 rounded-md mb-4" />
               <Skeleton className="h-3 w-28 rounded-md mb-5" />
@@ -378,7 +378,7 @@ export function GroupSavingsScreen({
                 onSelectGroup(saving.id);
                 onNav("group-saving-detail");
               }}
-              className="bg-white rounded-2xl p-5 border border-[#F1F3FB] shadow-sm text-left cursor-pointer"
+              className="bg-white rounded-2xl p-5 border border-[#E2E6F3] shadow-sm text-left cursor-pointer"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -392,7 +392,7 @@ export function GroupSavingsScreen({
                     <div className="font-semibold text-[#0D0F1C]">
                       {saving.name}
                     </div>
-                    <div className="text-xs text-[#9CA3AF]">
+                    <div className="text-xs text-[#6B7280]">
                       {saving.frequency}
                       {days === null ? "" : ` · ${days} days left`}
                     </div>
@@ -402,7 +402,7 @@ export function GroupSavingsScreen({
                   <div className="font-semibold text-[#0D0F1C]">
                     {fmt(saved)}
                   </div>
-                  <div className="text-xs text-[#9CA3AF]">{progress}%</div>
+                  <div className="text-xs text-[#6B7280]">{progress}%</div>
                 </div>
               </div>
               <div className="h-2 bg-[#F1F3FB] rounded-full overflow-hidden">
@@ -414,7 +414,7 @@ export function GroupSavingsScreen({
                   style={{ background: savingColor(index) }}
                 />
               </div>
-              <div className="flex justify-between mt-2 text-xs text-[#9CA3AF]">
+              <div className="flex justify-between mt-2 text-xs text-[#6B7280]">
                 <span>Goal: {fmt(target)}</span>
                 <span>{fmt(Math.max(0, target - saved))} remaining</span>
               </div>
@@ -506,7 +506,7 @@ export function CreateGroupSavingScreen({
             <h1 className="text-xl font-bold text-[#0D0F1C] sm:text-2xl">
               Create a group savings goal
             </h1>
-            <p className="mt-1 text-sm leading-6 text-[#6B7280]">
+            <p className="mt-1 text-sm leading-6 text-[#4B5563]">
               Set a shared target, contribution schedule, and timeline for your
               AJO group.
             </p>
@@ -545,7 +545,7 @@ export function CreateGroupSavingScreen({
                     onChange={(e) => set("name")(e.target.value)}
                     maxLength={100}
                     placeholder="e.g. Holiday fund"
-                    className="w-full rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#9CA3AF] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
+                    className="w-full rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#6B7280] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
                   />
                 </label>
                 <label className="flex flex-col gap-2 text-sm font-medium text-[#374151]">
@@ -553,7 +553,7 @@ export function CreateGroupSavingScreen({
                     Group target <span className="text-red-600">*</span>
                   </span>
                   <div className="flex items-center overflow-hidden rounded-xl border border-[#E5E7EB] bg-white transition hover:border-[#C7D2FE] focus-within:border-[#3730A3] focus-within:ring-4 focus-within:ring-[#3730A3]/10">
-                    <span className="border-r border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm text-[#6B7280]">
+                    <span className="border-r border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm text-[#4B5563]">
                       NGN
                     </span>
                     <input
@@ -564,14 +564,14 @@ export function CreateGroupSavingScreen({
                       value={form.goal}
                       onChange={(e) => set("goal")(e.target.value)}
                       placeholder="500000"
-                      className="w-full px-4 py-3 text-sm text-[#0D0F1C] outline-none placeholder:text-[#9CA3AF]"
+                      className="w-full px-4 py-3 text-sm text-[#0D0F1C] outline-none placeholder:text-[#6B7280]"
                     />
                   </div>
-                  <span className="text-xs font-normal text-[#6B7280]">
+                  <span className="text-xs font-normal text-[#4B5563]">
                     Total amount your group is aiming to save.
                   </span>
                 </label>
-                <div className="flex flex-col-reverse gap-3 border-t border-[#F1F3FB] pt-5 sm:flex-row sm:justify-end">
+                <div className="flex flex-col-reverse gap-3 border-t border-[#E2E6F3] pt-5 sm:flex-row sm:justify-end">
                   <button
                     type="button"
                     onClick={() => onNav("group-savings")}
@@ -598,7 +598,7 @@ export function CreateGroupSavingScreen({
                     <span className="text-red-600">*</span>
                   </span>
                   <div className="flex items-center overflow-hidden rounded-xl border border-[#E5E7EB] bg-white transition hover:border-[#C7D2FE] focus-within:border-[#3730A3] focus-within:ring-4 focus-within:ring-[#3730A3]/10">
-                    <span className="border-r border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm text-[#6B7280]">
+                    <span className="border-r border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm text-[#4B5563]">
                       NGN
                     </span>
                     <input
@@ -609,7 +609,7 @@ export function CreateGroupSavingScreen({
                       value={form.amount}
                       onChange={(e) => set("amount")(e.target.value)}
                       placeholder="5000"
-                      className="w-full px-4 py-3 text-sm text-[#0D0F1C] outline-none placeholder:text-[#9CA3AF]"
+                      className="w-full px-4 py-3 text-sm text-[#0D0F1C] outline-none placeholder:text-[#6B7280]"
                     />
                   </div>
                 </label>
@@ -665,7 +665,7 @@ export function CreateGroupSavingScreen({
                     </p>
                   </div>
                 )}
-                <div className="flex flex-col-reverse gap-3 border-t border-[#F1F3FB] pt-5 sm:flex-row sm:justify-end">
+                <div className="flex flex-col-reverse gap-3 border-t border-[#E2E6F3] pt-5 sm:flex-row sm:justify-end">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
@@ -696,9 +696,9 @@ export function CreateGroupSavingScreen({
                     placeholder="Add an optional note about what the group is saving for."
                     rows={3}
                     maxLength={500}
-                    className="w-full resize-y rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#9CA3AF] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
+                    className="w-full resize-y rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#0D0F1C] outline-none transition placeholder:text-[#6B7280] hover:border-[#C7D2FE] focus:border-[#3730A3] focus:ring-4 focus:ring-[#3730A3]/10"
                   />
-                  <span className="text-xs font-normal text-[#9CA3AF]">
+                  <span className="text-xs font-normal text-[#6B7280]">
                     {form.purpose.length}/500 characters
                   </span>
                 </label>
@@ -707,7 +707,7 @@ export function CreateGroupSavingScreen({
                     <h2 className="font-semibold text-[#0D0F1C]">
                       Review your AJO
                     </h2>
-                    <p className="mt-1 text-xs text-[#6B7280]">
+                    <p className="mt-1 text-xs text-[#4B5563]">
                       Confirm these details before creating your group.
                     </p>
                   </div>
@@ -728,7 +728,7 @@ export function CreateGroupSavingScreen({
                         key={label}
                         className="flex flex-wrap justify-between gap-2 py-3 text-sm"
                       >
-                        <dt className="text-[#6B7280]">{label}</dt>
+                        <dt className="text-[#4B5563]">{label}</dt>
                         <dd className="font-semibold text-[#0D0F1C]">
                           {value}
                         </dd>
@@ -747,7 +747,7 @@ export function CreateGroupSavingScreen({
                     )}
                   </p>
                 )}
-                <div className="flex flex-col-reverse gap-3 border-t border-[#F1F3FB] pt-5 sm:flex-row sm:justify-end">
+                <div className="flex flex-col-reverse gap-3 border-t border-[#E2E6F3] pt-5 sm:flex-row sm:justify-end">
                   <button
                     type="button"
                     onClick={() => setStep(2)}
@@ -1370,11 +1370,11 @@ export function GroupSavingDetailScreen({
           <ArrowLeft size={18} className="text-white" />
         </button>
         <h2 className="mb-1 text-xl font-bold text-white">{group.name}</h2>
-        <p className="mb-5 text-xs text-white/70">
+        <p className="mb-5 text-xs text-white/85">
           {group.frequency} contributions · {group.status}
         </p>
         <div className="rounded-2xl border border-white/20 bg-white/15 p-4 backdrop-blur-sm">
-          <div className="mb-1 text-xs text-white/70">Group balance</div>
+          <div className="mb-1 text-xs text-white/85">Group balance</div>
           <div className="mb-3 text-3xl font-bold text-white">{fmt(saved)}</div>
           <div className="h-3 overflow-hidden rounded-full bg-white/20">
             <motion.div
@@ -1384,7 +1384,7 @@ export function GroupSavingDetailScreen({
               className="h-full rounded-full bg-white"
             />
           </div>
-          <div className="mt-2 flex justify-between text-xs text-white/70">
+          <div className="mt-2 flex justify-between text-xs text-white/85">
             <span>
               {progress}% of {fmt(target)}
             </span>
@@ -1394,7 +1394,7 @@ export function GroupSavingDetailScreen({
       </div>
 
       <div className="flex flex-col gap-4 px-6 pb-8">
-        <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+        <section className="rounded-2xl border border-[#E2E6F3] bg-white p-4">
           <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
             Group details
           </h3>
@@ -1410,14 +1410,14 @@ export function GroupSavingDetailScreen({
               key={label}
               className="flex justify-between gap-4 py-1.5 text-sm"
             >
-              <span className="text-[#9CA3AF]">{label}</span>
+              <span className="text-[#6B7280]">{label}</span>
               <span className="text-right font-medium text-[#0D0F1C]">
                 {value}
               </span>
             </div>
           ))}
           {group.description && (
-            <p className="mt-2 border-t border-[#F1F3FB] pt-3 text-sm text-[#6B7280]">
+            <p className="mt-2 border-t border-[#E2E6F3] pt-3 text-sm text-[#4B5563]">
               {group.description}
             </p>
           )}
@@ -1451,7 +1451,7 @@ export function GroupSavingDetailScreen({
           </button>
         </div>
         {!group.allowMemberWithdrawal && (
-          <p className="-mt-2 text-xs text-[#9CA3AF]">
+          <p className="-mt-2 text-xs text-[#6B7280]">
             Withdrawals are disabled by the group owner.
           </p>
         )}
@@ -1471,7 +1471,7 @@ export function GroupSavingDetailScreen({
 
         {/* Collapsible Invite Member Dropdown */}
         {isGroupAdmin && (
-          <section className="rounded-2xl border border-[#F1F3FB] bg-white overflow-hidden shadow-xs">
+          <section className="rounded-2xl border border-[#E2E6F3] bg-white overflow-hidden shadow-xs">
             <button
               type="button"
               onClick={() => setShowInviteDropdown((open) => !open)}
@@ -1485,7 +1485,7 @@ export function GroupSavingDetailScreen({
                   <h3 className="text-sm font-semibold text-[#0D0F1C]">
                     Invite a Member
                   </h3>
-                  <p className="text-xs text-[#6B7280]">
+                  <p className="text-xs text-[#4B5563]">
                     Invite code: <strong className="font-mono text-[#3730A3]">{group.inviteCode || "Available inside"}</strong>
                   </p>
                 </div>
@@ -1502,12 +1502,12 @@ export function GroupSavingDetailScreen({
             </button>
 
             {showInviteDropdown && (
-              <div className="p-4 pt-1 border-t border-[#F1F3FB] flex flex-col gap-3">
+              <div className="p-4 pt-1 border-t border-[#E2E6F3] flex flex-col gap-3">
                 {group.inviteCode && (
                   <div className="flex flex-col gap-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <span className="text-[11px] text-[#64748B] block">Private Group Invite Code</span>
+                        <span className="text-xs text-[#64748B] block">Private Group Invite Code</span>
                         <span className="font-mono font-bold text-sm text-[#1E1B4B]">{group.inviteCode}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -1532,14 +1532,14 @@ export function GroupSavingDetailScreen({
                     </div>
                     {inviteLink && (
                       <div className="pt-2 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-[#64748B] truncate font-mono bg-white px-2 py-1 rounded border border-[#E2E8F0] flex-1">
+                        <span className="text-[11px] text-[#64748B] truncate font-mono bg-white px-2 py-1 rounded border border-[#E2E8F0] flex-1">
                           {inviteLink}
                         </span>
                         <a
                           href={`https://wa.me/?text=${encodeURIComponent(`Join my AJO group "${group.name}" on PAVEPADI! Invite code: ${group.inviteCode}\n${inviteLink}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[11px] font-semibold text-[#059669] hover:underline whitespace-nowrap"
+                          className="text-xs font-semibold text-[#059669] hover:underline whitespace-nowrap"
                         >
                           WhatsApp
                         </a>
@@ -1547,7 +1547,7 @@ export function GroupSavingDetailScreen({
                           href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Join my AJO group "${group.name}" on PAVEPADI! Invite code: ${group.inviteCode}\n${inviteLink}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[11px] font-semibold text-[#0284C7] hover:underline whitespace-nowrap"
+                          className="text-xs font-semibold text-[#0284C7] hover:underline whitespace-nowrap"
                         >
                           X / Share
                         </a>
@@ -1590,7 +1590,7 @@ export function GroupSavingDetailScreen({
                   )}
                 </div>
 
-                <p className="text-[11px] text-[#6B7280]">
+                <p className="text-xs text-[#4B5563]">
                   Enter an email address, phone number, or share the invite code directly.
                 </p>
 
@@ -1628,12 +1628,12 @@ export function GroupSavingDetailScreen({
           <section className="rounded-2xl border border-[#CBD5E1] bg-white p-5 shadow-sm">
             {activeAction === "contribute" ? (
               <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#F1F3FB]">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E6F3]">
                   <div>
                     <h3 className="text-base font-bold text-[#0D0F1C]">
                       Contribute to AJO Group
                     </h3>
-                    <p className="text-xs text-[#6B7280]">
+                    <p className="text-xs text-[#4B5563]">
                       Contribution Amount: <strong>{fmt(amount(group.contributionAmount))}</strong>
                     </p>
                   </div>
@@ -1684,12 +1684,12 @@ export function GroupSavingDetailScreen({
 
                     <div className="rounded-lg bg-white p-3.5 border border-[#E2E8F0] shadow-2xs flex flex-col gap-2.5">
                       <div>
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Bank Name</span>
+                        <span className="text-[11px] uppercase font-bold tracking-wider text-[#64748B] block">Bank Name</span>
                         <span className="text-sm font-bold text-[#0F172A]">{group.currency === "NGN" ? "Wema Bank / PAVEPADI" : "Wema Bank"}</span>
                       </div>
 
                       <div>
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Admin Account Number (NUBAN)</span>
+                        <span className="text-[11px] uppercase font-bold tracking-wider text-[#64748B] block">Admin Account Number (NUBAN)</span>
                         <div className="flex items-center justify-between gap-2 mt-0.5">
                           <span className="font-mono text-lg font-bold text-[#3730A3] tracking-wider">
                             {`02${String(Math.abs(groupId.split('').reduce((acc, char) => ((acc << 5) - acc) + char.charCodeAt(0), 0))).padStart(8, '4').slice(-8)}`}
@@ -1706,12 +1706,12 @@ export function GroupSavingDetailScreen({
                       </div>
 
                       <div className="pt-2 border-t border-[#F1F5F9]">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Beneficiary Name</span>
+                        <span className="text-[11px] uppercase font-bold tracking-wider text-[#64748B] block">Beneficiary Name</span>
                         <span className="text-xs font-medium text-[#334155]">{group.name} AJO Admin</span>
                       </div>
 
                       <div>
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#64748B] block">Payment Narration / Reference</span>
+                        <span className="text-[11px] uppercase font-bold tracking-wider text-[#64748B] block">Payment Narration / Reference</span>
                         <div className="flex items-center justify-between gap-2 mt-0.5">
                           <span className="font-mono text-xs font-semibold text-[#475569]">
                             {`AJO-${group.inviteCode || groupId.slice(0, 8).toUpperCase()}`}
@@ -1719,7 +1719,7 @@ export function GroupSavingDetailScreen({
                           <button
                             type="button"
                             onClick={() => handleCopyText(`AJO-${group.inviteCode || groupId.slice(0, 8).toUpperCase()}`, "narration")}
-                            className="text-[11px] font-semibold text-[#3730A3] hover:underline cursor-pointer"
+                            className="text-xs font-semibold text-[#3730A3] hover:underline cursor-pointer"
                           >
                             {copiedNarration ? "Copied!" : "Copy Ref"}
                           </button>
@@ -1727,7 +1727,7 @@ export function GroupSavingDetailScreen({
                       </div>
                     </div>
 
-                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-[11px] text-amber-900 leading-relaxed">
+                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900 leading-relaxed">
                       💡 <strong>Instructions:</strong> Transfer exactly <strong>{fmt(amount(group.contributionAmount))}</strong> from your banking app using the details above. Once completed, the Admin of the AJO group will confirm your payment and mark your contribution for {currentMonthName} in the members list.
                     </div>
 
@@ -1777,7 +1777,7 @@ export function GroupSavingDetailScreen({
                         <button
                           type="button"
                           onClick={() => setContributionAmount(String(group.contributionAmount))}
-                          className="text-[11px] font-semibold text-[#3730A3] hover:underline cursor-pointer"
+                          className="text-xs font-semibold text-[#3730A3] hover:underline cursor-pointer"
                         >
                           Use Group Target ({fmt(amount(group.contributionAmount))})
                         </button>
@@ -1827,7 +1827,7 @@ export function GroupSavingDetailScreen({
             ) : (
               /* Request a Withdrawal */
               <div className="flex flex-col gap-3">
-                <h3 className="text-base font-bold text-[#0D0F1C] pb-2 border-b border-[#F1F3FB]">
+                <h3 className="text-base font-bold text-[#0D0F1C] pb-2 border-b border-[#E2E6F3]">
                   Request a Group Withdrawal
                 </h3>
                 <input
@@ -1876,7 +1876,7 @@ export function GroupSavingDetailScreen({
         )}
 
         {isEditing && (
-          <section className="rounded-2xl border border-[#F1F3FB] bg-white p-4">
+          <section className="rounded-2xl border border-[#E2E6F3] bg-white p-4">
             <h3 className="mb-3 text-sm font-semibold text-[#0D0F1C]">
               Edit AJO group
             </h3>
@@ -2029,7 +2029,7 @@ export function GroupSavingDetailScreen({
         )}
 
         {/* Collapsible Group Members Dropdown - styled like Invite a Member */}
-        <section className="rounded-2xl border border-[#F1F3FB] bg-white overflow-hidden shadow-xs">
+        <section className="rounded-2xl border border-[#E2E6F3] bg-white overflow-hidden shadow-xs">
           <button
             type="button"
             onClick={() => setIsGroupMembersOpen((open) => !open)}
@@ -2046,11 +2046,11 @@ export function GroupSavingDetailScreen({
                   <h3 className="text-sm font-semibold text-[#0D0F1C] shrink-0">
                     Group Members ({group.members?.length ?? group.currentMembers})
                   </h3>
-                  <span className="text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                  <span className="text-[11px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
                     {currentMonthName}
                   </span>
                 </div>
-                <p className="hidden sm:block text-xs text-[#6B7280] leading-snug mt-0.5">
+                <p className="hidden sm:block text-xs text-[#4B5563] leading-snug mt-0.5">
                   {isGroupAdmin
                     ? "Member contact details & monthly contribution verification"
                     : "Members list for this AJO circle"}
@@ -2071,10 +2071,10 @@ export function GroupSavingDetailScreen({
           {isGroupMembersOpen && (
             <div
               id="group-members-dropdown-content"
-              className="p-4 pt-1 border-t border-[#F1F3FB] flex flex-col divide-y divide-[#F1F3FB]"
+              className="p-4 pt-1 border-t border-[#E2E6F3] flex flex-col divide-y divide-[#F1F3FB]"
             >
               {(group.members ?? []).length === 0 ? (
-                <div className="py-6 text-center text-xs text-[#6B7280]">
+                <div className="py-6 text-center text-xs text-[#4B5563]">
                   No members in this group yet.
                 </div>
               ) : (
@@ -2122,19 +2122,19 @@ export function GroupSavingDetailScreen({
                                 {displayName}
                               </span>
                               {isOwner && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D97706] bg-[#FFFBEB] px-2 py-0.5 rounded-md">
+                                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D97706] bg-[#FFFBEB] px-2 py-0.5 rounded-md">
                                   Admin
                                 </span>
                               )}
                             </div>
                             <div className="flex items-center gap-2 mt-0.5">
                               {hasContributedThisMonth ? (
-                                <span className="flex items-center gap-1 text-[11px] font-semibold text-[#059669]">
+                                <span className="flex items-center gap-1 text-xs font-semibold text-[#059669]">
                                   <CheckCircle2 size={12} />
                                   <span>Contributed for {currentMonthName.split(" ")[0]}</span>
                                 </span>
                               ) : (
-                                <span className="text-[11px] font-medium text-[#D97706]">
+                                <span className="text-xs font-medium text-[#D97706]">
                                   Pending for {currentMonthName.split(" ")[0]}
                                 </span>
                               )}
@@ -2150,7 +2150,7 @@ export function GroupSavingDetailScreen({
                             <button
                               type="button"
                               onClick={() => setExpandedMemberId(isExpanded ? null : memberKey)}
-                              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#F1F3FB] text-[#6B7280] transition-colors cursor-pointer"
+                              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#F1F3FB] text-[#4B5563] transition-colors cursor-pointer"
                               aria-label={isExpanded ? "Collapse member details" : "Expand member details"}
                             >
                               <ChevronDown size={16} className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
@@ -2164,26 +2164,26 @@ export function GroupSavingDetailScreen({
                         <div className="mt-2 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4 text-xs flex flex-col gap-2.5">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                             <div>
-                              <span className="text-[#64748B] block text-[11px] font-medium">Member's Name</span>
+                              <span className="text-[#64748B] block text-xs font-medium">Member's Name</span>
                               <span className="font-semibold text-[#0F172A]">{displayName}</span>
                             </div>
                             <div>
-                              <span className="text-[#64748B] block text-[11px] font-medium">Phone Number</span>
+                              <span className="text-[#64748B] block text-xs font-medium">Phone Number</span>
                               <span className="font-semibold text-[#0F172A]">{memberPhone}</span>
                             </div>
                             <div>
-                              <span className="text-[#64748B] block text-[11px] font-medium">Email Address</span>
+                              <span className="text-[#64748B] block text-xs font-medium">Email Address</span>
                               <span className="font-semibold text-[#0F172A]">{memberEmail}</span>
                             </div>
                             <div>
-                              <span className="text-[#64748B] block text-[11px] font-medium">groupSavingId</span>
+                              <span className="text-[#64748B] block text-xs font-medium">groupSavingId</span>
                               <span className="font-mono font-medium text-[#0F172A] truncate block">{groupId}</span>
                             </div>
                           </div>
 
                           {/* Admin Payment Confirmation Action */}
                           <div className="mt-2 pt-2.5 border-t border-[#E2E8F0] flex items-center justify-between flex-wrap gap-2">
-                            <div className="text-[11px] text-[#475569]">
+                            <div className="text-xs text-[#475569]">
                               Monthly Status: <strong className={hasContributedThisMonth ? "text-[#059669]" : "text-[#D97706]"}>{hasContributedThisMonth ? "Payment Confirmed" : "Awaiting Payment"}</strong>
                             </div>
                             <button
@@ -2210,7 +2210,7 @@ export function GroupSavingDetailScreen({
         </section>
 
         {/* AJO Group Manager Marketplace Section */}
-        <section className="rounded-2xl border border-[#F1F3FB] bg-white p-5 shadow-xs">
+        <section className="rounded-2xl border border-[#E2E6F3] bg-white p-5 shadow-xs">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <ShoppingBag size={18} className="text-[#3730A3]" />
@@ -2233,7 +2233,7 @@ export function GroupSavingDetailScreen({
               </button>
             )}
           </div>
-          <p className="text-xs text-[#6B7280] mb-4">
+          <p className="text-xs text-[#4B5563] mb-4">
             Exclusive products and layaway purchase plans for members of {group.name}.
           </p>
 
@@ -2310,7 +2310,7 @@ export function GroupSavingDetailScreen({
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                <label className="block text-xs font-semibold text-[#475569] mb-1">
                   Product Name *
                 </label>
                 <input
@@ -2325,7 +2325,7 @@ export function GroupSavingDetailScreen({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                  <label className="block text-xs font-semibold text-[#475569] mb-1">
                     Category
                   </label>
                   <select
@@ -2346,7 +2346,7 @@ export function GroupSavingDetailScreen({
                     ))}
                   </select>
                   {availableCategories.length === 0 && (
-                    <p className="mt-1 text-[10px] text-amber-700">
+                    <p className="mt-1 text-[11px] text-amber-700">
                       No categories are available to your account yet. Ask the
                       platform admin to enable category access.
                     </p>
@@ -2354,7 +2354,7 @@ export function GroupSavingDetailScreen({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                  <label className="block text-xs font-semibold text-[#475569] mb-1">
                     Price (₦) *
                   </label>
                   <input
@@ -2371,7 +2371,7 @@ export function GroupSavingDetailScreen({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                  <label className="block text-xs font-semibold text-[#475569] mb-1">
                     Quantity / Stock *
                   </label>
                   <input
@@ -2386,7 +2386,7 @@ export function GroupSavingDetailScreen({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                  <label className="block text-xs font-semibold text-[#475569] mb-1">
                     Product Image *
                   </label>
                   <input
@@ -2408,10 +2408,10 @@ export function GroupSavingDetailScreen({
                         setNewProductImage(null);
                       }
                     }}
-                    className="w-full text-[11px] file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EEF2FF] file:text-[#3730A3] file:font-semibold"
+                    className="w-full text-xs file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-[#EEF2FF] file:text-[#3730A3] file:font-semibold"
                   />
                   {newProductImage && (
-                    <p className="mt-1 text-[10px] text-gray-500 truncate">
+                    <p className="mt-1 text-[11px] text-gray-500 truncate">
                       Selected: {newProductImage.name} ({(newProductImage.size / 1024).toFixed(1)} KB)
                     </p>
                   )}
@@ -2419,7 +2419,7 @@ export function GroupSavingDetailScreen({
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-[#475569] mb-1">
+                <label className="block text-xs font-semibold text-[#475569] mb-1">
                   Description
                 </label>
                 <textarea
@@ -2437,7 +2437,7 @@ export function GroupSavingDetailScreen({
                   role="alert"
                   className="p-3 bg-red-50 border border-red-200 rounded-xl"
                 >
-                  <p className="text-[11px] text-red-700 font-medium">
+                  <p className="text-xs text-red-700 font-medium">
                     {productFormError}
                   </p>
                 </div>
@@ -2530,14 +2530,14 @@ export function GroupSavingDetailScreen({
                           alt={prod.productName}
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+                        <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">
                           Qty: {prod.quantity}
                         </span>
                       </div>
                       <div className="font-bold text-xs sm:text-sm text-[#0F172A] line-clamp-1">
                         {prod.productName}
                       </div>
-                      <div className="text-[11px] text-[#475569] line-clamp-2 mt-1 leading-snug">
+                      <div className="text-xs text-[#475569] line-clamp-2 mt-1 leading-snug">
                         {stripGroupTag(prod.description)}
                       </div>
                     </div>
@@ -2549,11 +2549,11 @@ export function GroupSavingDetailScreen({
                         </div>
                         {isOwner ? (
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] text-gray-500 font-medium">
+                            <span className="text-[11px] text-gray-500 font-medium">
                               Stock: {prod.quantity}
                             </span>
                             <span
-                              className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${
+                              className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-full ${
                                 isAvailable
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -2565,7 +2565,7 @@ export function GroupSavingDetailScreen({
                         ) : (
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span
-                              className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${
+                              className={`text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${
                                 isAvailable
                                   ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                   : "bg-red-50 text-red-700 border border-red-200"
@@ -2594,11 +2594,11 @@ export function GroupSavingDetailScreen({
                           </button>
                         )}
                         {isOwner ? (
-                          <span className="text-[11px] font-medium text-gray-400 italic">
+                          <span className="text-xs font-medium text-gray-400 italic">
                             Your listing
                           </span>
                         ) : (
-                          <span className="px-2.5 py-1 bg-[#EEF2FF] text-[#3730A3] text-[11px] font-semibold rounded-lg">
+                          <span className="px-2.5 py-1 bg-[#EEF2FF] text-[#3730A3] text-xs font-semibold rounded-lg">
                             View
                           </span>
                         )}
@@ -2631,7 +2631,7 @@ export function GroupSavingDetailScreen({
                   selectedWithdrawalId === withdrawal.id ? "" : withdrawal.id,
                 )
               }
-              className="flex w-full items-center justify-between border-b border-[#F1F3FB] py-3 text-left"
+              className="flex w-full items-center justify-between border-b border-[#E2E6F3] py-3 text-left"
             >
               <span>
                 <span className="block text-sm font-medium text-[#374151]">
@@ -2640,7 +2640,7 @@ export function GroupSavingDetailScreen({
                     "Member"}{" "}
                   · {withdrawal.status}
                 </span>
-                <span className="text-xs text-[#9CA3AF]">
+                <span className="text-xs text-[#6B7280]">
                   {new Date(withdrawal.createdAt).toLocaleDateString()}
                 </span>
               </span>
@@ -2651,7 +2651,7 @@ export function GroupSavingDetailScreen({
           ))}
           {groupWithdrawalsQuery.isSuccess &&
             groupWithdrawalsQuery.data.data.length === 0 && (
-              <p className="rounded-xl bg-white p-4 text-sm text-[#6B7280]">
+              <p className="rounded-xl bg-white p-4 text-sm text-[#4B5563]">
                 No group withdrawals yet.
               </p>
             )}
@@ -2689,9 +2689,9 @@ export function GroupSavingDetailScreen({
           {myWithdrawals.map((withdrawal) => (
             <div
               key={withdrawal.id}
-              className="flex justify-between border-b border-[#F1F3FB] py-3 text-sm"
+              className="flex justify-between border-b border-[#E2E6F3] py-3 text-sm"
             >
-              <span className="text-[#6B7280]">
+              <span className="text-[#4B5563]">
                 {withdrawal.status} · {withdrawal.reference}
               </span>
               <span className="font-semibold">
@@ -2700,7 +2700,7 @@ export function GroupSavingDetailScreen({
             </div>
           ))}
           {myWithdrawalsQuery.isSuccess && myWithdrawals.length === 0 && (
-            <p className="rounded-xl bg-white p-4 text-sm text-[#6B7280]">
+            <p className="rounded-xl bg-white p-4 text-sm text-[#4B5563]">
               You have no withdrawals from this group.
             </p>
           )}
@@ -2708,7 +2708,7 @@ export function GroupSavingDetailScreen({
 
         {/* Bottom Danger Area: Delete group (owner) or Leave group (member) */}
         {isGroupOwner ? (
-          <div className="mt-2 pt-6 border-t border-[#F1F3FB] flex flex-col items-center gap-2">
+          <div className="mt-2 pt-6 border-t border-[#E2E6F3] flex flex-col items-center gap-2">
             <button
               type="button"
               onClick={() => setShowDeleteGroupModal(true)}
@@ -2718,12 +2718,12 @@ export function GroupSavingDetailScreen({
               <Trash2 size={15} />
               <span>Delete group</span>
             </button>
-            <p className="text-center text-xs text-[#9CA3AF]">
+            <p className="text-center text-xs text-[#6B7280]">
               Permanently delete this AJO group and all associated records.
             </p>
           </div>
         ) : (
-          <div className="mt-2 pt-6 border-t border-[#F1F3FB] flex flex-col items-center gap-2">
+          <div className="mt-2 pt-6 border-t border-[#E2E6F3] flex flex-col items-center gap-2">
             <button
               type="button"
               onClick={() => setShowLeaveGroupModal(true)}
@@ -2733,7 +2733,7 @@ export function GroupSavingDetailScreen({
               <LogOut size={15} />
               <span>Leave group</span>
             </button>
-            <p className="text-center text-xs text-[#9CA3AF]">
+            <p className="text-center text-xs text-[#6B7280]">
               You will exit this AJO circle and forfeit your scheduled rotation.
             </p>
           </div>
@@ -2748,7 +2748,7 @@ export function GroupSavingDetailScreen({
           aria-modal="true"
           aria-labelledby="delete-group-dialog-title"
         >
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#E2E6F3]">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600 shrink-0">
                 <AlertTriangle size={24} />
@@ -2832,7 +2832,7 @@ export function GroupSavingDetailScreen({
           aria-modal="true"
           aria-labelledby="leave-group-dialog-title"
         >
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#E2E6F3]">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 shrink-0">
                 <AlertCircle size={24} />
@@ -2916,7 +2916,7 @@ export function GroupSavingDetailScreen({
           aria-modal="true"
           aria-labelledby="delete-product-dialog-title"
         >
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#F1F3FB]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all border border-[#E2E6F3]">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600 shrink-0">
                 <Trash2 size={22} />

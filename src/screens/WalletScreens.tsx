@@ -369,7 +369,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             My Wallet
           </h2>
         </div>
-        <div className="text-white/70 text-md mb">Available Balance</div>
+        <div className="text-white/85 text-md mb">Available Balance</div>
         <div
           className="text-white mb-2 text-md"
           style={{
@@ -396,11 +396,11 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
         )}
         <div className="flex items-center justify-between gap-2 bg-white/10 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 w-full">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
-            <Landmark size={14} className="text-white/70 shrink-0" />
-            <span className="text-white/70 text-[11px] sm:text-xs shrink-0">
+            <Landmark size={14} className="text-white/85 shrink-0" />
+            <span className="text-white/85 text-xs sm:text-xs shrink-0">
               {extractedBankName} / PAVEPADI:{" "}
             </span>
-            <span className="text-white text-[11px] sm:text-xs font-mono font-semibold truncate">
+            <span className="text-white text-xs sm:text-sm font-semibold truncate">
               {virtualAccountQuery.isFetching && !extractedAccountNumber
                 ? "Loading account..."
                 : extractedAccountNumber || "Tap 'Virtual account' to view"}
@@ -410,7 +410,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             <button
               type="button"
               onClick={() => handleCopyAccountNumber(extractedAccountNumber)}
-              className="shrink-0 text-[11px] text-white bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
+              className="shrink-0 text-xs text-white bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
             >
               {copiedAccount ? <Check size={12} /> : <Copy size={12} />}
               {copiedAccount ? "Copied" : "Copy"}
@@ -420,7 +420,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
       </div>
 
       <div className="px-6 -mt-4 flex flex-col gap-6">
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#F1F3FB]">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#E2E6F3]">
           <div className="grid grid-cols-3 gap-4">
             {actions.map((a) => (
               <button
@@ -567,14 +567,14 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               {extractedAccountNumber ? (
                 <div className="flex flex-col gap-3">
                   <div className="rounded-xl bg-white p-4 border border-[#CFFAFE] shadow-xs">
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-1">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1">
                       Bank Name
                     </div>
                     <div className="text-sm font-bold text-[#0F172A] mb-3">
                       {extractedBankName}
                     </div>
 
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-1">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-1">
                       Account Number
                     </div>
                     <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -592,7 +592,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-[#F1F5F9]">
-                      <div className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B] mb-0.5">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B] mb-0.5">
                         Account Name / Beneficiary
                       </div>
                       <div className="text-xs font-semibold text-[#334155]">
@@ -601,7 +601,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     </div>
                   </div>
 
-                  <p className="text-[11px] text-[#475569] leading-relaxed">
+                  <p className="text-xs text-[#475569] leading-relaxed">
                     ⚡ Transfer from any Nigerian banking app (GTBank, Zenith, Access, Kuda, OPay, PalmPay, etc.) directly into this 10-digit account number to fund your PAVEPADI wallet instantly.
                   </p>
                 </div>
@@ -641,7 +641,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           ].map((s) => (
             <div
               key={s.label}
-              className="bg-white rounded-2xl p-4 border border-[#F1F3FB]"
+              className="bg-white rounded-2xl p-4 border border-[#E2E6F3]"
             >
               <div className="flex items-center gap-2 mb-2">
                 <div
@@ -650,7 +650,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 >
                   {s.icon}
                 </div>
-                <span className="text-xs text-[#9CA3AF]">{s.label}</span>
+                <span className="text-xs text-[#6B7280]">{s.label}</span>
               </div>
               <div
                 className="font-semibold text-[#0D0F1C]"
@@ -662,7 +662,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   s.value
                 )}
               </div>
-              <div className="text-xs text-[#9CA3AF]">This month</div>
+              <div className="text-xs text-[#6B7280]">This month</div>
             </div>
           ))}
         </div>
@@ -692,7 +692,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
               {[1, 2, 3].map((item) => (
                 <div
                   key={item}
-                  className="bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB]"
+                  className="bg-white rounded-xl p-4 flex items-center gap-3 border border-[#E2E6F3]"
                 >
                   <Skeleton className="w-10 h-10 rounded-full shrink-0" />
                   <div className="flex-1">
@@ -707,7 +707,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
           {transactions.length === 0 &&
             !transactionsQuery.isLoading &&
             !transactionsQuery.isError && (
-              <p className="text-sm text-[#6B7280]">No transactions found.</p>
+              <p className="text-sm text-[#4B5563]">No transactions found.</p>
             )}
           <TransactionReceiptHost
             records={
@@ -731,7 +731,7 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   const id = record?.id ?? record?._id;
                   if (id) setSelectedTransactionId(String(id));
                 }}
-                className="w-full shrink-0 cursor-pointer text-left bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB] transition-colors hover:bg-[#F7F8FF] active:scale-[0.99]"
+                className="w-full shrink-0 cursor-pointer text-left bg-white rounded-xl p-4 flex items-center gap-3 border border-[#E2E6F3] transition-colors hover:bg-[#F7F8FF] active:scale-[0.99]"
               >
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${t.type === "credit" ? "bg-[#ECFDF5]" : "bg-[#F9FAFB]"}`}
@@ -739,14 +739,14 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   {t.type === "credit" ? (
                     <ArrowDownLeft size={18} className="text-[#059669]" />
                   ) : (
-                    <ArrowUpRight size={18} className="text-[#6B7280]" />
+                    <ArrowUpRight size={18} className="text-[#4B5563]" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-[#0D0F1C] line-clamp-2 break-words">
                     {displayTitle(t)}
                   </div>
-                  <div className="text-xs text-[#9CA3AF]">
+                  <div className="text-xs text-[#6B7280]">
                     {t.date} · {t.category}
                   </div>
                 </div>
@@ -1080,7 +1080,7 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     ))}
                   </select>
                   {tvDetailsQuery.isLoading && (
-                    <span className="mt-1 block text-xs text-[#6B7280]">
+                    <span className="mt-1 block text-xs text-[#4B5563]">
                       Loading available packages...
                     </span>
                   )}
@@ -1129,7 +1129,7 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </motion.div>
           )}
           {tvDetailsQuery.isLoading && selected === "tv" && (
-            <p className="text-sm text-[#6B7280]">Loading TV packages...</p>
+            <p className="text-sm text-[#4B5563]">Loading TV packages...</p>
           )}
           {errorMessage && (
             <p
@@ -1140,14 +1140,14 @@ export function BillsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </p>
           )}
           {walletBalanceQuery.data && (
-            <p className="text-xs text-[#6B7280]">
+            <p className="text-xs text-[#4B5563]">
               Available balance: {fmt(walletBalance)}
             </p>
           )}
           {!selected && (
             <div className="flex flex-col items-center py-8 text-center gap-3">
               <Zap size={40} className="text-[#E5E7EB]" />
-              <p className="text-[#9CA3AF] text-sm">
+              <p className="text-[#6B7280] text-sm">
                 Choose electricity or cable TV to continue
               </p>
             </div>
@@ -1379,7 +1379,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   setAmount("");
                   setVariationCode("");
                 }}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${tab === t ? "bg-white text-[#0D0F1C] shadow-sm" : "text-[#9CA3AF]"}`}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${tab === t ? "bg-white text-[#0D0F1C] shadow-sm" : "text-[#6B7280]"}`}
               >
                 {t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
@@ -1456,7 +1456,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   type="button"
                   onClick={() => setHideBalance((v) => !v)}
                   aria-label={hideBalance ? "Show balance" : "Hide balance"}
-                  className="flex items-center gap-2 rounded-full bg-[#F1F3FB] px-3 py-1.5 text-xs text-[#6B7280] cursor-pointer"
+                  className="flex items-center gap-2 rounded-full bg-[#F1F3FB] px-3 py-1.5 text-xs text-[#4B5563] cursor-pointer"
                 >
                   <span>
                     Bal:{" "}
@@ -1481,7 +1481,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 className="flex w-full items-center justify-between gap-3 rounded-2xl border border-transparent bg-[#F1F3FB] px-5 py-4 text-left transition-colors hover:border-[#C7D2FE] disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
               >
                 <span
-                  className={`text-sm ${selectedPlan ? "font-semibold text-[#0D0F1C]" : "text-[#9CA3AF]"}`}
+                  className={`text-sm ${selectedPlan ? "font-semibold text-[#0D0F1C]" : "text-[#6B7280]"}`}
                 >
                   {selectedPlan
                     ? selectedPlan.name
@@ -1489,15 +1489,15 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                       ? "Select Data Plan"
                       : "Select a network first"}
                 </span>
-                <ChevronDown size={18} className="shrink-0 text-[#6B7280]" />
+                <ChevronDown size={18} className="shrink-0 text-[#4B5563]" />
               </button>
               {dataDetailsQuery.isLoading && (
-                <p className="text-center text-sm text-[#6B7280]">
+                <p className="text-center text-sm text-[#4B5563]">
                   Loading available bundles...
                 </p>
               )}
               {dataDetailsQuery.isSuccess && variations.length === 0 && (
-                <p className="text-center text-sm text-[#6B7280]">
+                <p className="text-center text-sm text-[#4B5563]">
                   No data bundles are currently available for this network.
                 </p>
               )}
@@ -1509,7 +1509,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
             </div>
           )}
           {walletBalanceQuery.isLoading && (
-            <p className="text-sm text-[#6B7280]">Loading wallet balance...</p>
+            <p className="text-sm text-[#4B5563]">Loading wallet balance...</p>
           )}
           {errorMessage && (
             <p
@@ -1519,7 +1519,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
               {errorMessage}
             </p>
           )}
-          <div className="sticky bottom-[4.5rem] lg:bottom-0 z-10 -mx-6 mt-auto border-t border-[#F1F3FB] bg-white/95 px-6 pt-3 pb-4 backdrop-blur-md">
+          <div className="sticky bottom-[4.5rem] lg:bottom-0 z-10 -mx-6 mt-auto border-t border-[#E2E6F3] bg-white/95 px-6 pt-3 pb-4 backdrop-blur-md">
             <PaveBtn
               onClick={() => setConfirmOpen(true)}
               disabled={
@@ -1629,7 +1629,7 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                       role="tab"
                       aria-selected={activePlanTab === c.id}
                       onClick={() => setPlanTab(c.id)}
-                      className={`flex-1 rounded-xl py-2.5 text-sm transition-colors cursor-pointer ${activePlanTab === c.id ? "bg-white font-semibold text-[#0D0F1C] shadow-sm" : "text-[#6B7280] hover:text-[#0D0F1C]"}`}
+                      className={`flex-1 rounded-xl py-2.5 text-sm transition-colors cursor-pointer ${activePlanTab === c.id ? "bg-white font-semibold text-[#0D0F1C] shadow-sm" : "text-[#4B5563] hover:text-[#0D0F1C]"}`}
                     >
                       {c.label}
                     </button>
@@ -1639,18 +1639,18 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
               <div className="flex-1 overflow-y-auto scrollbar-hide">
                 {dataDetailsQuery.isLoading && (
-                  <p className="py-8 text-center text-sm text-[#6B7280]">
+                  <p className="py-8 text-center text-sm text-[#4B5563]">
                     Loading available bundles...
                   </p>
                 )}
                 {!dataDetailsQuery.isLoading && planGroups.length === 0 && (
-                  <p className="py-8 text-center text-sm text-[#6B7280]">
+                  <p className="py-8 text-center text-sm text-[#4B5563]">
                     No plans available.
                   </p>
                 )}
                 {planGroups.map((group) => (
                   <section key={group.title} className="mb-5">
-                    <h4 className="mb-2 text-xs font-semibold tracking-wide text-[#6B7280]">
+                    <h4 className="mb-2 text-xs font-semibold tracking-wide text-[#4B5563]">
                       {group.title}
                     </h4>
                     <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8">
@@ -1745,14 +1745,14 @@ export function AirtimeScreen({ onNav }: { onNav: (s: Screen) => void }) {
                     ]
                 ).map(([k, v]) => (
                   <div key={k} className="flex justify-between gap-4">
-                    <span className="text-[#6B7280]">{k}</span>
+                    <span className="text-[#4B5563]">{k}</span>
                     <span className="text-right font-semibold text-[#0D0F1C]">
                       {v}
                     </span>
                   </div>
                 ))}
               </div>
-              <p className="mb-4 text-xs text-[#6B7280]">
+              <p className="mb-4 text-xs text-[#4B5563]">
                 Please check the phone number carefully. Airtime and data
                 purchases cannot be reversed once sent.
               </p>
@@ -1842,7 +1842,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
 
   return (
     <div className="flex-1 flex flex-col overflow-y-auto">
-      <div className="px-6 pt-14 pb-4 bg-white border-b border-[#F1F3FB]">
+      <div className="px-6 pt-14 pb-4 bg-white border-b border-[#E2E6F3]">
         <h2
           style={{
             fontFamily: "var(--font-family-display)",
@@ -1876,7 +1876,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               <Search size={16} className="text-[#3730A3]" />
               Search transactions
               {searchActive && (
-                <span className="rounded-full bg-[#3730A3] px-2 py-0.5 text-[10px] font-medium text-white">
+                <span className="rounded-full bg-[#3730A3] px-2 py-0.5 text-[11px] font-medium text-white">
                   Active
                 </span>
               )}
@@ -1903,7 +1903,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                 <div className="px-3 pb-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-[#6B7280]">Meter number</span>
+              <span className="text-xs font-medium text-[#4B5563]">Meter number</span>
               <input
                 value={searchMeterNumber}
                 onChange={(event) => setSearchMeterNumber(event.target.value)}
@@ -1913,7 +1913,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-[#6B7280]">Amount (₦)</span>
+              <span className="text-xs font-medium text-[#4B5563]">Amount (₦)</span>
               <input
                 type="number"
                 min="0"
@@ -1925,7 +1925,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-[#6B7280]">From date</span>
+              <span className="text-xs font-medium text-[#4B5563]">From date</span>
               <input
                 type="date"
                 value={searchStartDate}
@@ -1935,7 +1935,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-[#6B7280]">To date</span>
+              <span className="text-xs font-medium text-[#4B5563]">To date</span>
               <input
                 type="date"
                 value={searchEndDate}
@@ -1980,12 +1980,12 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
           </p>
         )}
         {!searchActive && transactionsQuery.isLoading && (
-          <p role="status" className="mb-3 text-sm text-[#6B7280]">
+          <p role="status" className="mb-3 text-sm text-[#4B5563]">
             Loading transactions…
           </p>
         )}
         {searchActive && searchQuery.isFetching && (
-          <p role="status" className="mb-3 text-sm text-[#6B7280]">
+          <p role="status" className="mb-3 text-sm text-[#4B5563]">
             Searching transactions...
           </p>
         )}
@@ -2006,7 +2006,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-12 gap-3">
             <BarChart2 size={40} className="text-[#E5E7EB]" />
-            <p className="text-[#9CA3AF] text-sm">
+            <p className="text-[#6B7280] text-sm">
               {searchActive && searchQuery.isError
                 ? "Search failed"
                 : "No transactions found"}
@@ -2032,7 +2032,7 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                       candidate.id === t.id || candidate._id === t.id,
                   )
                 }
-                className="w-full text-left bg-white rounded-xl p-4 flex items-center gap-3 border border-[#F1F3FB] disabled:cursor-default"
+                className="w-full text-left bg-white rounded-xl p-4 flex items-center gap-3 border border-[#E2E6F3] disabled:cursor-default"
               >
                 <div
                   className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${t.type === "credit" ? "bg-[#ECFDF5]" : "bg-[#F9FAFB]"}`}
@@ -2040,14 +2040,14 @@ export function TransactionsScreen({ onNav }: { onNav: (s: Screen) => void }) {
                   {t.type === "credit" ? (
                     <ArrowDownLeft size={18} className="text-[#059669]" />
                   ) : (
-                    <ArrowUpRight size={18} className="text-[#6B7280]" />
+                    <ArrowUpRight size={18} className="text-[#4B5563]" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-[#0D0F1C] line-clamp-2 break-words">
                     {displayTitle(t)}
                   </div>
-                  <div className="text-xs text-[#9CA3AF] flex items-center gap-1.5">
+                  <div className="text-xs text-[#6B7280] flex items-center gap-1.5">
                     {t.date}
                     <span>·</span>
                     {t.category}
