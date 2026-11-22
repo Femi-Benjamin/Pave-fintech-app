@@ -2,6 +2,7 @@ const CACHE_NAME = "pave-static-v2",
   OFFLINE_URL = "/offline.html";
 const PRECACHE = [
   OFFLINE_URL,
+  "/offline.js",
   "/icons/pave-192.png",
   "/icons/pave-512.png",
   "/icons/pave-512-maskable.png",
