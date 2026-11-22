@@ -1,4 +1,7 @@
 import { InstallAppButton } from "../pwa/InstallExperience";
+import { HelpCenterView, LegalDocumentView } from "../components/LegalViews";
+import { LEGAL_DOCUMENTS } from "../content/legal";
+import type { LegalSlug } from "../content/legal";
 import React, { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -41,13 +44,7 @@ import {
 import type { UpdateProfilePayload } from "../api/auth";
 
 type ProfilePanel =
-  | "personal"
-  | "kyc"
-  | "bank"
-  | "notifications"
-  | "security"
-  | "help"
-  | "terms";
+  "personal" | "kyc" | "bank" | "notifications" | "security" | "help" | "terms";
 
 export function ProfileScreen({
   onNav,
@@ -88,8 +85,7 @@ export function ProfileScreen({
   const [savingsRemindersEnabled, setSavingsRemindersEnabled] = useState(
     () => localStorage.getItem("pave_savings_reminders_enabled") !== "false",
   );
-  const [openHelpTopic, setOpenHelpTopic] = useState<number | null>(null);
-  const [openLegalTopic, setOpenLegalTopic] = useState<number | null>(null);
+  const [legalDoc, setLegalDoc] = useState<LegalSlug>("terms");
   const [profileForm, setProfileForm] = useState<UpdateProfilePayload>({
     phoneNumber: "",
     address: "",
@@ -187,51 +183,6 @@ export function ProfileScreen({
     help: "Answers and guidance for using PAVEPADI",
     terms: "Important information about PAVEPADI services",
   };
-  const helpTopics = [
-    {
-      question: "How do I fund my PAVEPADI wallet?",
-      answer:
-        "Open Wallet and choose Fund Wallet to see the funding methods available to your account.",
-    },
-    {
-      question: "How do savings goals work?",
-      answer:
-        "Create a savings goal, choose an amount and schedule, then follow your progress from the Savings screen.",
-    },
-    {
-      question: "How does an Ajo / Esusu circle work?",
-      answer:
-        "Members contribute on the schedule set for their circle. Review the circle details and payout order before joining.",
-    },
-    {
-      question: "Where can I get help with my account?",
-      answer:
-        "For account-specific help, contact PAVEPADI through the official support channel provided with your account. Never share your password or verification codes.",
-    },
-  ];
-  const legalTopics = [
-    {
-      title: "Using your account",
-      description:
-        "Keep your account details accurate and protect your sign-in credentials. PAVEPADI features are available according to your account status and the terms shown for each service.",
-    },
-    {
-      title: "Savings and thrift",
-      description:
-        "Review the amount, schedule, lock period, fees, and payout rules shown for a savings plan or thrift circle before confirming participation.",
-    },
-    {
-      title: "Your information",
-      description:
-        "PAVEPADI uses account and verification information to provide wallet, savings, security, and support features. Share only information requested through official in-app flows.",
-    },
-    {
-      title: "Security and privacy",
-      description:
-        "Use a unique password, keep verification codes private, and contact official support if you notice activity you do not recognize.",
-    },
-  ];
-
   return (
     <div className="flex-1 overflow-y-auto">
       <div
@@ -279,9 +230,7 @@ export function ProfileScreen({
                 return;
               }
               if (file.size > 5 * 1024 * 1024) {
-                setAvatarUploadError(
-                  "Profile image size must not exceed 5MB.",
-                );
+                setAvatarUploadError("Profile image size must not exceed 5MB.");
                 event.currentTarget.value = "";
                 return;
               }
@@ -315,13 +264,17 @@ export function ProfileScreen({
                     }
                     setAvatarPreview(savedImg);
                     URL.revokeObjectURL(previewUrl);
-                    setAvatarUploadSuccess("Profile photo updated successfully!");
+                    setAvatarUploadSuccess(
+                      "Profile photo updated successfully!",
+                    );
                   } else {
                     // Server accepted the request but returned no image link:
                     // keep the preview for this session only, never claim success.
                     console.warn(
                       "uploadImage returned no image URL. Response keys:",
-                      data && typeof data === "object" ? Object.keys(data) : typeof data,
+                      data && typeof data === "object"
+                        ? Object.keys(data)
+                        : typeof data,
                     );
                     setAvatarUploadError(
                       "Upload sent, but the server did not return an image link, so the photo may not be saved. Please try again or contact support.",
@@ -489,8 +442,6 @@ export function ProfileScreen({
                 openProfileEditor();
               } else {
                 setActivePanel(item.panel as ProfilePanel);
-                setOpenHelpTopic(null);
-                setOpenLegalTopic(null);
                 if (item.panel === "bank") void accountDetailsQuery.refetch();
               }
             }}
@@ -673,8 +624,8 @@ export function ProfileScreen({
                       </div>
                       <p className="mt-4 text-sm leading-relaxed text-[#4B5563]">
                         Identity verification helps protect your account and
-                        unlocks access to PAVEPADI services that require verified
-                        details.
+                        unlocks access to PAVEPADI services that require
+                        verified details.
                       </p>
                     </section>
                     <section className="rounded-2xl border border-[#E8EAF4] bg-white p-5">
@@ -893,54 +844,7 @@ export function ProfileScreen({
                         </div>
                       </div>
                     </section>
-                    <div>
-                      <h3 className="mb-3 text-sm font-bold text-[#0D0F1C]">
-                        Frequently asked questions
-                      </h3>
-                      <div className="overflow-hidden rounded-2xl border border-[#E8EAF4] bg-white">
-                        {helpTopics.map((topic, index) => (
-                          <div
-                            key={topic.question}
-                            className="border-b border-[#E2E6F3] last:border-0"
-                          >
-                            <button
-                              type="button"
-                              aria-expanded={openHelpTopic === index}
-                              onClick={() =>
-                                setOpenHelpTopic((open) =>
-                                  open === index ? null : index,
-                                )
-                              }
-                              className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left text-sm font-semibold text-[#0D0F1C]"
-                            >
-                              {topic.question}
-                              <ChevronRight
-                                size={16}
-                                className={`shrink-0 text-[#6B7280] transition-transform ${
-                                  openHelpTopic === index ? "rotate-90" : ""
-                                }`}
-                              />
-                            </button>
-                            {openHelpTopic === index && (
-                              <p className="px-4 pb-4 text-sm leading-relaxed text-[#4B5563]">
-                                {topic.answer}
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 rounded-2xl border border-[#E8EAF4] bg-white p-4">
-                      <Mail
-                        size={18}
-                        className="mt-0.5 shrink-0 text-[#3730A3]"
-                      />
-                      <p className="text-xs leading-relaxed text-[#4B5563]">
-                        For account-specific support, use the official support
-                        contact provided by PAVEPADI. PAVEPADI will never ask you to
-                        share your password or one-time codes.
-                      </p>
-                    </div>
+                    <HelpCenterView />
                   </div>
                 )}
 
@@ -959,59 +863,43 @@ export function ProfileScreen({
                         </div>
                       </div>
                     </section>
-                    <div className="flex items-start gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-                      <FileText
-                        size={18}
-                        className="mt-0.5 shrink-0 text-[#3730A3]"
-                      />
-                      <p className="text-xs leading-relaxed text-indigo-950">
-                        Review the terms and any fees, schedules, or conditions
-                        shown in a product before you confirm it. This overview
-                        does not replace the full terms for a specific service.
-                      </p>
-                    </div>
-                    <div className="overflow-hidden rounded-2xl border border-[#E8EAF4] bg-white">
-                      {legalTopics.map((topic, index) => (
-                        <div
-                          key={topic.title}
-                          className="border-b border-[#E2E6F3] last:border-0"
-                        >
+                    <div
+                      role="tablist"
+                      aria-label="Legal documents"
+                      className="grid grid-cols-3 gap-1 rounded-xl bg-[#EEF0FA] p-1"
+                    >
+                      {(["terms", "privacy", "cookies"] as const).map(
+                        (slug) => (
                           <button
+                            key={slug}
                             type="button"
-                            aria-expanded={openLegalTopic === index}
-                            onClick={() =>
-                              setOpenLegalTopic((open) =>
-                                open === index ? null : index,
-                              )
-                            }
-                            className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left text-sm font-semibold text-[#0D0F1C]"
+                            role="tab"
+                            aria-selected={legalDoc === slug}
+                            onClick={() => setLegalDoc(slug)}
+                            className={`rounded-lg px-2 py-2 text-xs font-bold ${
+                              legalDoc === slug
+                                ? "bg-white text-[#3730A3] shadow-sm"
+                                : "text-[#6B7280]"
+                            }`}
                           >
-                            {topic.title}
-                            <ChevronRight
-                              size={16}
-                              className={`shrink-0 text-[#6B7280] transition-transform ${
-                                openLegalTopic === index ? "rotate-90" : ""
-                              }`}
-                            />
+                            {LEGAL_DOCUMENTS[slug].title
+                              .replace(" of Service", "")
+                              .replace(" Policy", "")}
                           </button>
-                          {openLegalTopic === index && (
-                            <p className="px-4 pb-4 text-sm leading-relaxed text-[#4B5563]">
-                              {topic.description}
-                            </p>
-                          )}
-                        </div>
-                      ))}
+                        ),
+                      )}
                     </div>
-                    <section className="rounded-2xl border border-[#E8EAF4] bg-white p-4">
-                      <h3 className="text-sm font-semibold text-[#0D0F1C]">
-                        Need more detail?
-                      </h3>
-                      <p className="mt-1 text-xs leading-relaxed text-[#4B5563]">
-                        Refer to the official PAVEPADI terms and privacy notice
-                        provided for your account and the relevant financial
-                        service.
-                      </p>
-                    </section>
+                    <div className="rounded-2xl border border-[#E8EAF4] bg-white p-4">
+                      <LegalDocumentView doc={LEGAL_DOCUMENTS[legalDoc]} />
+                    </div>
+                    <a
+                      href={`/${legalDoc}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-center text-xs font-semibold text-[#3730A3] underline"
+                    >
+                      Open this page on its own
+                    </a>
                   </div>
                 )}
               </div>
@@ -1313,7 +1201,8 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
             Deactivate account
           </h3>
           <p className="mb-3 text-xs text-[#4B5563]">
-            Submitting this request deactivates and blocks your PAVEPADI account on the server, halting active sessions and wallet access.
+            Submitting this request deactivates and blocks your PAVEPADI account
+            on the server, halting active sessions and wallet access.
           </p>
           {deleteAccountError && (
             <p role="alert" className="mb-3 text-sm text-red-600">
@@ -1348,7 +1237,10 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               <h3 className="text-lg font-bold">Deactivate PAVEPADI Account</h3>
             </div>
             <p className="text-sm text-[#4B5563] leading-relaxed mb-4">
-              Are you sure you want to deactivate your account? This action toggles your account status to blocked on the server, halts active sessions, and signs you out. Once deactivated, logging in is disabled until unblocked by support.
+              Are you sure you want to deactivate your account? This action
+              toggles your account status to blocked on the server, halts active
+              sessions, and signs you out. Once deactivated, logging in is
+              disabled until unblocked by support.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -1367,7 +1259,8 @@ export function SettingsScreen({ onNav }: { onNav: (s: Screen) => void }) {
               >
                 {deleteAccountMutation.isPending ? (
                   <>
-                    <Loader size={16} className="animate-spin" /> Deactivating...
+                    <Loader size={16} className="animate-spin" />{" "}
+                    Deactivating...
                   </>
                 ) : (
                   "Yes, Deactivate Account"

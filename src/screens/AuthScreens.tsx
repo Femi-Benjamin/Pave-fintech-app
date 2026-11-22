@@ -842,6 +842,27 @@ export function RegisterScreen({
                 )}
 
               <div className="mt-5">
+                <p className="mb-3 text-center text-xs leading-relaxed text-[#6B7280]">
+                  By creating an account you agree to our{" "}
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#3730A3] underline"
+                  >
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#3730A3] underline"
+                  >
+                    Privacy Policy
+                  </a>
+                  .
+                </p>
                 <PaveBtn
                   onClick={doNext}
                   disabled={completeRegistrationMutation.isPending}

@@ -1349,7 +1349,7 @@ export default function OnboardingScreen({
                 </li>
                 <li>
                   <a
-                    href="#contact"
+                    href="/help#contact"
                     className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
                   >
                     Support Contact
@@ -1365,7 +1365,7 @@ export default function OnboardingScreen({
               <ul className="space-y-4 text-sm font-medium">
                 <li>
                   <a
-                    href="#privacy"
+                    href="/privacy"
                     className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
                   >
                     Privacy Policy
@@ -1373,7 +1373,7 @@ export default function OnboardingScreen({
                 </li>
                 <li>
                   <a
-                    href="#terms"
+                    href="/terms"
                     className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
                   >
                     Terms of Service
@@ -1389,7 +1389,7 @@ export default function OnboardingScreen({
                 </li>
                 <li>
                   <a
-                    href="#cookies"
+                    href="/cookies"
                     className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
                   >
                     Cookie Policy
