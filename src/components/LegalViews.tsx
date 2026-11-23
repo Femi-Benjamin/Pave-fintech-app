@@ -106,8 +106,8 @@ export function ContactCard() {
         </ul>
       ) : (
         <p className="mt-2 text-sm leading-relaxed text-[#4B5563]">
-          Use the Help & Support section inside the {LEGAL.brand} app, from
-          Profile, to reach the support team.
+          Our support contact details will be shown here shortly. Until then,
+          keep the details below ready so we can help you quickly.
         </p>
       )}
       {LEGAL.contact.hours && (

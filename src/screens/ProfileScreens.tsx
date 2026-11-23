@@ -476,7 +476,7 @@ export function ProfileScreen({
       <AnimatePresence>
         {activePanel && (
           <motion.div
-            className="fixed inset-0 z-`100` flex justify-end bg-slate-950/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex justify-end bg-slate-950/40 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -528,7 +528,7 @@ export function ProfileScreen({
                 </button>
               </header>
 
-              <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-7">
+              <div className="flex-1 overflow-y-auto px-5 pt-5 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-7 sm:pt-7">
                 {activePanel === "personal" && (
                   <div className="space-y-5">
                     <div className="rounded-2xl border border-[#E8EAF4] bg-white p-5">
