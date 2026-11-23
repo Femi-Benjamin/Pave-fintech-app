@@ -3,6 +3,10 @@ import type { AuthUser } from "../api/auth";
 export const TOKEN_KEY = "pave_token";
 export const AUTH_USER_KEY = "pave_auth_user";
 export const EXPIRES_AT_KEY = "pave_token_expires_at";
+export const CLOCK_SKEW_KEY = "pave_clock_skew_ms";
+// Ignore small differences (network delay, normal drift); only correct a
+// device clock that is clearly wrong.
+const CLOCK_SKEW_THRESHOLD_MS = 60 * 1000;
 export const LAST_ACTIVITY_KEY = "pave_last_activity";
 export const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -79,6 +83,44 @@ export function decodeJwtPayload(token: string): Record<string, any> | null {
  * - For JWTs, inspects payload `exp` claim against current Unix timestamp.
  * - For non-JWTs, inspects stored `expiresAt` timestamp in sessionStorage.
  */
+/**
+ * How far this device's clock is from real time (device + skew = real time).
+ * Learned at sign-in from the token's issue time, so a PC with a wrong clock
+ * does not see a brand-new token as already expired.
+ */
+export function getClockSkewMs(): number {
+  if (typeof window === "undefined" || !window.sessionStorage) return 0;
+  try {
+    const value = Number(sessionStorage.getItem(CLOCK_SKEW_KEY));
+    return Number.isFinite(value) ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Current time corrected for a wrong device clock. Use this for token expiry. */
+export function trueNow(): number {
+  return Date.now() + getClockSkewMs();
+}
+
+function learnClockSkew(payload: Record<string, any> | null): void {
+  try {
+    if (typeof payload?.iat !== "number") {
+      sessionStorage.removeItem(CLOCK_SKEW_KEY);
+      return;
+    }
+    // A token issued a moment ago says what the real time is.
+    const skew = payload.iat * 1000 - Date.now();
+    if (Math.abs(skew) > CLOCK_SKEW_THRESHOLD_MS) {
+      sessionStorage.setItem(CLOCK_SKEW_KEY, String(skew));
+    } else {
+      sessionStorage.removeItem(CLOCK_SKEW_KEY);
+    }
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 export function isTokenValid(token?: string | null): boolean {
   if (!token || typeof token !== "string" || !token.trim()) {
     return false;
@@ -88,7 +130,7 @@ export function isTokenValid(token?: string | null): boolean {
   const jwtPayload = decodeJwtPayload(cleanToken);
 
   if (jwtPayload && typeof jwtPayload.exp === "number") {
-    const currentUnixTime = Math.floor(Date.now() / 1000);
+    const currentUnixTime = Math.floor(trueNow() / 1000);
     return jwtPayload.exp > currentUnixTime;
   }
 
@@ -98,7 +140,7 @@ export function isTokenValid(token?: string | null): boolean {
     if (storedExpiresAt) {
       const expMs = Number(storedExpiresAt);
       if (!Number.isNaN(expMs) && expMs > 0) {
-        return expMs > Date.now();
+        return expMs > trueNow();
       }
     }
   }
@@ -160,6 +202,7 @@ export function setToken(token: string, expiresAt?: number): void {
 
   const cleanToken = token.trim();
   sessionStorage.setItem(TOKEN_KEY, cleanToken);
+  learnClockSkew(decodeJwtPayload(cleanToken));
 
   // Determine expiry
   let finalExpiresAt = expiresAt;
@@ -197,6 +240,7 @@ export function clearToken(): void {
     sessionStorage.removeItem(AUTH_USER_KEY);
     sessionStorage.removeItem(EXPIRES_AT_KEY);
     sessionStorage.removeItem(LAST_ACTIVITY_KEY);
+    sessionStorage.removeItem(CLOCK_SKEW_KEY);
   } catch {}
 
   try {

@@ -19,6 +19,7 @@ import {
   isInactiveTimeout,
   subscribeToAuthLogout,
   INACTIVITY_TIMEOUT_MS,
+  trueNow,
 } from "../lib/authStorage";
 import {
   Transaction,
@@ -209,7 +210,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     // Set token expiry timer
     const expiryTimestamp = getTokenExpiry(token);
     if (expiryTimestamp) {
-      const timeRemaining = expiryTimestamp - Date.now();
+      const timeRemaining = expiryTimestamp - trueNow();
       if (timeRemaining <= 0) {
         logout();
       } else {
@@ -314,7 +315,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
       const expiryTimestamp = getTokenExpiry(token);
       if (expiryTimestamp) {
-        const timeRemaining = expiryTimestamp - Date.now();
+        const timeRemaining = expiryTimestamp - trueNow();
         if (timeRemaining > 0) {
           tokenExpiryTimerRef.current = setTimeout(() => {
             logout();
