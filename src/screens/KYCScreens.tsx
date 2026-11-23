@@ -114,7 +114,7 @@ export function KYCWelcomeScreen({ onNav }: { onNav: (s: Screen) => void }) {
         </div>
         <p className="text-[#4B5563] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
           We need to verify your identity to protect your funds and comply with
-          Central Bank of Nigeria regulations. This takes about 3 minutes.
+          Nigerian identity-verification requirements. This takes about 3 minutes.
         </p>
 
         <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 my-3 sm:my-6">

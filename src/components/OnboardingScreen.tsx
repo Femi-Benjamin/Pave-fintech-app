@@ -108,7 +108,7 @@ export default function OnboardingScreen({
     {
       question: "Is my money safe with PAVEPADI?",
       answer:
-        "Absolutely. PAVEPADI uses AES 256-bit bank-grade encryption and partners with NDIC-insured financial institutions regulated by the Central Bank of Nigeria. Your funds are held securely with deposit protection up to ₦5,000,000.",
+        "We protect your account with encrypted connections, identity verification (KYC) and automatic sign-out after inactivity. PAVEPADI is not a bank: wallet funding and bank transfers are processed through licensed payment and banking partners. Never share your password or one-time codes with anyone.",
     },
     {
       question: "What is KYC and why is it required?",
@@ -297,11 +297,11 @@ export default function OnboardingScreen({
 
                     {/* Sub-copy Description */}
                     <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal mb-8 max-w-xl">
-                      The high-yield digital wallet that unifies automated
-                      personal savings with disciplined, trustless thrift
-                      contributions (Ajo/Esusu/Adashe). Enjoy guaranteed
-                      rotational payouts, zero default risk, and
-                      NDIC/CBN-compliant security.
+                      The digital wallet that unifies automated personal
+                      savings with disciplined, transparent thrift
+                      contributions (Ajo/Esusu/Adashe). Enjoy clear payout
+                      schedules, member ledgers you can check anytime, and
+                      identity-verified members.
                     </p>
 
                     {/* Interactive CTA Group */}
@@ -656,17 +656,17 @@ export default function OnboardingScreen({
                       className="text-xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight"
                       style={{ fontFamily: "var(--font-family-display)" }}
                     >
-                      Institutional Grade Safety
+                      Built for Safety
                     </h3>
                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
-                      Sleep soundly knowing your funds are held in NDIC-insured
-                      partner banks, regulated under CBN framework, and
-                      fortified by AES 256-bit bank-grade encryption and
-                      biometric authentication.
+                      Your account is protected by encrypted connections,
+                      identity verification and automatic sign-out after
+                      inactivity. Payments run through licensed payment and
+                      banking partners.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                    <span>NDIC Insured • CBN Compliant</span>
+                    <span>Verified Members • Encrypted</span>
                     <Lock size={18} />
                   </div>
                 </div>
@@ -1020,40 +1020,40 @@ export default function OnboardingScreen({
                     Your Financial Security is Non-Negotiable
                   </h2>
                   <p className="text-slate-600 dark:text-slate-300 mt-3 text-base">
-                    PAVEPADI employs the highest cryptographic standards and
-                    partners with regulated financial institutions so you can
-                    build wealth with total confidence.
+                    PAVEPADI protects your account with encrypted connections
+                    and identity checks, and uses licensed partners to process
+                    payments.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Card 1: 256-Bit Bank Encryption */}
+                  {/* Card 1: Encrypted connections */}
                   <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-indigo-500/30 transition-all duration-300 group">
                     <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-100/90 dark:border-indigo-800/50 text-[#4F39F6] dark:text-[#818CF8] flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
                       <Lock size={26} strokeWidth={2.2} />
                     </div>
                     <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
-                      256-Bit Bank Encryption
+                      Encrypted Connections
                     </h4>
                     <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                      All traffic, payment credentials, and biometric
-                      authentications are encrypted with end-to-end TLS 1.3 and
-                      AES-256 protocols.
+                      All traffic between your device and PAVEPADI is
+                      encrypted in transit with HTTPS/TLS, and you are signed
+                      out automatically after a period of inactivity.
                     </p>
                   </div>
 
-                  {/* Card 2: NDIC Deposit Insurance */}
+                  {/* Card 2: Licensed payment partners */}
                   <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/15 shadow-sm hover:shadow-lg hover:border-slate-300 dark:hover:border-emerald-500/30 transition-all duration-300 group">
                     <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100/90 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
                       <Building2 size={26} strokeWidth={2.2} />
                     </div>
                     <h4 className="font-extrabold text-lg sm:text-xl text-slate-950 dark:text-white mb-3 tracking-tight">
-                      NDIC Deposit Insurance
+                      Licensed Payment Partners
                     </h4>
                     <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                      Deposits are held in custody by CBN-licensed partner
-                      commercial banks (Wema Bank PLC) and insured by the
-                      Nigeria Deposit Insurance Corporation.
+                      Wallet funding and bank transfers are processed through
+                      licensed payment and banking partners. PAVEPADI is not a
+                      bank.
                     </p>
                   </div>
 
@@ -1066,9 +1066,9 @@ export default function OnboardingScreen({
                       Verified KYC Community
                     </h4>
                     <p className="text-sm sm:text-[15px] text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
-                      Strict BVN/NIN identity screening prevents bad actors,
-                      impersonation, and defaults across all community thrift
-                      circles.
+                      Identity screening with your NIN, photo ID and a selfie
+                      helps deter bad actors and impersonation across community
+                      thrift circles.
                     </p>
                   </div>
                 </div>
@@ -1381,10 +1381,10 @@ export default function OnboardingScreen({
                 </li>
                 <li>
                   <a
-                    href="#security"
+                    href="/help#faq-security"
                     className="text-slate-800 hover:text-[#4F39F6] dark:text-slate-200 dark:hover:text-indigo-400 transition-colors"
                   >
-                    NDIC Protection
+                    Security Tips
                   </a>
                 </li>
                 <li>

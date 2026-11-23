@@ -108,10 +108,10 @@ export function SlideOnboardingScreen({
     },
     {
       icon: "🔐",
-      title: "Bank-Level Security",
-      desc: "Your money is protected with automated KYC verification, bank-grade encryption, and real-time transaction alerts.",
+      title: "Secure by Design",
+      desc: "Your money is protected with automated KYC verification, encrypted connections, and automatic sign-out after inactivity.",
       color: "#D97706",
-      tag: "Licensed & Protected",
+      tag: "Verified & Protected",
     },
   ];
 

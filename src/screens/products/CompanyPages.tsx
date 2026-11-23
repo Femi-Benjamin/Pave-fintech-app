@@ -53,7 +53,7 @@ export default function CompanyPages({
         <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-5 mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-[#3730A3] dark:text-[#818CF8] text-xs font-bold border border-indigo-200/80 dark:border-indigo-800/60 shadow-xs">
             <Building2 size={15} />
-            <span>Licensed Financial Infrastructure</span>
+            <span>Built with Licensed Partners</span>
           </div>
 
           <h1
@@ -80,16 +80,16 @@ export default function CompanyPages({
                 <ShieldCheck size={26} />
               </div>
               <h3 className="text-lg font-bold text-slate-950 dark:text-white mb-2">
-                CBN Regulatory Alignment
+                Licensed Partners
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                Operating through fully licensed Microfinance Banks and payment
-                switches compliant with Central Bank of Nigeria guidelines.
+                Wallet funding and bank transfers are processed through
+                licensed payment and banking partners. PAVEPADI is not a bank.
               </p>
             </div>
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-xs font-semibold text-indigo-700 dark:text-indigo-400">
               <CheckCircle2 size={15} />
-              <span>Verified Banking Tier</span>
+              <span>Partner-Processed Payments</span>
             </div>
           </div>
 
@@ -99,16 +99,16 @@ export default function CompanyPages({
                 <Lock size={26} />
               </div>
               <h3 className="text-lg font-bold text-slate-950 dark:text-white mb-2">
-                NDIC Insured Custody
+                Identity Verified Members
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                Every customer deposit is held in insured custody with partner
-                deposit money institutions, protected up to ₦5,000,000 per user.
+                Members are verified with their NIN, a photo ID and a selfie
+                check before they can use key features.
               </p>
             </div>
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 size={15} />
-              <span>Deposit Insurance Protected</span>
+              <span>KYC Verification</span>
             </div>
           </div>
 
@@ -118,17 +118,17 @@ export default function CompanyPages({
                 <Award size={26} />
               </div>
               <h3 className="text-lg font-bold text-slate-950 dark:text-white mb-2">
-                Bank-Grade Encryption
+                Encrypted and Protected
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                256-bit SSL encryption, tokenized cards, biometric
-                authentication, and strict KYC verification prevent unauthorized
-                access.
+                Connections are encrypted, accounts sign out automatically
+                after inactivity, and identity checks help prevent
+                unauthorized access.
               </p>
             </div>
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-400">
               <CheckCircle2 size={15} />
-              <span>ISO 27001 Security Standard</span>
+              <span>Automatic Sign-Out</span>
             </div>
           </div>
         </div>

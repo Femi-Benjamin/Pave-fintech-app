@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 import {
   FAQ_GROUPS,
@@ -93,4 +94,30 @@ test("public routes match only the four info pages", () => {
   assert.equal(getPublicInfoRoute("/"), null);
   assert.equal(getPublicInfoRoute("/wallet"), null);
   assert.equal(getPublicInfoRoute("/terms/extra"), null);
+});
+
+test("app copy makes no unverified insurance, licence or security-standard claims", () => {
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    for (const name of readdirSync(dir)) {
+      const full = `${dir}/${name}`;
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.(tsx?|html)$/.test(name)) files.push(full);
+    }
+  };
+  walk("src");
+  const banned =
+    /\bNDIC\b|deposit insurance|bank-grade|CBN[- ]licen[cs]ed|AES[- ]?256|ISO 27001|\bMFB\b/i;
+  const offenders = files.filter((file) => {
+    const code = readFileSync(file, "utf8")
+      .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "");
+    return banned.test(code);
+  });
+  assert.deepEqual(
+    offenders,
+    [],
+    "remove or verify these claims before shipping",
+  );
 });

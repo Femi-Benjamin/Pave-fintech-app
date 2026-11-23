@@ -456,7 +456,7 @@ export default function SendReceiveMoneyPage({ onOpenApp }: PageProps) {
           <div className="lg:col-span-5 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs text-white/80 font-medium">
-                Wema Bank / PAVEPADI MFB
+                Wema Bank / PAVEPADI
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-400/30 text-emerald-300 text-[11px] font-bold uppercase border border-emerald-400/30">
                 Active & Verified

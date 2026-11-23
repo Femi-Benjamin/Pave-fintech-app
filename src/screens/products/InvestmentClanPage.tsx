@@ -91,7 +91,7 @@ export default function InvestmentClanPage({ onOpenApp }: PageProps) {
           <p className="text-base sm:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-normal">
             Gain collective access to high-ticket, institutional-grade Nigerian 
             investments that are usually reserved for the ultra-wealthy. 
-            Co-invest in real estate, insured agriculture, and high-yield treasury notes with bank-grade safety.
+            Co-invest in real estate, agriculture, and treasury notes with your community. Coming soon.
           </p>
 
           {/* Early Access Waitlist Form */}

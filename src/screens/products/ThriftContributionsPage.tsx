@@ -69,7 +69,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
     },
     {
       q: "Are the funds safe from theft or market fire disasters?",
-      a: "Yes. All funds are held in CBN-regulated, NDIC-insured custody partner banks. Unlike physical cash kept under market counters, your money is 100% digitally secured.",
+      a: "Your contributions are recorded digitally in a clear ledger instead of on paper or in cash. Wallet payments are processed through licensed payment and banking partners, and your account is protected by identity verification and automatic sign-out. PAVEPADI is not a bank.",
     },
   ];
 
@@ -95,7 +95,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               We brought Nigeria’s revered cooperative culture into the
               smartphone era. Manage group thrift societies, track member
               ledgers with 100% digital transparency, and disburse payouts
-              automatically with CBN-licensed bank security.
+              automatically through licensed payment partners.
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -121,7 +121,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400" />
-                <span>NDIC-Insured Custody</span>
+                <span>Verified Members</span>
               </div>
               <div className="flex items-center gap-2">
                 <FileSpreadsheet size={16} className="text-indigo-600 dark:text-indigo-400" />
@@ -414,7 +414,7 @@ export default function ThriftContributionsPage({ onOpenApp }: PageProps) {
                   />
                 ),
                 title: "Multi-Signature Approvals",
-                desc: "President, Secretary, and Treasurer must each approve rotational lump-sum payouts via biometric auth.",
+                desc: "President, Secretary, and Treasurer must each approve rotational lump-sum payouts in the app.",
               },
             ].map((feat, idx) => (
               <div
