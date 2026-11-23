@@ -64,7 +64,7 @@ import type {
   UserTransactionSearchParams,
 } from "../api/transactions";
 
-const WALLET_HISTORY_LIMIT = 10;
+const WALLET_HISTORY_LIMIT = 50;
 
 function displayTitle(t: Transaction): string {
   return friendlyTransactionTitle(t.desc, t.type);
@@ -717,9 +717,16 @@ export function WalletScreen({ onNav }: { onNav: (s: Screen) => void }) {
             selectedId={selectedTransactionId}
             onClose={() => setSelectedTransactionId("")}
           />
-          {/* Normal page scrolling; only the latest few are listed here so a long
-              history never makes this page endless. The full list is one tap away. */}
-          <div className="flex flex-col gap-2" aria-label="Transaction history">
+          {/* The history scrolls inside its own box so a long list never makes the
+              whole page endless. Page scroll chaining is left on (no
+              overscroll-contain): when the list reaches its top or bottom, the
+              page scrolls on, so a swipe is never trapped. */}
+          <div
+            className="flex max-h-[26rem] touch-pan-y flex-col gap-2 overflow-y-auto pr-1"
+            role="region"
+            tabIndex={0}
+            aria-label="Transaction history"
+          >
             {transactions.slice(0, WALLET_HISTORY_LIMIT).map((t) => (
               <button
                 type="button"
