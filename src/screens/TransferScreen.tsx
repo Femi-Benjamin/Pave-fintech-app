@@ -20,7 +20,11 @@ import { Screen, fmt } from "../pave-data";
 import { useLocalStore } from "../hooks/useLocalStore";
 import { getAuthenticatedUserId } from "../api/auth";
 import { useGroupSavingsQuery } from "../hooks/useGroupSavingApi";
-import { useWalletBalanceQuery } from "../hooks/usePaveApi";
+import { useWalletBalanceQuery, transactionQueryKeys } from "../hooks/usePaveApi";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getTransactionById } from "../api/transactions";
+import { transferPollInterval, transferView, latestTransferStatus } from "../utils/transferProgress";
+import { pendingNotice } from "../utils/transactionReceipt";
 import {
   useBankListQuery,
   useVerifyAccountNameMutation,
@@ -76,6 +80,35 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
   const [transferError, setTransferError] = useState("");
   const [initiatedTransaction, setInitiatedTransaction] = useState<TransferTransaction | null>(null);
   const initiatedAt = useMemo(() => new Date(), [initiatedTransaction]);
+  const queryClient = useQueryClient();
+
+  // Keep checking the transfer until the backend reports a final status, so
+  // this screen never stays "Pending" after the money has arrived.
+  const initiatedId = initiatedTransaction?.id ? String(initiatedTransaction.id) : "";
+  const liveTransferQuery = useQuery({
+    queryKey: transactionQueryKeys.detail(initiatedId),
+    queryFn: () => getTransactionById(initiatedId),
+    enabled: step === 3 && Boolean(initiatedId),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchIntervalInBackground: false,
+    refetchInterval: (query) => {
+      const live = (query.state.data as { transaction?: { status?: string } } | undefined)?.transaction?.status;
+      const st = latestTransferStatus(live, initiatedTransaction?.status);
+      return transferPollInterval(st, Date.now() - initiatedAt.getTime());
+    },
+  });
+  const liveStatus = (liveTransferQuery.data as { transaction?: { status?: string } } | undefined)?.transaction?.status;
+  const transferStatus = latestTransferStatus(liveStatus, initiatedTransaction?.status);
+  const view = transferView(transferStatus);
+
+  useEffect(() => {
+    if (step !== 3 || transferStatus === "pending") return;
+    void walletBalanceQuery.refetch();
+    void queryClient.invalidateQueries({ queryKey: transactionQueryKeys.list() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, transferStatus]);
 
   // API mutations
   const verifyMutation = useVerifyAccountNameMutation();
@@ -254,9 +287,15 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
       {/* Step 3: Transfer Initiated (Pending) */}
       {step === 3 && (
         <PurchaseSuccess
-          variant="pending"
-          title="Transfer initiated"
-          message="Your bank transfer has been submitted to the bank network and is awaiting final confirmation."
+          variant={view.variant}
+          title={view.title}
+          message={
+            transferStatus === "pending"
+              ? pendingNotice(initiatedAt.toISOString()).stale
+                ? pendingNotice(initiatedAt.toISOString()).body
+                : view.message
+              : view.message
+          }
           amount={Number(initiatedTransaction?.amount || amount)}
           rows={[
             ...(verifiedAccount?.account_name
@@ -264,7 +303,7 @@ export function TransferScreen({ onNav }: { onNav: (s: Screen) => void }) {
               : []),
             ...(selectedBank ? [{ label: "Bank", value: selectedBank.name }] : []),
             ...(accountNumber ? [{ label: "Account number", value: accountNumber }] : []),
-            { label: "Status", value: "Pending" },
+            { label: "Status", value: view.statusLabel },
             {
               label: "Date",
               value: initiatedAt.toLocaleString("en-NG", {
